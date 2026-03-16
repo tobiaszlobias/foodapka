@@ -1,5 +1,6 @@
 import * as cheerio from "cheerio";
 import { NextRequest } from "next/server";
+import { sortStoresByPrice, type Product, type Store } from "@/lib/food";
 
 export async function GET(req: NextRequest) {
   const q = req.nextUrl.searchParams.get("q") || "";
@@ -24,7 +25,7 @@ export async function GET(req: NextRequest) {
     }
   });
 
-  const results: any[] = [];
+  const results: Product[] = [];
 
   for (const url of productUrls.slice(0, 5)) {
     const detailRes = await fetch(`https://www.kupi.cz${url}`, { headers });
@@ -32,11 +33,11 @@ export async function GET(req: NextRequest) {
     const $d = cheerio.load(detailHtml);
 
     const name = $d("h2.blind").first().text().trim();
-    const stores: any[] = [];
+    const stores: Store[] = [];
     const seen = new Set<string>();
 
     $d("div.discount_row").each((_, el) => {
-      const shopId = $d(el).attr("data-shop");
+      const shopId = $d(el).attr("data-shop") || "";
       const price = $d(el).find("strong.discount_price_value").text().trim();
       const shopName = $d(el)
         .find(".discounts_shop_wrap")
@@ -67,7 +68,7 @@ export async function GET(req: NextRequest) {
     });
 
     if (name && stores.length > 0) {
-      results.push({ name, url, stores });
+      results.push({ name, url, stores: sortStoresByPrice(stores) });
     }
   }
 
