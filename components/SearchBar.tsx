@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import type { Product } from "@/lib/food";
+import { buildAutocompleteSuggestions } from "@/lib/searchQueries";
 
 type SearchBarProps = {
   onResults: (products: Product[]) => void;
@@ -32,20 +33,33 @@ export default function SearchBar({
   onSearchStart,
 }: SearchBarProps) {
   const [query, setQuery] = useState("");
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const suggestions = buildAutocompleteSuggestions(query);
 
-  async function handleSearch(e: React.FormEvent) {
-    e.preventDefault();
-    if (!query.trim()) return;
+  async function runSearch(searchTerm: string) {
+    if (!searchTerm.trim()) return;
     onSearchStart?.();
     onLoading(true);
 
     try {
-      const res = await fetch(`/api/search?q=${encodeURIComponent(query)}`);
+      const res = await fetch(`/api/search?q=${encodeURIComponent(searchTerm)}`);
       const data = await res.json();
       onResults(data.products ?? []);
     } finally {
       onLoading(false);
     }
+  }
+
+  async function handleSearch(e: React.FormEvent) {
+    e.preventDefault();
+    setShowSuggestions(false);
+    await runSearch(query);
+  }
+
+  async function handleSuggestionSelect(suggestion: string) {
+    setQuery(suggestion);
+    setShowSuggestions(false);
+    await runSearch(suggestion);
   }
 
   return (
@@ -64,10 +78,37 @@ export default function SearchBar({
           id="product-search"
           type="text"
           value={query}
-          onChange={(e) => setQuery(e.target.value)}
+          onChange={(e) => {
+            setQuery(e.target.value);
+            setShowSuggestions(true);
+          }}
+          onFocus={() => setShowSuggestions(true)}
+          onBlur={() => {
+            window.setTimeout(() => setShowSuggestions(false), 120);
+          }}
           placeholder="Hledejte třeba mléko, pečivo nebo limonádu"
           className="h-15 w-full rounded-[1.4rem] border border-emerald-100 bg-emerald-50/70 pl-14 pr-4 text-base text-zinc-900 outline-none transition placeholder:text-zinc-500 focus:border-emerald-400 focus:bg-white"
         />
+        {showSuggestions && suggestions.length > 0 && (
+          <div className="absolute left-0 right-0 top-[calc(100%+0.6rem)] z-20 overflow-hidden rounded-[1.2rem] border border-emerald-100 bg-white/98 p-2 shadow-[0_18px_45px_-24px_rgba(16,185,129,0.35)] backdrop-blur">
+            <p className="px-3 pb-2 pt-1 text-xs font-semibold uppercase tracking-[0.14em] text-emerald-700">
+              Možná hledáte
+            </p>
+            <div className="grid gap-1">
+              {suggestions.map((suggestion) => (
+                <button
+                  key={suggestion}
+                  type="button"
+                  onMouseDown={(event) => event.preventDefault()}
+                  onClick={() => void handleSuggestionSelect(suggestion)}
+                  className="rounded-[1rem] px-3 py-2 text-left text-sm font-medium text-zinc-700 transition hover:bg-emerald-50 hover:text-emerald-800"
+                >
+                  {suggestion}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
       <button
         type="submit"

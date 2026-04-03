@@ -3,16 +3,20 @@
 import SearchBar from "@/components/SearchBar";
 import SiteHeader from "@/components/SiteHeader";
 import {
+  calculateStoreSavings,
   cleanProductName,
   getStoreIcon,
+  parsePrice,
   sortStoresByPrice,
   type Product,
 } from "@/lib/food";
 import { useState } from "react";
 
+type ProductSortMode = "relevance" | "cheapest" | "most_stores";
+
 function LoadingCards() {
   return (
-    <div className="grid gap-4">
+    <div className="grid gap-4 xl:grid-cols-2">
       {Array.from({ length: 3 }).map((_, index) => (
         <article
           key={index}
@@ -63,15 +67,83 @@ function EmptyState({ hasSearched }: { hasSearched: boolean }) {
   );
 }
 
+function getProductCheapestPrice(product: Product) {
+  const cheapestStore = sortStoresByPrice(product.stores)[0];
+  return cheapestStore ? parsePrice(cheapestStore.price) : Number.POSITIVE_INFINITY;
+}
+
 export default function Home() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
+  const [selectedStores, setSelectedStores] = useState<string[]>([]);
+  const [sortMode, setSortMode] = useState<ProductSortMode>("relevance");
+
+  const availableStores = Array.from(
+    new Set(
+      products.flatMap((product) =>
+        product.stores.map((store) => store.shopName).filter(Boolean),
+      ),
+    ),
+  ).sort((a, b) => a.localeCompare(b, "cs"));
+
+  const visibleProducts = products
+    .map((product) => {
+      if (product.availability === "not_on_sale" || product.stores.length === 0) {
+        return selectedStores.length === 0 ? product : null;
+      }
+
+      const filteredStores = sortStoresByPrice(product.stores).filter((store) =>
+        selectedStores.length === 0
+          ? true
+          : selectedStores.includes(store.shopName),
+      );
+
+      if (filteredStores.length === 0) {
+        return null;
+      }
+
+      return {
+        ...product,
+        stores: filteredStores,
+      };
+    })
+    .filter((product): product is Product => !!product);
+
+  if (sortMode === "cheapest") {
+    visibleProducts.sort(
+      (a, b) => getProductCheapestPrice(a) - getProductCheapestPrice(b),
+    );
+  }
+
+  if (sortMode === "most_stores") {
+    visibleProducts.sort((a, b) => {
+      const storeCountDifference = b.stores.length - a.stores.length;
+      if (storeCountDifference !== 0) {
+        return storeCountDifference;
+      }
+
+      return getProductCheapestPrice(a) - getProductCheapestPrice(b);
+    });
+  }
+
+  function toggleStoreFilter(storeName: string) {
+    setSelectedStores((current) =>
+      current.includes(storeName)
+        ? current.filter((item) => item !== storeName)
+        : [...current, storeName],
+    );
+  }
+
+  function resetFilters() {
+    setSelectedStores([]);
+    setSortMode("relevance");
+  }
 
   return (
     <main className="min-h-screen bg-[radial-gradient(circle_at_top,_rgba(110,231,183,0.28),_transparent_40%),linear-gradient(180deg,_#ecfdf5_0%,_#f8fafc_48%,_#f5f7f6_100%)] px-4 py-6 text-zinc-900 sm:px-6 lg:px-8">
       <div className="mx-auto flex max-w-6xl flex-col gap-8">
-        <section className="overflow-hidden rounded-[2rem] border border-white/60 bg-[linear-gradient(135deg,_rgba(236,253,245,0.92),_rgba(209,250,229,0.88)_42%,_rgba(167,243,208,0.78)_100%)] p-5 shadow-[0_30px_90px_-40px_rgba(5,150,105,0.55)] sm:p-8 lg:p-10">
+        <section className="relative overflow-visible rounded-[2rem] border border-white/60 bg-[linear-gradient(135deg,_rgba(236,253,245,0.92),_rgba(209,250,229,0.88)_42%,_rgba(167,243,208,0.78)_100%)] p-5 shadow-[0_30px_90px_-40px_rgba(5,150,105,0.55)] sm:p-8 lg:p-10">
           <div className="absolute inset-x-0 top-0 -z-10 h-32 bg-[radial-gradient(circle,_rgba(16,185,129,0.18),_transparent_70%)] blur-3xl" />
           <SiteHeader current="home" />
           <div className="mt-10 grid gap-8 lg:grid-cols-[minmax(0,1.2fr)_minmax(280px,0.8fr)] lg:items-end">
@@ -89,7 +161,11 @@ export default function Home() {
               <SearchBar
                 onResults={setProducts}
                 onLoading={setLoading}
-                onSearchStart={() => setHasSearched(true)}
+                onSearchStart={() => {
+                  setHasSearched(true);
+                  setSelectedStores([]);
+                  setSortMode("relevance");
+                }}
               />
             </div>
 
@@ -131,114 +207,241 @@ export default function Home() {
           {loading && <LoadingCards />}
 
           {!loading && products.length > 0 && (
-            <div className="grid gap-4">
-              {products.map((product) => {
-                const stores = sortStoresByPrice(product.stores);
-
-                return (
-                  <article
-                    key={product.url}
-                    className="rounded-[2rem] border border-emerald-100 bg-white/90 p-5 shadow-[0_25px_60px_-35px_rgba(16,185,129,0.45)] sm:p-6"
-                  >
-                    <div className="flex flex-col gap-5">
-                      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-                        <div className="space-y-2">
-                          <h3 className="text-xl font-semibold text-zinc-950">
-                            {cleanProductName(product.name)}
-                          </h3>
-                          <p className="text-sm text-zinc-500">
-                            Dostupné v {stores.length} obchodech
-                          </p>
-                        </div>
-                        <a
-                          href={`https://www.kupi.cz${product.url}`}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="inline-flex items-center justify-center rounded-full border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm font-semibold text-emerald-800 transition hover:border-emerald-300 hover:bg-emerald-100"
-                        >
-                          Detail nabídky
-                        </a>
-                      </div>
-
-                      <ul className="grid gap-3">
-                        {stores.map((item, index) => {
-                          const cheapest = index === 0;
-
-                          return (
-                            <li
-                              key={`${item.shopId}-${item.price}-${index}`}
-                              className={`rounded-[1.5rem] border px-4 py-4 transition sm:px-5 ${
-                                cheapest
-                                  ? "border-emerald-300 bg-emerald-50 shadow-[0_18px_35px_-28px_rgba(5,150,105,0.8)]"
-                                  : "border-zinc-100 bg-zinc-50"
-                              }`}
-                            >
-                              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                                <div className="space-y-2">
-                                  <div className="flex flex-wrap items-center gap-2">
-                                    <span className="text-lg">
-                                      {getStoreIcon(item.shopName)}
-                                    </span>
-                                    <span className="font-semibold text-zinc-800">
-                                      {item.shopName}
-                                    </span>
-                                    {cheapest && (
-                                      <span className="rounded-full bg-emerald-600 px-3 py-1 text-xs font-semibold text-white">
-                                        Nejlevnější
-                                      </span>
-                                    )}
-                                  </div>
-                                  {(item.validity || item.pricePerUnit) && (
-                                    <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-zinc-500">
-                                      {item.validity && (
-                                        <span>Platnost: {item.validity}</span>
-                                      )}
-                                      {item.pricePerUnit && (
-                                        <span>Jednotková cena: {item.pricePerUnit}</span>
-                                      )}
-                                    </div>
-                                  )}
-                                </div>
-
-                                <div className="flex flex-col items-start gap-3 sm:items-end">
-                                  <div className="text-left sm:text-right">
-                                    <p
-                                      className={`text-xl font-bold ${
-                                        cheapest
-                                          ? "text-emerald-700"
-                                          : "text-zinc-900"
-                                      }`}
-                                    >
-                                      {item.price}
-                                    </p>
-                                    {item.amount && (
-                                      <p className="text-xs text-zinc-500">
-                                        Sleva: {item.amount}
-                                      </p>
-                                    )}
-                                  </div>
-
-                                  {item.leafletUrl && (
-                                    <a
-                                      href={`https://www.kupi.cz${item.leafletUrl}`}
-                                      target="_blank"
-                                      rel="noreferrer"
-                                      className="inline-flex items-center rounded-full border border-zinc-200 bg-white px-3 py-1.5 text-xs font-semibold text-zinc-700 transition hover:border-emerald-300 hover:text-emerald-700"
-                                    >
-                                      V letáku
-                                    </a>
-                                  )}
-                                </div>
-                              </div>
-                            </li>
-                          );
-                        })}
-                      </ul>
+            <>
+              <div className="rounded-[1.75rem] border border-emerald-100 bg-white/90 p-4 shadow-[0_20px_50px_-35px_rgba(16,185,129,0.45)] sm:p-5">
+                <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+                  <div className="space-y-3">
+                    <div>
+                      <p className="text-sm font-semibold text-emerald-900">
+                        Filtr obchodů
+                      </p>
+                      <p className="text-xs text-zinc-500">
+                        Vyberte řetězce, které máte po cestě.
+                      </p>
                     </div>
-                  </article>
-                );
-              })}
-            </div>
+                    <div className="flex flex-wrap gap-2">
+                      {availableStores.map((storeName) => {
+                        const selected = selectedStores.includes(storeName);
+
+                        return (
+                          <button
+                            key={storeName}
+                            type="button"
+                            onClick={() => toggleStoreFilter(storeName)}
+                            className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-semibold transition ${
+                              selected
+                                ? "border-emerald-600 bg-emerald-600 text-white"
+                                : "border-emerald-200 bg-emerald-50 text-emerald-800 hover:border-emerald-300 hover:bg-emerald-100"
+                            }`}
+                          >
+                            <span>{getStoreIcon(storeName)}</span>
+                            <span>{storeName}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col gap-2 sm:min-w-64">
+                    <label
+                      htmlFor="sort-mode"
+                      className="text-sm font-semibold text-emerald-900"
+                    >
+                      Řazení produktů
+                    </label>
+                    <select
+                      id="sort-mode"
+                      value={sortMode}
+                      onChange={(event) =>
+                        setSortMode(event.target.value as ProductSortMode)
+                      }
+                      className="h-12 rounded-[1rem] border border-emerald-100 bg-emerald-50/70 px-4 text-sm text-zinc-900 outline-none transition focus:border-emerald-400 focus:bg-white"
+                    >
+                      <option value="relevance">Výchozí pořadí</option>
+                      <option value="cheapest">Nejlevnější nahoře</option>
+                      <option value="most_stores">Nejvíc obchodů nahoře</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="mt-4 flex flex-wrap items-center gap-3 text-sm text-zinc-600">
+                  <span>
+                    Zobrazeno {visibleProducts.length} z {products.length} produktů
+                  </span>
+                  {(selectedStores.length > 0 || sortMode !== "relevance") && (
+                    <button
+                      type="button"
+                      onClick={resetFilters}
+                      className="rounded-full border border-zinc-200 bg-white px-3 py-1 font-semibold text-zinc-700 transition hover:border-emerald-300 hover:text-emerald-700"
+                    >
+                      Reset filtrů
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {visibleProducts.length === 0 ? (
+                <div className="rounded-[2rem] border border-dashed border-emerald-200 bg-white/70 px-6 py-12 text-center shadow-[0_20px_40px_-35px_rgba(16,185,129,0.5)]">
+                  <h3 className="text-xl font-semibold text-emerald-950">
+                    Pro vybrané filtry tu nic není
+                  </h3>
+                  <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-zinc-600">
+                    Zkuste vypnout některý obchod nebo změnit řazení.
+                  </p>
+                </div>
+              ) : (
+                <div className="grid gap-4 xl:grid-cols-2">
+                  {visibleProducts.map((product) => {
+                    const stores = sortStoresByPrice(product.stores);
+                    const isNotOnSale =
+                      product.availability === "not_on_sale" ||
+                      stores.length === 0;
+
+                    return (
+                      <article
+                        key={product.url}
+                        className="rounded-[2rem] border border-emerald-100 bg-white/90 p-5 shadow-[0_25px_60px_-35px_rgba(16,185,129,0.45)] sm:p-6"
+                      >
+                        <div className="flex flex-col gap-5">
+                          <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                            <div className="space-y-2">
+                              <h3 className="text-xl font-semibold text-zinc-950">
+                                {cleanProductName(product.name)}
+                              </h3>
+                              <p className="text-sm text-zinc-500">
+                                {isNotOnSale
+                                  ? "Produkt jsme našli, ale momentálně není v akci."
+                                  : `Dostupné v ${stores.length} obchodech`}
+                              </p>
+                            </div>
+                            <a
+                              href={`https://www.kupi.cz${product.url}`}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="inline-flex items-center justify-center rounded-full border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm font-semibold text-emerald-800 transition hover:border-emerald-300 hover:bg-emerald-100"
+                            >
+                              Detail nabídky
+                            </a>
+                          </div>
+
+                          {isNotOnSale ? (
+                            <div className="rounded-[1.5rem] border border-zinc-100 bg-zinc-50 px-4 py-4 sm:px-5">
+                              <p className="text-sm text-zinc-600">
+                                Na Kupi existuje detail produktu, ale teď pro něj
+                                není dostupná akční cena v letácích.
+                              </p>
+                            </div>
+                          ) : (
+                            <ul className="grid gap-3">
+                              {stores.map((item, index) => {
+                                const cheapest = index === 0;
+
+                                return (
+                                  <li
+                                    key={`${item.shopId}-${item.price}-${index}`}
+                                    className={`rounded-[1.5rem] border px-4 py-4 transition sm:px-5 ${
+                                      cheapest
+                                        ? "border-emerald-300 bg-emerald-50 shadow-[0_18px_35px_-28px_rgba(5,150,105,0.8)]"
+                                        : "border-zinc-100 bg-zinc-50"
+                                    }`}
+                                  >
+                                    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                                      <div className="space-y-2">
+                                        <div className="flex flex-wrap items-center gap-2">
+                                          <span className="text-lg">
+                                            {getStoreIcon(item.shopName)}
+                                          </span>
+                                          <span className="font-semibold text-zinc-800">
+                                            {item.shopName}
+                                          </span>
+                                          {cheapest && (
+                                            <span className="rounded-full bg-emerald-600 px-3 py-1 text-xs font-semibold text-white">
+                                              Nejlevnější
+                                            </span>
+                                          )}
+                                        </div>
+                                        {(item.validity || item.pricePerUnit) && (
+                                          <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-zinc-500">
+                                            {item.validity && (
+                                              <span>Platnost: {item.validity}</span>
+                                            )}
+                                            {item.pricePerUnit && (
+                                              <span>
+                                                Jednotková cena: {item.pricePerUnit}
+                                              </span>
+                                            )}
+                                          </div>
+                                        )}
+                                      </div>
+
+                                      <div className="flex flex-col items-start gap-3 sm:items-end">
+                                        <div className="text-left sm:text-right">
+                                          <p
+                                            className={`text-xl font-bold ${
+                                              cheapest
+                                                ? "text-emerald-700"
+                                                : "text-zinc-900"
+                                            }`}
+                                          >
+                                            {item.price}
+                                          </p>
+                                          {(() => {
+                                            const savings = calculateStoreSavings(
+                                              item,
+                                            );
+                                            if (!savings) return null;
+                                            return (
+                                              <div className="flex flex-col items-end">
+                                                <span className="text-xs text-zinc-400 line-through">
+                                                  {savings.originalPrice} Kč
+                                                </span>
+                                                <span
+                                                  className={`text-xs font-medium ${
+                                                    savings.source === "estimated"
+                                                      ? "text-amber-600"
+                                                      : "text-emerald-600"
+                                                  }`}
+                                                >
+                                                  {savings.source === "estimated"
+                                                    ? "odhad úspory"
+                                                    : "ušetříte"}{" "}
+                                                  {savings.saving} Kč (
+                                                  {savings.pct}%)
+                                                </span>
+                                              </div>
+                                            );
+                                          })()}
+                                          {item.amount && (
+                                            <p className="text-xs text-zinc-500">
+                                              Sleva: {item.amount}
+                                            </p>
+                                          )}
+                                        </div>
+
+                                        {item.leafletUrl && (
+                                          <a
+                                            href={`https://www.kupi.cz${item.leafletUrl}`}
+                                            target="_blank"
+                                            rel="noreferrer"
+                                            className="inline-flex items-center rounded-full border border-zinc-200 bg-white px-3 py-1.5 text-xs font-semibold text-zinc-700 transition hover:border-emerald-300 hover:text-emerald-700"
+                                          >
+                                            V letáku
+                                          </a>
+                                        )}
+                                      </div>
+                                    </div>
+                                  </li>
+                                );
+                              })}
+                            </ul>
+                          )}
+                        </div>
+                      </article>
+                    );
+                  })}
+                </div>
+              )}
+            </>
           )}
 
           {!loading && products.length === 0 && <EmptyState hasSearched={hasSearched} />}

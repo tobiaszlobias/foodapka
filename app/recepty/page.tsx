@@ -2,6 +2,7 @@
 
 import SiteHeader from "@/components/SiteHeader";
 import {
+  calculateStoreSavings,
   cleanProductName,
   getStoreIcon,
   parsePrice,
@@ -10,12 +11,19 @@ import {
   type Store,
 } from "@/lib/food";
 import { RECIPE_PRESETS } from "@/lib/recipes";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+
+type RecipeIngredient = {
+  name: string;
+  searchQuery: string;
+};
 
 type IngredientResult = {
   ingredient: string;
   product: Product | null;
   store: Store | null;
+  matchNote?: string;
+  statusNote?: string;
 };
 
 type SavedShoppingList = {
@@ -25,6 +33,42 @@ type SavedShoppingList = {
 };
 
 const STORAGE_KEY = "foodapka-shopping-list";
+
+function ShareIcon() {
+  return (
+    <svg
+      aria-hidden="true"
+      viewBox="0 0 24 24"
+      className="h-4 w-4"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M12 16V4" />
+      <path d="m7 9 5-5 5 5" />
+      <path d="M5 20h14" />
+    </svg>
+  );
+}
+
+function BookmarkIcon() {
+  return (
+    <svg
+      aria-hidden="true"
+      viewBox="0 0 24 24"
+      className="h-4 w-4"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M7 4h10v16l-5-3-5 3z" />
+    </svg>
+  );
+}
 
 function RecipeSkeleton() {
   return (
@@ -46,16 +90,43 @@ export default function RecipesPage() {
   const [recipe, setRecipe] = useState("");
   const [activeRecipe, setActiveRecipe] = useState("");
   const [loading, setLoading] = useState(false);
-  const [ingredients, setIngredients] = useState<string[]>([]);
+  const [ingredients, setIngredients] = useState<RecipeIngredient[]>([]);
   const [results, setResults] = useState<IngredientResult[]>([]);
   const [checkedIngredients, setCheckedIngredients] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [shareMessage, setShareMessage] = useState<string | null>(null);
+  const shoppingListRef = useRef<HTMLElement | null>(null);
+  const shouldScrollToResultsRef = useRef(false);
 
-  const totalSavings = results.reduce((sum, item) => {
+  const totalPrice = results.reduce((sum, item) => {
     if (!item.store) return sum;
     return sum + parsePrice(item.store.price);
   }, 0);
+
+  const savingsSummary = results.reduce(
+    (summary, item) => {
+      if (!item.store) return summary;
+
+      const savings = calculateStoreSavings(item.store);
+      if (!savings) return summary;
+
+      const savingValue = Number(savings.saving.replace(",", "."));
+      if (!Number.isFinite(savingValue)) return summary;
+
+      return {
+        total: summary.total + savingValue,
+        exact:
+          summary.exact +
+          (savings.source === "exact" ? savingValue : 0),
+        estimated:
+          summary.estimated +
+          (savings.source === "estimated" ? savingValue : 0),
+      };
+    },
+    { total: 0, exact: 0, estimated: 0 },
+  );
+
+  const totalSavings = savingsSummary.total;
 
   useEffect(() => {
     const saved = window.localStorage.getItem(STORAGE_KEY);
@@ -65,7 +136,12 @@ export default function RecipesPage() {
       const parsed = JSON.parse(saved) as SavedShoppingList;
       setRecipe(parsed.recipe);
       setActiveRecipe(parsed.recipe);
-      setIngredients(parsed.ingredients);
+      setIngredients(
+        parsed.ingredients.map((ingredient) => ({
+          name: ingredient,
+          searchQuery: ingredient,
+        })),
+      );
       setResults(parsed.results);
       setCheckedIngredients([]);
     } catch {
@@ -79,6 +155,17 @@ export default function RecipesPage() {
     const timeout = window.setTimeout(() => setShareMessage(null), 2500);
     return () => window.clearTimeout(timeout);
   }, [shareMessage]);
+
+  useEffect(() => {
+    if (!shouldScrollToResultsRef.current || loading) return;
+    if (results.length === 0 && !error) return;
+
+    shoppingListRef.current?.scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
+    shouldScrollToResultsRef.current = false;
+  }, [loading, results, error]);
 
   function toggleIngredient(ingredient: string) {
     setCheckedIngredients((current) =>
@@ -100,11 +187,18 @@ export default function RecipesPage() {
         const meta = [item.store.price, item.store.shopName]
           .filter(Boolean)
           .join(" - ");
+        const savings = calculateStoreSavings(item.store);
+        const savingsSuffix = savings
+          ? savings.source === "estimated"
+            ? ` (odhad úspory ${savings.saving} Kc)`
+            : ` (úspora ${savings.saving} Kc)`
+          : "";
 
-        return `- ${item.ingredient}: ${meta}`;
+        return `- ${item.ingredient}: ${meta}${savingsSuffix}`;
       }),
       "",
-      `Celkem: ${totalSavings.toFixed(2).replace(".", ",")} Kc`,
+      `Celkem: ${totalPrice.toFixed(2).replace(".", ",")} Kc`,
+      `Uspora: ${totalSavings.toFixed(2).replace(".", ",")} Kc`,
     ];
 
     return lines.join("\n");
@@ -113,7 +207,7 @@ export default function RecipesPage() {
   function saveShoppingList() {
     const payload: SavedShoppingList = {
       recipe: activeRecipe || recipe,
-      ingredients,
+      ingredients: ingredients.map((ingredient) => ingredient.name),
       results,
     };
 
@@ -144,6 +238,7 @@ export default function RecipesPage() {
   async function runRecipeSearch(recipeName: string) {
     if (!recipeName.trim()) return;
 
+    shouldScrollToResultsRef.current = true;
     setLoading(true);
     setError(null);
     setActiveRecipe(recipeName);
@@ -163,18 +258,57 @@ export default function RecipesPage() {
         throw new Error(recipeData.error || "Nepodařilo se načíst ingredience.");
       }
 
-      const parsedIngredients = Array.isArray(recipeData.ingredients)
+      const parsedIngredients: RecipeIngredient[] = Array.isArray(
+        recipeData.ingredients,
+      )
         ? recipeData.ingredients
+            .map((ingredient: unknown) => {
+              if (typeof ingredient === "string") {
+                return {
+                  name: ingredient,
+                  searchQuery: ingredient,
+                };
+              }
+
+              if (
+                ingredient &&
+                typeof ingredient === "object"
+              ) {
+                const ingredientRecord = ingredient as Record<string, unknown>;
+
+                if (typeof ingredientRecord.name !== "string") {
+                  return null;
+                }
+
+                return {
+                  name: ingredientRecord.name,
+                  searchQuery:
+                    typeof ingredientRecord.searchQuery === "string" &&
+                    ingredientRecord.searchQuery.trim()
+                      ? ingredientRecord.searchQuery
+                      : ingredientRecord.name,
+                };
+              }
+
+              return null;
+            })
+            .filter(
+              (ingredient: RecipeIngredient | null): ingredient is RecipeIngredient =>
+                !!ingredient,
+            )
         : [];
 
       setActiveRecipe(recipeData.recipe ?? recipeName);
       setIngredients(parsedIngredients);
 
       const ingredientResults = await Promise.all(
-        parsedIngredients.map(async (ingredient: string) => {
-          const searchResponse = await fetch(
-            `/api/search?q=${encodeURIComponent(ingredient)}`,
-          );
+        parsedIngredients.map(async (ingredient) => {
+          const searchParams = new URLSearchParams({
+            q: ingredient.searchQuery,
+            recipe: recipeData.recipe ?? recipeName,
+            ingredients: parsedIngredients.map((item) => item.name).join("|"),
+          });
+          const searchResponse = await fetch(`/api/search?${searchParams}`);
           const searchData = await searchResponse.json();
           const products = (searchData.products ?? []) as Product[];
 
@@ -188,11 +322,24 @@ export default function RecipesPage() {
               (a, b) =>
                 parsePrice(a.stores[0].price) - parsePrice(b.stores[0].price),
             )[0];
+          const firstKnownProduct =
+            products.find((product) => product.availability === "not_on_sale") ??
+            products[0] ??
+            null;
 
           return {
-            ingredient,
-            product: cheapestProduct?.product ?? null,
+            ingredient: ingredient.name,
+            product: cheapestProduct?.product ?? firstKnownProduct,
             store: cheapestProduct?.stores[0] ?? null,
+            matchNote:
+              searchData.usedFallbackQuery && searchData.resolvedQuery
+                ? `Použili jsme nejbližší akční alternativu pro dotaz: ${searchData.resolvedQuery}`
+                : undefined,
+            statusNote:
+              !cheapestProduct &&
+              firstKnownProduct?.availability === "not_on_sale"
+                ? "Produkt jsme našli na Kupi, ale momentálně není v akci."
+                : undefined,
           };
         }),
       );
@@ -291,7 +438,7 @@ export default function RecipesPage() {
           </div>
         </section>
 
-        <section className="space-y-5">
+        <section ref={shoppingListRef} className="scroll-mt-24 space-y-5">
           <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
             <div>
               <h2 className="text-2xl font-semibold tracking-tight text-emerald-950">
@@ -337,16 +484,18 @@ export default function RecipesPage() {
                     <button
                       type="button"
                       onClick={saveShoppingList}
-                      className="inline-flex items-center rounded-full border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm font-semibold text-emerald-800 transition hover:border-emerald-300 hover:bg-emerald-100"
+                      className="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm font-semibold text-emerald-800 transition hover:border-emerald-300 hover:bg-emerald-100"
                     >
-                      Uložit seznam
+                      <BookmarkIcon />
+                      Uložit
                     </button>
                     <button
                       type="button"
                       onClick={() => void shareShoppingList()}
-                      className="inline-flex items-center rounded-full border border-zinc-200 bg-white px-4 py-2 text-sm font-semibold text-zinc-700 transition hover:border-emerald-300 hover:text-emerald-700"
+                      className="inline-flex items-center gap-2 rounded-full border border-zinc-200 bg-white px-4 py-2 text-sm font-semibold text-zinc-700 transition hover:border-emerald-300 hover:text-emerald-700"
                     >
-                      Poslat nebo kopírovat
+                      <ShareIcon />
+                      Sdílet
                     </button>
                   </div>
                 </div>
@@ -402,6 +551,16 @@ export default function RecipesPage() {
                                     <p className="text-sm font-medium text-zinc-800">
                                       {cleanProductName(item.product.name)}
                                     </p>
+                                    {item.matchNote && (
+                                      <p className="text-xs font-medium text-amber-700">
+                                        {item.matchNote}
+                                      </p>
+                                    )}
+                                    {item.statusNote && (
+                                      <p className="text-xs font-medium text-zinc-500">
+                                        {item.statusNote}
+                                      </p>
+                                    )}
                                     <div className="flex flex-wrap items-center gap-2 text-sm text-zinc-600">
                                       <span className="text-lg">
                                         {getStoreIcon(item.store.shopName)}
@@ -427,19 +586,56 @@ export default function RecipesPage() {
                                     )}
                                   </>
                                 ) : (
-                                  <p className="text-sm text-zinc-600">
-                                    Pro tuto ingredienci jsme zatím nenašli
-                                    odpovídající akční nabídku.
-                                  </p>
+                                  <div className="space-y-2">
+                                    <p className="text-sm text-zinc-600">
+                                      {item.product?.availability ===
+                                      "not_on_sale"
+                                        ? "Produkt jsme dohledali, ale zrovna pro něj není dostupná akční cena."
+                                        : "Pro tuto ingredienci jsme zatím nenašli odpovídající akční nabídku."}
+                                    </p>
+                                    {item.statusNote && (
+                                      <p className="text-xs font-medium text-zinc-500">
+                                        {item.statusNote}
+                                      </p>
+                                    )}
+                                  </div>
                                 )}
                               </div>
 
                               <div className="flex flex-col items-start gap-3 sm:items-end">
                                 {item.store ? (
                                   <>
-                                    <p className="text-2xl font-bold text-emerald-700">
-                                      {item.store.price}
-                                    </p>
+                                    <div className="text-left sm:text-right">
+                                      <p className="text-2xl font-bold text-emerald-700">
+                                        {item.store.price}
+                                      </p>
+                                      {(() => {
+                                        const savings = calculateStoreSavings(
+                                          item.store,
+                                        );
+                                        if (!savings) return null;
+                                        return (
+                                          <div className="flex flex-col items-start sm:items-end">
+                                            <span className="text-xs text-zinc-400 line-through">
+                                              {savings.originalPrice} Kč
+                                            </span>
+                                            <span
+                                              className={`text-xs font-medium ${
+                                                savings.source === "estimated"
+                                                  ? "text-amber-600"
+                                                  : "text-emerald-600"
+                                              }`}
+                                            >
+                                              {savings.source === "estimated"
+                                                ? "odhad úspory"
+                                                : "ušetříte"}{" "}
+                                              {savings.saving} Kč (
+                                              {savings.pct}%)
+                                            </span>
+                                          </div>
+                                        );
+                                      })()}
+                                    </div>
                                     <a
                                       href={`https://www.kupi.cz${item.product?.url ?? ""}`}
                                       target="_blank"
@@ -450,9 +646,21 @@ export default function RecipesPage() {
                                     </a>
                                   </>
                                 ) : (
-                                  <span className="rounded-full border border-zinc-200 bg-white px-3 py-1 text-xs font-semibold text-zinc-500">
-                                    Bez ceny
-                                  </span>
+                                  <div className="flex flex-col items-start gap-2 sm:items-end">
+                                    <span className="rounded-full border border-zinc-200 bg-white px-3 py-1 text-xs font-semibold text-zinc-500">
+                                      Bez ceny
+                                    </span>
+                                    {item.product && (
+                                      <a
+                                        href={`https://www.kupi.cz${item.product.url}`}
+                                        target="_blank"
+                                        rel="noreferrer"
+                                        className="inline-flex items-center rounded-full border border-zinc-200 bg-white px-4 py-2 text-sm font-semibold text-zinc-700 transition hover:border-emerald-300 hover:text-emerald-700"
+                                      >
+                                        Detail produktu
+                                      </a>
+                                    )}
+                                  </div>
                                 )}
                               </div>
                             </div>
@@ -472,9 +680,16 @@ export default function RecipesPage() {
                   {totalSavings.toFixed(2).replace(".", ",")} Kč
                 </p>
                 <p className="mt-2 text-sm text-emerald-100">
-                  Součet nejlevnějších nalezených variant pro všechny položky v
-                  seznamu.
+                  {savingsSummary.estimated > 0
+                    ? "Součet potvrzených i odhadovaných úspor. Odhad vychází z porovnání s ostatními aktuálními nabídkami stejného produktu."
+                    : "Součet úspory oproti původním cenám u nejlevnějších nalezených variant pro celý seznam."}
                 </p>
+                {savingsSummary.estimated > 0 && (
+                  <p className="mt-2 text-sm text-emerald-200">
+                    Z toho odhadovaná úspora:{" "}
+                    {savingsSummary.estimated.toFixed(2).replace(".", ",")} Kč
+                  </p>
+                )}
               </div>
             </div>
           )}

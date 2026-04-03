@@ -1,0 +1,4629 @@
+{
+  "jablko": {
+    "label": "Jablka",
+    "category": "ovoce",
+    "aliases": [
+      "Jablka",
+      "jablka",
+      "jablko"
+    ],
+    "search_terms": [
+      "jablka",
+      "cerstva jablka",
+      "volna jablka"
+    ],
+    "negative_terms": [
+      "semena",
+      "osivo",
+      "sazenice",
+      "sadba",
+      "substrat",
+      "hnojivo",
+      "most",
+      "presnidavka"
+    ]
+  },
+  "hruska": {
+    "label": "Hrušky",
+    "category": "ovoce",
+    "aliases": [
+      "Hrušky",
+      "hrusky",
+      "hruska",
+      "hruška",
+      "hrušky"
+    ],
+    "search_terms": [
+      "hrušky",
+      "čerstvé hrušky",
+      "volné hrušky"
+    ],
+    "negative_terms": [
+      "semena",
+      "osivo",
+      "sazenice",
+      "sadba",
+      "substrat",
+      "hnojivo"
+    ]
+  },
+  "banan": {
+    "label": "Banány",
+    "category": "ovoce",
+    "aliases": [
+      "Banány",
+      "banany",
+      "banan",
+      "banány"
+    ],
+    "search_terms": [
+      "banány",
+      "čerstvé banány",
+      "svazek banánů"
+    ],
+    "negative_terms": [
+      "semena",
+      "osivo",
+      "sazenice",
+      "sadba",
+      "substrat",
+      "hnojivo",
+      "bananovy chips",
+      "bananove pyré",
+      "bananove pyre"
+    ]
+  },
+  "pomeranc": {
+    "label": "Pomeranče",
+    "category": "ovoce",
+    "aliases": [
+      "Pomeranče",
+      "pomerance",
+      "pomeranc",
+      "pomeranč",
+      "pomeranče"
+    ],
+    "search_terms": [
+      "pomeranče",
+      "čerstvé pomeranče",
+      "volné pomeranče"
+    ],
+    "negative_terms": [
+      "semena",
+      "osivo",
+      "sazenice",
+      "sadba",
+      "substrat",
+      "hnojivo",
+      "dzus",
+      "sirup"
+    ]
+  },
+  "mandarinka": {
+    "label": "Mandarinky",
+    "category": "ovoce",
+    "aliases": [
+      "Mandarinky",
+      "mandarinky",
+      "mandarinka"
+    ],
+    "search_terms": [
+      "mandarinky",
+      "čerstvé mandarinky",
+      "volné mandarinky"
+    ],
+    "negative_terms": [
+      "semena",
+      "osivo",
+      "sazenice",
+      "sadba",
+      "substrat",
+      "hnojivo"
+    ]
+  },
+  "citron": {
+    "label": "Citrony",
+    "category": "ovoce",
+    "aliases": [
+      "Citrony",
+      "citrony",
+      "citron",
+      "citrón"
+    ],
+    "search_terms": [
+      "citrony",
+      "čerstvé citrony",
+      "žluté citrony"
+    ],
+    "negative_terms": [
+      "semena",
+      "osivo",
+      "sazenice",
+      "sadba",
+      "substrat",
+      "hnojivo",
+      "caj",
+      "sirup"
+    ]
+  },
+  "limetka": {
+    "label": "Limetky",
+    "category": "ovoce",
+    "aliases": [
+      "Limetky",
+      "limetky",
+      "limetka"
+    ],
+    "search_terms": [
+      "limetky",
+      "čerstvé limetky",
+      "zelené limetky"
+    ],
+    "negative_terms": [
+      "semena",
+      "osivo",
+      "sazenice",
+      "sadba",
+      "substrat",
+      "hnojivo",
+      "sirup"
+    ]
+  },
+  "hrozny": {
+    "label": "Hroznové víno",
+    "category": "ovoce",
+    "aliases": [
+      "Hroznové víno",
+      "hroznove vino",
+      "hrozny",
+      "hrozno",
+      "vino hroznove"
+    ],
+    "search_terms": [
+      "hroznové víno",
+      "bílé hrozny",
+      "červené hrozny"
+    ],
+    "negative_terms": [
+      "semena",
+      "osivo",
+      "sazenice",
+      "sadba",
+      "substrat",
+      "hnojivo",
+      "vino bile",
+      "vino cervene",
+      "rozinky"
+    ]
+  },
+  "jahoda": {
+    "label": "Jahody",
+    "category": "ovoce",
+    "aliases": [
+      "Jahody",
+      "jahody",
+      "jahoda"
+    ],
+    "search_terms": [
+      "jahody",
+      "čerstvé jahody",
+      "vanička jahod"
+    ],
+    "negative_terms": [
+      "semena",
+      "osivo",
+      "sazenice",
+      "sadba",
+      "substrat",
+      "hnojivo",
+      "dzem",
+      "sirup"
+    ]
+  },
+  "boruvka": {
+    "label": "Borůvky",
+    "category": "ovoce",
+    "aliases": [
+      "Borůvky",
+      "boruvky",
+      "boruvka",
+      "borůvka",
+      "borůvky"
+    ],
+    "search_terms": [
+      "borůvky",
+      "čerstvé borůvky",
+      "lesní borůvky"
+    ],
+    "negative_terms": [
+      "semena",
+      "osivo",
+      "sazenice",
+      "sadba",
+      "substrat",
+      "hnojivo",
+      "dzem",
+      "sirup"
+    ]
+  },
+  "malina": {
+    "label": "Maliny",
+    "category": "ovoce",
+    "aliases": [
+      "Maliny",
+      "maliny",
+      "malina"
+    ],
+    "search_terms": [
+      "maliny",
+      "čerstvé maliny",
+      "vanička malin"
+    ],
+    "negative_terms": [
+      "semena",
+      "osivo",
+      "sazenice",
+      "sadba",
+      "substrat",
+      "hnojivo",
+      "sirup",
+      "dzem"
+    ]
+  },
+  "ananas": {
+    "label": "Ananas",
+    "category": "ovoce",
+    "aliases": [
+      "Ananas",
+      "ananas"
+    ],
+    "search_terms": [
+      "ananas",
+      "čerstvý ananas",
+      "ananas celý"
+    ],
+    "negative_terms": [
+      "semena",
+      "osivo",
+      "sazenice",
+      "sadba",
+      "substrat",
+      "hnojivo",
+      "dzus",
+      "kompot"
+    ]
+  },
+  "kiwi": {
+    "label": "Kiwi",
+    "category": "ovoce",
+    "aliases": [
+      "Kiwi",
+      "kiwi"
+    ],
+    "search_terms": [
+      "kiwi",
+      "zelené kiwi",
+      "žluté kiwi"
+    ],
+    "negative_terms": [
+      "semena",
+      "osivo",
+      "sazenice",
+      "sadba",
+      "substrat",
+      "hnojivo"
+    ]
+  },
+  "mango": {
+    "label": "Mango",
+    "category": "ovoce",
+    "aliases": [
+      "Mango",
+      "mango"
+    ],
+    "search_terms": [
+      "mango",
+      "čerstvé mango",
+      "zralé mango"
+    ],
+    "negative_terms": [
+      "semena",
+      "osivo",
+      "sazenice",
+      "sadba",
+      "substrat",
+      "hnojivo",
+      "lassi",
+      "pyré",
+      "pyre"
+    ]
+  },
+  "avokado": {
+    "label": "Avokádo",
+    "category": "ovoce",
+    "aliases": [
+      "Avokádo",
+      "avokado",
+      "avokádo"
+    ],
+    "search_terms": [
+      "avokádo",
+      "hass avokádo",
+      "zralé avokádo"
+    ],
+    "negative_terms": [
+      "semena",
+      "osivo",
+      "sazenice",
+      "sadba",
+      "substrat",
+      "hnojivo",
+      "pomazanka",
+      "guacamole"
+    ]
+  },
+  "merunka": {
+    "label": "Meruňky",
+    "category": "ovoce",
+    "aliases": [
+      "Meruňky",
+      "merunky",
+      "merunka",
+      "meruňka",
+      "meruňky"
+    ],
+    "search_terms": [
+      "meruňky",
+      "čerstvé meruňky",
+      "volné meruňky"
+    ],
+    "negative_terms": [
+      "semena",
+      "osivo",
+      "sazenice",
+      "sadba",
+      "substrat",
+      "hnojivo",
+      "dzem",
+      "kompot"
+    ]
+  },
+  "brambory": {
+    "label": "Brambory",
+    "category": "zelenina",
+    "aliases": [
+      "Brambory",
+      "brambory",
+      "brambora"
+    ],
+    "search_terms": [
+      "brambory",
+      "konzumní brambory",
+      "volné brambory"
+    ],
+    "negative_terms": [
+      "semena",
+      "osivo",
+      "sazenice",
+      "sadba",
+      "substrat",
+      "hnojivo",
+      "chipsy",
+      "salat bramborovy"
+    ]
+  },
+  "cibule": {
+    "label": "Cibule",
+    "category": "zelenina",
+    "aliases": [
+      "Cibule",
+      "cibule",
+      "cibulka"
+    ],
+    "search_terms": [
+      "cibule",
+      "žlutá cibule",
+      "cibule kuchyňská"
+    ],
+    "negative_terms": [
+      "semena",
+      "osivo",
+      "sazenice",
+      "sadba",
+      "substrat",
+      "hnojivo"
+    ]
+  },
+  "cesnek": {
+    "label": "Česnek",
+    "category": "zelenina",
+    "aliases": [
+      "Česnek",
+      "cesnek",
+      "česnek"
+    ],
+    "search_terms": [
+      "česnek",
+      "čerstvý česnek",
+      "palička česneku"
+    ],
+    "negative_terms": [
+      "semena",
+      "osivo",
+      "sazenice",
+      "sadba",
+      "substrat",
+      "hnojivo",
+      "granulovany"
+    ]
+  },
+  "mrkev": {
+    "label": "Mrkev",
+    "category": "zelenina",
+    "aliases": [
+      "Mrkev",
+      "mrkev",
+      "mrkev obecná",
+      "mrkev obecna"
+    ],
+    "search_terms": [
+      "mrkev",
+      "čerstvá mrkev",
+      "svazek mrkve"
+    ],
+    "negative_terms": [
+      "semena",
+      "osivo",
+      "sazenice",
+      "sadba",
+      "substrat",
+      "hnojivo",
+      "stava"
+    ]
+  },
+  "petrzel_koren": {
+    "label": "Petržel kořen",
+    "category": "zelenina",
+    "aliases": [
+      "Petržel kořen",
+      "petrzel koren",
+      "petržel kořen",
+      "korenova petrzel"
+    ],
+    "search_terms": [
+      "petržel kořen",
+      "kořenová petržel",
+      "čerstvá petržel kořen"
+    ],
+    "negative_terms": [
+      "semena",
+      "osivo",
+      "sazenice",
+      "sadba",
+      "substrat",
+      "hnojivo"
+    ]
+  },
+  "celer": {
+    "label": "Celer",
+    "category": "zelenina",
+    "aliases": [
+      "Celer",
+      "celer",
+      "celer bulva"
+    ],
+    "search_terms": [
+      "celer",
+      "bulvový celer",
+      "čerstvý celer"
+    ],
+    "negative_terms": [
+      "semena",
+      "osivo",
+      "sazenice",
+      "sadba",
+      "substrat",
+      "hnojivo",
+      "nat"
+    ]
+  },
+  "rajce": {
+    "label": "Rajčata",
+    "category": "zelenina",
+    "aliases": [
+      "Rajčata",
+      "rajcata",
+      "rajce",
+      "rajče",
+      "rajčata"
+    ],
+    "search_terms": [
+      "rajčata",
+      "čerstvá rajčata",
+      "salátová rajčata"
+    ],
+    "negative_terms": [
+      "semena",
+      "osivo",
+      "sazenice",
+      "sadba",
+      "substrat",
+      "hnojivo",
+      "protlak",
+      "passata",
+      "kečup",
+      "kecup"
+    ]
+  },
+  "cherry_rajce": {
+    "label": "Cherry rajčata",
+    "category": "zelenina",
+    "aliases": [
+      "Cherry rajčata",
+      "cherry rajcata",
+      "cherry rajce",
+      "cherry rajčata",
+      "koktejlova rajcata"
+    ],
+    "search_terms": [
+      "cherry rajčata",
+      "koktejlová rajčata",
+      "mini rajčata"
+    ],
+    "negative_terms": [
+      "semena",
+      "osivo",
+      "sazenice",
+      "sadba",
+      "substrat",
+      "hnojivo",
+      "protlak",
+      "passata"
+    ]
+  },
+  "okurka_salad": {
+    "label": "Okurka salátová",
+    "category": "zelenina",
+    "aliases": [
+      "Okurka salátová",
+      "okurka salatova",
+      "okurka",
+      "okurka salátová"
+    ],
+    "search_terms": [
+      "okurka salátová",
+      "salátová okurka",
+      "čerstvá okurka"
+    ],
+    "negative_terms": [
+      "semena",
+      "osivo",
+      "sazenice",
+      "sadba",
+      "substrat",
+      "hnojivo",
+      "okurky sterilovane",
+      "maska"
+    ]
+  },
+  "paprika": {
+    "label": "Paprika",
+    "category": "zelenina",
+    "aliases": [
+      "Paprika",
+      "paprika",
+      "papriky"
+    ],
+    "search_terms": [
+      "paprika",
+      "červená paprika",
+      "mix paprik"
+    ],
+    "negative_terms": [
+      "semena",
+      "osivo",
+      "sazenice",
+      "sadba",
+      "substrat",
+      "hnojivo",
+      "paprika sladka",
+      "paprika paliva",
+      "koreni"
+    ]
+  },
+  "brokolice": {
+    "label": "Brokolice",
+    "category": "zelenina",
+    "aliases": [
+      "Brokolice",
+      "brokolice"
+    ],
+    "search_terms": [
+      "brokolice",
+      "čerstvá brokolice",
+      "brokolice kus"
+    ],
+    "negative_terms": [
+      "semena",
+      "osivo",
+      "sazenice",
+      "sadba",
+      "substrat",
+      "hnojivo"
+    ]
+  },
+  "kvetak": {
+    "label": "Květák",
+    "category": "zelenina",
+    "aliases": [
+      "Květák",
+      "kvetak",
+      "květák"
+    ],
+    "search_terms": [
+      "květák",
+      "čerstvý květák",
+      "květák kus"
+    ],
+    "negative_terms": [
+      "semena",
+      "osivo",
+      "sazenice",
+      "sadba",
+      "substrat",
+      "hnojivo"
+    ]
+  },
+  "cuketa": {
+    "label": "Cuketa",
+    "category": "zelenina",
+    "aliases": [
+      "Cuketa",
+      "cuketa",
+      "cukety"
+    ],
+    "search_terms": [
+      "cuketa",
+      "čerstvá cuketa",
+      "zelená cuketa"
+    ],
+    "negative_terms": [
+      "semena",
+      "osivo",
+      "sazenice",
+      "sadba",
+      "substrat",
+      "hnojivo"
+    ]
+  },
+  "lilek": {
+    "label": "Lilek",
+    "category": "zelenina",
+    "aliases": [
+      "Lilek",
+      "lilek"
+    ],
+    "search_terms": [
+      "lilek",
+      "čerstvý lilek",
+      "baklažán"
+    ],
+    "negative_terms": [
+      "semena",
+      "osivo",
+      "sazenice",
+      "sadba",
+      "substrat",
+      "hnojivo"
+    ]
+  },
+  "salat_ledovy": {
+    "label": "Ledový salát",
+    "category": "zelenina",
+    "aliases": [
+      "Ledový salát",
+      "ledovy salat",
+      "ledový salát"
+    ],
+    "search_terms": [
+      "ledový salát",
+      "hlávka ledového salátu",
+      "čerstvý ledový salát"
+    ],
+    "negative_terms": [
+      "semena",
+      "osivo",
+      "sazenice",
+      "sadba",
+      "substrat",
+      "hnojivo"
+    ]
+  },
+  "rukola": {
+    "label": "Rukola",
+    "category": "zelenina",
+    "aliases": [
+      "Rukola",
+      "rukola"
+    ],
+    "search_terms": [
+      "rukola",
+      "salát rukola",
+      "čerstvá rukola"
+    ],
+    "negative_terms": [
+      "semena",
+      "osivo",
+      "sazenice",
+      "sadba",
+      "substrat",
+      "hnojivo"
+    ]
+  },
+  "spenat": {
+    "label": "Špenát",
+    "category": "zelenina",
+    "aliases": [
+      "Špenát",
+      "spenat",
+      "špenát"
+    ],
+    "search_terms": [
+      "špenát",
+      "čerstvý špenát",
+      "baby špenát"
+    ],
+    "negative_terms": [
+      "semena",
+      "osivo",
+      "sazenice",
+      "sadba",
+      "substrat",
+      "hnojivo",
+      "mrazeny spenat"
+    ]
+  },
+  "bile_zeli": {
+    "label": "Bílé zelí",
+    "category": "zelenina",
+    "aliases": [
+      "Bílé zelí",
+      "bile zeli",
+      "bílé zelí"
+    ],
+    "search_terms": [
+      "bílé zelí",
+      "hlávkové zelí bílé",
+      "čerstvé bílé zelí"
+    ],
+    "negative_terms": [
+      "semena",
+      "osivo",
+      "sazenice",
+      "sadba",
+      "substrat",
+      "hnojivo",
+      "kysane zeli"
+    ]
+  },
+  "redkvicky": {
+    "label": "Ředkvičky",
+    "category": "zelenina",
+    "aliases": [
+      "Ředkvičky",
+      "redkvicky",
+      "redkvicka",
+      "ředkvička",
+      "ředkvičky"
+    ],
+    "search_terms": [
+      "ředkvičky",
+      "svazek ředkviček",
+      "čerstvé ředkvičky"
+    ],
+    "negative_terms": [
+      "semena",
+      "osivo",
+      "sazenice",
+      "sadba",
+      "substrat",
+      "hnojivo"
+    ]
+  },
+  "porek": {
+    "label": "Pórek",
+    "category": "zelenina",
+    "aliases": [
+      "Pórek",
+      "porek",
+      "pórek"
+    ],
+    "search_terms": [
+      "pórek",
+      "čerstvý pórek",
+      "pórek kus"
+    ],
+    "negative_terms": [
+      "semena",
+      "osivo",
+      "sazenice",
+      "sadba",
+      "substrat",
+      "hnojivo"
+    ]
+  },
+  "chleb": {
+    "label": "Chléb",
+    "category": "pecivo",
+    "aliases": [
+      "Chléb",
+      "chleb",
+      "chléb",
+      "chleba"
+    ],
+    "search_terms": [
+      "chléb",
+      "konzumní chléb",
+      "čerstvý chléb"
+    ],
+    "negative_terms": [
+      "krmivo",
+      "pro psy",
+      "pro kocky",
+      "toast",
+      "knackebrot"
+    ]
+  },
+  "toastovy_chleb": {
+    "label": "Toastový chléb",
+    "category": "pecivo",
+    "aliases": [
+      "Toastový chléb",
+      "toastovy chleb",
+      "toastovy chleba",
+      "toast"
+    ],
+    "search_terms": [
+      "toastový chléb",
+      "toastový chlebík",
+      "světlý toastový chléb"
+    ],
+    "negative_terms": [
+      "krmivo",
+      "pro psy",
+      "pro kocky",
+      "topinka hotova"
+    ]
+  },
+  "rohlik": {
+    "label": "Rohlík",
+    "category": "pecivo",
+    "aliases": [
+      "Rohlík",
+      "rohlik",
+      "rohlík",
+      "rohliky",
+      "rohlíky"
+    ],
+    "search_terms": [
+      "rohlík",
+      "běžný rohlík",
+      "čerstvé rohlíky"
+    ],
+    "negative_terms": [
+      "krmivo",
+      "pro psy",
+      "pro kocky"
+    ]
+  },
+  "houska": {
+    "label": "Housky",
+    "category": "pecivo",
+    "aliases": [
+      "Housky",
+      "housky",
+      "houska"
+    ],
+    "search_terms": [
+      "housky",
+      "čerstvé housky",
+      "tukové housky"
+    ],
+    "negative_terms": [
+      "krmivo",
+      "pro psy",
+      "pro kocky"
+    ]
+  },
+  "dalamanek": {
+    "label": "Dalamánek",
+    "category": "pecivo",
+    "aliases": [
+      "Dalamánek",
+      "dalamanek",
+      "dalamánek"
+    ],
+    "search_terms": [
+      "dalamánek",
+      "celozrnný dalamánek",
+      "čerstvý dalamánek"
+    ],
+    "negative_terms": [
+      "krmivo",
+      "pro psy",
+      "pro kocky"
+    ]
+  },
+  "bageta": {
+    "label": "Bageta",
+    "category": "pecivo",
+    "aliases": [
+      "Bageta",
+      "bageta",
+      "bagety"
+    ],
+    "search_terms": [
+      "bageta",
+      "světlá bageta",
+      "francouzská bageta"
+    ],
+    "negative_terms": [
+      "krmivo",
+      "pro psy",
+      "pro kocky",
+      "sendvic hotovy"
+    ]
+  },
+  "ciabatta": {
+    "label": "Ciabatta",
+    "category": "pecivo",
+    "aliases": [
+      "Ciabatta",
+      "ciabatta",
+      "čabata",
+      "cabata"
+    ],
+    "search_terms": [
+      "ciabatta",
+      "italská ciabatta",
+      "čerstvá ciabatta"
+    ],
+    "negative_terms": [
+      "krmivo",
+      "pro psy",
+      "pro kocky"
+    ]
+  },
+  "pita": {
+    "label": "Pita chléb",
+    "category": "pecivo",
+    "aliases": [
+      "Pita chléb",
+      "pita chleb",
+      "pita",
+      "pita chleba"
+    ],
+    "search_terms": [
+      "pita chléb",
+      "pita kapsa",
+      "pita placky"
+    ],
+    "negative_terms": [
+      "krmivo",
+      "pro psy",
+      "pro kocky"
+    ]
+  },
+  "tortilla": {
+    "label": "Tortilla",
+    "category": "pecivo",
+    "aliases": [
+      "Tortilla",
+      "tortilla",
+      "tortilly",
+      "wrap"
+    ],
+    "search_terms": [
+      "tortilla",
+      "tortilla placky",
+      "pšeničné tortilly"
+    ],
+    "negative_terms": [
+      "krmivo",
+      "pro psy",
+      "pro kocky",
+      "chips",
+      "nachos",
+      "doritos"
+    ]
+  },
+  "burger_bulka": {
+    "label": "Hamburgerová bulka",
+    "category": "pecivo",
+    "aliases": [
+      "Hamburgerová bulka",
+      "hamburgerova bulka",
+      "burger bulka",
+      "hamburgerová bulka"
+    ],
+    "search_terms": [
+      "hamburgerová bulka",
+      "bulka na burger",
+      "burger houska"
+    ],
+    "negative_terms": [
+      "krmivo",
+      "pro psy",
+      "pro kocky"
+    ]
+  },
+  "knackebrot": {
+    "label": "Knäckebrot",
+    "category": "pecivo",
+    "aliases": [
+      "Knäckebrot",
+      "knackebrot",
+      "knäckebrot",
+      "krehky chlebik"
+    ],
+    "search_terms": [
+      "knäckebrot",
+      "křehký chléb",
+      "žitný knäckebrot"
+    ],
+    "negative_terms": [
+      "krmivo",
+      "pro psy",
+      "pro kocky"
+    ]
+  },
+  "mleko_polotucne": {
+    "label": "Mléko polotučné",
+    "category": "mlecne_vyrobky",
+    "aliases": [
+      "Mléko polotučné",
+      "mleko polotucne",
+      "mléko polotučné",
+      "polotucne mleko"
+    ],
+    "search_terms": [
+      "mléko polotučné",
+      "čerstvé mléko polotučné",
+      "polotučné mléko 1,5 %"
+    ],
+    "negative_terms": [
+      "sprchovy gel",
+      "sampon",
+      "telove mleko"
+    ]
+  },
+  "mleko_plnotucne": {
+    "label": "Mléko plnotučné",
+    "category": "mlecne_vyrobky",
+    "aliases": [
+      "Mléko plnotučné",
+      "mleko plnotucne",
+      "mléko plnotučné",
+      "plnotucne mleko"
+    ],
+    "search_terms": [
+      "mléko plnotučné",
+      "čerstvé plnotučné mléko",
+      "plnotučné mléko 3,5 %"
+    ],
+    "negative_terms": [
+      "sprchovy gel",
+      "sampon",
+      "telove mleko"
+    ]
+  },
+  "mleko_trvanlive": {
+    "label": "Mléko trvanlivé",
+    "category": "mlecne_vyrobky",
+    "aliases": [
+      "Mléko trvanlivé",
+      "mleko trvanlive",
+      "mléko trvanlivé",
+      "trvanlive mleko"
+    ],
+    "search_terms": [
+      "trvanlivé mléko",
+      "uht mléko",
+      "mléko trvanlivé"
+    ],
+    "negative_terms": [
+      "sprchovy gel",
+      "sampon",
+      "telove mleko"
+    ]
+  },
+  "bezlaktozove_mleko": {
+    "label": "Mléko bez laktózy",
+    "category": "mlecne_vyrobky",
+    "aliases": [
+      "Mléko bez laktózy",
+      "mleko bez laktozy",
+      "bezlaktozove mleko",
+      "bezlaktózové mléko"
+    ],
+    "search_terms": [
+      "bezlaktózové mléko",
+      "mléko bez laktózy",
+      "trvanlivé bezlaktózové mléko"
+    ],
+    "negative_terms": [
+      "sprchovy gel",
+      "sampon",
+      "telove mleko"
+    ]
+  },
+  "jogurt_bily": {
+    "label": "Bílý jogurt",
+    "category": "mlecne_vyrobky",
+    "aliases": [
+      "Bílý jogurt",
+      "bily jogurt",
+      "bíly jogurt",
+      "jogurt bily"
+    ],
+    "search_terms": [
+      "bílý jogurt",
+      "jogurt bílý",
+      "klasický bílý jogurt"
+    ],
+    "negative_terms": [
+      "sprchovy gel",
+      "sampon",
+      "telove mleko"
+    ]
+  },
+  "jogurt_recky": {
+    "label": "Řecký jogurt",
+    "category": "mlecne_vyrobky",
+    "aliases": [
+      "Řecký jogurt",
+      "recky jogurt",
+      "řecký jogurt",
+      "grecky jogurt"
+    ],
+    "search_terms": [
+      "řecký jogurt",
+      "jogurt řecký",
+      "krémový řecký jogurt"
+    ],
+    "negative_terms": [
+      "sprchovy gel",
+      "sampon",
+      "telove mleko"
+    ]
+  },
+  "kefir": {
+    "label": "Kefír",
+    "category": "mlecne_vyrobky",
+    "aliases": [
+      "Kefír",
+      "kefir",
+      "kefír"
+    ],
+    "search_terms": [
+      "kefír",
+      "mléčný kefír",
+      "kefírové mléko"
+    ],
+    "negative_terms": [
+      "sprchovy gel",
+      "sampon",
+      "telove mleko"
+    ]
+  },
+  "tvaroh": {
+    "label": "Tvaroh",
+    "category": "mlecne_vyrobky",
+    "aliases": [
+      "Tvaroh",
+      "tvaroh"
+    ],
+    "search_terms": [
+      "tvaroh",
+      "měkký tvaroh",
+      "polotučný tvaroh"
+    ],
+    "negative_terms": [
+      "sprchovy gel",
+      "sampon",
+      "telove mleko"
+    ]
+  },
+  "cottage": {
+    "label": "Cottage",
+    "category": "mlecne_vyrobky",
+    "aliases": [
+      "Cottage",
+      "cottage",
+      "cottage cheese"
+    ],
+    "search_terms": [
+      "cottage",
+      "cottage cheese",
+      "cottage sýr"
+    ],
+    "negative_terms": [
+      "sprchovy gel",
+      "sampon",
+      "telove mleko"
+    ]
+  },
+  "zakysana_smetana": {
+    "label": "Zakysaná smetana",
+    "category": "mlecne_vyrobky",
+    "aliases": [
+      "Zakysaná smetana",
+      "zakysana smetana",
+      "zakysaná smetana"
+    ],
+    "search_terms": [
+      "zakysaná smetana",
+      "smetana zakysaná",
+      "kysaná smetana"
+    ],
+    "negative_terms": [
+      "sprchovy gel",
+      "sampon",
+      "telove mleko"
+    ]
+  },
+  "smetana_na_vareni": {
+    "label": "Smetana na vaření",
+    "category": "mlecne_vyrobky",
+    "aliases": [
+      "Smetana na vaření",
+      "smetana na vareni",
+      "smetana na vaření"
+    ],
+    "search_terms": [
+      "smetana na vaření",
+      "cooking cream",
+      "smetana 12 %"
+    ],
+    "negative_terms": [
+      "sprchovy gel",
+      "sampon",
+      "telove mleko"
+    ]
+  },
+  "maslo": {
+    "label": "Máslo",
+    "category": "mlecne_vyrobky",
+    "aliases": [
+      "Máslo",
+      "maslo",
+      "máslo"
+    ],
+    "search_terms": [
+      "máslo",
+      "čerstvé máslo",
+      "máslo kostka"
+    ],
+    "negative_terms": [
+      "sprchovy gel",
+      "sampon",
+      "telove mleko",
+      "arasidove maslo",
+      "ghí",
+      "ghi"
+    ]
+  },
+  "eidam": {
+    "label": "Eidam",
+    "category": "mlecne_vyrobky",
+    "aliases": [
+      "Eidam",
+      "eidam",
+      "eidamsky syr"
+    ],
+    "search_terms": [
+      "eidam",
+      "eidamský sýr",
+      "eidam plátky"
+    ],
+    "negative_terms": [
+      "sprchovy gel",
+      "sampon",
+      "telove mleko"
+    ]
+  },
+  "mozzarella": {
+    "label": "Mozzarella",
+    "category": "mlecne_vyrobky",
+    "aliases": [
+      "Mozzarella",
+      "mozzarella"
+    ],
+    "search_terms": [
+      "mozzarella",
+      "mozzarella classic",
+      "mozzarella light"
+    ],
+    "negative_terms": [
+      "sprchovy gel",
+      "sampon",
+      "telove mleko"
+    ]
+  },
+  "hermelin": {
+    "label": "Hermelín",
+    "category": "mlecne_vyrobky",
+    "aliases": [
+      "Hermelín",
+      "hermelin",
+      "hermelín"
+    ],
+    "search_terms": [
+      "hermelín",
+      "sýr hermelín",
+      "plnotučný hermelín"
+    ],
+    "negative_terms": [
+      "sprchovy gel",
+      "sampon",
+      "telove mleko"
+    ]
+  },
+  "parmezan": {
+    "label": "Parmezán",
+    "category": "mlecne_vyrobky",
+    "aliases": [
+      "Parmezán",
+      "parmezan",
+      "parmezán",
+      "parmesan"
+    ],
+    "search_terms": [
+      "parmezán",
+      "parmesan",
+      "strouhaný parmezán"
+    ],
+    "negative_terms": [
+      "sprchovy gel",
+      "sampon",
+      "telove mleko"
+    ]
+  },
+  "kureci_prsa": {
+    "label": "Kuřecí prsa",
+    "category": "maso_a_drubez",
+    "aliases": [
+      "Kuřecí prsa",
+      "kureci prsa",
+      "kuřecí prsa",
+      "kureci prsni rizky"
+    ],
+    "search_terms": [
+      "kuřecí prsa",
+      "kuřecí prsní řízky",
+      "chlazená kuřecí prsa"
+    ],
+    "negative_terms": [
+      "pro psy",
+      "pro kocky",
+      "granule",
+      "kapsicka",
+      "krmivo",
+      "pamlsy pro psy",
+      "nugety"
+    ]
+  },
+  "kureci_stehna": {
+    "label": "Kuřecí stehna",
+    "category": "maso_a_drubez",
+    "aliases": [
+      "Kuřecí stehna",
+      "kureci stehna",
+      "kuřecí stehna"
+    ],
+    "search_terms": [
+      "kuřecí stehna",
+      "chlazená kuřecí stehna",
+      "horní kuřecí stehna"
+    ],
+    "negative_terms": [
+      "pro psy",
+      "pro kocky",
+      "granule",
+      "kapsicka",
+      "krmivo",
+      "pamlsy pro psy",
+      "nugety"
+    ]
+  },
+  "cele_kure": {
+    "label": "Celé kuře",
+    "category": "maso_a_drubez",
+    "aliases": [
+      "Celé kuře",
+      "cele kure",
+      "celé kuře",
+      "kure cele"
+    ],
+    "search_terms": [
+      "celé kuře",
+      "chlazené celé kuře",
+      "kuře celé"
+    ],
+    "negative_terms": [
+      "pro psy",
+      "pro kocky",
+      "granule",
+      "kapsicka",
+      "krmivo",
+      "pamlsy pro psy",
+      "vyvar hotovy"
+    ]
+  },
+  "mlete_kureci": {
+    "label": "Mleté kuřecí",
+    "category": "maso_a_drubez",
+    "aliases": [
+      "Mleté kuřecí",
+      "mlete kureci",
+      "mleté kuřecí"
+    ],
+    "search_terms": [
+      "mleté kuřecí",
+      "kuřecí mleté maso",
+      "mleté kuřecí maso"
+    ],
+    "negative_terms": [
+      "pro psy",
+      "pro kocky",
+      "granule",
+      "kapsicka",
+      "krmivo",
+      "pamlsy pro psy"
+    ]
+  },
+  "kruti_prsa": {
+    "label": "Krůtí prsa",
+    "category": "maso_a_drubez",
+    "aliases": [
+      "Krůtí prsa",
+      "kruti prsa",
+      "krůtí prsa"
+    ],
+    "search_terms": [
+      "krůtí prsa",
+      "krůtí prsní řízky",
+      "chlazená krůtí prsa"
+    ],
+    "negative_terms": [
+      "pro psy",
+      "pro kocky",
+      "granule",
+      "kapsicka",
+      "krmivo",
+      "pamlsy pro psy"
+    ]
+  },
+  "veprova_plec": {
+    "label": "Vepřová plec",
+    "category": "maso_a_drubez",
+    "aliases": [
+      "Vepřová plec",
+      "veprova plec",
+      "vepřová plec"
+    ],
+    "search_terms": [
+      "vepřová plec",
+      "chlazená vepřová plec",
+      "vepřová plec bez kosti"
+    ],
+    "negative_terms": [
+      "pro psy",
+      "pro kocky",
+      "granule",
+      "kapsicka",
+      "krmivo",
+      "pamlsy pro psy"
+    ]
+  },
+  "veprova_krkovice": {
+    "label": "Vepřová krkovice",
+    "category": "maso_a_drubez",
+    "aliases": [
+      "Vepřová krkovice",
+      "veprova krkovice",
+      "vepřová krkovice"
+    ],
+    "search_terms": [
+      "vepřová krkovice",
+      "krkovice bez kosti",
+      "chlazená vepřová krkovice"
+    ],
+    "negative_terms": [
+      "pro psy",
+      "pro kocky",
+      "granule",
+      "kapsicka",
+      "krmivo",
+      "pamlsy pro psy"
+    ]
+  },
+  "veprova_panenka": {
+    "label": "Vepřová panenka",
+    "category": "maso_a_drubez",
+    "aliases": [
+      "Vepřová panenka",
+      "veprova panenka",
+      "vepřová panenka"
+    ],
+    "search_terms": [
+      "vepřová panenka",
+      "chlazená vepřová panenka",
+      "panenka z vepřového"
+    ],
+    "negative_terms": [
+      "pro psy",
+      "pro kocky",
+      "granule",
+      "kapsicka",
+      "krmivo",
+      "pamlsy pro psy"
+    ]
+  },
+  "mlete_veprove": {
+    "label": "Mleté vepřové",
+    "category": "maso_a_drubez",
+    "aliases": [
+      "Mleté vepřové",
+      "mlete veprove",
+      "mleté vepřové"
+    ],
+    "search_terms": [
+      "mleté vepřové",
+      "vepřové mleté maso",
+      "mleté vepřové maso"
+    ],
+    "negative_terms": [
+      "pro psy",
+      "pro kocky",
+      "granule",
+      "kapsicka",
+      "krmivo",
+      "pamlsy pro psy"
+    ]
+  },
+  "hovezi_mlete": {
+    "label": "Mleté hovězí",
+    "category": "maso_a_drubez",
+    "aliases": [
+      "Mleté hovězí",
+      "mlete hovezi",
+      "mleté hovězí",
+      "hovezi mlete"
+    ],
+    "search_terms": [
+      "mleté hovězí",
+      "hovězí mleté maso",
+      "mleté hovězí maso"
+    ],
+    "negative_terms": [
+      "pro psy",
+      "pro kocky",
+      "granule",
+      "kapsicka",
+      "krmivo",
+      "pamlsy pro psy"
+    ]
+  },
+  "hovezi_zadni": {
+    "label": "Hovězí zadní",
+    "category": "maso_a_drubez",
+    "aliases": [
+      "Hovězí zadní",
+      "hovezi zadni",
+      "hovězí zadní"
+    ],
+    "search_terms": [
+      "hovězí zadní",
+      "chlazené hovězí zadní",
+      "hovězí maso zadní"
+    ],
+    "negative_terms": [
+      "pro psy",
+      "pro kocky",
+      "granule",
+      "kapsicka",
+      "krmivo",
+      "pamlsy pro psy"
+    ]
+  },
+  "hovezi_steak": {
+    "label": "Hovězí steak",
+    "category": "maso_a_drubez",
+    "aliases": [
+      "Hovězí steak",
+      "hovezi steak",
+      "hovězí steak"
+    ],
+    "search_terms": [
+      "hovězí steak",
+      "steakové hovězí",
+      "hovězí na steak"
+    ],
+    "negative_terms": [
+      "pro psy",
+      "pro kocky",
+      "granule",
+      "kapsicka",
+      "krmivo",
+      "pamlsy pro psy"
+    ]
+  },
+  "slanina": {
+    "label": "Slanina",
+    "category": "maso_a_drubez",
+    "aliases": [
+      "Slanina",
+      "slanina"
+    ],
+    "search_terms": [
+      "slanina",
+      "anglická slanina",
+      "uzená slanina"
+    ],
+    "negative_terms": [
+      "pro psy",
+      "pro kocky",
+      "granule",
+      "kapsicka",
+      "krmivo",
+      "pamlsy pro psy"
+    ]
+  },
+  "sunka": {
+    "label": "Šunka",
+    "category": "maso_a_drubez",
+    "aliases": [
+      "Šunka",
+      "sunka",
+      "šunka"
+    ],
+    "search_terms": [
+      "šunka",
+      "šunka od kosti",
+      "dušená šunka"
+    ],
+    "negative_terms": [
+      "pro psy",
+      "pro kocky",
+      "granule",
+      "kapsicka",
+      "krmivo",
+      "pamlsy pro psy",
+      "pizza sunka"
+    ]
+  },
+  "parky": {
+    "label": "Párky",
+    "category": "maso_a_drubez",
+    "aliases": [
+      "Párky",
+      "parky",
+      "párky"
+    ],
+    "search_terms": [
+      "párky",
+      "jemné párky",
+      "vídeňské párky"
+    ],
+    "negative_terms": [
+      "pro psy",
+      "pro kocky",
+      "granule",
+      "kapsicka",
+      "krmivo",
+      "pamlsy pro psy",
+      "hotdog hotovy"
+    ]
+  },
+  "klobasa": {
+    "label": "Klobása",
+    "category": "maso_a_drubez",
+    "aliases": [
+      "Klobása",
+      "klobasa",
+      "klobása"
+    ],
+    "search_terms": [
+      "klobása",
+      "uzená klobása",
+      "papriková klobása"
+    ],
+    "negative_terms": [
+      "pro psy",
+      "pro kocky",
+      "granule",
+      "kapsicka",
+      "krmivo",
+      "pamlsy pro psy"
+    ]
+  },
+  "kacena": {
+    "label": "Kachna",
+    "category": "maso_a_drubez",
+    "aliases": [
+      "Kachna",
+      "kachna",
+      "kacena"
+    ],
+    "search_terms": [
+      "kachna",
+      "chlazená kachna",
+      "celá kachna"
+    ],
+    "negative_terms": [
+      "pro psy",
+      "pro kocky",
+      "granule",
+      "kapsicka",
+      "krmivo",
+      "pamlsy pro psy"
+    ]
+  },
+  "kralik": {
+    "label": "Králík",
+    "category": "maso_a_drubez",
+    "aliases": [
+      "Králík",
+      "kralik",
+      "králík"
+    ],
+    "search_terms": [
+      "králík",
+      "králičí maso",
+      "chlazený králík"
+    ],
+    "negative_terms": [
+      "pro psy",
+      "pro kocky",
+      "granule",
+      "kapsicka",
+      "krmivo",
+      "pamlsy pro psy"
+    ]
+  },
+  "losos": {
+    "label": "Losos",
+    "category": "ryby_a_morske_plody",
+    "aliases": [
+      "Losos",
+      "losos"
+    ],
+    "search_terms": [
+      "losos",
+      "filet z lososa",
+      "čerstvý losos"
+    ],
+    "negative_terms": [
+      "pro psy",
+      "pro kocky",
+      "granule",
+      "kapsicka",
+      "krmivo"
+    ]
+  },
+  "tunak": {
+    "label": "Tuňák",
+    "category": "ryby_a_morske_plody",
+    "aliases": [
+      "Tuňák",
+      "tunak",
+      "tuňák"
+    ],
+    "search_terms": [
+      "tuňák",
+      "steak z tuňáka",
+      "čerstvý tuňák"
+    ],
+    "negative_terms": [
+      "pro psy",
+      "pro kocky",
+      "granule",
+      "kapsicka",
+      "krmivo",
+      "kocka"
+    ]
+  },
+  "treska": {
+    "label": "Treska",
+    "category": "ryby_a_morske_plody",
+    "aliases": [
+      "Treska",
+      "treska"
+    ],
+    "search_terms": [
+      "treska",
+      "filet z tresky",
+      "treska porce"
+    ],
+    "negative_terms": [
+      "pro psy",
+      "pro kocky",
+      "granule",
+      "kapsicka",
+      "krmivo",
+      "pomazanka"
+    ]
+  },
+  "pangasius": {
+    "label": "Pangasius",
+    "category": "ryby_a_morske_plody",
+    "aliases": [
+      "Pangasius",
+      "pangasius"
+    ],
+    "search_terms": [
+      "pangasius",
+      "filet pangasius",
+      "pangasius porce"
+    ],
+    "negative_terms": [
+      "pro psy",
+      "pro kocky",
+      "granule",
+      "kapsicka",
+      "krmivo"
+    ]
+  },
+  "pstruh": {
+    "label": "Pstruh",
+    "category": "ryby_a_morske_plody",
+    "aliases": [
+      "Pstruh",
+      "pstruh"
+    ],
+    "search_terms": [
+      "pstruh",
+      "čerstvý pstruh",
+      "pstruh filet"
+    ],
+    "negative_terms": [
+      "pro psy",
+      "pro kocky",
+      "granule",
+      "kapsicka",
+      "krmivo"
+    ]
+  },
+  "makrela": {
+    "label": "Makrela",
+    "category": "ryby_a_morske_plody",
+    "aliases": [
+      "Makrela",
+      "makrela"
+    ],
+    "search_terms": [
+      "makrela",
+      "uzená makrela",
+      "filet z makrely"
+    ],
+    "negative_terms": [
+      "pro psy",
+      "pro kocky",
+      "granule",
+      "kapsicka",
+      "krmivo"
+    ]
+  },
+  "sardinky": {
+    "label": "Sardinky",
+    "category": "ryby_a_morske_plody",
+    "aliases": [
+      "Sardinky",
+      "sardinky",
+      "sardinka"
+    ],
+    "search_terms": [
+      "sardinky",
+      "čerstvé sardinky",
+      "sardinky filet"
+    ],
+    "negative_terms": [
+      "pro psy",
+      "pro kocky",
+      "granule",
+      "kapsicka",
+      "krmivo"
+    ]
+  },
+  "krevety": {
+    "label": "Krevety",
+    "category": "ryby_a_morske_plody",
+    "aliases": [
+      "Krevety",
+      "krevety",
+      "kreveta"
+    ],
+    "search_terms": [
+      "krevety",
+      "loupané krevety",
+      "koktejlové krevety"
+    ],
+    "negative_terms": [
+      "pro psy",
+      "pro kocky",
+      "granule",
+      "kapsicka",
+      "krmivo"
+    ]
+  },
+  "surimi": {
+    "label": "Surimi",
+    "category": "ryby_a_morske_plody",
+    "aliases": [
+      "Surimi",
+      "surimi",
+      "krabi tycinky"
+    ],
+    "search_terms": [
+      "surimi",
+      "krabí tyčinky",
+      "surimi tyčinky"
+    ],
+    "negative_terms": [
+      "pro psy",
+      "pro kocky",
+      "granule",
+      "kapsicka",
+      "krmivo"
+    ]
+  },
+  "rybi_prsty": {
+    "label": "Rybí prsty",
+    "category": "ryby_a_morske_plody",
+    "aliases": [
+      "Rybí prsty",
+      "rybi prsty",
+      "rybí prsty"
+    ],
+    "search_terms": [
+      "rybí prsty",
+      "mražené rybí prsty",
+      "obalené rybí prsty"
+    ],
+    "negative_terms": [
+      "pro psy",
+      "pro kocky",
+      "granule",
+      "kapsicka",
+      "krmivo"
+    ]
+  },
+  "vejce": {
+    "label": "Vejce",
+    "category": "vejce",
+    "aliases": [
+      "Vejce",
+      "vejce",
+      "vajicka",
+      "vajíčka"
+    ],
+    "search_terms": [
+      "vejce",
+      "slepičí vejce",
+      "čerstvá vejce"
+    ],
+    "negative_terms": [
+      "dekorace",
+      "barva na vejce",
+      "plastove"
+    ]
+  },
+  "vejce_m": {
+    "label": "Vejce M",
+    "category": "vejce",
+    "aliases": [
+      "Vejce M",
+      "vejce m",
+      "vajicka m",
+      "vajíčka m"
+    ],
+    "search_terms": [
+      "vejce M",
+      "slepičí vejce velikost M",
+      "čerstvá vejce M"
+    ],
+    "negative_terms": [
+      "dekorace",
+      "barva na vejce",
+      "plastove"
+    ]
+  },
+  "vejce_l": {
+    "label": "Vejce L",
+    "category": "vejce",
+    "aliases": [
+      "Vejce L",
+      "vejce l",
+      "vajicka l",
+      "vajíčka l"
+    ],
+    "search_terms": [
+      "vejce L",
+      "slepičí vejce velikost L",
+      "čerstvá vejce L"
+    ],
+    "negative_terms": [
+      "dekorace",
+      "barva na vejce",
+      "plastove"
+    ]
+  },
+  "bilky": {
+    "label": "Vaječné bílky",
+    "category": "vejce",
+    "aliases": [
+      "Vaječné bílky",
+      "vajecne bilky",
+      "bilky",
+      "bílky",
+      "vaječné bílky"
+    ],
+    "search_terms": [
+      "vaječné bílky",
+      "tekuté bílky",
+      "bílek"
+    ],
+    "negative_terms": [
+      "dekorace",
+      "barva na vejce",
+      "plastove"
+    ]
+  },
+  "ryze": {
+    "label": "Rýže",
+    "category": "ryze_a_obiloviny",
+    "aliases": [
+      "Rýže",
+      "ryze",
+      "rýže"
+    ],
+    "search_terms": [
+      "rýže",
+      "dlouhozrnná rýže",
+      "bílá rýže"
+    ],
+    "negative_terms": [
+      "krmivo",
+      "pro ptaky",
+      "ryzovy napoj"
+    ]
+  },
+  "basmati": {
+    "label": "Rýže basmati",
+    "category": "ryze_a_obiloviny",
+    "aliases": [
+      "Rýže basmati",
+      "ryze basmati",
+      "basmati",
+      "basmati ryze"
+    ],
+    "search_terms": [
+      "basmati rýže",
+      "rýže basmati",
+      "dlouhozrnná basmati"
+    ],
+    "negative_terms": [
+      "krmivo",
+      "pro ptaky"
+    ]
+  },
+  "jasminova_ryze": {
+    "label": "Jasmínová rýže",
+    "category": "ryze_a_obiloviny",
+    "aliases": [
+      "Jasmínová rýže",
+      "jasminova ryze",
+      "jasmínová rýže"
+    ],
+    "search_terms": [
+      "jasmínová rýže",
+      "thai jasmine rice",
+      "voňavá rýže"
+    ],
+    "negative_terms": [
+      "krmivo",
+      "pro ptaky"
+    ]
+  },
+  "arborio": {
+    "label": "Rýže arborio",
+    "category": "ryze_a_obiloviny",
+    "aliases": [
+      "Rýže arborio",
+      "ryze arborio",
+      "arborio",
+      "arborio ryze"
+    ],
+    "search_terms": [
+      "rýže arborio",
+      "arborio",
+      "rizotová rýže"
+    ],
+    "negative_terms": [
+      "krmivo",
+      "pro ptaky"
+    ]
+  },
+  "natural_ryze": {
+    "label": "Natural rýže",
+    "category": "ryze_a_obiloviny",
+    "aliases": [
+      "Natural rýže",
+      "natural ryze",
+      "ryze natural"
+    ],
+    "search_terms": [
+      "natural rýže",
+      "hnědá rýže",
+      "celozrnná rýže"
+    ],
+    "negative_terms": [
+      "krmivo",
+      "pro ptaky"
+    ]
+  },
+  "kuskus": {
+    "label": "Kuskus",
+    "category": "ryze_a_obiloviny",
+    "aliases": [
+      "Kuskus",
+      "kuskus",
+      "couscous"
+    ],
+    "search_terms": [
+      "kuskus",
+      "jemný kuskus",
+      "celozrnný kuskus"
+    ],
+    "negative_terms": [
+      "krmivo",
+      "pro ptaky"
+    ]
+  },
+  "bulgur": {
+    "label": "Bulgur",
+    "category": "ryze_a_obiloviny",
+    "aliases": [
+      "Bulgur",
+      "bulgur"
+    ],
+    "search_terms": [
+      "bulgur",
+      "jemný bulgur",
+      "celozrnný bulgur"
+    ],
+    "negative_terms": [
+      "krmivo",
+      "pro ptaky"
+    ]
+  },
+  "quinoa": {
+    "label": "Quinoa",
+    "category": "ryze_a_obiloviny",
+    "aliases": [
+      "Quinoa",
+      "quinoa",
+      "quinoua",
+      "quinua"
+    ],
+    "search_terms": [
+      "quinoa",
+      "bílá quinoa",
+      "tricolor quinoa"
+    ],
+    "negative_terms": [
+      "krmivo",
+      "pro ptaky"
+    ]
+  },
+  "pohanka": {
+    "label": "Pohanka",
+    "category": "ryze_a_obiloviny",
+    "aliases": [
+      "Pohanka",
+      "pohanka"
+    ],
+    "search_terms": [
+      "pohanka",
+      "loupaná pohanka",
+      "pohanka lámanka"
+    ],
+    "negative_terms": [
+      "krmivo",
+      "pro ptaky"
+    ]
+  },
+  "ovesne_vlocky": {
+    "label": "Ovesné vločky",
+    "category": "ryze_a_obiloviny",
+    "aliases": [
+      "Ovesné vločky",
+      "ovesne vlocky",
+      "ovesné vločky"
+    ],
+    "search_terms": [
+      "ovesné vločky",
+      "jemné ovesné vločky",
+      "ovesné vločky celé"
+    ],
+    "negative_terms": [
+      "krmivo",
+      "pro ptaky"
+    ]
+  },
+  "krupice": {
+    "label": "Krupice",
+    "category": "ryze_a_obiloviny",
+    "aliases": [
+      "Krupice",
+      "krupice",
+      "detska krupice",
+      "dětská krupice"
+    ],
+    "search_terms": [
+      "krupice",
+      "pšeničná krupice",
+      "dětská krupice"
+    ],
+    "negative_terms": [
+      "krmivo",
+      "pro ptaky"
+    ]
+  },
+  "spagety": {
+    "label": "Špagety",
+    "category": "testoviny",
+    "aliases": [
+      "Špagety",
+      "spagety",
+      "špagety"
+    ],
+    "search_terms": [
+      "špagety",
+      "spaghetti",
+      "těstoviny špagety"
+    ],
+    "negative_terms": [
+      "krmivo",
+      "instantni polivka"
+    ]
+  },
+  "penne": {
+    "label": "Penne",
+    "category": "testoviny",
+    "aliases": [
+      "Penne",
+      "penne"
+    ],
+    "search_terms": [
+      "penne",
+      "penne rigate",
+      "těstoviny penne"
+    ],
+    "negative_terms": [
+      "krmivo",
+      "instantni polivka"
+    ]
+  },
+  "fusilli": {
+    "label": "Fusilli",
+    "category": "testoviny",
+    "aliases": [
+      "Fusilli",
+      "fusilli"
+    ],
+    "search_terms": [
+      "fusilli",
+      "vrtule",
+      "těstoviny fusilli"
+    ],
+    "negative_terms": [
+      "krmivo",
+      "instantni polivka"
+    ]
+  },
+  "kolinka": {
+    "label": "Kolínka",
+    "category": "testoviny",
+    "aliases": [
+      "Kolínka",
+      "kolinka",
+      "kolínka"
+    ],
+    "search_terms": [
+      "kolínka",
+      "těstoviny kolínka",
+      "krátké kolínka"
+    ],
+    "negative_terms": [
+      "krmivo",
+      "instantni polivka"
+    ]
+  },
+  "tagliatelle": {
+    "label": "Tagliatelle",
+    "category": "testoviny",
+    "aliases": [
+      "Tagliatelle",
+      "tagliatelle"
+    ],
+    "search_terms": [
+      "tagliatelle",
+      "vaječné tagliatelle",
+      "nudle tagliatelle"
+    ],
+    "negative_terms": [
+      "krmivo",
+      "instantni polivka"
+    ]
+  },
+  "lasagne": {
+    "label": "Lasagne pláty",
+    "category": "testoviny",
+    "aliases": [
+      "Lasagne pláty",
+      "lasagne platy",
+      "lasagne",
+      "lasagne pláty"
+    ],
+    "search_terms": [
+      "lasagne pláty",
+      "těstoviny lasagne",
+      "pláty na lasagne"
+    ],
+    "negative_terms": [
+      "krmivo",
+      "instantni polivka"
+    ]
+  },
+  "nudle": {
+    "label": "Nudle",
+    "category": "testoviny",
+    "aliases": [
+      "Nudle",
+      "nudle"
+    ],
+    "search_terms": [
+      "nudle",
+      "vaječné nudle",
+      "polévkové nudle"
+    ],
+    "negative_terms": [
+      "krmivo",
+      "instantni polivka"
+    ]
+  },
+  "makarony": {
+    "label": "Makarony",
+    "category": "testoviny",
+    "aliases": [
+      "Makarony",
+      "makarony",
+      "macaroni"
+    ],
+    "search_terms": [
+      "makarony",
+      "macaroni",
+      "těstoviny makarony"
+    ],
+    "negative_terms": [
+      "krmivo",
+      "instantni polivka"
+    ]
+  },
+  "tortellini": {
+    "label": "Tortellini",
+    "category": "testoviny",
+    "aliases": [
+      "Tortellini",
+      "tortellini"
+    ],
+    "search_terms": [
+      "tortellini",
+      "čerstvé tortellini",
+      "plněné tortellini"
+    ],
+    "negative_terms": [
+      "krmivo",
+      "instantni polivka"
+    ]
+  },
+  "gnocchi": {
+    "label": "Gnocchi",
+    "category": "testoviny",
+    "aliases": [
+      "Gnocchi",
+      "gnocchi",
+      "noky"
+    ],
+    "search_terms": [
+      "gnocchi",
+      "bramborové gnocchi",
+      "italské noky"
+    ],
+    "negative_terms": [
+      "krmivo",
+      "instantni polivka"
+    ]
+  },
+  "cervena_cocka": {
+    "label": "Červená čočka",
+    "category": "lusteniny",
+    "aliases": [
+      "Červená čočka",
+      "cervena cocka",
+      "červená čočka"
+    ],
+    "search_terms": [
+      "červená čočka",
+      "čočka červená loupaná",
+      "červená čočka loupaná"
+    ],
+    "negative_terms": [
+      "krmivo",
+      "osivo",
+      "semena"
+    ]
+  },
+  "zelena_cocka": {
+    "label": "Zelená čočka",
+    "category": "lusteniny",
+    "aliases": [
+      "Zelená čočka",
+      "zelena cocka",
+      "zelená čočka"
+    ],
+    "search_terms": [
+      "zelená čočka",
+      "čočka zelená",
+      "klasická zelená čočka"
+    ],
+    "negative_terms": [
+      "krmivo",
+      "osivo",
+      "semena"
+    ]
+  },
+  "cizrna": {
+    "label": "Cizrna",
+    "category": "lusteniny",
+    "aliases": [
+      "Cizrna",
+      "cizrna"
+    ],
+    "search_terms": [
+      "cizrna",
+      "suchá cizrna",
+      "cizrna v sáčku"
+    ],
+    "negative_terms": [
+      "krmivo",
+      "osivo",
+      "semena"
+    ]
+  },
+  "hrach_loupany": {
+    "label": "Hrách loupaný",
+    "category": "lusteniny",
+    "aliases": [
+      "Hrách loupaný",
+      "hrach loupany",
+      "hrách loupaný"
+    ],
+    "search_terms": [
+      "hrách loupaný",
+      "loupaný žlutý hrách",
+      "suchý hrách"
+    ],
+    "negative_terms": [
+      "krmivo",
+      "osivo",
+      "semena"
+    ]
+  },
+  "fazole_bile": {
+    "label": "Bílé fazole",
+    "category": "lusteniny",
+    "aliases": [
+      "Bílé fazole",
+      "bile fazole",
+      "bílé fazole"
+    ],
+    "search_terms": [
+      "bílé fazole",
+      "suché bílé fazole",
+      "fazole bílé"
+    ],
+    "negative_terms": [
+      "krmivo",
+      "osivo",
+      "semena"
+    ]
+  },
+  "fazole_cervene": {
+    "label": "Červené fazole",
+    "category": "lusteniny",
+    "aliases": [
+      "Červené fazole",
+      "cervene fazole",
+      "červené fazole"
+    ],
+    "search_terms": [
+      "červené fazole",
+      "kidney fazole",
+      "fazole červené"
+    ],
+    "negative_terms": [
+      "krmivo",
+      "osivo",
+      "semena"
+    ]
+  },
+  "fazole_cerne": {
+    "label": "Černé fazole",
+    "category": "lusteniny",
+    "aliases": [
+      "Černé fazole",
+      "cerne fazole",
+      "černé fazole"
+    ],
+    "search_terms": [
+      "černé fazole",
+      "black beans",
+      "fazole černé"
+    ],
+    "negative_terms": [
+      "krmivo",
+      "osivo",
+      "semena"
+    ]
+  },
+  "mungo": {
+    "label": "Mungo",
+    "category": "lusteniny",
+    "aliases": [
+      "Mungo",
+      "mungo",
+      "fazole mungo"
+    ],
+    "search_terms": [
+      "mungo",
+      "fazole mungo",
+      "zelené mungo"
+    ],
+    "negative_terms": [
+      "krmivo",
+      "osivo",
+      "semena"
+    ]
+  },
+  "sojove_boby": {
+    "label": "Sójové boby",
+    "category": "lusteniny",
+    "aliases": [
+      "Sójové boby",
+      "sojove boby",
+      "sójové boby",
+      "soja"
+    ],
+    "search_terms": [
+      "sójové boby",
+      "soy beans",
+      "suché sójové boby"
+    ],
+    "negative_terms": [
+      "krmivo",
+      "osivo",
+      "semena"
+    ]
+  },
+  "cocka_beluga": {
+    "label": "Čočka beluga",
+    "category": "lusteniny",
+    "aliases": [
+      "Čočka beluga",
+      "cocka beluga",
+      "čočka beluga"
+    ],
+    "search_terms": [
+      "čočka beluga",
+      "černá čočka beluga",
+      "beluga čočka"
+    ],
+    "negative_terms": [
+      "krmivo",
+      "osivo",
+      "semena"
+    ]
+  },
+  "mouka_hladka": {
+    "label": "Mouka hladká",
+    "category": "mouky_a_peceni",
+    "aliases": [
+      "Mouka hladká",
+      "mouka hladka",
+      "hladka mouka"
+    ],
+    "search_terms": [
+      "mouka hladká",
+      "pšeničná mouka hladká",
+      "hladká mouka"
+    ],
+    "negative_terms": [
+      "smes pro psy",
+      "krmivo"
+    ]
+  },
+  "mouka_polohruba": {
+    "label": "Mouka polohrubá",
+    "category": "mouky_a_peceni",
+    "aliases": [
+      "Mouka polohrubá",
+      "mouka polohruba",
+      "polohruba mouka"
+    ],
+    "search_terms": [
+      "mouka polohrubá",
+      "pšeničná mouka polohrubá",
+      "polohrubá mouka"
+    ],
+    "negative_terms": [
+      "smes pro psy",
+      "krmivo"
+    ]
+  },
+  "mouka_hruba": {
+    "label": "Mouka hrubá",
+    "category": "mouky_a_peceni",
+    "aliases": [
+      "Mouka hrubá",
+      "mouka hruba",
+      "hruba mouka"
+    ],
+    "search_terms": [
+      "mouka hrubá",
+      "pšeničná mouka hrubá",
+      "hrubá mouka"
+    ],
+    "negative_terms": [
+      "smes pro psy",
+      "krmivo"
+    ]
+  },
+  "mouka_celozrnna": {
+    "label": "Mouka celozrnná",
+    "category": "mouky_a_peceni",
+    "aliases": [
+      "Mouka celozrnná",
+      "mouka celozrnna",
+      "celozrnna mouka"
+    ],
+    "search_terms": [
+      "mouka celozrnná",
+      "celozrnná pšeničná mouka",
+      "celozrnná mouka"
+    ],
+    "negative_terms": [
+      "smes pro psy",
+      "krmivo"
+    ]
+  },
+  "mouka_zitna": {
+    "label": "Mouka žitná",
+    "category": "mouky_a_peceni",
+    "aliases": [
+      "Mouka žitná",
+      "mouka zitna",
+      "zitna mouka",
+      "mouka žitná"
+    ],
+    "search_terms": [
+      "mouka žitná",
+      "žitná mouka",
+      "celozrnná žitná mouka"
+    ],
+    "negative_terms": [
+      "smes pro psy",
+      "krmivo"
+    ]
+  },
+  "mouka_spaldova": {
+    "label": "Mouka špaldová",
+    "category": "mouky_a_peceni",
+    "aliases": [
+      "Mouka špaldová",
+      "mouka spaldova",
+      "spaldova mouka",
+      "mouka špaldová"
+    ],
+    "search_terms": [
+      "mouka špaldová",
+      "špaldová mouka",
+      "jemná špaldová mouka"
+    ],
+    "negative_terms": [
+      "smes pro psy",
+      "krmivo"
+    ]
+  },
+  "cukr_krystal": {
+    "label": "Cukr krystal",
+    "category": "mouky_a_peceni",
+    "aliases": [
+      "Cukr krystal",
+      "cukr krystal",
+      "krystal"
+    ],
+    "search_terms": [
+      "cukr krystal",
+      "bílý cukr krystal",
+      "krystalový cukr"
+    ],
+    "negative_terms": [
+      "smes pro psy",
+      "krmivo"
+    ]
+  },
+  "cukr_moucka": {
+    "label": "Cukr moučka",
+    "category": "mouky_a_peceni",
+    "aliases": [
+      "Cukr moučka",
+      "cukr moucka",
+      "mouckovy cukr",
+      "moučkový cukr"
+    ],
+    "search_terms": [
+      "cukr moučka",
+      "moučkový cukr",
+      "cukr moučkový"
+    ],
+    "negative_terms": [
+      "smes pro psy",
+      "krmivo"
+    ]
+  },
+  "vanilkovy_cukr": {
+    "label": "Vanilkový cukr",
+    "category": "mouky_a_peceni",
+    "aliases": [
+      "Vanilkový cukr",
+      "vanilkovy cukr",
+      "vanilinovy cukr"
+    ],
+    "search_terms": [
+      "vanilkový cukr",
+      "vanilinový cukr",
+      "cukr vanilkový"
+    ],
+    "negative_terms": [
+      "smes pro psy",
+      "krmivo"
+    ]
+  },
+  "prasek_do_peciva": {
+    "label": "Prášek do pečiva",
+    "category": "mouky_a_peceni",
+    "aliases": [
+      "Prášek do pečiva",
+      "prasek do peciva",
+      "prášek do pečiva"
+    ],
+    "search_terms": [
+      "prášek do pečiva",
+      "kypřicí prášek do pečiva",
+      "prášek do pečení"
+    ],
+    "negative_terms": [
+      "smes pro psy",
+      "krmivo"
+    ]
+  },
+  "jedla_soda": {
+    "label": "Jedlá soda",
+    "category": "mouky_a_peceni",
+    "aliases": [
+      "Jedlá soda",
+      "jedla soda"
+    ],
+    "search_terms": [
+      "jedlá soda",
+      "soda bicarbona",
+      "hydrogenuhličitan sodný"
+    ],
+    "negative_terms": [
+      "smes pro psy",
+      "krmivo"
+    ]
+  },
+  "kakao": {
+    "label": "Kakao",
+    "category": "mouky_a_peceni",
+    "aliases": [
+      "Kakao",
+      "kakao"
+    ],
+    "search_terms": [
+      "kakao",
+      "kakaový prášek",
+      "holandské kakao"
+    ],
+    "negative_terms": [
+      "smes pro psy",
+      "krmivo"
+    ]
+  },
+  "slunecnicovy_olej": {
+    "label": "Slunečnicový olej",
+    "category": "oleje_a_tuky",
+    "aliases": [
+      "Slunečnicový olej",
+      "slunecnicovy olej",
+      "slunečnicový olej"
+    ],
+    "search_terms": [
+      "slunečnicový olej",
+      "olej slunečnicový",
+      "rostlinný slunečnicový olej"
+    ],
+    "negative_terms": [
+      "motorovy olej",
+      "masazni olej",
+      "kosmetika"
+    ]
+  },
+  "repkovy_olej": {
+    "label": "Řepkový olej",
+    "category": "oleje_a_tuky",
+    "aliases": [
+      "Řepkový olej",
+      "repkovy olej",
+      "řepkový olej"
+    ],
+    "search_terms": [
+      "řepkový olej",
+      "olej řepkový",
+      "rostlinný řepkový olej"
+    ],
+    "negative_terms": [
+      "motorovy olej",
+      "masazni olej",
+      "kosmetika"
+    ]
+  },
+  "olivovy_olej": {
+    "label": "Olivový olej",
+    "category": "oleje_a_tuky",
+    "aliases": [
+      "Olivový olej",
+      "olivovy olej",
+      "olivový olej"
+    ],
+    "search_terms": [
+      "olivový olej",
+      "extra panenský olivový olej",
+      "olive oil"
+    ],
+    "negative_terms": [
+      "motorovy olej",
+      "masazni olej",
+      "kosmetika"
+    ]
+  },
+  "kokosovy_olej": {
+    "label": "Kokosový olej",
+    "category": "oleje_a_tuky",
+    "aliases": [
+      "Kokosový olej",
+      "kokosovy olej",
+      "kokosový olej"
+    ],
+    "search_terms": [
+      "kokosový olej",
+      "panenský kokosový olej",
+      "coconut oil"
+    ],
+    "negative_terms": [
+      "motorovy olej",
+      "masazni olej",
+      "kosmetika",
+      "telove maslo"
+    ]
+  },
+  "sezamovy_olej": {
+    "label": "Sezamový olej",
+    "category": "oleje_a_tuky",
+    "aliases": [
+      "Sezamový olej",
+      "sezamovy olej",
+      "sezamový olej"
+    ],
+    "search_terms": [
+      "sezamový olej",
+      "olej sezamový",
+      "asian sesame oil"
+    ],
+    "negative_terms": [
+      "motorovy olej",
+      "masazni olej",
+      "kosmetika"
+    ]
+  },
+  "sadlo": {
+    "label": "Sádlo",
+    "category": "oleje_a_tuky",
+    "aliases": [
+      "Sádlo",
+      "sadlo",
+      "veprove sadlo",
+      "vepřové sádlo"
+    ],
+    "search_terms": [
+      "sádlo",
+      "vepřové sádlo",
+      "domácí sádlo"
+    ],
+    "negative_terms": [
+      "motorovy olej",
+      "masazni olej",
+      "kosmetika"
+    ]
+  },
+  "margarin": {
+    "label": "Margarín",
+    "category": "oleje_a_tuky",
+    "aliases": [
+      "Margarín",
+      "margarin",
+      "margarín"
+    ],
+    "search_terms": [
+      "margarín",
+      "rostlinný margarín",
+      "margarín na pečení"
+    ],
+    "negative_terms": [
+      "motorovy olej",
+      "masazni olej",
+      "kosmetika"
+    ]
+  },
+  "ghee": {
+    "label": "Ghí",
+    "category": "oleje_a_tuky",
+    "aliases": [
+      "Ghí",
+      "ghi",
+      "ghee",
+      "ghí"
+    ],
+    "search_terms": [
+      "ghí",
+      "ghee",
+      "přepuštěné máslo"
+    ],
+    "negative_terms": [
+      "motorovy olej",
+      "masazni olej",
+      "kosmetika"
+    ]
+  },
+  "sul": {
+    "label": "Sůl",
+    "category": "koreni",
+    "aliases": [
+      "Sůl",
+      "sul",
+      "sůl"
+    ],
+    "search_terms": [
+      "sůl",
+      "kuchyňská sůl",
+      "jemná sůl"
+    ],
+    "negative_terms": [
+      "vune do auta",
+      "vonna svicka"
+    ]
+  },
+  "pepr_cerny": {
+    "label": "Pepř černý",
+    "category": "koreni",
+    "aliases": [
+      "Pepř černý",
+      "pepr cerny",
+      "pepř černý",
+      "cerny pepr"
+    ],
+    "search_terms": [
+      "pepř černý",
+      "mletý černý pepř",
+      "celý černý pepř"
+    ],
+    "negative_terms": [
+      "vune do auta",
+      "vonna svicka"
+    ]
+  },
+  "paprika_sladka": {
+    "label": "Paprika sladká",
+    "category": "koreni",
+    "aliases": [
+      "Paprika sladká",
+      "paprika sladka",
+      "paprika sladká"
+    ],
+    "search_terms": [
+      "paprika sladká",
+      "mletá sladká paprika",
+      "sladká paprika koření"
+    ],
+    "negative_terms": [
+      "vune do auta",
+      "vonna svicka"
+    ]
+  },
+  "paprika_paliva": {
+    "label": "Paprika pálivá",
+    "category": "koreni",
+    "aliases": [
+      "Paprika pálivá",
+      "paprika paliva",
+      "paprika pálivá"
+    ],
+    "search_terms": [
+      "paprika pálivá",
+      "mletá pálivá paprika",
+      "pálivá paprika koření"
+    ],
+    "negative_terms": [
+      "vune do auta",
+      "vonna svicka"
+    ]
+  },
+  "kmin": {
+    "label": "Kmín",
+    "category": "koreni",
+    "aliases": [
+      "Kmín",
+      "kmin",
+      "kmín"
+    ],
+    "search_terms": [
+      "kmín",
+      "celý kmín",
+      "mletý kmín"
+    ],
+    "negative_terms": [
+      "vune do auta",
+      "vonna svicka"
+    ]
+  },
+  "majoranka": {
+    "label": "Majoránka",
+    "category": "koreni",
+    "aliases": [
+      "Majoránka",
+      "majoranka",
+      "majoránka"
+    ],
+    "search_terms": [
+      "majoránka",
+      "sušená majoránka",
+      "majoránka koření"
+    ],
+    "negative_terms": [
+      "vune do auta",
+      "vonna svicka"
+    ]
+  },
+  "oregano": {
+    "label": "Oregano",
+    "category": "koreni",
+    "aliases": [
+      "Oregano",
+      "oregano"
+    ],
+    "search_terms": [
+      "oregano",
+      "sušené oregano",
+      "oregano koření"
+    ],
+    "negative_terms": [
+      "vune do auta",
+      "vonna svicka"
+    ]
+  },
+  "bazalka": {
+    "label": "Bazalka",
+    "category": "koreni",
+    "aliases": [
+      "Bazalka",
+      "bazalka"
+    ],
+    "search_terms": [
+      "bazalka",
+      "sušená bazalka",
+      "bazalka koření"
+    ],
+    "negative_terms": [
+      "vune do auta",
+      "vonna svicka"
+    ]
+  },
+  "tymian": {
+    "label": "Tymián",
+    "category": "koreni",
+    "aliases": [
+      "Tymián",
+      "tymian",
+      "tymián"
+    ],
+    "search_terms": [
+      "tymián",
+      "sušený tymián",
+      "tymián koření"
+    ],
+    "negative_terms": [
+      "vune do auta",
+      "vonna svicka"
+    ]
+  },
+  "kari": {
+    "label": "Kari",
+    "category": "koreni",
+    "aliases": [
+      "Kari",
+      "kari",
+      "curry"
+    ],
+    "search_terms": [
+      "kari",
+      "kari koření",
+      "curry powder"
+    ],
+    "negative_terms": [
+      "vune do auta",
+      "vonna svicka"
+    ]
+  },
+  "kurkuma": {
+    "label": "Kurkuma",
+    "category": "koreni",
+    "aliases": [
+      "Kurkuma",
+      "kurkuma"
+    ],
+    "search_terms": [
+      "kurkuma",
+      "mletá kurkuma",
+      "kurkuma koření"
+    ],
+    "negative_terms": [
+      "vune do auta",
+      "vonna svicka"
+    ]
+  },
+  "skorice": {
+    "label": "Skořice",
+    "category": "koreni",
+    "aliases": [
+      "Skořice",
+      "skorice",
+      "skořice"
+    ],
+    "search_terms": [
+      "skořice",
+      "mletá skořice",
+      "skořice cejlonská"
+    ],
+    "negative_terms": [
+      "vune do auta",
+      "vonna svicka"
+    ]
+  },
+  "kecup": {
+    "label": "Kečup",
+    "category": "omacky_a_dochucovadla",
+    "aliases": [
+      "Kečup",
+      "kecup",
+      "kečup"
+    ],
+    "search_terms": [
+      "kečup",
+      "rajčatový kečup",
+      "jemný kečup"
+    ],
+    "negative_terms": [
+      "kosmetika",
+      "sampon"
+    ]
+  },
+  "horcice": {
+    "label": "Hořčice",
+    "category": "omacky_a_dochucovadla",
+    "aliases": [
+      "Hořčice",
+      "horcice",
+      "hořčice"
+    ],
+    "search_terms": [
+      "hořčice",
+      "plnotučná hořčice",
+      "kremžská hořčice"
+    ],
+    "negative_terms": [
+      "kosmetika",
+      "sampon"
+    ]
+  },
+  "majoneza": {
+    "label": "Majonéza",
+    "category": "omacky_a_dochucovadla",
+    "aliases": [
+      "Majonéza",
+      "majoneza",
+      "majonéza"
+    ],
+    "search_terms": [
+      "majonéza",
+      "klasická majonéza",
+      "majoneza light"
+    ],
+    "negative_terms": [
+      "kosmetika",
+      "sampon"
+    ]
+  },
+  "tatarska_omacka": {
+    "label": "Tatarská omáčka",
+    "category": "omacky_a_dochucovadla",
+    "aliases": [
+      "Tatarská omáčka",
+      "tatarska omacka",
+      "tatarská omáčka"
+    ],
+    "search_terms": [
+      "tatarská omáčka",
+      "tatarka",
+      "tatarská omáčka klasická"
+    ],
+    "negative_terms": [
+      "kosmetika",
+      "sampon"
+    ]
+  },
+  "sojova_omacka": {
+    "label": "Sójová omáčka",
+    "category": "omacky_a_dochucovadla",
+    "aliases": [
+      "Sójová omáčka",
+      "sojova omacka",
+      "sójová omáčka"
+    ],
+    "search_terms": [
+      "sójová omáčka",
+      "soy sauce",
+      "tmavá sójová omáčka"
+    ],
+    "negative_terms": [
+      "kosmetika",
+      "sampon"
+    ]
+  },
+  "worcester": {
+    "label": "Worcester",
+    "category": "omacky_a_dochucovadla",
+    "aliases": [
+      "Worcester",
+      "worcester",
+      "worcesterska omacka",
+      "worcesterská omáčka"
+    ],
+    "search_terms": [
+      "worcester",
+      "worcesterská omáčka",
+      "worcestershire sauce"
+    ],
+    "negative_terms": [
+      "kosmetika",
+      "sampon"
+    ]
+  },
+  "bbq_omacka": {
+    "label": "BBQ omáčka",
+    "category": "omacky_a_dochucovadla",
+    "aliases": [
+      "BBQ omáčka",
+      "bbq omacka",
+      "barbecue omacka"
+    ],
+    "search_terms": [
+      "BBQ omáčka",
+      "barbecue omáčka",
+      "grilovací omáčka bbq"
+    ],
+    "negative_terms": [
+      "kosmetika",
+      "sampon"
+    ]
+  },
+  "sweet_chilli": {
+    "label": "Sweet chilli omáčka",
+    "category": "omacky_a_dochucovadla",
+    "aliases": [
+      "Sweet chilli omáčka",
+      "sweet chilli omacka",
+      "sweet chilli"
+    ],
+    "search_terms": [
+      "sweet chilli omáčka",
+      "sladká chilli omáčka",
+      "thai sweet chilli"
+    ],
+    "negative_terms": [
+      "kosmetika",
+      "sampon"
+    ]
+  },
+  "rajcatovy_protlak": {
+    "label": "Rajčatový protlak",
+    "category": "omacky_a_dochucovadla",
+    "aliases": [
+      "Rajčatový protlak",
+      "rajcatovy protlak",
+      "rajčatový protlak"
+    ],
+    "search_terms": [
+      "rajčatový protlak",
+      "protlak rajčatový",
+      "tomato paste"
+    ],
+    "negative_terms": [
+      "kosmetika",
+      "sampon"
+    ]
+  },
+  "passata": {
+    "label": "Passata",
+    "category": "omacky_a_dochucovadla",
+    "aliases": [
+      "Passata",
+      "passata",
+      "rajcatove pyre",
+      "rajčatové pyré"
+    ],
+    "search_terms": [
+      "passata",
+      "rajčatové pyré",
+      "tomato passata"
+    ],
+    "negative_terms": [
+      "kosmetika",
+      "sampon"
+    ]
+  },
+  "pesto": {
+    "label": "Pesto",
+    "category": "omacky_a_dochucovadla",
+    "aliases": [
+      "Pesto",
+      "pesto"
+    ],
+    "search_terms": [
+      "pesto",
+      "bazalkové pesto",
+      "pesto genovese"
+    ],
+    "negative_terms": [
+      "kosmetika",
+      "sampon"
+    ]
+  },
+  "hummus": {
+    "label": "Hummus",
+    "category": "omacky_a_dochucovadla",
+    "aliases": [
+      "Hummus",
+      "hummus",
+      "humus"
+    ],
+    "search_terms": [
+      "hummus",
+      "cizrnový hummus",
+      "pomazánka hummus"
+    ],
+    "negative_terms": [
+      "kosmetika",
+      "sampon"
+    ]
+  },
+  "balsamico": {
+    "label": "Balzamikový ocet",
+    "category": "omacky_a_dochucovadla",
+    "aliases": [
+      "Balzamikový ocet",
+      "balzamikovy ocet",
+      "balsamico",
+      "balzamikový ocet"
+    ],
+    "search_terms": [
+      "balzamikový ocet",
+      "balsamico",
+      "aceto balsamico"
+    ],
+    "negative_terms": [
+      "kosmetika",
+      "sampon"
+    ]
+  },
+  "tunak_konzerva": {
+    "label": "Tuňák v konzervě",
+    "category": "konzervy_a_trvanlive",
+    "aliases": [
+      "Tuňák v konzervě",
+      "tunak v konzerve",
+      "tuňák v konzervě"
+    ],
+    "search_terms": [
+      "tuňák v konzervě",
+      "tuna chunks",
+      "tuňák kousky"
+    ],
+    "negative_terms": [
+      "pro psy",
+      "pro kocky",
+      "krmivo",
+      "kapsicka"
+    ]
+  },
+  "kukurice_konzerva": {
+    "label": "Kukuřice v konzervě",
+    "category": "konzervy_a_trvanlive",
+    "aliases": [
+      "Kukuřice v konzervě",
+      "kukurice v konzerve",
+      "kukuřice v konzervě"
+    ],
+    "search_terms": [
+      "kukuřice v konzervě",
+      "sterilovaná kukuřice",
+      "sladká kukuřice konzerva"
+    ],
+    "negative_terms": [
+      "pro psy",
+      "pro kocky",
+      "krmivo"
+    ]
+  },
+  "hrasek_konzerva": {
+    "label": "Hrášek v konzervě",
+    "category": "konzervy_a_trvanlive",
+    "aliases": [
+      "Hrášek v konzervě",
+      "hrasek v konzerve",
+      "hrášek v konzervě"
+    ],
+    "search_terms": [
+      "hrášek v konzervě",
+      "sterilovaný hrášek",
+      "zelený hrášek konzerva"
+    ],
+    "negative_terms": [
+      "pro psy",
+      "pro kocky",
+      "krmivo"
+    ]
+  },
+  "fazole_konzerva": {
+    "label": "Fazole v konzervě",
+    "category": "konzervy_a_trvanlive",
+    "aliases": [
+      "Fazole v konzervě",
+      "fazole v konzerve",
+      "fazole konzerva"
+    ],
+    "search_terms": [
+      "fazole v konzervě",
+      "sterilované fazole",
+      "fazole konzerva"
+    ],
+    "negative_terms": [
+      "pro psy",
+      "pro kocky",
+      "krmivo"
+    ]
+  },
+  "cizrna_konzerva": {
+    "label": "Cizrna v konzervě",
+    "category": "konzervy_a_trvanlive",
+    "aliases": [
+      "Cizrna v konzervě",
+      "cizrna v konzerve",
+      "cizrna konzerva"
+    ],
+    "search_terms": [
+      "cizrna v konzervě",
+      "sterilovaná cizrna",
+      "cizrna konzerva"
+    ],
+    "negative_terms": [
+      "pro psy",
+      "pro kocky",
+      "krmivo"
+    ]
+  },
+  "rajcata_loupana": {
+    "label": "Loupaná rajčata",
+    "category": "konzervy_a_trvanlive",
+    "aliases": [
+      "Loupaná rajčata",
+      "loupana rajcata",
+      "loupaná rajčata"
+    ],
+    "search_terms": [
+      "loupaná rajčata",
+      "rajčata loupaná v plechu",
+      "peeled tomatoes"
+    ],
+    "negative_terms": [
+      "pro psy",
+      "pro kocky",
+      "krmivo"
+    ]
+  },
+  "rajcata_krajena": {
+    "label": "Krájená rajčata",
+    "category": "konzervy_a_trvanlive",
+    "aliases": [
+      "Krájená rajčata",
+      "krajena rajcata",
+      "krájená rajčata"
+    ],
+    "search_terms": [
+      "krájená rajčata",
+      "rajčata krájená v plechu",
+      "diced tomatoes"
+    ],
+    "negative_terms": [
+      "pro psy",
+      "pro kocky",
+      "krmivo"
+    ]
+  },
+  "kokosove_mleko": {
+    "label": "Kokosové mléko",
+    "category": "konzervy_a_trvanlive",
+    "aliases": [
+      "Kokosové mléko",
+      "kokosove mleko",
+      "kokosové mléko"
+    ],
+    "search_terms": [
+      "kokosové mléko",
+      "coconut milk",
+      "kokosové mléko konzerva"
+    ],
+    "negative_terms": [
+      "pro psy",
+      "pro kocky",
+      "krmivo"
+    ]
+  },
+  "okurky_sterilovane": {
+    "label": "Sterilované okurky",
+    "category": "konzervy_a_trvanlive",
+    "aliases": [
+      "Sterilované okurky",
+      "sterilovane okurky",
+      "okurky sterilované",
+      "okurky sterilovane"
+    ],
+    "search_terms": [
+      "sterilované okurky",
+      "okurky ve sladkokyselém nálevu",
+      "kyselé okurky"
+    ],
+    "negative_terms": [
+      "pro psy",
+      "pro kocky",
+      "krmivo"
+    ]
+  },
+  "cervena_repa_sterilovana": {
+    "label": "Červená řepa sterilovaná",
+    "category": "konzervy_a_trvanlive",
+    "aliases": [
+      "Červená řepa sterilovaná",
+      "cervena repa sterilovana",
+      "červená řepa sterilovaná"
+    ],
+    "search_terms": [
+      "červená řepa sterilovaná",
+      "sterilovaná řepa",
+      "červená řepa ve sklenici"
+    ],
+    "negative_terms": [
+      "pro psy",
+      "pro kocky",
+      "krmivo"
+    ]
+  },
+  "dzem_jahodovy": {
+    "label": "Džem jahodový",
+    "category": "konzervy_a_trvanlive",
+    "aliases": [
+      "Džem jahodový",
+      "dzem jahodovy",
+      "džem jahodový",
+      "jahodovy dzem"
+    ],
+    "search_terms": [
+      "džem jahodový",
+      "jahodový džem",
+      "extra džem jahoda"
+    ],
+    "negative_terms": [
+      "pro psy",
+      "pro kocky",
+      "krmivo"
+    ]
+  },
+  "med": {
+    "label": "Med",
+    "category": "konzervy_a_trvanlive",
+    "aliases": [
+      "Med",
+      "med",
+      "vceli med",
+      "včelí med"
+    ],
+    "search_terms": [
+      "med",
+      "včelí med",
+      "květový med"
+    ],
+    "negative_terms": [
+      "pro psy",
+      "pro kocky",
+      "krmivo",
+      "medium",
+      "medove pivo",
+      "medvidci"
+    ]
+  },
+  "mrazena_zelenina": {
+    "label": "Mražená zelenina",
+    "category": "mrazene",
+    "aliases": [
+      "Mražená zelenina",
+      "mrazena zelenina",
+      "mražená zelenina"
+    ],
+    "search_terms": [
+      "mražená zelenina",
+      "zeleninová směs mražená",
+      "frozen vegetables"
+    ],
+    "negative_terms": [
+      "chladici vlozka"
+    ]
+  },
+  "mrazeny_hrasek": {
+    "label": "Mražený hrášek",
+    "category": "mrazene",
+    "aliases": [
+      "Mražený hrášek",
+      "mrazeny hrasek",
+      "mražený hrášek"
+    ],
+    "search_terms": [
+      "mražený hrášek",
+      "frozen peas",
+      "zelený hrášek mražený"
+    ],
+    "negative_terms": [
+      "chladici vlozka"
+    ]
+  },
+  "mrazena_kukurice": {
+    "label": "Mražená kukuřice",
+    "category": "mrazene",
+    "aliases": [
+      "Mražená kukuřice",
+      "mrazena kukurice",
+      "mražená kukuřice"
+    ],
+    "search_terms": [
+      "mražená kukuřice",
+      "frozen corn",
+      "kukuřice mražená"
+    ],
+    "negative_terms": [
+      "chladici vlozka"
+    ]
+  },
+  "mrazena_brokolice": {
+    "label": "Mražená brokolice",
+    "category": "mrazene",
+    "aliases": [
+      "Mražená brokolice",
+      "mrazena brokolice",
+      "mražená brokolice"
+    ],
+    "search_terms": [
+      "mražená brokolice",
+      "brokolice růžičky mražené",
+      "frozen broccoli"
+    ],
+    "negative_terms": [
+      "chladici vlozka"
+    ]
+  },
+  "mrazene_jahody": {
+    "label": "Mražené jahody",
+    "category": "mrazene",
+    "aliases": [
+      "Mražené jahody",
+      "mrazene jahody",
+      "mražené jahody"
+    ],
+    "search_terms": [
+      "mražené jahody",
+      "jahody mražené",
+      "frozen strawberries"
+    ],
+    "negative_terms": [
+      "chladici vlozka"
+    ]
+  },
+  "mrazene_hranolky": {
+    "label": "Mražené hranolky",
+    "category": "mrazene",
+    "aliases": [
+      "Mražené hranolky",
+      "mrazene hranolky",
+      "mražené hranolky"
+    ],
+    "search_terms": [
+      "mražené hranolky",
+      "french fries frozen",
+      "hranolky do trouby"
+    ],
+    "negative_terms": [
+      "chladici vlozka"
+    ]
+  },
+  "mrazena_pizza": {
+    "label": "Mražená pizza",
+    "category": "mrazene",
+    "aliases": [
+      "Mražená pizza",
+      "mrazena pizza",
+      "mražená pizza"
+    ],
+    "search_terms": [
+      "mražená pizza",
+      "pizza frozen",
+      "chlazená pizza"
+    ],
+    "negative_terms": [
+      "chladici vlozka"
+    ]
+  },
+  "mrazene_nugety": {
+    "label": "Mražené nugety",
+    "category": "mrazene",
+    "aliases": [
+      "Mražené nugety",
+      "mrazene nugety",
+      "mražené nugety"
+    ],
+    "search_terms": [
+      "mražené nugety",
+      "kuřecí nugety mražené",
+      "chicken nuggets frozen"
+    ],
+    "negative_terms": [
+      "chladici vlozka"
+    ]
+  },
+  "voda_neperliva": {
+    "label": "Voda neperlivá",
+    "category": "napoje",
+    "aliases": [
+      "Voda neperlivá",
+      "voda neperliva",
+      "neperliva voda"
+    ],
+    "search_terms": [
+      "neperlivá voda",
+      "voda neperlivá",
+      "stolní voda neperlivá"
+    ],
+    "negative_terms": [
+      "sprchovy gel",
+      "cistic",
+      "aroma difuzer"
+    ]
+  },
+  "voda_jemne_perliva": {
+    "label": "Voda jemně perlivá",
+    "category": "napoje",
+    "aliases": [
+      "Voda jemně perlivá",
+      "voda jemne perliva",
+      "jemne perliva voda"
+    ],
+    "search_terms": [
+      "jemně perlivá voda",
+      "voda jemně perlivá",
+      "stolní voda jemně perlivá"
+    ],
+    "negative_terms": [
+      "sprchovy gel",
+      "cistic",
+      "aroma difuzer"
+    ]
+  },
+  "voda_perliva": {
+    "label": "Voda perlivá",
+    "category": "napoje",
+    "aliases": [
+      "Voda perlivá",
+      "voda perliva",
+      "perliva voda"
+    ],
+    "search_terms": [
+      "perlivá voda",
+      "voda perlivá",
+      "stolní voda perlivá"
+    ],
+    "negative_terms": [
+      "sprchovy gel",
+      "cistic",
+      "aroma difuzer"
+    ]
+  },
+  "cola": {
+    "label": "Cola",
+    "category": "napoje",
+    "aliases": [
+      "Cola",
+      "cola",
+      "kola"
+    ],
+    "search_terms": [
+      "cola",
+      "cola original",
+      "cola klasická"
+    ],
+    "negative_terms": [
+      "sprchovy gel",
+      "cistic",
+      "aroma difuzer"
+    ]
+  },
+  "cola_zero": {
+    "label": "Cola zero",
+    "category": "napoje",
+    "aliases": [
+      "Cola zero",
+      "cola zero",
+      "kola zero",
+      "cola light"
+    ],
+    "search_terms": [
+      "cola zero",
+      "cola bez cukru",
+      "cola light"
+    ],
+    "negative_terms": [
+      "sprchovy gel",
+      "cistic",
+      "aroma difuzer"
+    ]
+  },
+  "citronada": {
+    "label": "Citronáda",
+    "category": "napoje",
+    "aliases": [
+      "Citronáda",
+      "citronada",
+      "citronáda",
+      "limonada"
+    ],
+    "search_terms": [
+      "citronáda",
+      "limonáda citron",
+      "sycená citronáda"
+    ],
+    "negative_terms": [
+      "sprchovy gel",
+      "cistic",
+      "aroma difuzer"
+    ]
+  },
+  "pomerancovy_dzus": {
+    "label": "Pomerančový džus",
+    "category": "napoje",
+    "aliases": [
+      "Pomerančový džus",
+      "pomerancovy dzus",
+      "pomerančový džus"
+    ],
+    "search_terms": [
+      "pomerančový džus",
+      "100% pomerančová šťáva",
+      "orange juice"
+    ],
+    "negative_terms": [
+      "sprchovy gel",
+      "cistic",
+      "aroma difuzer"
+    ]
+  },
+  "jablecny_dzus": {
+    "label": "Jablečný džus",
+    "category": "napoje",
+    "aliases": [
+      "Jablečný džus",
+      "jablecny dzus",
+      "jablečný džus"
+    ],
+    "search_terms": [
+      "jablečný džus",
+      "100% jablečná šťáva",
+      "apple juice"
+    ],
+    "negative_terms": [
+      "sprchovy gel",
+      "cistic",
+      "aroma difuzer"
+    ]
+  },
+  "ledeny_caj": {
+    "label": "Ledový čaj",
+    "category": "napoje",
+    "aliases": [
+      "Ledový čaj",
+      "ledovy caj",
+      "ledeny caj",
+      "ledový čaj",
+      "ice tea"
+    ],
+    "search_terms": [
+      "ledový čaj",
+      "ice tea",
+      "broskvový ledový čaj"
+    ],
+    "negative_terms": [
+      "sprchovy gel",
+      "cistic",
+      "aroma difuzer"
+    ]
+  },
+  "energeticky_napoj": {
+    "label": "Energetický nápoj",
+    "category": "napoje",
+    "aliases": [
+      "Energetický nápoj",
+      "energeticky napoj",
+      "energetický nápoj",
+      "energy drink"
+    ],
+    "search_terms": [
+      "energetický nápoj",
+      "energy drink",
+      "energetický drink"
+    ],
+    "negative_terms": [
+      "sprchovy gel",
+      "cistic",
+      "aroma difuzer"
+    ]
+  },
+  "kava_mleta": {
+    "label": "Káva mletá",
+    "category": "napoje",
+    "aliases": [
+      "Káva mletá",
+      "kava mleta",
+      "káva mletá"
+    ],
+    "search_terms": [
+      "káva mletá",
+      "mletá káva",
+      "pražená mletá káva"
+    ],
+    "negative_terms": [
+      "sprchovy gel",
+      "cistic",
+      "aroma difuzer"
+    ]
+  },
+  "kava_zrnkova": {
+    "label": "Káva zrnková",
+    "category": "napoje",
+    "aliases": [
+      "Káva zrnková",
+      "kava zrnkova",
+      "káva zrnková"
+    ],
+    "search_terms": [
+      "káva zrnková",
+      "zrnková káva",
+      "coffee beans"
+    ],
+    "negative_terms": [
+      "sprchovy gel",
+      "cistic",
+      "aroma difuzer"
+    ]
+  },
+  "cerny_caj": {
+    "label": "Černý čaj",
+    "category": "napoje",
+    "aliases": [
+      "Černý čaj",
+      "cerny caj",
+      "černý čaj"
+    ],
+    "search_terms": [
+      "černý čaj",
+      "sáčkový černý čaj",
+      "earl grey"
+    ],
+    "negative_terms": [
+      "sprchovy gel",
+      "cistic",
+      "aroma difuzer"
+    ]
+  },
+  "zeleny_caj": {
+    "label": "Zelený čaj",
+    "category": "napoje",
+    "aliases": [
+      "Zelený čaj",
+      "zeleny caj",
+      "zelený čaj"
+    ],
+    "search_terms": [
+      "zelený čaj",
+      "sáčkový zelený čaj",
+      "green tea"
+    ],
+    "negative_terms": [
+      "sprchovy gel",
+      "cistic",
+      "aroma difuzer"
+    ]
+  },
+  "ovocny_caj": {
+    "label": "Ovocný čaj",
+    "category": "napoje",
+    "aliases": [
+      "Ovocný čaj",
+      "ovocny caj",
+      "ovocný čaj"
+    ],
+    "search_terms": [
+      "ovocný čaj",
+      "lesní ovoce čaj",
+      "sáčkový ovocný čaj"
+    ],
+    "negative_terms": [
+      "sprchovy gel",
+      "cistic",
+      "aroma difuzer"
+    ]
+  },
+  "instantni_kava": {
+    "label": "Káva instantní",
+    "category": "napoje",
+    "aliases": [
+      "Káva instantní",
+      "kava instantni",
+      "instantni kava",
+      "instantní káva"
+    ],
+    "search_terms": [
+      "instantní káva",
+      "rozpustná káva",
+      "instant coffee"
+    ],
+    "negative_terms": [
+      "sprchovy gel",
+      "cistic",
+      "aroma difuzer"
+    ]
+  },
+  "cokolada_mlecna": {
+    "label": "Čokoláda mléčná",
+    "category": "sladke",
+    "aliases": [
+      "Čokoláda mléčná",
+      "cokolada mlecna",
+      "čokoláda mléčná"
+    ],
+    "search_terms": [
+      "mléčná čokoláda",
+      "čokoláda mléčná",
+      "tabulka mléčné čokolády"
+    ],
+    "negative_terms": [
+      "sampon",
+      "sprchovy gel",
+      "vonna svicka"
+    ]
+  },
+  "cokolada_horka": {
+    "label": "Čokoláda hořká",
+    "category": "sladke",
+    "aliases": [
+      "Čokoláda hořká",
+      "cokolada horka",
+      "čokoláda hořká"
+    ],
+    "search_terms": [
+      "hořká čokoláda",
+      "čokoláda hořká",
+      "dark chocolate"
+    ],
+    "negative_terms": [
+      "sampon",
+      "sprchovy gel",
+      "vonna svicka"
+    ]
+  },
+  "susenky": {
+    "label": "Sušenky",
+    "category": "sladke",
+    "aliases": [
+      "Sušenky",
+      "susenky",
+      "sušenky"
+    ],
+    "search_terms": [
+      "sušenky",
+      "máslové sušenky",
+      "kakaové sušenky"
+    ],
+    "negative_terms": [
+      "sampon",
+      "sprchovy gel",
+      "vonna svicka"
+    ]
+  },
+  "oplatky": {
+    "label": "Oplatky",
+    "category": "sladke",
+    "aliases": [
+      "Oplatky",
+      "oplatky",
+      "oplatka"
+    ],
+    "search_terms": [
+      "oplatky",
+      "čokoládové oplatky",
+      "plněné oplatky"
+    ],
+    "negative_terms": [
+      "sampon",
+      "sprchovy gel",
+      "vonna svicka"
+    ]
+  },
+  "bonbony": {
+    "label": "Bonbony",
+    "category": "sladke",
+    "aliases": [
+      "Bonbony",
+      "bonbony",
+      "bonbony tvrde"
+    ],
+    "search_terms": [
+      "bonbony",
+      "tvrdé bonbony",
+      "ovocné bonbony"
+    ],
+    "negative_terms": [
+      "sampon",
+      "sprchovy gel",
+      "vonna svicka"
+    ]
+  },
+  "zele_bonbony": {
+    "label": "Želé bonbony",
+    "category": "sladke",
+    "aliases": [
+      "Želé bonbony",
+      "zele bonbony",
+      "želé bonbony",
+      "gumove bonbony"
+    ],
+    "search_terms": [
+      "želé bonbony",
+      "gumové bonbony",
+      "ovocné želé bonbony"
+    ],
+    "negative_terms": [
+      "sampon",
+      "sprchovy gel",
+      "vonna svicka"
+    ]
+  },
+  "pernik": {
+    "label": "Perník",
+    "category": "sladke",
+    "aliases": [
+      "Perník",
+      "pernik",
+      "perník"
+    ],
+    "search_terms": [
+      "perník",
+      "perník plátky",
+      "medový perník"
+    ],
+    "negative_terms": [
+      "sampon",
+      "sprchovy gel",
+      "vonna svicka"
+    ]
+  },
+  "piskoty": {
+    "label": "Piškoty",
+    "category": "sladke",
+    "aliases": [
+      "Piškoty",
+      "piskoty",
+      "piškoty"
+    ],
+    "search_terms": [
+      "piškoty",
+      "dětské piškoty",
+      "cukrářské piškoty"
+    ],
+    "negative_terms": [
+      "sampon",
+      "sprchovy gel",
+      "vonna svicka"
+    ]
+  },
+  "nugatovy_krem": {
+    "label": "Nugátový krém",
+    "category": "sladke",
+    "aliases": [
+      "Nugátový krém",
+      "nugatovy krem",
+      "nugátový krém",
+      "cokoladova pomazanka"
+    ],
+    "search_terms": [
+      "nugátový krém",
+      "čokoládovo-oříškový krém",
+      "lískooříškový krém"
+    ],
+    "negative_terms": [
+      "sampon",
+      "sprchovy gel",
+      "vonna svicka"
+    ]
+  },
+  "musli_tycinka": {
+    "label": "Müsli tyčinka",
+    "category": "sladke",
+    "aliases": [
+      "Müsli tyčinka",
+      "musli tycinka",
+      "müsli tyčinka"
+    ],
+    "search_terms": [
+      "müsli tyčinka",
+      "cereální tyčinka",
+      "ovocná müsli tyčinka"
+    ],
+    "negative_terms": [
+      "sampon",
+      "sprchovy gel",
+      "vonna svicka"
+    ]
+  },
+  "chipsy": {
+    "label": "Chipsy",
+    "category": "snacky",
+    "aliases": [
+      "Chipsy",
+      "chipsy",
+      "bramburky"
+    ],
+    "search_terms": [
+      "chipsy",
+      "bramborové chipsy",
+      "slané chipsy"
+    ],
+    "negative_terms": [
+      "krmivo",
+      "pro psy",
+      "pro kocky"
+    ]
+  },
+  "tortillove_chipsy": {
+    "label": "Tortillové chipsy",
+    "category": "snacky",
+    "aliases": [
+      "Tortillové chipsy",
+      "tortillove chipsy",
+      "tortilla chips"
+    ],
+    "search_terms": [
+      "tortillové chipsy",
+      "nachos chips",
+      "kukuřičné tortilla chips"
+    ],
+    "negative_terms": [
+      "krmivo",
+      "pro psy",
+      "pro kocky"
+    ]
+  },
+  "popcorn": {
+    "label": "Popcorn",
+    "category": "snacky",
+    "aliases": [
+      "Popcorn",
+      "popcorn"
+    ],
+    "search_terms": [
+      "popcorn",
+      "mikrovlnný popcorn",
+      "slaný popcorn"
+    ],
+    "negative_terms": [
+      "krmivo",
+      "pro psy",
+      "pro kocky"
+    ]
+  },
+  "slane_tycky": {
+    "label": "Slané tyčky",
+    "category": "snacky",
+    "aliases": [
+      "Slané tyčky",
+      "slane tycky",
+      "slané tyčky"
+    ],
+    "search_terms": [
+      "slané tyčky",
+      "preclíkové tyčky",
+      "slaný snack tyčky"
+    ],
+    "negative_terms": [
+      "krmivo",
+      "pro psy",
+      "pro kocky"
+    ]
+  },
+  "precliky": {
+    "label": "Preclíky",
+    "category": "snacky",
+    "aliases": [
+      "Preclíky",
+      "precliky",
+      "preclíky"
+    ],
+    "search_terms": [
+      "preclíky",
+      "slaný preclík",
+      "mini preclíky"
+    ],
+    "negative_terms": [
+      "krmivo",
+      "pro psy",
+      "pro kocky"
+    ]
+  },
+  "crackers": {
+    "label": "Crackers",
+    "category": "snacky",
+    "aliases": [
+      "Crackers",
+      "crackers",
+      "krekry"
+    ],
+    "search_terms": [
+      "crackers",
+      "slané krekry",
+      "cheese crackers"
+    ],
+    "negative_terms": [
+      "krmivo",
+      "pro psy",
+      "pro kocky"
+    ]
+  },
+  "arasidy": {
+    "label": "Arašídy",
+    "category": "snacky",
+    "aliases": [
+      "Arašídy",
+      "arasidy",
+      "arašídy"
+    ],
+    "search_terms": [
+      "arašídy",
+      "pražené arašídy",
+      "solené arašídy"
+    ],
+    "negative_terms": [
+      "krmivo",
+      "pro psy",
+      "pro kocky"
+    ]
+  },
+  "kesu": {
+    "label": "Kešu",
+    "category": "snacky",
+    "aliases": [
+      "Kešu",
+      "kesu",
+      "kešu"
+    ],
+    "search_terms": [
+      "kešu",
+      "kešu natural",
+      "pražené kešu"
+    ],
+    "negative_terms": [
+      "krmivo",
+      "pro psy",
+      "pro kocky"
+    ]
+  },
+  "mandle": {
+    "label": "Mandle",
+    "category": "snacky",
+    "aliases": [
+      "Mandle",
+      "mandle",
+      "mandli"
+    ],
+    "search_terms": [
+      "mandle",
+      "mandle natural",
+      "loupané mandle"
+    ],
+    "negative_terms": [
+      "krmivo",
+      "pro psy",
+      "pro kocky"
+    ]
+  },
+  "pistacie": {
+    "label": "Pistácie",
+    "category": "snacky",
+    "aliases": [
+      "Pistácie",
+      "pistacie",
+      "pistácie"
+    ],
+    "search_terms": [
+      "pistácie",
+      "pražené pistácie",
+      "solené pistácie"
+    ],
+    "negative_terms": [
+      "krmivo",
+      "pro psy",
+      "pro kocky"
+    ]
+  },
+  "studentska_smes": {
+    "label": "Studentská směs",
+    "category": "snacky",
+    "aliases": [
+      "Studentská směs",
+      "studentska smes",
+      "studentská směs"
+    ],
+    "search_terms": [
+      "studentská směs",
+      "ořechovo-ovocná směs",
+      "mix ořechů a rozinek"
+    ],
+    "negative_terms": [
+      "krmivo",
+      "pro psy",
+      "pro kocky"
+    ]
+  },
+  "ryzove_chlebicky": {
+    "label": "Rýžové chlebíčky",
+    "category": "snacky",
+    "aliases": [
+      "Rýžové chlebíčky",
+      "ryzove chlebicky",
+      "rýžové chlebíčky"
+    ],
+    "search_terms": [
+      "rýžové chlebíčky",
+      "rice cakes",
+      "extrudované rýžové chlebíčky"
+    ],
+    "negative_terms": [
+      "krmivo",
+      "pro psy",
+      "pro kocky"
+    ]
+  },
+  "dynova_seminka": {
+    "label": "Dýňová semínka",
+    "category": "snacky",
+    "aliases": [
+      "Dýňová semínka",
+      "dynova seminka",
+      "dýňová semínka"
+    ],
+    "search_terms": [
+      "dýňová semínka",
+      "loupaná dýňová semínka",
+      "pumpkin seeds"
+    ],
+    "negative_terms": [
+      "krmivo",
+      "pro psy",
+      "pro kocky"
+    ]
+  },
+  "slunecnicova_seminka": {
+    "label": "Slunečnicová semínka",
+    "category": "snacky",
+    "aliases": [
+      "Slunečnicová semínka",
+      "slunecnicova seminka",
+      "slunečnicová semínka"
+    ],
+    "search_terms": [
+      "slunečnicová semínka",
+      "loupaná slunečnicová semínka",
+      "sunflower seeds"
+    ],
+    "negative_terms": [
+      "krmivo",
+      "pro psy",
+      "pro kocky"
+    ]
+  },
+  "proteinova_tycinka": {
+    "label": "Proteinová tyčinka",
+    "category": "snacky",
+    "aliases": [
+      "Proteinová tyčinka",
+      "proteinova tycinka",
+      "proteinová tyčinka"
+    ],
+    "search_terms": [
+      "proteinová tyčinka",
+      "high protein bar",
+      "protein bar"
+    ],
+    "negative_terms": [
+      "krmivo",
+      "pro psy",
+      "pro kocky"
+    ]
+  }
+}

@@ -1,8 +1,11 @@
+export type RecipeIngredient = string | { name: string; searchQuery?: string };
+export type ResolvedRecipeIngredient = { name: string; searchQuery: string };
+
 export type RecipePreset = {
   name: string;
   tag: string;
   description: string;
-  ingredients: string[];
+  ingredients: RecipeIngredient[];
   aliases?: string[];
 };
 
@@ -34,7 +37,13 @@ export const RECIPE_PRESETS: RecipePreset[] = [
     tag: "Fit snídaně",
     description:
       "Levná a sytá snídaně z vloček, jogurtu nebo mléka a ovoce.",
-    ingredients: ["ovesné vločky", "řecký jogurt", "banán", "jahody", "med"],
+    ingredients: [
+      "ovesné vločky",
+      "řecký jogurt",
+      "banán",
+      "jahody",
+      { name: "med", searchQuery: "včelí med" },
+    ],
     aliases: ["overnight oats", "ovesna kase", "fit snidane"],
   },
   {
@@ -104,4 +113,20 @@ export function findRecipeByName(query: string) {
         normalized.includes(name),
     );
   });
+}
+
+export function resolveRecipeIngredient(
+  ingredient: RecipeIngredient,
+): ResolvedRecipeIngredient {
+  if (typeof ingredient === "string") {
+    return {
+      name: ingredient,
+      searchQuery: ingredient,
+    };
+  }
+
+  return {
+    name: ingredient.name,
+    searchQuery: ingredient.searchQuery?.trim() || ingredient.name,
+  };
 }

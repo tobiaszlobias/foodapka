@@ -1,5 +1,5 @@
 import { NextRequest } from "next/server";
-import { findRecipeByName } from "@/lib/recipes";
+import { findRecipeByName, resolveRecipeIngredient } from "@/lib/recipes";
 
 export async function POST(req: NextRequest) {
   const { recipe } = (await req.json()) as { recipe?: string };
@@ -22,6 +22,6 @@ export async function POST(req: NextRequest) {
 
   return Response.json({
     recipe: recipeMatch.name,
-    ingredients: recipeMatch.ingredients,
+    ingredients: recipeMatch.ingredients.map(resolveRecipeIngredient),
   });
 }
