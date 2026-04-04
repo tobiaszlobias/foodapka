@@ -32,6 +32,8 @@ type LidlGridProductData = {
   };
 };
 
+const LIDL_SEARCH_PATH = "/q/search";
+
 function parseLidlGridProduct(rawValue: string) {
   const decoded = decodeHtmlEntities(rawValue);
   let data: LidlGridProductData;
@@ -74,8 +76,8 @@ function parseLidlGridProduct(rawValue: string) {
 }
 
 export async function searchLidlProducts(query: string) {
-  const { html, url } = await fetchHtml(
-    `${LIDL_ORIGIN}/search?q=${encodeURIComponent(query)}`,
+  const { html } = await fetchHtml(
+    `${LIDL_ORIGIN}${LIDL_SEARCH_PATH}?q=${encodeURIComponent(query)}`,
   );
 
   if (isBlockedHtml(html)) {
@@ -85,7 +87,7 @@ export async function searchLidlProducts(query: string) {
   const $ = cheerio.load(html);
   const products = new Map<string, Product>();
 
-  $("[data-grid-data]").each((_, element) => {
+  $("[data-grid-data], [data-grid-data] [data-grid-data]").each((_, element) => {
     const rawValue = $(element).attr("data-grid-data");
     if (!rawValue) return;
 

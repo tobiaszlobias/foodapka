@@ -1,4 +1,5 @@
 import Link from "next/link";
+import ThemeToggle from "@/components/ThemeToggle";
 
 type SiteHeaderProps = {
   current?: "home" | "recipes";
@@ -26,6 +27,7 @@ export default function SiteHeader({ current = "home" }: SiteHeaderProps) {
         <Link href="/recepty" className={linkClasses(current === "recipes")}>
           Recepty
         </Link>
+        <ThemeToggle />
       </nav>
     </header>
   );

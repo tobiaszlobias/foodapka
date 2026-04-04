@@ -1,5 +1,5 @@
 import { NextRequest } from "next/server";
-import { searchAllSources } from "@/lib/scrapers";
+import { searchAllSources, searchAllSourcesDebug } from "@/lib/scrapers";
 
 export async function GET(req: NextRequest) {
   const query = req.nextUrl.searchParams.get("q")?.trim() || "";
@@ -8,6 +8,12 @@ export async function GET(req: NextRequest) {
   }
 
   try {
+    const wantsDebug = req.nextUrl.searchParams.get("debug") === "1";
+    if (wantsDebug) {
+      const { products, debug } = await searchAllSourcesDebug(query);
+      return Response.json({ products, count: products.length, debug });
+    }
+
     const products = await searchAllSources(query);
     return Response.json({ products, count: products.length });
   } catch (error) {

@@ -2,6 +2,7 @@ import * as cheerio from "cheerio";
 import {
   formatDiscountPercent,
   formatPrice,
+  normalizeText,
   scoreProductMatch,
   type Product,
 } from "@/lib/food";
@@ -100,6 +101,24 @@ function buildOfferUrl(query: string, offer: KauflandOffer) {
   );
 }
 
+function hasRelevantTokenMatch(text: string, query: string) {
+  const queryTokens = normalizeText(query).split(" ").filter(Boolean);
+  const textTokens = normalizeText(text).split(" ").filter(Boolean);
+
+  if (queryTokens.length === 0 || textTokens.length === 0) return false;
+
+  return queryTokens.every((queryToken) =>
+    textTokens.some((textToken) => {
+      if (textToken === queryToken) return true;
+
+      const lengthDelta = Math.abs(textToken.length - queryToken.length);
+      if (lengthDelta > 2) return false;
+
+      return textToken.startsWith(queryToken) || queryToken.startsWith(textToken);
+    }),
+  );
+}
+
 export async function searchKauflandProducts(query: string) {
   const { html } = await fetchHtml(
     `${KAUFLAND_ORIGIN}/vyhledat.html?q=${encodeURIComponent(query)}`,
@@ -109,12 +128,20 @@ export async function searchKauflandProducts(query: string) {
   return offers
     .reduce<Product[]>((accumulator, offer) => {
       const name = buildOfferName(offer);
+      const matchingText = [
+        offer.title,
+        offer.subtitle,
+        offer.detailTitle,
+        offer.detailDescription,
+      ]
+        .filter(Boolean)
+        .join(" ");
       const numericPrice = offer.price ?? null;
       const formattedPrice =
         offer.formattedPrice ||
         (numericPrice !== null ? formatPrice(numericPrice) : "");
 
-      if (!name || !formattedPrice) {
+      if (!name || !formattedPrice || !hasRelevantTokenMatch(matchingText, query)) {
         return accumulator;
       }
 
