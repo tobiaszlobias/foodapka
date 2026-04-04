@@ -9,9 +9,10 @@ import {
 import {
   absoluteUrl,
   decodeHtmlEntities,
-  fetchHtml,
+  fetchHtmlWithNodeHttps,
   isBlockedHtml,
 } from "@/lib/scrapers/shared";
+import { normalizeText } from "@/lib/food";
 
 const LIDL_ORIGIN = "https://www.lidl.cz";
 
@@ -33,6 +34,27 @@ type LidlGridProductData = {
 };
 
 const LIDL_SEARCH_PATH = "/q/search";
+
+function buildLidlQueryVariants(query: string) {
+  const normalized = normalizeText(query);
+  const variants = [
+    query,
+    `trvanlive ${query}`,
+    `cerstve ${query}`,
+    `${query} 1 l`,
+  ];
+
+  if (normalized.includes("mleko")) {
+    variants.push(
+      "trvanlive mleko",
+      "mleko polotucne",
+      "mleko plnotucne",
+      "trvanlive mleko polotucne",
+    );
+  }
+
+  return Array.from(new Set(variants.map((value) => value.trim()).filter(Boolean)));
+}
 
 function parseLidlGridProduct(rawValue: string) {
   const decoded = decodeHtmlEntities(rawValue);
@@ -76,27 +98,51 @@ function parseLidlGridProduct(rawValue: string) {
 }
 
 export async function searchLidlProducts(query: string) {
-  const { html } = await fetchHtml(
-    `${LIDL_ORIGIN}${LIDL_SEARCH_PATH}?q=${encodeURIComponent(query)}`,
-  );
+  const products = new Map<string, Product>();
+  let lastError: Error | null = null;
 
-  if (isBlockedHtml(html)) {
-    return [];
+  for (const variant of buildLidlQueryVariants(query)) {
+    try {
+      const { html, statusCode } = await fetchHtmlWithNodeHttps(
+        `${LIDL_ORIGIN}${LIDL_SEARCH_PATH}?q=${encodeURIComponent(variant)}`,
+        {
+          Cookie: "i18n_redirected=cs_CZ",
+          Referer: `${LIDL_ORIGIN}/`,
+        },
+      );
+
+      if (
+        statusCode >= 300 ||
+        isBlockedHtml(html) ||
+        html.includes("url=https://www.lidl.cz/c/ceny-v-klidu/")
+      ) {
+        continue;
+      }
+
+      const $ = cheerio.load(html);
+
+      $("[data-grid-data], [data-grid-data] [data-grid-data]").each((_, element) => {
+        const rawValue = $(element).attr("data-grid-data");
+        if (!rawValue) return;
+
+        const product = parseLidlGridProduct(rawValue);
+        if (!product) return;
+        if (scoreProductMatch(product.name, query) <= 0) return;
+
+        products.set(product.url || product.name, product);
+      });
+
+      if (products.size > 0) {
+        break;
+      }
+    } catch (error) {
+      lastError = error instanceof Error ? error : new Error(String(error));
+    }
   }
 
-  const $ = cheerio.load(html);
-  const products = new Map<string, Product>();
-
-  $("[data-grid-data], [data-grid-data] [data-grid-data]").each((_, element) => {
-    const rawValue = $(element).attr("data-grid-data");
-    if (!rawValue) return;
-
-    const product = parseLidlGridProduct(rawValue);
-    if (!product) return;
-    if (scoreProductMatch(product.name, query) <= 0) return;
-
-    products.set(product.url || product.name, product);
-  });
+  if (products.size === 0 && lastError) {
+    throw lastError;
+  }
 
   return Array.from(products.values())
     .sort((a, b) => {

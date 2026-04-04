@@ -54,7 +54,7 @@ export async function searchAllSources(query: string) {
       })),
     ),
     query,
-  ).slice(0, 18);
+  );
 }
 
 export async function searchAllSourcesDebug(
@@ -87,7 +87,7 @@ export async function searchAllSourcesDebug(
         })),
       ),
       query,
-    ).slice(0, 18),
+    ),
     debug: {
       kupi:
         kupi.status === "fulfilled"

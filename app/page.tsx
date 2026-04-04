@@ -7,6 +7,7 @@ import {
   cleanProductName,
   getStoreIcon,
   normalizeText,
+  parsePrice,
   sortStoresByPrice,
   type Product,
   type Store,
@@ -17,6 +18,8 @@ type SearchFilter = {
   key: string;
   label: string;
 };
+
+type ProductSort = "relevance" | "cheapest" | "coverage";
 
 const BASE_SOURCE_FILTERS: SearchFilter[] = [
   { key: "all", label: "Vše" },
@@ -29,6 +32,8 @@ const BASE_SOURCE_FILTERS: SearchFilter[] = [
 ];
 
 function getStoreFilter(store: Store): SearchFilter {
+  const normalizedShopName = normalizeText(store.shopName);
+
   if (store.source === "foodora") {
     return {
       key: `foodora:${normalizeText(store.shopName)}`,
@@ -39,7 +44,7 @@ function getStoreFilter(store: Store): SearchFilter {
   if (store.source === "kaufland") {
     return {
       key: "source:kaufland",
-      label: "Kaufland",
+      label: "Kaufland.cz",
     };
   }
 
@@ -47,6 +52,20 @@ function getStoreFilter(store: Store): SearchFilter {
     return {
       key: "source:lidl",
       label: "Lidl.cz",
+    };
+  }
+
+  if (normalizedShopName.includes("kaufland")) {
+    return {
+      key: "kupi:kaufland",
+      label: "Kaufland (Kupi)",
+    };
+  }
+
+  if (normalizedShopName.includes("lidl")) {
+    return {
+      key: "kupi:lidl",
+      label: "Lidl (Kupi)",
     };
   }
 
@@ -122,10 +141,12 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
   const [selectedFilter, setSelectedFilter] = useState("all");
+  const [selectedSort, setSelectedSort] = useState<ProductSort>("relevance");
 
   function handleResults(nextProducts: Product[]) {
     setProducts(nextProducts);
     setSelectedFilter("all");
+    setSelectedSort("relevance");
   }
 
   const availableFilters = [...BASE_SOURCE_FILTERS];
@@ -151,6 +172,22 @@ export default function Home() {
             ),
           }))
           .filter((product) => product.stores.length > 0);
+
+  const sortedVisibleProducts = [...visibleProducts].sort((a, b) => {
+    if (selectedSort === "cheapest") {
+      const priceDelta =
+        parsePrice(sortStoresByPrice(a.stores)[0]?.price || "") -
+        parsePrice(sortStoresByPrice(b.stores)[0]?.price || "");
+      if (priceDelta !== 0) return priceDelta;
+    }
+
+    if (selectedSort === "coverage") {
+      const coverageDelta = b.stores.length - a.stores.length;
+      if (coverageDelta !== 0) return coverageDelta;
+    }
+
+    return 0;
+  });
 
   return (
     <main className="min-h-screen bg-[radial-gradient(circle_at_top,_rgba(110,231,183,0.28),_transparent_40%),linear-gradient(180deg,_#ecfdf5_0%,_#f8fafc_48%,_#f5f7f6_100%)] px-4 py-6 text-zinc-900 sm:px-6 lg:px-8">
@@ -196,7 +233,7 @@ export default function Home() {
         </section>
 
         <section className="space-y-5">
-          <div className="flex items-end justify-between gap-4">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
             <div>
               <h2 className="text-2xl font-semibold tracking-tight text-emerald-950 sm:text-3xl">
                 Výsledky hledání
@@ -205,11 +242,39 @@ export default function Home() {
                 Obchody jsou uvnitř každé karty řazené od nejlevnější ceny.
               </p>
             </div>
-            {!loading && visibleProducts.length > 0 && (
-              <p className="rounded-full border border-emerald-200 bg-white px-4 py-2 text-sm font-medium text-emerald-800">
-                {visibleProducts.length} produktů
-              </p>
-            )}
+            <div className="flex flex-wrap items-center gap-2">
+              {!loading && visibleProducts.length > 0 && (
+                <p className="rounded-full border border-emerald-200 bg-white px-4 py-2 text-sm font-medium text-emerald-800">
+                  {visibleProducts.length} produktů
+                </p>
+              )}
+              {!loading && visibleProducts.length > 0 && (
+                <div className="flex flex-wrap gap-2">
+                  {[
+                    { key: "relevance", label: "Relevance" },
+                    { key: "cheapest", label: "Nejlevnější" },
+                    { key: "coverage", label: "Nejvíc obchodů" },
+                  ].map((option) => {
+                    const isActive = selectedSort === option.key;
+
+                    return (
+                      <button
+                        key={option.key}
+                        type="button"
+                        onClick={() => setSelectedSort(option.key as ProductSort)}
+                        className={`rounded-full border px-4 py-2 text-sm font-semibold transition ${
+                          isActive
+                            ? "border-emerald-600 bg-emerald-600 text-white"
+                            : "border-emerald-200 bg-white text-emerald-900 hover:border-emerald-300 hover:bg-emerald-50"
+                        }`}
+                      >
+                        {option.label}
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
           </div>
 
           {!loading && products.length > 0 && (
@@ -253,9 +318,9 @@ export default function Home() {
 
           {loading && <LoadingCards />}
 
-          {!loading && visibleProducts.length > 0 && (
+          {!loading && sortedVisibleProducts.length > 0 && (
             <div className="grid gap-4">
-              {visibleProducts.map((product) => {
+              {sortedVisibleProducts.map((product) => {
                 const stores = sortStoresByPrice(product.stores);
 
                 return (
