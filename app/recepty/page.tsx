@@ -10,18 +10,35 @@ import {
   type Store,
 } from "@/lib/food";
 import { RECIPE_PRESETS } from "@/lib/recipes";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+
+type ShoppingMode = "cross_store" | "single_store";
+
+type IngredientStoreOption = {
+  product: Product;
+  store: Store;
+};
 
 type IngredientResult = {
   ingredient: string;
   product: Product | null;
   store: Store | null;
+  storeOptions: IngredientStoreOption[];
 };
 
 type SavedShoppingList = {
   recipe: string;
   ingredients: string[];
   results: IngredientResult[];
+  checkedIngredients?: string[];
+  shoppingMode?: ShoppingMode;
+};
+
+type SingleStorePlan = {
+  shopName: string;
+  totalPrice: number;
+  matchedCount: number;
+  missingCount: number;
 };
 
 const STORAGE_KEY = "foodapka-shopping-list";
@@ -42,6 +59,109 @@ function RecipeSkeleton() {
   );
 }
 
+function readJsonSafely(text: string) {
+  if (!text.trim()) return null;
+
+  try {
+    return JSON.parse(text) as unknown;
+  } catch {
+    return null;
+  }
+}
+
+function buildIngredientStoreOptions(products: Product[]) {
+  const bestStoreByShop = new Map<string, IngredientStoreOption>();
+
+  products.forEach((product) => {
+    sortStoresByPrice(product.stores).forEach((store) => {
+      const shopName = store.shopName.trim();
+      if (!shopName) return;
+
+      const currentBest = bestStoreByShop.get(shopName);
+      if (
+        !currentBest ||
+        parsePrice(store.price) < parsePrice(currentBest.store.price)
+      ) {
+        bestStoreByShop.set(shopName, { product, store });
+      }
+    });
+  });
+
+  return Array.from(bestStoreByShop.values()).sort(
+    (a, b) => parsePrice(a.store.price) - parsePrice(b.store.price),
+  );
+}
+
+function getSelectionForMode(
+  item: IngredientResult,
+  mode: ShoppingMode,
+  preferredShopName?: string,
+) {
+  if (mode === "single_store" && preferredShopName) {
+    const preferredOption =
+      item.storeOptions.find(
+        (option) => option.store.shopName === preferredShopName,
+      ) ?? null;
+
+    return {
+      product: preferredOption?.product ?? null,
+      store: preferredOption?.store ?? null,
+    };
+  }
+
+  return {
+    product: item.product,
+    store: item.store,
+  };
+}
+
+function buildSingleStorePlans(items: IngredientResult[]) {
+  const seenShops = new Set<string>();
+  const shopNames: string[] = [];
+
+  items.forEach((item) => {
+    item.storeOptions.forEach((option) => {
+      if (seenShops.has(option.store.shopName)) return;
+      seenShops.add(option.store.shopName);
+      shopNames.push(option.store.shopName);
+    });
+  });
+
+  return shopNames
+    .map((shopName) => {
+      let totalPrice = 0;
+      let matchedCount = 0;
+
+      items.forEach((item) => {
+        const option = item.storeOptions.find(
+          (candidate) => candidate.store.shopName === shopName,
+        );
+        if (!option) return;
+
+        matchedCount += 1;
+        totalPrice += parsePrice(option.store.price);
+      });
+
+      return {
+        shopName,
+        totalPrice,
+        matchedCount,
+        missingCount: items.length - matchedCount,
+      } satisfies SingleStorePlan;
+    })
+    .sort((a, b) => {
+      if (b.matchedCount !== a.matchedCount) {
+        return b.matchedCount - a.matchedCount;
+      }
+
+      if (a.totalPrice !== b.totalPrice) {
+        return a.totalPrice - b.totalPrice;
+      }
+
+      return a.shopName.localeCompare(b.shopName, "cs");
+    });
+}
+
 export default function RecipesPage() {
   const [recipe, setRecipe] = useState("");
   const [activeRecipe, setActiveRecipe] = useState("");
@@ -49,12 +169,40 @@ export default function RecipesPage() {
   const [ingredients, setIngredients] = useState<string[]>([]);
   const [results, setResults] = useState<IngredientResult[]>([]);
   const [checkedIngredients, setCheckedIngredients] = useState<string[]>([]);
+  const [shoppingMode, setShoppingMode] =
+    useState<ShoppingMode>("cross_store");
   const [error, setError] = useState<string | null>(null);
   const [shareMessage, setShareMessage] = useState<string | null>(null);
+  const shoppingListRef = useRef<HTMLElement | null>(null);
 
-  const totalSavings = results.reduce((sum, item) => {
-    if (!item.store) return sum;
-    return sum + parsePrice(item.store.price);
+  const itemsToBuy = results.filter(
+    (item) => !checkedIngredients.includes(item.ingredient),
+  );
+  const singleStorePlans = buildSingleStorePlans(itemsToBuy);
+  const bestSingleStorePlan = singleStorePlans[0] ?? null;
+  const selectedSingleStoreName =
+    shoppingMode === "single_store" ? bestSingleStorePlan?.shopName : undefined;
+
+  const selectedResults = results.map((item) => {
+    const selection = getSelectionForMode(
+      item,
+      shoppingMode,
+      selectedSingleStoreName,
+    );
+
+    return {
+      ...item,
+      selectedProduct: selection.product,
+      selectedStore: selection.store,
+    };
+  });
+
+  const totalPrice = selectedResults.reduce((sum, item) => {
+    if (checkedIngredients.includes(item.ingredient) || !item.selectedStore) {
+      return sum;
+    }
+
+    return sum + parsePrice(item.selectedStore.price);
   }, 0);
 
   useEffect(() => {
@@ -66,8 +214,14 @@ export default function RecipesPage() {
       setRecipe(parsed.recipe);
       setActiveRecipe(parsed.recipe);
       setIngredients(parsed.ingredients);
-      setResults(parsed.results);
-      setCheckedIngredients([]);
+      setResults(
+        parsed.results.map((item) => ({
+          ...item,
+          storeOptions: Array.isArray(item.storeOptions) ? item.storeOptions : [],
+        })),
+      );
+      setCheckedIngredients(parsed.checkedIngredients ?? []);
+      setShoppingMode(parsed.shoppingMode ?? "cross_store");
     } catch {
       window.localStorage.removeItem(STORAGE_KEY);
     }
@@ -92,20 +246,38 @@ export default function RecipesPage() {
     const lines = [
       activeRecipe ? `Nakup pro recept: ${activeRecipe}` : "Nakupni seznam",
       "",
-      ...results.map((item) => {
-        if (!item.product || !item.store) {
-          return `- ${item.ingredient}: bez nalezene nabidky`;
+      shoppingMode === "single_store"
+        ? bestSingleStorePlan
+          ? `Rezim: co nejlevneji v jednom obchode (${bestSingleStorePlan.shopName})`
+          : "Rezim: co nejlevneji v jednom obchode"
+        : "Rezim: nejlevneji napric obchody",
+      "",
+      ...selectedResults.map((item) => {
+        if (checkedIngredients.includes(item.ingredient)) {
+          return `- ${item.ingredient}: mam doma`;
         }
 
-        const meta = [item.store.price, item.store.shopName]
+        if (!item.selectedProduct || !item.selectedStore) {
+          return shoppingMode === "single_store" && bestSingleStorePlan
+            ? `- ${item.ingredient}: v ${bestSingleStorePlan.shopName} nenalezeno`
+            : `- ${item.ingredient}: bez nalezene nabidky`;
+        }
+
+        const meta = [item.selectedStore.price, item.selectedStore.shopName]
           .filter(Boolean)
           .join(" - ");
 
         return `- ${item.ingredient}: ${meta}`;
       }),
       "",
-      `Celkem: ${totalSavings.toFixed(2).replace(".", ",")} Kc`,
+      `Celkem: ${totalPrice.toFixed(2).replace(".", ",")} Kc`,
     ];
+
+    if (shoppingMode === "single_store" && bestSingleStorePlan) {
+      lines.push(
+        `Pokryti: ${bestSingleStorePlan.matchedCount}/${itemsToBuy.length} polozek`,
+      );
+    }
 
     return lines.join("\n");
   }
@@ -115,6 +287,8 @@ export default function RecipesPage() {
       recipe: activeRecipe || recipe,
       ingredients,
       results,
+      checkedIngredients,
+      shoppingMode,
     };
 
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
@@ -150,6 +324,7 @@ export default function RecipesPage() {
     setResults([]);
     setIngredients([]);
     setCheckedIngredients([]);
+    setShoppingMode("cross_store");
 
     try {
       const recipeResponse = await fetch("/api/recipe", {
@@ -157,47 +332,57 @@ export default function RecipesPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ recipe: recipeName }),
       });
-      const recipeData = await recipeResponse.json();
+      const recipeData = readJsonSafely(await recipeResponse.text()) as
+        | { recipe?: string; ingredients?: unknown[]; error?: string }
+        | null;
 
       if (!recipeResponse.ok) {
-        throw new Error(recipeData.error || "Nepodařilo se načíst ingredience.");
+        throw new Error(recipeData?.error || "Nepodařilo se načíst ingredience.");
       }
 
-      const parsedIngredients = Array.isArray(recipeData.ingredients)
-        ? recipeData.ingredients
+      const parsedIngredients = Array.isArray(recipeData?.ingredients)
+        ? recipeData.ingredients.filter(
+            (ingredient): ingredient is string => typeof ingredient === "string",
+          )
         : [];
 
-      setActiveRecipe(recipeData.recipe ?? recipeName);
+      const recipeLabel = recipeData?.recipe ?? recipeName;
+      setActiveRecipe(recipeLabel);
       setIngredients(parsedIngredients);
 
       const ingredientResults = await Promise.all(
-        parsedIngredients.map(async (ingredient: string) => {
-          const searchResponse = await fetch(
-            `/api/search?q=${encodeURIComponent(ingredient)}`,
-          );
-          const searchData = await searchResponse.json();
-          const products = (searchData.products ?? []) as Product[];
-
-          const cheapestProduct = products
-            .map((product) => ({
-              product,
-              stores: sortStoresByPrice(product.stores),
-            }))
-            .filter((item) => item.stores.length > 0)
-            .sort(
-              (a, b) =>
-                parsePrice(a.stores[0].price) - parsePrice(b.stores[0].price),
-            )[0];
+        parsedIngredients.map(async (ingredient) => {
+          const searchParams = new URLSearchParams({
+            q: ingredient,
+            recipe: recipeLabel,
+            ingredients: parsedIngredients.join("|"),
+          });
+          const searchResponse = await fetch(`/api/search?${searchParams}`);
+          const searchData = readJsonSafely(await searchResponse.text()) as
+            | { products?: Product[] }
+            | null;
+          const products = Array.isArray(searchData?.products)
+            ? searchData.products
+            : [];
+          const storeOptions = buildIngredientStoreOptions(products);
+          const cheapestOption = storeOptions[0] ?? null;
 
           return {
             ingredient,
-            product: cheapestProduct?.product ?? null,
-            store: cheapestProduct?.stores[0] ?? null,
+            product: cheapestOption?.product ?? null,
+            store: cheapestOption?.store ?? null,
+            storeOptions,
           };
         }),
       );
 
       setResults(ingredientResults);
+      window.setTimeout(() => {
+        shoppingListRef.current?.scrollIntoView({
+          behavior: "smooth",
+          block: "start",
+        });
+      }, 50);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Něco se pokazilo.");
     } finally {
@@ -291,14 +476,15 @@ export default function RecipesPage() {
           </div>
         </section>
 
-        <section className="space-y-5">
+        <section ref={shoppingListRef} className="space-y-5">
           <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
             <div>
               <h2 className="text-2xl font-semibold tracking-tight text-emerald-950">
                 Nákupní list
               </h2>
               <p className="text-sm text-zinc-600">
-                Odškrtávejte položky a vezměte si seznam s sebou do obchodu.
+                Přepněte si, jestli chcete nejlevnější nákup napříč obchody,
+                nebo co nejlevnější variantu v jednom řetězci.
               </p>
             </div>
             {ingredients.length > 0 && !loading && (
@@ -328,8 +514,8 @@ export default function RecipesPage() {
                       {activeRecipe}
                     </h3>
                     <p className="mt-2 text-sm text-zinc-600">
-                      {checkedIngredients.length}/{results.length} položek
-                      odškrtnuto
+                      {checkedIngredients.length}/{results.length} položek máte
+                      doma
                     </p>
                   </div>
 
@@ -346,9 +532,45 @@ export default function RecipesPage() {
                       onClick={() => void shareShoppingList()}
                       className="inline-flex items-center rounded-full border border-zinc-200 bg-white px-4 py-2 text-sm font-semibold text-zinc-700 transition hover:border-emerald-300 hover:text-emerald-700"
                     >
-                      Poslat nebo kopírovat
+                      Sdílet
                     </button>
                   </div>
+                </div>
+
+                <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                  <div className="inline-flex rounded-full border border-emerald-200 bg-emerald-50 p-1">
+                    <button
+                      type="button"
+                      onClick={() => setShoppingMode("cross_store")}
+                      className={`rounded-full px-4 py-2 text-sm font-semibold transition ${
+                        shoppingMode === "cross_store"
+                          ? "bg-emerald-600 text-white"
+                          : "text-emerald-800 hover:bg-emerald-100"
+                      }`}
+                    >
+                      Napříč obchody
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setShoppingMode("single_store")}
+                      className={`rounded-full px-4 py-2 text-sm font-semibold transition ${
+                        shoppingMode === "single_store"
+                          ? "bg-emerald-600 text-white"
+                          : "text-emerald-800 hover:bg-emerald-100"
+                      }`}
+                    >
+                      Jeden obchod
+                    </button>
+                  </div>
+
+                  {shoppingMode === "single_store" && bestSingleStorePlan && (
+                    <p className="rounded-full border border-zinc-200 bg-white px-4 py-2 text-sm font-medium text-zinc-700">
+                      {getStoreIcon(bestSingleStorePlan.shopName)}{" "}
+                      {bestSingleStorePlan.shopName} ·{" "}
+                      {bestSingleStorePlan.matchedCount}/{itemsToBuy.length}{" "}
+                      položek
+                    </p>
+                  )}
                 </div>
 
                 {shareMessage && (
@@ -358,7 +580,7 @@ export default function RecipesPage() {
                 )}
 
                 <ul className="mt-4 grid gap-3">
-                  {results.map((item) => {
+                  {selectedResults.map((item) => {
                     const isChecked = checkedIngredients.includes(item.ingredient);
 
                     return (
@@ -397,30 +619,39 @@ export default function RecipesPage() {
                                   {item.ingredient}
                                 </p>
 
-                                {item.product && item.store ? (
+                                {item.selectedProduct && item.selectedStore ? (
                                   <>
                                     <p className="text-sm font-medium text-zinc-800">
-                                      {cleanProductName(item.product.name)}
+                                      {cleanProductName(item.selectedProduct.name)}
                                     </p>
                                     <div className="flex flex-wrap items-center gap-2 text-sm text-zinc-600">
                                       <span className="text-lg">
-                                        {getStoreIcon(item.store.shopName)}
+                                        {getStoreIcon(item.selectedStore.shopName)}
                                       </span>
-                                      <span>{item.store.shopName}</span>
+                                      <span>{item.selectedStore.shopName}</span>
+                                      {item.selectedStore.sourceLabel && (
+                                        <span className="rounded-full border border-zinc-200 bg-white px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">
+                                          {item.selectedStore.sourceLabel}
+                                        </span>
+                                      )}
                                       <span className="rounded-full bg-emerald-600 px-3 py-1 text-xs font-semibold text-white">
-                                        Nejlevnější
+                                        {shoppingMode === "single_store"
+                                          ? "Vybráno v jednom obchodě"
+                                          : "Nejlevnější"}
                                       </span>
                                     </div>
-                                    {(item.store.validity ||
-                                      item.store.pricePerUnit) && (
+                                    {(item.selectedStore.validity ||
+                                      item.selectedStore.pricePerUnit) && (
                                       <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-zinc-500">
-                                        {item.store.validity && (
-                                          <span>Platnost: {item.store.validity}</span>
+                                        {item.selectedStore.validity && (
+                                          <span>
+                                            Platnost: {item.selectedStore.validity}
+                                          </span>
                                         )}
-                                        {item.store.pricePerUnit && (
+                                        {item.selectedStore.pricePerUnit && (
                                           <span>
                                             Jednotková cena:{" "}
-                                            {item.store.pricePerUnit}
+                                            {item.selectedStore.pricePerUnit}
                                           </span>
                                         )}
                                       </div>
@@ -428,20 +659,22 @@ export default function RecipesPage() {
                                   </>
                                 ) : (
                                   <p className="text-sm text-zinc-600">
-                                    Pro tuto ingredienci jsme zatím nenašli
-                                    odpovídající akční nabídku.
+                                    {shoppingMode === "single_store" &&
+                                    bestSingleStorePlan
+                                      ? `V ${bestSingleStorePlan.shopName} jsme pro tuto ingredienci nenašli akční nabídku.`
+                                      : "Pro tuto ingredienci jsme zatím nenašli odpovídající akční nabídku."}
                                   </p>
                                 )}
                               </div>
 
                               <div className="flex flex-col items-start gap-3 sm:items-end">
-                                {item.store ? (
+                                {item.selectedStore ? (
                                   <>
                                     <p className="text-2xl font-bold text-emerald-700">
-                                      {item.store.price}
+                                      {item.selectedStore.price}
                                     </p>
                                     <a
-                                      href={`https://www.kupi.cz${item.product?.url ?? ""}`}
+                                      href={item.selectedProduct?.url ?? ""}
                                       target="_blank"
                                       rel="noreferrer"
                                       className="inline-flex items-center rounded-full border border-emerald-200 bg-white px-4 py-2 text-sm font-semibold text-emerald-800 transition hover:border-emerald-300 hover:bg-emerald-100"
@@ -466,15 +699,28 @@ export default function RecipesPage() {
 
               <div className="rounded-[1.75rem] border border-emerald-200 bg-emerald-950 px-5 py-6 text-white shadow-[0_25px_60px_-35px_rgba(5,150,105,0.8)]">
                 <p className="text-sm uppercase tracking-[0.2em] text-emerald-200">
-                  Celková úspora
+                  {shoppingMode === "single_store"
+                    ? "Cena v jednom obchodě"
+                    : "Cena napříč obchody"}
                 </p>
                 <p className="mt-2 text-3xl font-bold">
-                  {totalSavings.toFixed(2).replace(".", ",")} Kč
+                  {totalPrice.toFixed(2).replace(".", ",")} Kč
                 </p>
                 <p className="mt-2 text-sm text-emerald-100">
-                  Součet nejlevnějších nalezených variant pro všechny položky v
-                  seznamu.
+                  {shoppingMode === "single_store"
+                    ? bestSingleStorePlan
+                      ? `Nejlíp vychází ${bestSingleStorePlan.shopName}. Pokrývá ${bestSingleStorePlan.matchedCount}/${itemsToBuy.length} položek.`
+                      : "Pro tento seznam zatím nemáme společný obchod."
+                    : "Součet nejlevnějších nalezených variant napříč všemi obchody."}
                 </p>
+                {shoppingMode === "single_store" &&
+                  bestSingleStorePlan &&
+                  bestSingleStorePlan.missingCount > 0 && (
+                    <p className="mt-2 text-sm text-emerald-200">
+                      {bestSingleStorePlan.missingCount} položek je potřeba
+                      dokoupit jinde nebo počkat na jinou akci.
+                    </p>
+                  )}
               </div>
             </div>
           )}

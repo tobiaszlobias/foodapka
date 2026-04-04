@@ -78,7 +78,7 @@ export async function searchLidlProducts(query: string) {
     `${LIDL_ORIGIN}/search?q=${encodeURIComponent(query)}`,
   );
 
-  if (url.includes("/c/ceny-v-klidu/") || isBlockedHtml(html)) {
+  if (isBlockedHtml(html)) {
     return [];
   }
 

@@ -2,13 +2,67 @@
 
 import SearchBar from "@/components/SearchBar";
 import SiteHeader from "@/components/SiteHeader";
+import { FOODORA_STORE_CONFIGS } from "@/data/foodoraStores";
 import {
   cleanProductName,
   getStoreIcon,
+  normalizeText,
   sortStoresByPrice,
   type Product,
+  type Store,
 } from "@/lib/food";
 import { useState } from "react";
+
+type SearchFilter = {
+  key: string;
+  label: string;
+};
+
+const BASE_SOURCE_FILTERS: SearchFilter[] = [
+  { key: "all", label: "Vše" },
+  { key: "source:kaufland", label: "Kaufland" },
+  { key: "source:lidl", label: "Lidl.cz" },
+  ...FOODORA_STORE_CONFIGS.map((store) => ({
+    key: `foodora:${normalizeText(store.chainName)}`,
+    label: `${store.chainName} (Foodora)`,
+  })),
+];
+
+function getStoreFilter(store: Store): SearchFilter {
+  if (store.source === "foodora") {
+    return {
+      key: `foodora:${normalizeText(store.shopName)}`,
+      label: `${store.shopName} (Foodora)`,
+    };
+  }
+
+  if (store.source === "kaufland") {
+    return {
+      key: "source:kaufland",
+      label: "Kaufland",
+    };
+  }
+
+  if (store.source === "lidl") {
+    return {
+      key: "source:lidl",
+      label: "Lidl.cz",
+    };
+  }
+
+  return {
+    key: `kupi:${normalizeText(store.shopName)}`,
+    label: `${store.shopName} (Kupi)`,
+  };
+}
+
+function getFilterCount(products: Product[], filterKey: string) {
+  if (filterKey === "all") return products.length;
+
+  return products.filter((product) =>
+    product.stores.some((store) => getStoreFilter(store).key === filterKey),
+  ).length;
+}
 
 function LoadingCards() {
   return (
@@ -67,6 +121,36 @@ export default function Home() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
+  const [selectedFilter, setSelectedFilter] = useState("all");
+
+  function handleResults(nextProducts: Product[]) {
+    setProducts(nextProducts);
+    setSelectedFilter("all");
+  }
+
+  const availableFilters = [...BASE_SOURCE_FILTERS];
+  const seenFilters = new Set<string>(availableFilters.map((filter) => filter.key));
+
+  products.forEach((product) => {
+    product.stores.forEach((store) => {
+      const filter = getStoreFilter(store);
+      if (seenFilters.has(filter.key)) return;
+      seenFilters.add(filter.key);
+      availableFilters.push(filter);
+    });
+  });
+
+  const visibleProducts =
+    selectedFilter === "all"
+      ? products
+      : products
+          .map((product) => ({
+            ...product,
+            stores: product.stores.filter(
+              (store) => getStoreFilter(store).key === selectedFilter,
+            ),
+          }))
+          .filter((product) => product.stores.length > 0);
 
   return (
     <main className="min-h-screen bg-[radial-gradient(circle_at_top,_rgba(110,231,183,0.28),_transparent_40%),linear-gradient(180deg,_#ecfdf5_0%,_#f8fafc_48%,_#f5f7f6_100%)] px-4 py-6 text-zinc-900 sm:px-6 lg:px-8">
@@ -87,7 +171,7 @@ export default function Home() {
                 </p>
               </div>
               <SearchBar
-                onResults={setProducts}
+                onResults={handleResults}
                 onLoading={setLoading}
                 onSearchStart={() => setHasSearched(true)}
               />
@@ -121,18 +205,57 @@ export default function Home() {
                 Obchody jsou uvnitř každé karty řazené od nejlevnější ceny.
               </p>
             </div>
-            {!loading && products.length > 0 && (
+            {!loading && visibleProducts.length > 0 && (
               <p className="rounded-full border border-emerald-200 bg-white px-4 py-2 text-sm font-medium text-emerald-800">
-                {products.length} produktů
+                {visibleProducts.length} produktů
               </p>
             )}
           </div>
 
+          {!loading && products.length > 0 && (
+            <div className="flex flex-wrap gap-2">
+              {availableFilters.map((filter) => {
+                const count = getFilterCount(products, filter.key);
+                const isActive = selectedFilter === filter.key;
+                const isDisabled = filter.key !== "all" && count === 0;
+
+                return (
+                  <button
+                    key={filter.key}
+                    type="button"
+                    onClick={() => setSelectedFilter(filter.key)}
+                    disabled={isDisabled}
+                    className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-semibold transition ${
+                      isActive
+                        ? "border-emerald-600 bg-emerald-600 text-white"
+                        : isDisabled
+                          ? "cursor-not-allowed border-zinc-200 bg-zinc-100 text-zinc-400"
+                          : "border-emerald-200 bg-white text-emerald-900 hover:border-emerald-300 hover:bg-emerald-50"
+                    }`}
+                  >
+                    <span>{filter.label}</span>
+                    <span
+                      className={`rounded-full px-2 py-0.5 text-xs ${
+                        isActive
+                          ? "bg-white/20 text-white"
+                          : isDisabled
+                            ? "bg-white text-zinc-400"
+                            : "bg-emerald-100 text-emerald-700"
+                      }`}
+                    >
+                      {count}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          )}
+
           {loading && <LoadingCards />}
 
-          {!loading && products.length > 0 && (
+          {!loading && visibleProducts.length > 0 && (
             <div className="grid gap-4">
-              {products.map((product) => {
+              {visibleProducts.map((product) => {
                 const stores = sortStoresByPrice(product.stores);
 
                 return (
@@ -151,7 +274,7 @@ export default function Home() {
                           </p>
                         </div>
                         <a
-                          href={`https://www.kupi.cz${product.url}`}
+                          href={product.url}
                           target="_blank"
                           rel="noreferrer"
                           className="inline-flex items-center justify-center rounded-full border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm font-semibold text-emerald-800 transition hover:border-emerald-300 hover:bg-emerald-100"
@@ -182,6 +305,11 @@ export default function Home() {
                                     <span className="font-semibold text-zinc-800">
                                       {item.shopName}
                                     </span>
+                                    {item.sourceLabel && (
+                                      <span className="rounded-full border border-zinc-200 bg-white px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">
+                                        {item.sourceLabel}
+                                      </span>
+                                    )}
                                     {cheapest && (
                                       <span className="rounded-full bg-emerald-600 px-3 py-1 text-xs font-semibold text-white">
                                         Nejlevnější
@@ -220,7 +348,7 @@ export default function Home() {
 
                                   {item.leafletUrl && (
                                     <a
-                                      href={`https://www.kupi.cz${item.leafletUrl}`}
+                                      href={item.leafletUrl}
                                       target="_blank"
                                       rel="noreferrer"
                                       className="inline-flex items-center rounded-full border border-zinc-200 bg-white px-3 py-1.5 text-xs font-semibold text-zinc-700 transition hover:border-emerald-300 hover:text-emerald-700"
@@ -241,7 +369,9 @@ export default function Home() {
             </div>
           )}
 
-          {!loading && products.length === 0 && <EmptyState hasSearched={hasSearched} />}
+          {!loading && visibleProducts.length === 0 && (
+            <EmptyState hasSearched={hasSearched} />
+          )}
         </section>
       </div>
     </main>
