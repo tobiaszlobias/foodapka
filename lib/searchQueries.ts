@@ -91,6 +91,13 @@ function dedupeQueries(queries: string[]) {
     });
 }
 
+function flatMapArray<T, R>(values: T[], mapper: (value: T) => R[]) {
+  return values.reduce<R[]>((accumulator, value) => {
+    accumulator.push(...mapper(value));
+    return accumulator;
+  }, []);
+}
+
 function tokenizeOriginalQuery(query: string) {
   return query.trim().split(/\s+/).filter(Boolean);
 }
@@ -175,7 +182,7 @@ const POPULAR_SEARCH_HINTS = dedupeQueries([
   "rajčata",
   "okurka",
   "paprika",
-  ...Object.values(searchDictionary).flatMap((entry) => [
+  ...flatMapArray(Object.values(searchDictionary), (entry) => [
     entry.label,
     ...entry.search_terms.slice(0, 2),
   ]),
@@ -285,7 +292,7 @@ function hasExactDictionaryMatch(
 
 function collectDictionaryEntries(queries: string[], limit = 6) {
   return dedupeDictionaryEntries(
-    queries.flatMap((query) => findDictionaryEntries(query, limit)),
+    flatMapArray(queries, (query) => findDictionaryEntries(query, limit)),
   );
 }
 
@@ -329,7 +336,7 @@ function buildDictionaryVariants(
   entries: PreparedSearchDictionaryEntry[],
   exactMatch: boolean,
 ) {
-  return entries.flatMap((entry) => {
+  return flatMapArray(entries, (entry) => {
     if (exactMatch) {
       return [entry.label, ...entry.aliases, ...entry.search_terms];
     }
@@ -410,8 +417,10 @@ export function buildAutocompleteSuggestions(query: string, limit = 6) {
 
   const normalizedQuery = normalizeSearchText(trimmedQuery);
   const directVariants = buildSearchQueryVariants(trimmedQuery);
-  const dictionarySuggestions = collectDictionaryEntries([trimmedQuery], limit)
-    .flatMap((entry) => [entry.label, ...entry.search_terms.slice(0, 2)]);
+  const dictionarySuggestions = flatMapArray(
+    collectDictionaryEntries([trimmedQuery], limit),
+    (entry) => [entry.label, ...entry.search_terms.slice(0, 2)],
+  );
 
   const matchedPopularHints = POPULAR_SEARCH_HINTS.filter((hint) => {
     const normalizedHint = normalizeSearchText(hint);
@@ -445,6 +454,6 @@ export function getDictionaryNegativeTerms(query: string, limit = 12) {
     exactEntries.length > 0 ? exactEntries : matchedEntries.slice(0, 4);
 
   return dedupeQueries(
-    sourceEntries.flatMap((entry) => entry.negative_terms),
+    flatMapArray(sourceEntries, (entry) => entry.negative_terms),
   ).slice(0, limit);
 }

@@ -72,6 +72,15 @@ function getProductCheapestPrice(product: Product) {
   return cheapestStore ? parsePrice(cheapestStore.price) : Number.POSITIVE_INFINITY;
 }
 
+function flattenStores(products: Product[]) {
+  return products.reduce<string[]>((accumulator, product) => {
+    accumulator.push(
+      ...product.stores.map((store) => store.shopName).filter(Boolean),
+    );
+    return accumulator;
+  }, []);
+}
+
 export default function Home() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(false);
@@ -80,11 +89,7 @@ export default function Home() {
   const [sortMode, setSortMode] = useState<ProductSortMode>("relevance");
 
   const availableStores = Array.from(
-    new Set(
-      products.flatMap((product) =>
-        product.stores.map((store) => store.shopName).filter(Boolean),
-      ),
-    ),
+    new Set(flattenStores(products)),
   ).sort((a, b) => a.localeCompare(b, "cs"));
 
   const visibleProducts = products
