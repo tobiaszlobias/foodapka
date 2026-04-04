@@ -289,6 +289,42 @@ function collectDictionaryEntries(queries: string[], limit = 6) {
   );
 }
 
+function hasStandaloneDictionaryMatch(query: string) {
+  const normalizedQuery = normalizeSearchText(query);
+  if (!normalizedQuery) return false;
+
+  return preparedSearchDictionaryEntries.some(
+    (entry) =>
+      entry.normalizedLabel === normalizedQuery ||
+      entry.normalizedAliases.includes(normalizedQuery) ||
+      entry.normalizedSearchTerms.includes(normalizedQuery),
+  );
+}
+
+function buildStandaloneTokenVariants(tokens: string[]) {
+  if (tokens.length < 2) return [];
+
+  const variants: string[] = [];
+
+  tokens.forEach((token) => {
+    const normalizedToken = normalizeSearchText(token);
+    if (!normalizedToken || GENERIC_QUERY_TOKENS.has(normalizedToken)) {
+      return;
+    }
+
+    if (hasStandaloneDictionaryMatch(token)) {
+      variants.push(token);
+    }
+
+    const legacyTokenVariants = LEGACY_TOKEN_VARIANTS[normalizedToken] ?? [];
+    legacyTokenVariants.forEach((variant) => {
+      variants.push(variant);
+    });
+  });
+
+  return dedupeQueries(variants);
+}
+
 function buildDictionaryVariants(
   entries: PreparedSearchDictionaryEntry[],
   exactMatch: boolean,
@@ -326,6 +362,7 @@ export function buildSearchQueryVariants(query: string) {
   }
 
   variants.push(...(LEGACY_PHRASE_VARIANTS[normalizedQuery] ?? []));
+  variants.push(...buildStandaloneTokenVariants(tokens));
 
   normalizedTokens.forEach((normalizedToken, index) => {
     const tokenVariants = LEGACY_TOKEN_VARIANTS[normalizedToken] ?? [];

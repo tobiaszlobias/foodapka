@@ -1,4 +1,5 @@
 import * as cheerio from "cheerio";
+import type { AnyNode } from "domhandler";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { NextRequest } from "next/server";
 import {
@@ -57,6 +58,7 @@ type SearchCandidate = {
   url: string;
   name: string;
   availability?: ProductAvailability;
+  stores?: Store[];
 };
 
 function tokenize(value: string) {
@@ -65,6 +67,69 @@ function tokenize(value: string) {
 
 function buildCandidateNameFromUrl(url: string) {
   return url.replace("/sleva/", "").replace(/-/g, " ").trim();
+}
+
+function extractStoresFromRows(
+  $: cheerio.CheerioAPI,
+  scope: cheerio.Cheerio<AnyNode>,
+) {
+  const stores: Store[] = [];
+  const seen = new Set<string>();
+
+  scope.find("div.discount_row").each((_, el) => {
+    const row = $(el);
+    const shopId = row.attr("data-shop") || "";
+    const price = row.find("strong.discount_price_value").first().text().trim();
+    const discountPct = row.find("div.discount_percentage").first().text().trim();
+    const originalPrice = (() => {
+      const p = parsePrice(price);
+      const pct = parseInt(discountPct.replace(/[^0-9]/g, ""));
+      if (!pct || !p) return "";
+      return `${(p / (1 - pct / 100)).toFixed(2)} Kč`;
+    })();
+    const shopName = row
+      .find(".discounts_shop_name span")
+      .first()
+      .text()
+      .replace(/\s+/g, " ")
+      .trim();
+    const pricePerUnit = row
+      .find(".price_per_unit")
+      .text()
+      .replace(/\s+/g, " ")
+      .trim();
+    const amount = row
+      .find(".amount_percentage, .discount_amount")
+      .text()
+      .replace(/\s+/g, " ")
+      .trim();
+    const validity = row
+      .find(".discounts_validity.valid_discount")
+      .text()
+      .replace(/\s+/g, " ")
+      .trim();
+    const leafletUrl = row.find("a.btn_link_leaflet").attr("href") || "";
+    const key = `${shopId}-${price}-${leafletUrl}`;
+
+    if (!price || !shopName || seen.has(key)) {
+      return;
+    }
+
+    seen.add(key);
+    stores.push({
+      shopId,
+      shopName,
+      price,
+      discountPct,
+      originalPrice,
+      pricePerUnit,
+      amount,
+      validity,
+      leafletUrl,
+    });
+  });
+
+  return stores;
 }
 
 function hasExactShortTokenMatch(query: string, productName: string) {
@@ -450,30 +515,38 @@ async function scrapeSearchCandidates(query: string, headers: HeadersInit) {
   const candidates: SearchCandidate[] = [];
   const seen = new Set<string>();
 
-  $s('a[href*="/sleva/"]').each((_, el) => {
-    const href = $s(el).attr("href");
+  $s("div.group_discounts").each((_, el) => {
+    const group = $s(el);
+    const productLink = group
+      .find('.product_name a[href*="/sleva/"], .product_image a[href*="/sleva/"]')
+      .first();
+    const href = productLink.attr("href");
     if (!href || seen.has(href)) return;
 
-    const name = $s(el).text().replace(/\s+/g, " ").trim();
+    const name =
+      productLink.attr("title")?.trim() ||
+      productLink.text().replace(/\s+/g, " ").trim();
     if (!name) return;
 
-    const cardText = $s(el)
-      .closest("section, article, li, div")
+    const cardText = group
       .text()
       .replace(/\s+/g, " ")
       .trim();
     const normalizedCardText = normalizeSearchText(cardText);
     const availability =
+      group.hasClass("notactive") ||
       normalizedCardText.includes("neni v akci") ||
       normalizedCardText.includes("aktualne neni ve sleve")
         ? ("not_on_sale" as const)
         : undefined;
+    const stores = extractStoresFromRows($s, group);
 
     seen.add(href);
     candidates.push({
       url: href,
       name,
       availability,
+      stores,
     });
   });
 
@@ -493,6 +566,38 @@ async function fetchProductDetail(
     return getCachedProductDetail(candidate.url);
   }
 
+  if (candidate.stores && candidate.stores.length > 0) {
+    const product = {
+      name: candidate.name,
+      url: candidate.url,
+      stores: sortStoresByPrice(estimateStoreSavings(candidate.stores)),
+      availability: "sale" as const,
+    };
+
+    productDetailCache.set(candidate.url, {
+      expiresAt: Date.now() + PRODUCT_DETAIL_CACHE_TTL_MS,
+      product,
+    });
+
+    return product;
+  }
+
+  if (candidate.availability === "not_on_sale" && candidate.name) {
+    const product = {
+      name: candidate.name,
+      url: candidate.url,
+      stores: [],
+      availability: "not_on_sale" as const,
+    };
+
+    productDetailCache.set(candidate.url, {
+      expiresAt: Date.now() + PRODUCT_DETAIL_CACHE_TTL_MS,
+      product,
+    });
+
+    return product;
+  }
+
   const detailRes = await fetch(`https://www.kupi.cz${candidate.url}`, {
     headers,
   });
@@ -504,51 +609,7 @@ async function fetchProductDetail(
     candidate.name ||
     buildCandidateNameFromUrl(candidate.url);
 
-  const stores: Store[] = [];
-  const seen = new Set<string>();
-
-  $d("div.discount_row").each((_, el) => {
-    const shopId = $d(el).attr("data-shop") || "";
-
-    const price = $d(el).find("strong.discount_price_value").text().trim();
-    const discountPct = $d(el).find("div.discount_percentage").text().trim();
-    const originalPrice = (() => {
-      const p = parsePrice(price);
-      const pct = parseInt(discountPct.replace(/[^0-9]/g, ""));
-      if (!pct || !p) return "";
-      return (p / (1 - pct / 100)).toFixed(2) + " Kč";
-    })();
-
-    const shopName = $d(el)
-      .find(".discounts_shop_wrap")
-      .text()
-      .replace(/\s*\d+\s+nejbližší(ch)?\s+poboče?k?[ay]?/gi, "")
-      .trim();
-
-    const pricePerUnit = $d(el).find(".price_per_unit").text().trim();
-    const amount = $d(el).find(".amount_percentage").text().trim();
-    const validity = $d(el)
-      .find(".discounts_validity.valid_discount")
-      .text()
-      .trim();
-    const leafletUrl = $d(el).find("a.btn_link_leaflet").attr("href") || "";
-    const key = `${shopId}-${price}`;
-
-    if (price && !seen.has(key)) {
-      seen.add(key);
-      stores.push({
-        shopId,
-        shopName,
-        price,
-        discountPct,
-        originalPrice,
-        pricePerUnit,
-        amount,
-        validity,
-        leafletUrl,
-      });
-    }
-  });
+  const stores = extractStoresFromRows($d, $d.root());
 
   let product: Product | null = null;
 
