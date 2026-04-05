@@ -41,6 +41,91 @@ export function normalizeText(value: string) {
     .trim();
 }
 
+function normalizeSearchText(value: string) {
+  return normalizeText(value)
+    .replace(/\bbezlaktoz\w*/g, "bez laktoz")
+    .replace(/\bbezlepk\w*/g, "bez lepk")
+    .replace(/\bbezcukr\w*/g, "bez cukr")
+    .replace(/\bpolotucn\w*/g, "polotucne")
+    .replace(/\bplnotucn\w*/g, "plnotucne")
+    .replace(/\btrvanliv\w*/g, "trvanlive")
+    .replace(/\bcerstv\w*/g, "cerstve")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function tokenizeSearchText(value: string) {
+  return normalizeSearchText(value).split(" ").filter(Boolean);
+}
+
+const GENERIC_QUERY_TOKENS = new Set([
+  "bio",
+  "cerstve",
+  "jidlo",
+  "maso",
+  "mleko",
+  "napoj",
+  "potravina",
+  "produkt",
+  "syr",
+  "testoviny",
+  "trvanlive",
+    "vyrobek",
+  "zelenina",
+  "ovoce",
+]);
+
+const IGNORE_QUERY_TOKENS = new Set([
+  "a",
+  "bez",
+  "do",
+  "na",
+  "od",
+  "po",
+  "pro",
+  "s",
+  "u",
+  "v",
+  "z",
+]);
+
+const NON_FOOD_NAME_TOKENS = new Set([
+  "baleni",
+  "box",
+  "detske",
+  "doza",
+  "dzungle",
+  "hrnek",
+  "kartac",
+  "kryt",
+  "lahev",
+  "lahve",
+  "latka",
+  "mixér",
+  "mixer",
+  "mlekovar",
+  "nerez",
+  "obal",
+  "penezenka",
+  "pribor",
+  "rukavice",
+  "sklenice",
+  "termo",
+  "tricko",
+]);
+
+const RECIPE_MISMATCH_TOKENS = new Set([
+  "aperitiv",
+  "granule",
+  "kapsicka",
+  "koreni",
+  "krmivo",
+  "liker",
+  "napoj",
+  "omacka",
+  "smes",
+]);
+
 export function parsePrice(price: string) {
   const normalized = price.replace(/\s/g, "").replace(",", ".").match(/[\d.]+/);
   return normalized ? Number(normalized[0]) : Number.POSITIVE_INFINITY;
@@ -111,37 +196,97 @@ export function dedupeStores(stores: Store[]) {
 }
 
 export function scoreProductMatch(name: string, query: string) {
-  const normalizedName = normalizeText(cleanProductName(name));
-  const normalizedQuery = normalizeText(query);
+  const normalizedName = normalizeSearchText(cleanProductName(name));
+  const normalizedQuery = normalizeSearchText(query);
 
   if (!normalizedQuery) return 0;
-  if (normalizedName === normalizedQuery) return 100;
-  if (normalizedName.includes(normalizedQuery)) return 80;
+  if (normalizedName === normalizedQuery) return 240;
+  if (normalizedName.startsWith(normalizedQuery)) return 210;
+  if (normalizedName.includes(normalizedQuery)) return 180;
 
-  const nameTokens = normalizedName.split(" ").filter(Boolean);
-  const queryTokens = normalizedQuery.split(" ").filter(Boolean);
+  const nameTokens = tokenizeSearchText(normalizedName);
+  const queryTokens = tokenizeSearchText(normalizedQuery);
   if (queryTokens.length === 0) return 0;
+
+  if (nameTokens.some((token) => NON_FOOD_NAME_TOKENS.has(token))) {
+    return 0;
+  }
 
   let exactMatches = 0;
   let partialMatches = 0;
+  let missingSpecificTokens = 0;
+  let matchedSpecificTokens = 0;
+
+  const specificQueryTokens = queryTokens.filter(
+    (token) =>
+      !IGNORE_QUERY_TOKENS.has(token) && !GENERIC_QUERY_TOKENS.has(token),
+  );
 
   queryTokens.forEach((queryToken) => {
-    if (nameTokens.some((nameToken) => nameToken === queryToken)) {
+    const hasExactMatch = nameTokens.some((nameToken) => nameToken === queryToken);
+    if (hasExactMatch) {
       exactMatches += 1;
+      if (specificQueryTokens.includes(queryToken)) {
+        matchedSpecificTokens += 1;
+      }
       return;
     }
 
-    if (
-      nameTokens.some(
-        (nameToken) =>
-          nameToken.startsWith(queryToken) || queryToken.startsWith(nameToken),
-      )
-    ) {
+    const hasPartialMatch = nameTokens.some(
+      (nameToken) =>
+        nameToken.startsWith(queryToken) ||
+        queryToken.startsWith(nameToken) ||
+        (queryToken.length >= 5 && nameToken.includes(queryToken)) ||
+        (nameToken.length >= 5 && queryToken.includes(nameToken)),
+    );
+
+    if (hasPartialMatch) {
       partialMatches += 1;
+      if (specificQueryTokens.includes(queryToken)) {
+        matchedSpecificTokens += 1;
+      }
+      return;
+    }
+
+    if (specificQueryTokens.includes(queryToken)) {
+      missingSpecificTokens += 1;
     }
   });
 
-  return exactMatches * 12 + partialMatches * 5 - Math.max(0, nameTokens.length - 6);
+  if (specificQueryTokens.length > 0 && matchedSpecificTokens === 0) {
+    return 0;
+  }
+
+  if (queryTokens.length > 1 && exactMatches + partialMatches < 2) {
+    return 0;
+  }
+
+  if (missingSpecificTokens > 0 && matchedSpecificTokens < specificQueryTokens.length) {
+    if (matchedSpecificTokens === 0) return 0;
+    if (queryTokens.length >= 2 && matchedSpecificTokens < Math.ceil(specificQueryTokens.length / 2)) {
+      return 0;
+    }
+  }
+
+  if (nameTokens.some((token) => RECIPE_MISMATCH_TOKENS.has(token))) {
+    const queryHasMismatchToken = queryTokens.some((token) =>
+      RECIPE_MISMATCH_TOKENS.has(token),
+    );
+    if (!queryHasMismatchToken && specificQueryTokens.length > 0) {
+      return 0;
+    }
+  }
+
+  const tokenCoverage = exactMatches + partialMatches;
+  const extraTokensPenalty = Math.max(0, nameTokens.length - tokenCoverage - 4);
+
+  return (
+    exactMatches * 28 +
+    partialMatches * 10 +
+    matchedSpecificTokens * 18 -
+    missingSpecificTokens * 14 -
+    extraTokensPenalty * 3
+  );
 }
 
 export function mergeProductsByName(products: Product[]) {
