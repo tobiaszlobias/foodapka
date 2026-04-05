@@ -1,468 +1,381 @@
-"use client";
-
 import Image from "next/image";
-import SearchBar from "@/components/SearchBar";
-import SiteHeader from "@/components/SiteHeader";
-import { FOODORA_STORE_CONFIGS } from "@/data/foodoraStores";
-import {
-  cleanProductName,
-  getStoreIcon,
-  normalizeText,
-  parsePrice,
-  sortStoresByPrice,
-  type Product,
-  type Store,
-} from "@/lib/food";
-import { getStoreLogoPath } from "@/lib/storeLogos";
-import { useState } from "react";
+import Link from "next/link";
 
-type SearchFilter = {
-  key: string;
-  label: string;
-};
-
-type ProductSort = "relevance" | "cheapest" | "coverage";
-
-const BASE_SOURCE_FILTERS: SearchFilter[] = [
-  { key: "all", label: "Vše" },
-  { key: "source:kaufland", label: "Kaufland" },
-  { key: "source:lidl", label: "Lidl.cz" },
-  ...FOODORA_STORE_CONFIGS.map((store) => ({
-    key: `foodora:${normalizeText(store.chainName)}`,
-    label: `${store.chainName} (Foodora)`,
-  })),
-];
-
-function getStoreFilter(store: Store): SearchFilter {
-  const normalizedShopName = normalizeText(store.shopName);
-
-  if (store.source === "foodora") {
-    return {
-      key: `foodora:${normalizeText(store.shopName)}`,
-      label: `${store.shopName} (Foodora)`,
-    };
-  }
-
-  if (store.source === "kaufland") {
-    return {
-      key: "source:kaufland",
-      label: "Kaufland.cz",
-    };
-  }
-
-  if (store.source === "lidl") {
-    return {
-      key: "source:lidl",
-      label: "Lidl.cz",
-    };
-  }
-
-  if (normalizedShopName.includes("kaufland")) {
-    return {
-      key: "kupi:kaufland",
-      label: "Kaufland (Kupi)",
-    };
-  }
-
-  if (normalizedShopName.includes("lidl")) {
-    return {
-      key: "kupi:lidl",
-      label: "Lidl (Kupi)",
-    };
-  }
-
-  return {
-    key: `kupi:${normalizeText(store.shopName)}`,
-    label: `${store.shopName} (Kupi)`,
-  };
-}
-
-function StoreBrand({ shopName }: { shopName: string }) {
-  const logoPath = getStoreLogoPath(shopName);
-  const isLidl = normalizeText(shopName).includes("lidl");
-
-  if (logoPath) {
-    return (
-      <span className="inline-flex items-center justify-center">
-        <Image
-          src={logoPath}
-          alt={`${shopName} logo`}
-          width={isLidl ? 68 : 56}
-          height={isLidl ? 68 : 56}
-          className={isLidl ? "h-[4.25rem] w-[4.25rem] object-contain" : "h-14 w-14 object-contain"}
-          unoptimized
-        />
-      </span>
-    );
-  }
-
+export default function HomePage() {
   return (
-    <>
-      <span className="text-lg">{getStoreIcon(shopName)}</span>
-      <span className="font-semibold text-zinc-800">{shopName}</span>
-    </>
-  );
-}
+    <div className="min-h-screen bg-gradient-to-b from-emerald-50 via-white to-emerald-50/30">
+      {/* Navigation */}
+      <nav className="fixed top-0 z-50 w-full border-b border-emerald-100/50 bg-white/80 backdrop-blur-xl">
+        <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4 lg:px-8">
+          <div className="text-2xl font-black tracking-tight text-emerald-800" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
+            foodapka
+          </div>
+          <div className="hidden items-center gap-8 md:flex">
+            <a href="#recepty" className="font-semibold text-emerald-800 transition hover:text-emerald-600">
+              Recepty
+            </a>
+            <a href="#letaky" className="font-semibold text-emerald-700 transition hover:text-emerald-600">
+              Letáky
+            </a>
+            <a href="#aplikace" className="font-semibold text-emerald-700 transition hover:text-emerald-600">
+              Aplikace
+            </a>
+          </div>
+          <Link
+            href="/app"
+            className="rounded-full bg-emerald-700 px-6 py-2.5 font-bold text-white transition hover:bg-emerald-800 active:scale-95"
+          >
+            Začít hledat
+          </Link>
+        </div>
+      </nav>
 
-function getFilterCount(products: Product[], filterKey: string) {
-  if (filterKey === "all") return products.length;
-
-  return products.filter((product) =>
-    product.stores.some((store) => getStoreFilter(store).key === filterKey),
-  ).length;
-}
-
-function LoadingCards() {
-  return (
-    <div className="grid gap-4">
-      {Array.from({ length: 3 }).map((_, index) => (
-        <article
-          key={index}
-          className="overflow-hidden rounded-[2rem] border border-emerald-100 bg-white/90 p-5 shadow-[0_20px_50px_-30px_rgba(16,185,129,0.4)]"
-        >
-          <div className="animate-pulse space-y-4">
-            <div className="h-6 w-2/3 rounded-full bg-emerald-100" />
-            <div className="h-4 w-40 rounded-full bg-zinc-100" />
-            <div className="grid gap-3">
-              {Array.from({ length: 3 }).map((_, storeIndex) => (
-                <div
-                  key={storeIndex}
-                  className="flex items-center justify-between rounded-2xl border border-zinc-100 bg-zinc-50 px-4 py-4"
-                >
-                  <div className="space-y-2">
-                    <div className="h-4 w-24 rounded-full bg-zinc-200" />
-                    <div className="h-3 w-16 rounded-full bg-zinc-100" />
-                  </div>
-                  <div className="space-y-2">
-                    <div className="h-4 w-20 rounded-full bg-emerald-100" />
-                    <div className="h-3 w-24 rounded-full bg-zinc-100" />
-                  </div>
+      {/* Hero Section */}
+      <section className="relative overflow-hidden px-6 pb-32 pt-32 lg:px-8">
+        <div className="mx-auto grid max-w-7xl grid-cols-1 items-center gap-16 lg:grid-cols-2">
+          <div className="z-10">
+            <h1 
+              className="mb-8 text-5xl font-extrabold leading-[1.1] tracking-tight text-emerald-950 md:text-6xl lg:text-7xl"
+              style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}
+            >
+              Najděte nejlevnější akční cenu dřív, než vyrazíte do obchodu.
+            </h1>
+            
+            {/* Hero Search Bar */}
+            <Link href="/app" className="group relative block max-w-2xl">
+              <div className="flex items-center rounded-xl bg-white p-2 shadow-[0_12px_24px_rgba(25,28,28,0.06)] transition-all duration-300 group-hover:scale-[1.02] group-hover:shadow-[0_20px_40px_rgba(25,28,28,0.1)]">
+                <span className="ml-4 text-2xl text-emerald-600">🔍</span>
+                <div className="w-full px-4 py-4 text-lg font-medium text-emerald-600/70">
+                  Hledejte máslo, mléko nebo vaši oblíbenou kávu...
                 </div>
-              ))}
+                <div className="rounded-lg bg-emerald-700 px-8 py-4 font-bold text-white transition group-hover:bg-emerald-800">
+                  Hledat
+                </div>
+              </div>
+            </Link>
+
+            {/* Statistics Cards */}
+            <div className="mt-12 flex flex-wrap gap-4">
+              <div className="rounded-xl border-l-4 border-emerald-700 bg-white px-6 py-4 shadow-sm">
+                <div className="text-2xl font-black text-emerald-800">5 mil</div>
+                <div className="text-sm font-bold uppercase tracking-wider text-emerald-700">produktů</div>
+              </div>
+              <div className="rounded-xl border-l-4 border-emerald-700 bg-white px-6 py-4 shadow-sm">
+                <div className="text-2xl font-black text-emerald-800">7+ řetězců</div>
+                <div className="text-sm font-bold uppercase tracking-wider text-emerald-700">partnerů</div>
+              </div>
+              <div className="rounded-xl border-l-4 border-emerald-700 bg-white px-6 py-4 shadow-sm">
+                <div className="text-2xl font-black text-emerald-800">Denně</div>
+                <div className="text-sm font-bold uppercase tracking-wider text-emerald-700">aktualizace</div>
+              </div>
             </div>
           </div>
-        </article>
-      ))}
-    </div>
-  );
-}
 
-function EmptyState({ hasSearched }: { hasSearched: boolean }) {
-  return (
-    <div className="rounded-[2rem] border border-dashed border-emerald-200 bg-white/70 px-6 py-12 text-center shadow-[0_20px_40px_-35px_rgba(16,185,129,0.5)]">
-      <div className="mx-auto mb-5 flex h-20 w-20 items-center justify-center rounded-full bg-emerald-100 text-4xl">
-        {hasSearched ? "🧺" : "🥬"}
-      </div>
-      <h2 className="text-xl font-semibold text-emerald-950">
-        {hasSearched ? "Nic jsme nenašli" : "Začněte hledat výhodnější nákup"}
-      </h2>
-      <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-zinc-600">
-        {hasSearched
-          ? "Zkuste jiný název produktu nebo obecnější výraz. Výsledky taháme z aktuálních akčních letáků."
-          : "Zadejte název potraviny a foodapka vám ukáže akční ceny napříč obchody seřazené od nejlevnější nabídky."}
-      </p>
-    </div>
-  );
-}
+          {/* Hero Image */}
+          <div className="relative hidden lg:block">
+            <div className="absolute -right-20 -top-20 -z-10 h-[600px] w-[600px] rounded-full bg-emerald-200/30 blur-3xl"></div>
+            <div className="relative rotate-2 overflow-hidden rounded-3xl shadow-2xl">
+              <img
+                alt="Čerstvá bio zelenina"
+                className="h-[600px] w-full object-cover"
+                src="https://images.unsplash.com/photo-1540420773420-3366772f4999?w=800&h=1200&fit=crop"
+              />
+              <div className="absolute bottom-8 left-8 max-w-xs rounded-2xl bg-white/90 p-6 shadow-xl backdrop-blur-md">
+                <div className="mb-2 flex items-center gap-2">
+                  <span className="rounded-full bg-emerald-700 px-2 py-0.5 text-[10px] font-bold uppercase text-white">
+                    Nejlepší nabídka
+                  </span>
+                  <span className="font-bold text-emerald-700">Dnes</span>
+                </div>
+                <p className="text-xl font-bold text-emerald-950" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
+                  Bio máslo 250g
+                </p>
+                <div className="flex items-baseline gap-2">
+                  <span className="text-2xl font-black text-emerald-700">39,90 Kč</span>
+                  <span className="text-sm text-zinc-500 line-through">64,90 Kč</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
 
-export default function Home() {
-  const [products, setProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [hasSearched, setHasSearched] = useState(false);
-  const [selectedFilter, setSelectedFilter] = useState("all");
-  const [selectedSort, setSelectedSort] = useState<ProductSort>("relevance");
+      {/* Current Best Deals */}
+      <section id="nabidky" className="bg-emerald-50/50 px-6 py-32 lg:px-8">
+        <div className="mx-auto max-w-7xl">
+          <div className="mb-12 flex items-end justify-between">
+            <div>
+              <span className="text-sm font-bold uppercase tracking-widest text-emerald-700">
+                Úspora v reálném čase
+              </span>
+              <h2 className="mt-2 text-4xl font-extrabold text-emerald-950" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
+                Aktuální nejlepší nabídky
+              </h2>
+            </div>
+            <Link href="/app" className="flex items-center gap-2 font-bold text-emerald-700 transition hover:gap-3">
+              Zobrazit vše →
+            </Link>
+          </div>
 
-  function handleResults(nextProducts: Product[]) {
-    setProducts(nextProducts);
-    setSelectedFilter("all");
-    setSelectedSort("relevance");
-  }
-
-  const availableFilters = [...BASE_SOURCE_FILTERS];
-  const seenFilters = new Set<string>(availableFilters.map((filter) => filter.key));
-
-  products.forEach((product) => {
-    product.stores.forEach((store) => {
-      const filter = getStoreFilter(store);
-      if (seenFilters.has(filter.key)) return;
-      seenFilters.add(filter.key);
-      availableFilters.push(filter);
-    });
-  });
-
-  const visibleProducts =
-    selectedFilter === "all"
-      ? products
-      : products
-          .map((product) => ({
-            ...product,
-            stores: product.stores.filter(
-              (store) => getStoreFilter(store).key === selectedFilter,
-            ),
-          }))
-          .filter((product) => product.stores.length > 0);
-
-  const sortedVisibleProducts = [...visibleProducts].sort((a, b) => {
-    if (selectedSort === "cheapest") {
-      const priceDelta =
-        parsePrice(sortStoresByPrice(a.stores)[0]?.price || "") -
-        parsePrice(sortStoresByPrice(b.stores)[0]?.price || "");
-      if (priceDelta !== 0) return priceDelta;
-    }
-
-    if (selectedSort === "coverage") {
-      const coverageDelta = b.stores.length - a.stores.length;
-      if (coverageDelta !== 0) return coverageDelta;
-    }
-
-    return 0;
-  });
-
-  return (
-    <main className="min-h-screen bg-[radial-gradient(circle_at_top,_rgba(110,231,183,0.28),_transparent_40%),linear-gradient(180deg,_#ecfdf5_0%,_#f8fafc_48%,_#f5f7f6_100%)] px-4 py-6 text-zinc-900 sm:px-6 lg:px-8">
-      <div className="mx-auto flex max-w-6xl flex-col gap-8">
-        <section className="overflow-hidden rounded-[2rem] border border-white/60 bg-[linear-gradient(135deg,_rgba(236,253,245,0.92),_rgba(209,250,229,0.88)_42%,_rgba(167,243,208,0.78)_100%)] p-5 shadow-[0_30px_90px_-40px_rgba(5,150,105,0.55)] sm:p-8 lg:p-10">
-          <div className="absolute inset-x-0 top-0 -z-10 h-32 bg-[radial-gradient(circle,_rgba(16,185,129,0.18),_transparent_70%)] blur-3xl" />
-          <SiteHeader current="home" />
-          <div className="mt-10 grid gap-8 lg:grid-cols-[minmax(0,1.2fr)_minmax(280px,0.8fr)] lg:items-end">
-            <div className="space-y-5">
-              <div className="space-y-4">
-                <h1 className="max-w-3xl text-4xl font-bold tracking-tight text-emerald-950 sm:text-5xl lg:text-6xl">
-                  Najděte nejlevnější akční cenu dřív, než vyrazíte do obchodu.
-                </h1>
-                <p className="max-w-2xl text-base leading-7 text-emerald-950/75 sm:text-lg">
-                  foodapka prochází aktuální nabídky a ukáže vám, kde dnes
-                  vychází konkrétní produkt nejlépe. Výsledek je přehledný,
-                  rychlý a připravený i pro mobil.
+          <div className="grid gap-6 md:grid-cols-4">
+            {/* Featured Large Card */}
+            <div className="relative flex flex-col justify-between overflow-hidden rounded-3xl bg-white p-8 shadow-sm md:col-span-2 md:row-span-2">
+              <div className="z-10">
+                <span className="rounded-full bg-emerald-100 px-4 py-1 text-sm font-bold text-emerald-800">
+                  -45% SLEVA
+                </span>
+                <h3 className="mt-4 text-3xl font-extrabold text-emerald-950" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
+                  Premium arabská káva
+                </h3>
+                <p className="mt-2 max-w-xs text-emerald-700">
+                  Skvělá příležitost. Nejnižší cena za posledních 90 dní v Albertu.
                 </p>
               </div>
-              <SearchBar
-                onResults={handleResults}
-                onLoading={setLoading}
-                onSearchStart={() => setHasSearched(true)}
-              />
+              <div className="z-10 mt-8">
+                <div className="text-4xl font-black text-emerald-800">129,00 Kč</div>
+                <Link 
+                  href="/app"
+                  className="mt-6 inline-block rounded-full bg-emerald-700 px-8 py-3 font-bold text-white transition hover:bg-emerald-800"
+                >
+                  Najít v aplikaci
+                </Link>
+              </div>
+              <div className="absolute -bottom-20 -right-20 h-80 w-80 rounded-full bg-emerald-100/50"></div>
             </div>
 
-            <div className="grid gap-4 rounded-[1.75rem] border border-white/60 bg-white/65 p-4 backdrop-blur sm:grid-cols-3 lg:grid-cols-1">
+            {/* Small Cards */}
+            {[
+              { name: "Bio mléko 1L", price: "24,90 Kč", discount: "-30%", emoji: "🥛" },
+              { name: "Avokádo Hass", price: "19,90 Kč", discount: "-50%", emoji: "🥑" },
+              { name: "Vejce (L) 10ks", price: "34,90 Kč", discount: "-25%", emoji: "🥚" },
+              { name: "Premium sorbet", price: "89,90 Kč", discount: "-40%", emoji: "🍦" },
+            ].map((item) => (
+              <div key={item.name} className="rounded-3xl bg-white p-6 shadow-sm">
+                <div className="mb-4 flex h-32 w-full items-center justify-center rounded-2xl bg-emerald-50 text-5xl">
+                  {item.emoji}
+                </div>
+                <div className="text-sm font-bold uppercase tracking-tighter text-emerald-700">
+                  Čerstvé
+                </div>
+                <h4 className="text-lg font-bold" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
+                  {item.name}
+                </h4>
+                <div className="mt-2 flex items-center gap-2">
+                  <span className="text-xl font-black text-emerald-800">{item.price}</span>
+                  <span className="rounded bg-emerald-100 px-2 py-0.5 text-xs font-bold text-emerald-800">
+                    {item.discount}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Weekly Leaflets */}
+      <section id="letaky" className="px-6 py-32 lg:px-8">
+        <div className="mx-auto max-w-7xl">
+          <div className="mb-16 text-center">
+            <h2 className="text-4xl font-extrabold text-emerald-950" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
+              Týdenní letáky
+            </h2>
+            <p className="mt-4 text-lg text-emerald-700">
+              Digitální verze katalogů vašich oblíbených obchodů, aktualizované každou hodinu.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-2 gap-8 md:grid-cols-3 lg:grid-cols-6">
+            {[
+              { name: "Albert", logo: "/albertlogo.png" },
+              { name: "Lidl", logo: "/lidllogo.png" },
+              { name: "Billa", logo: "/billalogo.png" },
+              { name: "Tesco", logo: "/tescologo.png" },
+              { name: "Penny", logo: "/pennylogo.png" },
+              { name: "Kaufland", logo: "/kauflandlogo.png" },
+            ].map((store) => (
+              <div key={store.name} className="group cursor-pointer">
+                <div className="aspect-[3/4] overflow-hidden rounded-2xl bg-white shadow-sm transition-all duration-300 group-hover:-translate-y-2 group-hover:shadow-xl">
+                  <div className="flex h-full w-full items-center justify-center p-4">
+                    <Image
+                      src={store.logo}
+                      alt={`${store.name} logo`}
+                      width={120}
+                      height={120}
+                      className="h-auto w-full object-contain"
+                    />
+                  </div>
+                </div>
+                <div className="mt-4 text-center">
+                  <p className="font-bold text-emerald-950">{store.name}</p>
+                  <p className="text-xs font-medium text-emerald-600">Platný leták</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Recipes Section */}
+      <section id="recepty" className="relative overflow-hidden bg-emerald-700 px-6 py-32 lg:px-8">
+        <div className="absolute right-0 top-0 -z-10 h-full w-1/3 -skew-x-12 translate-x-20 transform bg-emerald-600/20"></div>
+        <div className="relative z-10 mx-auto max-w-7xl">
+          <div className="grid items-center gap-20 lg:grid-cols-2">
+            <div>
+              <h2 
+                className="text-4xl font-extrabold leading-tight text-white lg:text-5xl"
+                style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}
+              >
+                Náměty na recepty se slevněnými ingrediencemi
+              </h2>
+              <p className="mt-6 max-w-lg text-xl text-emerald-100">
+                Nejen najdeme nejlepší ceny; pomůžeme vám z nich uvařit skvělá jídla. 
+                Nakupujte chytře, vařte lépe.
+              </p>
+              <Link
+                href="/recepty"
+                className="mt-12 inline-block rounded-full bg-white px-10 py-4 text-lg font-bold text-emerald-800 transition hover:bg-emerald-50"
+              >
+                Prozkoumat recepty
+              </Link>
+            </div>
+
+            <div className="grid gap-6 md:grid-cols-2">
               {[
-                ["5", "nejrelevantnějších produktů"],
-                ["7+", "sledovaných řetězců"],
-                ["Denně", "aktualizované akční nabídky"],
-              ].map(([value, label]) => (
+                {
+                  name: "Sezonní salát",
+                  items: 4,
+                  savings: "82 Kč",
+                  image: "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=600&h=400&fit=crop",
+                },
+                {
+                  name: "Krémové těstoviny",
+                  items: 3,
+                  savings: "45 Kč",
+                  image: "https://images.unsplash.com/photo-1621996346565-e3dbc646d9a9?w=600&h=400&fit=crop",
+                },
+              ].map((recipe, idx) => (
                 <div
-                  key={label}
-                  className="rounded-[1.4rem] bg-emerald-950 px-4 py-5 text-white shadow-sm"
+                  key={recipe.name}
+                  className={`rounded-3xl border border-white/10 bg-white/10 p-6 backdrop-blur-md ${
+                    idx === 0 ? "-rotate-2" : "translate-y-8 rotate-3"
+                  }`}
                 >
-                  <p className="text-2xl font-semibold">{value}</p>
-                  <p className="mt-1 text-sm text-emerald-100">{label}</p>
+                  <div className="mb-4 aspect-video overflow-hidden rounded-2xl">
+                    <img alt={recipe.name} className="h-full w-full object-cover" src={recipe.image} />
+                  </div>
+                  <h3 className="text-xl font-bold text-white" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
+                    {recipe.name}
+                  </h3>
+                  <div className="mt-4 flex items-center justify-between">
+                    <span className="text-sm font-bold text-emerald-100">
+                      {recipe.items} zlevněné položky
+                    </span>
+                    <span className="font-black text-emerald-100">Ušetříte {recipe.savings}</span>
+                  </div>
                 </div>
               ))}
             </div>
           </div>
-        </section>
+        </div>
+      </section>
 
-        <section className="space-y-5">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-            <div>
-              <h2 className="text-2xl font-semibold tracking-tight text-emerald-950 sm:text-3xl">
-                Výsledky hledání
-              </h2>
-              <p className="mt-1 text-sm text-zinc-600">
-                Obchody jsou uvnitř každé karty řazené od nejlevnější ceny.
-              </p>
-            </div>
-            <div className="flex flex-wrap items-center gap-2">
-              {!loading && visibleProducts.length > 0 && (
-                <p className="rounded-full border border-emerald-200 bg-white px-4 py-2 text-sm font-medium text-emerald-800">
-                  {visibleProducts.length} produktů
-                </p>
-              )}
-              {!loading && visibleProducts.length > 0 && (
-                <div className="flex flex-wrap gap-2">
-                  {[
-                    { key: "relevance", label: "Relevance" },
-                    { key: "cheapest", label: "Nejlevnější" },
-                    { key: "coverage", label: "Nejvíc obchodů" },
-                  ].map((option) => {
-                    const isActive = selectedSort === option.key;
+      {/* CTA Section */}
+      <section id="aplikace" className="px-6 py-32 lg:px-8">
+        <div className="relative mx-auto max-w-4xl overflow-hidden rounded-[3rem] bg-gradient-to-br from-emerald-50 to-emerald-100 p-12 text-center md:p-20">
+          <div className="absolute -left-10 -top-10 h-40 w-40 rounded-full bg-emerald-200/40 blur-3xl"></div>
+          <div className="absolute -bottom-10 -right-10 h-60 w-60 rounded-full bg-emerald-300/20 blur-3xl"></div>
+          <h2 
+            className="relative mb-8 text-4xl font-extrabold text-emerald-950 md:text-5xl"
+            style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}
+          >
+            Jste připraveni ušetřit tisíce každý měsíc?
+          </h2>
+          <p className="relative mx-auto mb-12 max-w-2xl text-xl text-emerald-800">
+            Začněte používat foodapka ještě dnes a připojte se k chytrým nakupujícím po celé zemi.
+          </p>
+          <div className="relative flex flex-col items-center justify-center gap-6 sm:flex-row">
+            <Link
+              href="/app"
+              className="flex w-full items-center justify-center gap-3 rounded-2xl bg-emerald-950 px-10 py-5 text-white transition hover:bg-emerald-900 sm:w-auto"
+            >
+              <span className="text-3xl">🔍</span>
+              <div className="text-left">
+                <div className="text-sm font-bold uppercase opacity-70">Spustit</div>
+                <div className="text-2xl font-bold leading-none">Vyhledávač</div>
+              </div>
+            </Link>
+            <Link
+              href="/recepty"
+              className="flex w-full items-center justify-center gap-3 rounded-2xl border-2 border-emerald-950 bg-white px-10 py-5 text-emerald-950 transition hover:bg-emerald-50 sm:w-auto"
+            >
+              <span className="text-3xl">🍳</span>
+              <div className="text-left">
+                <div className="text-sm font-bold uppercase opacity-70">Zobrazit</div>
+                <div className="text-2xl font-bold leading-none">Recepty</div>
+              </div>
+            </Link>
+          </div>
+        </div>
+      </section>
 
-                    return (
-                      <button
-                        key={option.key}
-                        type="button"
-                        onClick={() => setSelectedSort(option.key as ProductSort)}
-                        className={`rounded-full border px-4 py-2 text-sm font-semibold transition ${
-                          isActive
-                            ? "border-emerald-600 bg-emerald-600 text-white"
-                            : "border-emerald-200 bg-white text-emerald-900 hover:border-emerald-300 hover:bg-emerald-50"
-                        }`}
-                      >
-                        {option.label}
-                      </button>
-                    );
-                  })}
-                </div>
-              )}
+      {/* Footer */}
+      <footer className="w-full bg-emerald-50 pb-8 pt-16">
+        <div className="mx-auto grid max-w-7xl grid-cols-1 gap-12 px-6 md:grid-cols-4 lg:px-8">
+          <div className="col-span-1 md:col-span-1">
+            <div className="mb-6 text-lg font-bold text-emerald-800">foodapka</div>
+            <p className="max-w-xs text-sm text-emerald-700">
+              Váš osobní kulinářský kurátor. Prohledáváme každý leták a obchod, 
+              abychom vám našli nejlepší nabídky na ingredience, které milujete.
+            </p>
+          </div>
+          <div>
+            <h4 className="mb-6 font-bold text-emerald-800">Produkt</h4>
+            <div className="flex flex-col gap-4 text-sm text-emerald-700">
+              <Link href="/app" className="transition hover:text-emerald-900 hover:underline">
+                Vyhledávač cen
+              </Link>
+              <Link href="/recepty" className="transition hover:text-emerald-900 hover:underline">
+                Recepty
+              </Link>
+              <a href="#letaky" className="transition hover:text-emerald-900 hover:underline">
+                Letáky
+              </a>
             </div>
           </div>
-
-          {!loading && products.length > 0 && (
-            <div className="flex flex-wrap gap-2">
-              {availableFilters.map((filter) => {
-                const count = getFilterCount(products, filter.key);
-                const isActive = selectedFilter === filter.key;
-                const isDisabled = filter.key !== "all" && count === 0;
-
-                return (
-                  <button
-                    key={filter.key}
-                    type="button"
-                    onClick={() => setSelectedFilter(filter.key)}
-                    disabled={isDisabled}
-                    className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-semibold transition ${
-                      isActive
-                        ? "border-emerald-600 bg-emerald-600 text-white"
-                        : isDisabled
-                          ? "cursor-not-allowed border-zinc-200 bg-zinc-100 text-zinc-400"
-                          : "border-emerald-200 bg-white text-emerald-900 hover:border-emerald-300 hover:bg-emerald-50"
-                    }`}
-                  >
-                    <span>{filter.label}</span>
-                    <span
-                      className={`rounded-full px-2 py-0.5 text-xs ${
-                        isActive
-                          ? "bg-white/20 text-white"
-                          : isDisabled
-                            ? "bg-white text-zinc-400"
-                            : "bg-emerald-100 text-emerald-700"
-                      }`}
-                    >
-                      {count}
-                    </span>
-                  </button>
-                );
-              })}
+          <div>
+            <h4 className="mb-6 font-bold text-emerald-800">Společnost</h4>
+            <div className="flex flex-col gap-4 text-sm text-emerald-700">
+              <a href="#" className="transition hover:text-emerald-900 hover:underline">
+                Ochrana soukromí
+              </a>
+              <a href="#" className="transition hover:text-emerald-900 hover:underline">
+                Podmínky služby
+              </a>
+              <a href="#" className="transition hover:text-emerald-900 hover:underline">
+                Kontaktujte nás
+              </a>
             </div>
-          )}
-
-          {loading && <LoadingCards />}
-
-          {!loading && sortedVisibleProducts.length > 0 && (
-            <div className="grid gap-4">
-              {sortedVisibleProducts.map((product) => {
-                const stores = sortStoresByPrice(product.stores);
-
-                return (
-                  <article
-                    key={product.url}
-                    className="rounded-[2rem] border border-emerald-100 bg-white/90 p-5 shadow-[0_25px_60px_-35px_rgba(16,185,129,0.45)] sm:p-6"
-                  >
-                    <div className="flex flex-col gap-5">
-                      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-                        <div className="space-y-2">
-                          <h3 className="text-xl font-semibold text-zinc-950">
-                            {cleanProductName(product.name)}
-                          </h3>
-                          <p className="text-sm text-zinc-500">
-                            Dostupné v {stores.length} obchodech
-                          </p>
-                        </div>
-                        <a
-                          href={product.url}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="inline-flex items-center justify-center rounded-full border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm font-semibold text-emerald-800 transition hover:border-emerald-300 hover:bg-emerald-100"
-                        >
-                          Detail nabídky
-                        </a>
-                      </div>
-
-                      <ul className="grid gap-3">
-                        {stores.map((item, index) => {
-                          const cheapest = index === 0;
-
-                          return (
-                            <li
-                              key={`${item.shopId}-${item.price}-${index}`}
-                              className={`rounded-[1.5rem] border px-4 py-4 transition sm:px-5 ${
-                                cheapest
-                                  ? "border-emerald-300 bg-emerald-50 shadow-[0_18px_35px_-28px_rgba(5,150,105,0.8)]"
-                                  : "border-zinc-100 bg-zinc-50"
-                              }`}
-                            >
-                              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                                <div className="space-y-2">
-                                  <div className="flex flex-wrap items-center gap-2">
-                                    <StoreBrand shopName={item.shopName} />
-                                    {item.sourceLabel && (
-                                      <span className="rounded-full border border-zinc-200 bg-white px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">
-                                        {item.sourceLabel}
-                                      </span>
-                                    )}
-                                    {cheapest && (
-                                      <span className="rounded-full bg-emerald-600 px-3 py-1 text-xs font-semibold text-white">
-                                        Nejlevnější
-                                      </span>
-                                    )}
-                                  </div>
-                                  {(item.validity || item.pricePerUnit) && (
-                                    <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-zinc-500">
-                                      {item.validity && (
-                                        <span>Platnost: {item.validity}</span>
-                                      )}
-                                      {item.pricePerUnit && (
-                                        <span>Jednotková cena: {item.pricePerUnit}</span>
-                                      )}
-                                    </div>
-                                  )}
-                                </div>
-
-                                <div className="flex flex-col items-start gap-3 sm:items-end">
-                                  <div className="text-left sm:text-right">
-                                    <p
-                                      className={`text-xl font-bold ${
-                                        cheapest
-                                          ? "text-emerald-700"
-                                          : "text-zinc-900"
-                                      }`}
-                                    >
-                                      {item.price}
-                                    </p>
-                                    {item.amount && (
-                                      <p className="text-xs text-zinc-500">
-                                        Sleva: {item.amount}
-                                      </p>
-                                    )}
-                                  </div>
-
-                                  {item.leafletUrl && (
-                                    <a
-                                      href={item.leafletUrl}
-                                      target="_blank"
-                                      rel="noreferrer"
-                                      className="inline-flex items-center rounded-full border border-zinc-200 bg-white px-3 py-1.5 text-xs font-semibold text-zinc-700 transition hover:border-emerald-300 hover:text-emerald-700"
-                                    >
-                                      V letáku
-                                    </a>
-                                  )}
-                                </div>
-                              </div>
-                            </li>
-                          );
-                        })}
-                      </ul>
-                    </div>
-                  </article>
-                );
-              })}
+          </div>
+          <div>
+            <h4 className="mb-6 font-bold text-emerald-800">Sledujte nás</h4>
+            <div className="flex flex-col gap-4 text-sm text-emerald-700">
+              <a href="#" className="transition hover:text-emerald-900 hover:underline">
+                Instagram
+              </a>
+              <a href="#" className="transition hover:text-emerald-900 hover:underline">
+                Facebook
+              </a>
             </div>
-          )}
-
-          {!loading && visibleProducts.length === 0 && (
-            <EmptyState hasSearched={hasSearched} />
-          )}
-        </section>
-      </div>
-    </main>
+          </div>
+        </div>
+        <div className="mx-auto mt-16 flex max-w-7xl items-center justify-between border-t border-emerald-200 px-6 pt-8 text-sm text-emerald-700 lg:px-8">
+          <div>© 2024 foodapka. Všechna práva vyhrazena.</div>
+          <div className="flex gap-6">
+            <span className="cursor-pointer text-emerald-700">🌍</span>
+            <span className="font-bold">Česká republika</span>
+          </div>
+        </div>
+      </footer>
+    </div>
   );
 }
