@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import SiteHeader from "@/components/SiteHeader";
 import {
   cleanProductName,
@@ -10,6 +11,7 @@ import {
   type Store,
 } from "@/lib/food";
 import { RECIPE_PRESETS } from "@/lib/recipes";
+import { getStoreLogoPath } from "@/lib/storeLogos";
 import { useEffect, useRef, useState } from "react";
 
 type ShoppingMode = "cross_store" | "single_store";
@@ -42,6 +44,33 @@ type SingleStorePlan = {
 };
 
 const STORAGE_KEY = "foodapka-shopping-list";
+
+function StoreBrand({ shopName }: { shopName: string }) {
+  const logoPath = getStoreLogoPath(shopName);
+  const isLidl = shopName.toLowerCase().includes("lidl");
+
+  if (logoPath) {
+    return (
+      <span className="inline-flex items-center justify-center">
+        <Image
+          src={logoPath}
+          alt={`${shopName} logo`}
+          width={isLidl ? 68 : 56}
+          height={isLidl ? 68 : 56}
+          className={isLidl ? "h-[4.25rem] w-[4.25rem] object-contain" : "h-14 w-14 object-contain"}
+          unoptimized
+        />
+      </span>
+    );
+  }
+
+  return (
+    <>
+      <span className="text-lg">{getStoreIcon(shopName)}</span>
+      <span>{shopName}</span>
+    </>
+  );
+}
 
 function RecipeSkeleton() {
   return (
@@ -565,8 +594,12 @@ export default function RecipesPage() {
 
                   {shoppingMode === "single_store" && bestSingleStorePlan && (
                     <p className="rounded-full border border-zinc-200 bg-white px-4 py-2 text-sm font-medium text-zinc-700">
-                      {getStoreIcon(bestSingleStorePlan.shopName)}{" "}
-                      {bestSingleStorePlan.shopName} ·{" "}
+                      <span className="mr-3 inline-flex align-middle">
+                        <StoreBrand shopName={bestSingleStorePlan.shopName} />
+                      </span>
+                      {!getStoreLogoPath(bestSingleStorePlan.shopName) && (
+                        <>{bestSingleStorePlan.shopName} ·{" "}</>
+                      )}
                       {bestSingleStorePlan.matchedCount}/{itemsToBuy.length}{" "}
                       položek
                     </p>
@@ -625,10 +658,10 @@ export default function RecipesPage() {
                                       {cleanProductName(item.selectedProduct.name)}
                                     </p>
                                     <div className="flex flex-wrap items-center gap-2 text-sm text-zinc-600">
-                                      <span className="text-lg">
-                                        {getStoreIcon(item.selectedStore.shopName)}
-                                      </span>
-                                      <span>{item.selectedStore.shopName}</span>
+                                      <StoreBrand shopName={item.selectedStore.shopName} />
+                                      {!getStoreLogoPath(item.selectedStore.shopName) && (
+                                        <span>{item.selectedStore.shopName}</span>
+                                      )}
                                       {item.selectedStore.sourceLabel && (
                                         <span className="rounded-full border border-zinc-200 bg-white px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">
                                           {item.selectedStore.sourceLabel}

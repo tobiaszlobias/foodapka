@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import SearchBar from "@/components/SearchBar";
 import SiteHeader from "@/components/SiteHeader";
 import { FOODORA_STORE_CONFIGS } from "@/data/foodoraStores";
@@ -12,6 +13,7 @@ import {
   type Product,
   type Store,
 } from "@/lib/food";
+import { getStoreLogoPath } from "@/lib/storeLogos";
 import { useState } from "react";
 
 type SearchFilter = {
@@ -73,6 +75,33 @@ function getStoreFilter(store: Store): SearchFilter {
     key: `kupi:${normalizeText(store.shopName)}`,
     label: `${store.shopName} (Kupi)`,
   };
+}
+
+function StoreBrand({ shopName }: { shopName: string }) {
+  const logoPath = getStoreLogoPath(shopName);
+  const isLidl = normalizeText(shopName).includes("lidl");
+
+  if (logoPath) {
+    return (
+      <span className="inline-flex items-center justify-center">
+        <Image
+          src={logoPath}
+          alt={`${shopName} logo`}
+          width={isLidl ? 68 : 56}
+          height={isLidl ? 68 : 56}
+          className={isLidl ? "h-[4.25rem] w-[4.25rem] object-contain" : "h-14 w-14 object-contain"}
+          unoptimized
+        />
+      </span>
+    );
+  }
+
+  return (
+    <>
+      <span className="text-lg">{getStoreIcon(shopName)}</span>
+      <span className="font-semibold text-zinc-800">{shopName}</span>
+    </>
+  );
 }
 
 function getFilterCount(products: Product[], filterKey: string) {
@@ -364,12 +393,7 @@ export default function Home() {
                               <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                                 <div className="space-y-2">
                                   <div className="flex flex-wrap items-center gap-2">
-                                    <span className="text-lg">
-                                      {getStoreIcon(item.shopName)}
-                                    </span>
-                                    <span className="font-semibold text-zinc-800">
-                                      {item.shopName}
-                                    </span>
+                                    <StoreBrand shopName={item.shopName} />
                                     {item.sourceLabel && (
                                       <span className="rounded-full border border-zinc-200 bg-white px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">
                                         {item.sourceLabel}
