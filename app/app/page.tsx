@@ -308,9 +308,39 @@ function readJsonSafely(text: string) {
   }
 }
 
-export default function Home() {
+export default function Home({
+  searchParams,
+}: {
+  searchParams: Promise<{ mode?: string; query?: string }>;
+}) {
   // Mode
   const [mode, setMode] = useState<AppMode>("search");
+  
+  // Check URL params on mount
+  useEffect(() => {
+    void searchParams.then((params) => {
+      if (params.mode === "recipes") {
+        setMode("recipes");
+      }
+      // Auto-trigger search if query param exists
+      if (params.query) {
+        setMode("search");
+        // Trigger search after a short delay to ensure components are mounted
+        setTimeout(() => {
+          const searchInput = document.querySelector('input[type="text"]') as HTMLInputElement;
+          if (searchInput) {
+            searchInput.value = params.query!;
+            searchInput.dispatchEvent(new Event('input', { bubbles: true }));
+            // Trigger the search
+            const form = searchInput.closest('form');
+            if (form) {
+              form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+            }
+          }
+        }, 100);
+      }
+    });
+  }, [searchParams]);
   
   // Search state
   const [products, setProducts] = useState<Product[]>([]);
@@ -616,11 +646,10 @@ export default function Home() {
           <section className={`transition-all duration-500 ease-out mb-10 ${mode === "recipes" ? "max-h-[3000px] opacity-100" : "max-h-0 overflow-hidden opacity-0"}`}>
             <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
               {RECIPE_PRESETS.map((recipe) => (
-                <button
+                <div
                   key={recipe.name}
-                  type="button"
                   onClick={() => void runRecipeSearch(recipe.name)}
-                  className="group rounded-[1.25rem] bg-white border border-zinc-100 overflow-hidden text-left shadow-sm transition-all hover:shadow-xl hover:-translate-y-1 flex flex-col"
+                  className="group rounded-[1.25rem] bg-white border border-zinc-100 overflow-hidden text-left shadow-sm transition-all hover:shadow-xl hover:-translate-y-1 flex flex-col cursor-pointer"
                 >
                   {recipe.image && (
                     <div className="h-44 overflow-hidden relative">
@@ -681,7 +710,7 @@ export default function Home() {
                       </div>
                     </div>
                   </div>
-                </button>
+                </div>
               ))}
             </div>
           </section>

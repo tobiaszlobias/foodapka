@@ -1,7 +1,21 @@
+"use client";
+
 import Link from "next/link";
 import Image from "next/image";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 export default function HomePage() {
+  const router = useRouter();
+  const [searchQuery, setSearchQuery] = useState("");
+
+  function handleSearch(e: React.FormEvent) {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      router.push(`/app?query=${encodeURIComponent(searchQuery.trim())}`);
+    }
+  }
+
   return (
     <div className="min-h-screen bg-surface text-on-surface antialiased">
       {/* Top Navigation Bar */}
@@ -20,7 +34,7 @@ export default function HomePage() {
             </a>
           </div>
           <Link
-            href="/app"
+            href="/app?mode=recipes"
             className="transform rounded-full bg-primary px-6 py-2.5 font-semibold text-white shadow-md transition-all duration-300 hover:bg-primary-container active:scale-95"
           >
             Začít hledat
@@ -35,22 +49,24 @@ export default function HomePage() {
             <h1 className="text-5xl font-extrabold leading-[1.1] tracking-tight text-primary lg:text-6xl">
               Najděte nejlevnější akční cenu dřív, než vyrazíte do obchodu.
             </h1>
-            <div className="group relative max-w-xl">
+            <form onSubmit={handleSearch} className="group relative max-w-xl">
               <div className="flex rounded-full bg-white p-2 shadow-[0px_20px_40px_rgba(0,33,20,0.08)] ring-1 ring-outline-variant/10">
                 <input
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
                   className="flex-grow border-none bg-transparent px-6 py-4 text-lg text-on-surface placeholder:text-outline focus:outline-none focus:ring-0"
                   placeholder="Co dnes nakoupíte? (např. Máslo, Mléko...)"
                   type="text"
                 />
-                <Link
-                  href="/app"
+                <button
+                  type="submit"
                   className="flex items-center gap-2 rounded-full bg-primary px-8 py-4 font-bold text-white transition-all duration-300 hover:bg-primary-container active:scale-95"
                 >
                   <span className="material-symbols-outlined">search</span>
                   Hledat
-                </Link>
+                </button>
               </div>
-            </div>
+            </form>
             <div className="flex items-center gap-4 font-medium text-secondary">
               <span
                 className="material-symbols-outlined text-primary"
@@ -93,9 +109,10 @@ export default function HomePage() {
 
         {/* Stats + Popular Products */}
         <section className="mx-auto max-w-7xl px-8 pb-16">
-          <div className="grid gap-6 md:grid-cols-4">
-            {/* Stats */}
-            <div className="group relative flex flex-col justify-between overflow-hidden rounded-2xl bg-surface-container-highest p-6">
+          {/* Bento Grid Layout */}
+          <div className="grid gap-6 md:grid-cols-6 auto-rows-[200px]">
+            {/* Stat 1 - Medium */}
+            <div className="md:col-span-2 md:row-span-1 group relative flex flex-col justify-between overflow-hidden rounded-2xl bg-surface-container-highest p-6">
               <div className="relative z-10">
                 <span className="text-5xl font-bold tracking-tighter text-primary">5 mil.</span>
                 <p className="mt-2 font-semibold text-on-surface-variant">Porovnaných produktů</p>
@@ -104,36 +121,83 @@ export default function HomePage() {
                 <span className="material-symbols-outlined text-[8rem]">shopping_basket</span>
               </div>
             </div>
-            <div className="flex flex-col items-center justify-center rounded-2xl bg-secondary-container p-6 text-center">
-              <span className="text-4xl font-extrabold text-on-secondary-container">7+</span>
-              <p className="mt-1 text-sm font-semibold text-on-secondary-container">
-                Obchodních řetězců
-              </p>
-            </div>
             
-            {/* Popular products with images */}
-            <div className="group relative overflow-hidden rounded-2xl bg-white shadow-sm">
+            {/* Pečivo - Tall */}
+            <div className="md:col-span-2 md:row-span-2 group relative overflow-hidden rounded-2xl bg-white shadow-sm">
               <img
-                src="https://images.unsplash.com/photo-1628088062854-d1870b4553da?w=400&h=300&fit=crop"
+                src="/pecivo.png"
                 alt="Čerstvé pečivo"
                 className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
-              <div className="absolute bottom-4 left-4 right-4 text-white">
+              <div className="absolute bottom-6 left-6 right-6 text-white">
                 <p className="text-sm opacity-80">Nejhledanější</p>
-                <p className="font-bold">Pečivo</p>
+                <p className="text-2xl font-bold">Pečivo</p>
               </div>
             </div>
-            <div className="group relative overflow-hidden rounded-2xl bg-white shadow-sm">
+
+            {/* Ovoce a zelenina - Wide */}
+            <div className="md:col-span-2 md:row-span-1 group relative overflow-hidden rounded-2xl bg-white shadow-sm">
               <img
-                src="https://images.unsplash.com/photo-1563636619-e9143da7973b?w=400&h=300&fit=crop"
+                src="/zeleninaovoce.png"
                 alt="Ovoce a zelenina"
                 className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
               <div className="absolute bottom-4 left-4 right-4 text-white">
                 <p className="text-sm opacity-80">Nejhledanější</p>
-                <p className="font-bold">Ovoce a zelenina</p>
+                <p className="text-xl font-bold">Ovoce a zelenina</p>
+              </div>
+            </div>
+
+            {/* Stat 2 - Small */}
+            <div className="md:col-span-2 md:row-span-1 flex flex-col items-center justify-center rounded-2xl bg-secondary-container p-6 text-center">
+              <span className="text-4xl font-extrabold text-on-secondary-container">7+</span>
+              <p className="mt-1 text-sm font-semibold text-on-secondary-container">
+                Obchodních řetězců
+              </p>
+            </div>
+
+            {/* Mléčné výrobky - Medium */}
+            <div className="md:col-span-2 md:row-span-1 group relative overflow-hidden rounded-2xl bg-white shadow-sm">
+              <img
+                src="/mlecnevyrobky.png"
+                alt="Mléčné výrobky"
+                className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
+              <div className="absolute bottom-4 left-4 right-4 text-white">
+                <p className="text-sm opacity-80">Nejhledanější</p>
+                <p className="text-xl font-bold">Mléčné výrobky</p>
+              </div>
+            </div>
+
+            {/* Koření - Medium */}
+            <div className="md:col-span-2 md:row-span-1 group relative overflow-hidden rounded-2xl bg-white shadow-sm">
+              <img
+                src="/koreni.png"
+                alt="Koření a přísady"
+                className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
+              <div className="absolute bottom-4 left-4 right-4 text-white">
+                <p className="text-sm opacity-80">Nejhledanější</p>
+                <p className="text-xl font-bold">Koření</p>
+              </div>
+            </div>
+
+            {/* Maso - Wide & Tall (Featured) */}
+            <div className="md:col-span-4 md:row-span-2 group relative overflow-hidden rounded-2xl bg-white shadow-lg">
+              <img
+                src="/maso.png"
+                alt="Čerstvé maso"
+                className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
+              <div className="absolute bottom-8 left-8 right-8 text-white">
+                <p className="text-base opacity-90">Nejhledanější</p>
+                <p className="text-4xl font-bold mt-2">Čerstvé maso</p>
+                <p className="text-sm opacity-80 mt-2">Široký sortiment masa z prověřených zdrojů</p>
               </div>
             </div>
           </div>
@@ -213,7 +277,7 @@ export default function HomePage() {
               </div>
               
               <Link
-                href="/app"
+                href="/app?mode=recipes"
                 className="mt-6 flex items-center justify-center gap-2 rounded-full bg-primary px-6 py-3 font-bold text-white transition hover:bg-primary-container"
               >
                 Vyzkoušet vyhledávání
@@ -453,7 +517,7 @@ export default function HomePage() {
             </p>
             <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
               <Link
-                href="/app"
+                href="/app?mode=recipes"
                 className="flex items-center gap-3 rounded-full bg-primary px-10 py-5 font-bold text-white shadow-lg transition hover:bg-primary-container hover:shadow-xl"
               >
                 <span className="material-symbols-outlined">search</span>
@@ -483,7 +547,7 @@ export default function HomePage() {
           <div className="flex flex-wrap justify-center gap-12">
             <div className="flex flex-col space-y-3">
               <span className="mb-2 font-bold text-on-surface">Aplikace</span>
-              <Link href="/app" className="text-zinc-500 transition-transform duration-200 hover:translate-x-1 hover:text-emerald-600">
+              <Link href="/app?mode=recipes" className="text-zinc-500 transition-transform duration-200 hover:translate-x-1 hover:text-emerald-600">
                 Vyhledávač
               </Link>
               <Link href="/recepty" className="text-zinc-500 transition-transform duration-200 hover:translate-x-1 hover:text-emerald-600">

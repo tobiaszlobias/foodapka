@@ -18,7 +18,7 @@ const NAV_ITEMS: NavItem[] = [
   { id: "watchdog", label: "Hlídací pes", icon: "trending_down", href: "/app?tab=watchdog" },
   { id: "lists", label: "Nákupní seznamy", icon: "receipt_long", href: "/app?tab=lists" },
   { id: "recipes", label: "Recepty", icon: "restaurant", href: "/app?tab=recipes" },
-  { id: "settings", label: "Nastavení", icon: "settings", href: "/app?tab=settings" },
+  { id: "settings", label: "Nastavení", icon: "settings", href: "/app/settings" },
 ];
 
 export default function Sidebar({ currentPage }: SidebarProps) {

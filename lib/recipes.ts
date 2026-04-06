@@ -15,7 +15,7 @@ export const RECIPE_PRESETS: RecipePreset[] = [
       "Jednoduchý meal prep na více dní s kuřecím masem, rýží a zeleninou.",
     ingredients: ["kuřecí prsa", "rýže", "brokolice", "mrkev", "paprika"],
     aliases: ["krabickove kure", "meal prep", "kuře s rýží", "kure s ryzi"],
-    image: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&h=300&fit=crop",
+    image: "/krabickove kure.png",
   },
   {
     name: "Tortilla wrap s kuřetem",
@@ -30,7 +30,7 @@ export const RECIPE_PRESETS: RecipePreset[] = [
       "eidam",
     ],
     aliases: ["wrap", "tortilla", "wrap s kuretem"],
-    image: "https://images.unsplash.com/photo-1626700051175-6818013e1d4f?w=400&h=300&fit=crop",
+    image: "/tortila kure.png",
   },
   {
     name: "Overnight oats s ovocem",
@@ -39,7 +39,7 @@ export const RECIPE_PRESETS: RecipePreset[] = [
       "Levná a sytá snídaně z vloček, jogurtu nebo mléka a ovoce.",
     ingredients: ["ovesné vločky", "řecký jogurt", "banán", "jahody", "med"],
     aliases: ["overnight oats", "ovesna kase", "fit snidane"],
-    image: "https://images.unsplash.com/photo-1517673400267-0251440c45dc?w=400&h=300&fit=crop",
+    image: "/overnight oats.png",
   },
   {
     name: "Domácí hummus s pita chlebem",
@@ -48,7 +48,7 @@ export const RECIPE_PRESETS: RecipePreset[] = [
       "Něco k televizi nebo pro návštěvu bez složité přípravy.",
     ingredients: ["cizrna", "tahini", "česnek", "olivový olej", "pita chléb"],
     aliases: ["hummus", "snack", "neco na zub"],
-    image: "https://images.unsplash.com/photo-1577805947697-89e18249d767?w=400&h=300&fit=crop",
+    image: "/humus.png",
   },
   {
     name: "Těstovinový salát s mozzarellou",
@@ -57,7 +57,7 @@ export const RECIPE_PRESETS: RecipePreset[] = [
       "Studená varianta do krabičky s těstovinami, zeleninou a sýrem.",
     ingredients: ["těstoviny", "mozzarella", "rajčata", "okurka", "rukola"],
     aliases: ["testovinovy salat", "salat s mozzarellou"],
-    image: "https://images.unsplash.com/photo-1505253716362-afaea1d3d1af?w=400&h=300&fit=crop",
+    image: "/hero-food.png",
   },
   {
     name: "Banánové lívance",
@@ -66,7 +66,7 @@ export const RECIPE_PRESETS: RecipePreset[] = [
       "Rychlá sladká klasika z pár surovin, vhodná na snídani i svačinu.",
     ingredients: ["banán", "vejce", "ovesné vločky", "mléko", "skořice"],
     aliases: ["livance", "bananove livance", "sladke"],
-    image: "https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=400&h=300&fit=crop",
+    image: "/livance.png",
   },
   {
     name: "Špagety carbonara",
@@ -74,7 +74,7 @@ export const RECIPE_PRESETS: RecipePreset[] = [
     description: "Oblíbená těstovinová klasika s pár základními surovinami.",
     ingredients: ["špagety", "slanina", "vejce", "parmazán", "česnek"],
     aliases: ["carbonara", "spagety carbonara"],
-    image: "https://images.unsplash.com/photo-1612874742237-6526221588e3?w=400&h=300&fit=crop",
+    image: "/carbonara.png",
   },
   {
     name: "Svíčková",
@@ -89,7 +89,7 @@ export const RECIPE_PRESETS: RecipePreset[] = [
       "smetana",
     ],
     aliases: ["svickova"],
-    image: "https://images.unsplash.com/photo-1544025162-d76694265947?w=400&h=300&fit=crop",
+    image: "/svickova.png",
   },
 ];
 
