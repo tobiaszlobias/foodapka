@@ -3,7 +3,8 @@
 import Image from "next/image";
 import Link from "next/link";
 import SearchBar from "@/components/SearchBar";
-import SiteHeader from "@/components/SiteHeader";
+import AppHeader from "@/components/AppHeader";
+import Sidebar from "@/components/Sidebar";
 import { FOODORA_STORE_CONFIGS } from "@/data/foodoraStores";
 import {
   cleanProductName,
@@ -577,29 +578,27 @@ export default function Home() {
   });
 
   return (
-    <main className="min-h-screen bg-[radial-gradient(circle_at_top,_rgba(110,231,183,0.28),_transparent_40%),linear-gradient(180deg,_#ecfdf5_0%,_#f8fafc_48%,_#f5f7f6_100%)] px-4 py-6 text-zinc-900 sm:px-6 lg:px-8">
-      <div className="mx-auto flex max-w-6xl flex-col gap-8">
-        {/* Hero Section */}
-        <section className="overflow-hidden rounded-[2rem] border border-white/60 bg-[linear-gradient(135deg,_rgba(236,253,245,0.92),_rgba(209,250,229,0.88)_42%,_rgba(167,243,208,0.78)_100%)] p-5 shadow-[0_30px_90px_-40px_rgba(5,150,105,0.55)] sm:p-8 lg:p-10">
-          <div className="absolute inset-x-0 top-0 -z-10 h-32 bg-[radial-gradient(circle,_rgba(16,185,129,0.18),_transparent_70%)] blur-3xl" />
-          <SiteHeader current={mode === "search" ? "home" : "recipes"} />
-          
-          <div className="mt-10 space-y-6">
+    <>
+      <AppHeader />
+      <div className="flex pt-20 min-h-screen bg-[radial-gradient(circle_at_top,_rgba(110,231,183,0.18),_transparent_40%),linear-gradient(180deg,_#f5fbf5_0%,_#f8fafc_48%,_#f5f7f6_100%)]">
+        <Sidebar currentPage={mode === "search" ? "search" : "recipes"} />
+        
+        <main className="flex-1 p-6 lg:p-10 overflow-y-auto text-zinc-900">
+          {/* Hero Header */}
+          <header className="mb-10 max-w-4xl">
             {/* Animated header text */}
-            <div className={`transition-all duration-500 ease-out ${mode === "recipes" ? "max-h-0 overflow-hidden opacity-0 mb-0" : "max-h-64 opacity-100"}`}>
-              <h1 className="max-w-3xl text-4xl font-bold tracking-tight text-emerald-950 sm:text-5xl lg:text-6xl">
-                Najděte nejlevnější akční cenu dřív, než vyrazíte do obchodu.
+            <div className={`transition-all duration-500 ease-out ${mode === "recipes" ? "max-h-0 overflow-hidden opacity-0" : "max-h-64 opacity-100 mb-6"}`}>
+              <h1 className="text-4xl lg:text-5xl font-extrabold tracking-tight text-emerald-950 leading-tight">
+                Najděte nejlevnější akční cenu <br />
+                <span className="text-emerald-600 italic">dřív, než vyrazíte do obchodu</span>
               </h1>
-              <p className="mt-4 max-w-2xl text-base leading-7 text-emerald-950/75 sm:text-lg">
-                foodapka prochází aktuální nabídky a ukáže vám, kde dnes
-                vychází konkrétní produkt nejlépe.
-              </p>
             </div>
             
             {/* Recipe header */}
-            <div className={`transition-all duration-500 ease-out ${mode === "search" ? "max-h-0 overflow-hidden opacity-0" : "max-h-32 opacity-100"}`}>
-              <h1 className="max-w-3xl text-3xl font-bold tracking-tight text-emerald-950 sm:text-4xl">
-                Vyberte si recept a najdeme nejlevnější suroviny
+            <div className={`transition-all duration-500 ease-out ${mode === "search" ? "max-h-0 overflow-hidden opacity-0" : "max-h-64 opacity-100 mb-6"}`}>
+              <h1 className="text-4xl lg:text-5xl font-extrabold tracking-tight text-emerald-950 leading-tight">
+                Vyberte si recept a najdeme <br />
+                <span className="text-emerald-600 italic">nejlevnější suroviny</span>
               </h1>
             </div>
             
@@ -611,109 +610,124 @@ export default function Home() {
               mode={mode}
               onModeChange={handleModeChange}
             />
+          </header>
             
-            {/* Recipe cards - shown when in recipes mode */}
-            <div className={`transition-all duration-500 ease-out ${mode === "recipes" ? "max-h-[2000px] opacity-100" : "max-h-0 overflow-hidden opacity-0"}`}>
-              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                {RECIPE_PRESETS.map((recipe) => (
-                  <button
-                    key={recipe.name}
-                    type="button"
-                    onClick={() => void runRecipeSearch(recipe.name)}
-                    className="group rounded-[1.5rem] border border-emerald-100 bg-white/80 p-5 text-left shadow-sm transition-all hover:border-emerald-200 hover:shadow-md hover:-translate-y-0.5"
-                  >
-                    <span className="inline-block rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700">
-                      {recipe.tag}
-                    </span>
-                    <h3 className="mt-3 text-lg font-semibold text-emerald-950 group-hover:text-emerald-700">
+          {/* Recipe cards - shown when in recipes mode */}
+          <section className={`transition-all duration-500 ease-out mb-10 ${mode === "recipes" ? "max-h-[3000px] opacity-100" : "max-h-0 overflow-hidden opacity-0"}`}>
+            <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
+              {RECIPE_PRESETS.map((recipe) => (
+                <button
+                  key={recipe.name}
+                  type="button"
+                  onClick={() => void runRecipeSearch(recipe.name)}
+                  className="group rounded-[1.25rem] bg-white border border-zinc-100 overflow-hidden text-left shadow-sm transition-all hover:shadow-xl hover:-translate-y-1 flex flex-col"
+                >
+                  {recipe.image && (
+                    <div className="h-44 overflow-hidden relative">
+                      <Image
+                        src={recipe.image}
+                        alt={recipe.name}
+                        fill
+                        className="object-cover group-hover:scale-105 transition-transform duration-500"
+                        unoptimized
+                      />
+                      <div className="absolute top-3 left-3">
+                        <span className="bg-emerald-100/90 backdrop-blur-md text-emerald-800 text-[10px] uppercase tracking-widest font-bold px-3 py-1 rounded-full">
+                          {recipe.tag}
+                        </span>
+                      </div>
+                      <button
+                        type="button"
+                        className="absolute bottom-3 right-3 bg-white/90 backdrop-blur-md p-2 rounded-full shadow-md text-zinc-400 hover:text-red-500 transition-all"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <span className="material-symbols-outlined text-xl">favorite</span>
+                      </button>
+                    </div>
+                  )}
+                  <div className="p-5 flex-1 flex flex-col">
+                    {!recipe.image && (
+                      <span className="inline-block rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700 w-fit mb-3">
+                        {recipe.tag}
+                      </span>
+                    )}
+                    <h3 className="text-lg font-bold text-zinc-900 group-hover:text-emerald-600 transition-colors">
                       {recipe.name}
                     </h3>
-                    <p className="mt-2 text-sm text-zinc-600 line-clamp-2">
+                    <p className="mt-2 text-sm text-zinc-500 line-clamp-2 flex-1">
                       {recipe.description}
                     </p>
-                    <div className="mt-3 flex flex-wrap gap-1">
-                      {recipe.ingredients.slice(0, 3).map((ing) => (
-                        <span
-                          key={ing}
-                          className="rounded-full bg-zinc-100 px-2 py-0.5 text-xs text-zinc-600"
-                        >
-                          {ing}
+                    <div className="mt-4 pt-4 border-t border-zinc-100">
+                      <div className="flex items-center justify-between">
+                        <div className="flex -space-x-2">
+                          {recipe.ingredients.slice(0, 3).map((ing, i) => (
+                            <div
+                              key={ing}
+                              className="w-7 h-7 rounded-full border-2 border-white bg-emerald-100 flex items-center justify-center text-[10px] font-bold text-emerald-700"
+                            >
+                              {ing.charAt(0).toUpperCase()}
+                            </div>
+                          ))}
+                          {recipe.ingredients.length > 3 && (
+                            <div className="w-7 h-7 rounded-full border-2 border-white bg-zinc-100 flex items-center justify-center text-[10px] font-bold text-zinc-500">
+                              +{recipe.ingredients.length - 3}
+                            </div>
+                          )}
+                        </div>
+                        <span className="text-emerald-600 font-semibold text-sm flex items-center gap-1">
+                          <span className="material-symbols-outlined text-sm">trending_down</span>
+                          Najít ceny
                         </span>
-                      ))}
-                      {recipe.ingredients.length > 3 && (
-                        <span className="rounded-full bg-zinc-100 px-2 py-0.5 text-xs text-zinc-500">
-                          +{recipe.ingredients.length - 3}
-                        </span>
-                      )}
+                      </div>
                     </div>
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
-          
-          {/* Stats sidebar - only in search mode */}
-          {mode === "search" && (
-            <div className="mt-8 grid gap-4 rounded-[1.75rem] border border-white/60 bg-white/65 p-4 backdrop-blur sm:grid-cols-3">
-              {[
-                ["5", "nejrelevantnějších produktů"],
-                ["7+", "sledovaných řetězců"],
-                ["Denně", "aktualizované akční nabídky"],
-              ].map(([value, label]) => (
-                <div
-                  key={label}
-                  className="rounded-[1.4rem] bg-emerald-950 px-4 py-5 text-white shadow-sm"
-                >
-                  <p className="text-2xl font-semibold">{value}</p>
-                  <p className="mt-1 text-sm text-emerald-100">{label}</p>
-                </div>
+                  </div>
+                </button>
               ))}
             </div>
-          )}
-        </section>
+          </section>
 
-        {/* Search Results Section */}
-        {mode === "search" && (
-          <section className="space-y-5">
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-              <div>
-                <h2 className="text-2xl font-semibold tracking-tight text-emerald-950 sm:text-3xl">
-                  Výsledky hledání
-                </h2>
-                <p className="mt-1 text-sm text-zinc-600">
-                  Obchody jsou uvnitř každé karty řazené od nejlevnější ceny.
-                </p>
-              </div>
-              <div className="flex flex-wrap items-center gap-2">
-                {!loading && visibleProducts.length > 0 && (
-                  <p className="rounded-full border border-emerald-200 bg-white px-4 py-2 text-sm font-medium text-emerald-800">
-                    {visibleProducts.length} produktů
+          {/* Search Results Section */}
+          {mode === "search" && (
+            <section className="space-y-5">
+              <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+                <div>
+                  <h2 className="text-2xl font-semibold tracking-tight text-emerald-950 sm:text-3xl">
+                    Výsledky hledání
+                  </h2>
+                  <p className="mt-1 text-sm text-zinc-600">
+                    Obchody jsou uvnitř každé karty řazené od nejlevnější ceny.
                   </p>
-                )}
-                {!loading && visibleProducts.length > 0 && (
-                  <div className="flex flex-wrap gap-2">
-                    {[
-                      { key: "relevance", label: "Relevance" },
-                      { key: "cheapest", label: "Nejlevnější" },
-                      { key: "coverage", label: "Nejvíc obchodů" },
-                    ].map((option) => {
-                      const isActive = selectedSort === option.key;
+                </div>
+                <div className="flex flex-wrap items-center gap-2">
+                  {!loading && visibleProducts.length > 0 && (
+                    <p className="rounded-full border border-emerald-200 bg-white px-4 py-2 text-sm font-medium text-emerald-800">
+                      {visibleProducts.length} produktů
+                    </p>
+                  )}
+                  {!loading && visibleProducts.length > 0 && (
+                    <div className="flex flex-wrap gap-2">
+                      {[
+                        { key: "relevance", label: "Relevance" },
+                        { key: "cheapest", label: "Nejlevnější" },
+                        { key: "coverage", label: "Nejvíc obchodů" },
+                      ].map((option) => {
+                        const isActive = selectedSort === option.key;
 
-                      return (
-                        <button
-                          key={option.key}
-                          type="button"
-                          onClick={() => setSelectedSort(option.key as ProductSort)}
-                          className={`rounded-full border px-4 py-2 text-sm font-semibold transition ${
-                            isActive
-                              ? "border-emerald-600 bg-emerald-600 text-white"
-                              : "border-emerald-200 bg-white text-emerald-900 hover:border-emerald-300 hover:bg-emerald-50"
-                          }`}
-                        >
-                          {option.label}
-                        </button>
-                      );
-                    })}
+                        return (
+                          <button
+                            key={option.key}
+                            type="button"
+                            onClick={() => setSelectedSort(option.key as ProductSort)}
+                            className={`rounded-full border px-4 py-2 text-sm font-semibold transition ${
+                              isActive
+                                ? "border-emerald-600 bg-emerald-600 text-white"
+                                : "border-emerald-200 bg-white text-emerald-900 hover:border-emerald-300 hover:bg-emerald-50"
+                            }`}
+                          >
+                            {option.label}
+                          </button>
+                        );
+                      })}
                   </div>
                 )}
               </div>
@@ -1147,7 +1161,8 @@ export default function Home() {
             )}
           </section>
         )}
+        </main>
       </div>
-    </main>
+    </>
   );
 }
