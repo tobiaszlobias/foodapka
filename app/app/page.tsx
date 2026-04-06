@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import SearchBar from "@/components/SearchBar";
 import SiteHeader from "@/components/SiteHeader";
 import { FOODORA_STORE_CONFIGS } from "@/data/foodoraStores";
@@ -13,15 +14,37 @@ import {
   type Product,
   type Store,
 } from "@/lib/food";
+import { RECIPE_PRESETS } from "@/lib/recipes";
 import { getStoreLogoPath } from "@/lib/storeLogos";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+
+type AppMode = "search" | "recipes";
+type ShoppingMode = "cross_store" | "single_store";
+type ProductSort = "relevance" | "cheapest" | "coverage";
 
 type SearchFilter = {
   key: string;
   label: string;
 };
 
-type ProductSort = "relevance" | "cheapest" | "coverage";
+type IngredientStoreOption = {
+  product: Product;
+  store: Store;
+};
+
+type IngredientResult = {
+  ingredient: string;
+  product: Product | null;
+  store: Store | null;
+  storeOptions: IngredientStoreOption[];
+};
+
+type SingleStorePlan = {
+  shopName: string;
+  totalPrice: number;
+  matchedCount: number;
+  missingCount: number;
+};
 
 const BASE_SOURCE_FILTERS: SearchFilter[] = [
   { key: "all", label: "Vše" },
@@ -147,6 +170,22 @@ function LoadingCards() {
   );
 }
 
+function RecipeSkeleton() {
+  return (
+    <div className="grid gap-4">
+      {Array.from({ length: 4 }).map((_, index) => (
+        <div
+          key={index}
+          className="animate-pulse rounded-[1.75rem] border border-emerald-100 bg-white/85 p-5"
+        >
+          <div className="h-5 w-36 rounded-full bg-emerald-100" />
+          <div className="mt-4 h-20 rounded-[1.25rem] bg-zinc-100" />
+        </div>
+      ))}
+    </div>
+  );
+}
+
 function EmptyState({ hasSearched }: { hasSearched: boolean }) {
   return (
     <div className="rounded-[2rem] border border-dashed border-emerald-200 bg-white/70 px-6 py-12 text-center shadow-[0_20px_40px_-35px_rgba(16,185,129,0.5)]">
@@ -165,19 +204,338 @@ function EmptyState({ hasSearched }: { hasSearched: boolean }) {
   );
 }
 
+function buildIngredientStoreOptions(products: Product[]) {
+  const bestStoreByShop = new Map<string, IngredientStoreOption>();
+
+  products.forEach((product) => {
+    sortStoresByPrice(product.stores).forEach((store) => {
+      const shopName = store.shopName.trim();
+      if (!shopName) return;
+
+      const currentBest = bestStoreByShop.get(shopName);
+      if (
+        !currentBest ||
+        parsePrice(store.price) < parsePrice(currentBest.store.price)
+      ) {
+        bestStoreByShop.set(shopName, { product, store });
+      }
+    });
+  });
+
+  return Array.from(bestStoreByShop.values()).sort(
+    (a, b) => parsePrice(a.store.price) - parsePrice(b.store.price),
+  );
+}
+
+function getSelectionForMode(
+  item: IngredientResult,
+  mode: ShoppingMode,
+  preferredShopName?: string,
+) {
+  if (mode === "single_store" && preferredShopName) {
+    const preferredOption =
+      item.storeOptions.find(
+        (option) => option.store.shopName === preferredShopName,
+      ) ?? null;
+
+    return {
+      product: preferredOption?.product ?? null,
+      store: preferredOption?.store ?? null,
+    };
+  }
+
+  return {
+    product: item.product,
+    store: item.store,
+  };
+}
+
+function buildSingleStorePlans(items: IngredientResult[]) {
+  const seenShops = new Set<string>();
+  const shopNames: string[] = [];
+
+  items.forEach((item) => {
+    item.storeOptions.forEach((option) => {
+      if (seenShops.has(option.store.shopName)) return;
+      seenShops.add(option.store.shopName);
+      shopNames.push(option.store.shopName);
+    });
+  });
+
+  return shopNames
+    .map((shopName) => {
+      let totalPrice = 0;
+      let matchedCount = 0;
+
+      items.forEach((item) => {
+        const option = item.storeOptions.find(
+          (candidate) => candidate.store.shopName === shopName,
+        );
+        if (!option) return;
+
+        matchedCount += 1;
+        totalPrice += parsePrice(option.store.price);
+      });
+
+      return {
+        shopName,
+        totalPrice,
+        matchedCount,
+        missingCount: items.length - matchedCount,
+      } satisfies SingleStorePlan;
+    })
+    .sort((a, b) => {
+      if (b.matchedCount !== a.matchedCount) {
+        return b.matchedCount - a.matchedCount;
+      }
+
+      if (a.totalPrice !== b.totalPrice) {
+        return a.totalPrice - b.totalPrice;
+      }
+
+      return a.shopName.localeCompare(b.shopName, "cs");
+    });
+}
+
+function readJsonSafely(text: string) {
+  if (!text.trim()) return null;
+
+  try {
+    return JSON.parse(text) as unknown;
+  } catch {
+    return null;
+  }
+}
+
 export default function Home() {
+  // Mode
+  const [mode, setMode] = useState<AppMode>("search");
+  
+  // Search state
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
   const [selectedFilter, setSelectedFilter] = useState("all");
   const [selectedSort, setSelectedSort] = useState<ProductSort>("relevance");
+  
+  // Recipe state
+  const [activeRecipe, setActiveRecipe] = useState("");
+  const [recipeLoading, setRecipeLoading] = useState(false);
+  const [ingredients, setIngredients] = useState<string[]>([]);
+  const [recipeResults, setRecipeResults] = useState<IngredientResult[]>([]);
+  const [checkedIngredients, setCheckedIngredients] = useState<string[]>([]);
+  const [shoppingMode, setShoppingMode] = useState<ShoppingMode>("cross_store");
+  const [recipeError, setRecipeError] = useState<string | null>(null);
+  const [shareMessage, setShareMessage] = useState<string | null>(null);
+  const shoppingListRef = useRef<HTMLElement | null>(null);
 
+  // Recipe computed values
+  const itemsToBuy = recipeResults.filter(
+    (item) => !checkedIngredients.includes(item.ingredient),
+  );
+  const singleStorePlans = buildSingleStorePlans(itemsToBuy);
+  const bestSingleStorePlan = singleStorePlans[0] ?? null;
+  const selectedSingleStoreName =
+    shoppingMode === "single_store" ? bestSingleStorePlan?.shopName : undefined;
+
+  const selectedResults = recipeResults.map((item) => {
+    const selection = getSelectionForMode(
+      item,
+      shoppingMode,
+      selectedSingleStoreName,
+    );
+
+    return {
+      ...item,
+      selectedProduct: selection.product,
+      selectedStore: selection.store,
+    };
+  });
+
+  const totalPrice = selectedResults.reduce((sum, item) => {
+    if (checkedIngredients.includes(item.ingredient) || !item.selectedStore) {
+      return sum;
+    }
+
+    return sum + parsePrice(item.selectedStore.price);
+  }, 0);
+
+  // Search handlers
   function handleResults(nextProducts: Product[]) {
     setProducts(nextProducts);
     setSelectedFilter("all");
     setSelectedSort("relevance");
   }
 
+  function handleModeChange(newMode: AppMode) {
+    setMode(newMode);
+  }
+
+  // Recipe handlers
+  useEffect(() => {
+    if (!shareMessage) return;
+
+    const timeout = window.setTimeout(() => setShareMessage(null), 2500);
+    return () => window.clearTimeout(timeout);
+  }, [shareMessage]);
+
+  function toggleIngredient(ingredient: string) {
+    setCheckedIngredients((current) =>
+      current.includes(ingredient)
+        ? current.filter((item) => item !== ingredient)
+        : [...current, ingredient],
+    );
+  }
+
+  function buildShoppingListText() {
+    const lines = [
+      activeRecipe ? `Nakup pro recept: ${activeRecipe}` : "Nakupni seznam",
+      "",
+      shoppingMode === "single_store"
+        ? bestSingleStorePlan
+          ? `Rezim: co nejlevneji v jednom obchode (${bestSingleStorePlan.shopName})`
+          : "Rezim: co nejlevneji v jednom obchode"
+        : "Rezim: nejlevneji napric obchody",
+      "",
+      ...selectedResults.map((item) => {
+        if (checkedIngredients.includes(item.ingredient)) {
+          return `- ${item.ingredient}: mam doma`;
+        }
+
+        if (!item.selectedProduct || !item.selectedStore) {
+          return shoppingMode === "single_store" && bestSingleStorePlan
+            ? `- ${item.ingredient}: v ${bestSingleStorePlan.shopName} nenalezeno`
+            : `- ${item.ingredient}: bez nalezene nabidky`;
+        }
+
+        const meta = [item.selectedStore.price, item.selectedStore.shopName]
+          .filter(Boolean)
+          .join(" - ");
+
+        return `- ${item.ingredient}: ${meta}`;
+      }),
+      "",
+      `Celkem: ${totalPrice.toFixed(2).replace(".", ",")} Kc`,
+    ];
+
+    if (shoppingMode === "single_store" && bestSingleStorePlan) {
+      lines.push(
+        `Pokryti: ${bestSingleStorePlan.matchedCount}/${itemsToBuy.length} polozek`,
+      );
+    }
+
+    return lines.join("\n");
+  }
+
+  function saveShoppingList() {
+    const payload = {
+      recipe: activeRecipe,
+      ingredients,
+      results: recipeResults,
+      checkedIngredients,
+      shoppingMode,
+    };
+
+    window.localStorage.setItem("foodapka-shopping-list", JSON.stringify(payload));
+    setShareMessage("Seznam je uložený v tomto zařízení.");
+  }
+
+  async function shareShoppingList() {
+    const text = buildShoppingListText();
+
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: activeRecipe || "Nákupní seznam",
+          text,
+        });
+        setShareMessage("Seznam byl nasdílen.");
+        return;
+      } catch {
+        // Fall back to clipboard if the share sheet was closed or unsupported.
+      }
+    }
+
+    await navigator.clipboard.writeText(text);
+    setShareMessage("Seznam je zkopírovaný do schránky.");
+  }
+
+  async function runRecipeSearch(recipeName: string) {
+    if (!recipeName.trim()) return;
+
+    setRecipeLoading(true);
+    setRecipeError(null);
+    setActiveRecipe(recipeName);
+    setRecipeResults([]);
+    setIngredients([]);
+    setCheckedIngredients([]);
+    setShoppingMode("cross_store");
+
+    try {
+      const recipeResponse = await fetch("/api/recipe", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ recipe: recipeName }),
+      });
+      const recipeData = readJsonSafely(await recipeResponse.text()) as
+        | { recipe?: string; ingredients?: unknown[]; error?: string }
+        | null;
+
+      if (!recipeResponse.ok) {
+        throw new Error(recipeData?.error || "Nepodařilo se načíst ingredience.");
+      }
+
+      const parsedIngredients = Array.isArray(recipeData?.ingredients)
+        ? recipeData.ingredients.filter(
+            (ingredient): ingredient is string => typeof ingredient === "string",
+          )
+        : [];
+
+      const recipeLabel = recipeData?.recipe ?? recipeName;
+      setActiveRecipe(recipeLabel);
+      setIngredients(parsedIngredients);
+
+      const ingredientResults = await Promise.all(
+        parsedIngredients.map(async (ingredient) => {
+          const searchParams = new URLSearchParams({
+            q: ingredient,
+            recipe: recipeLabel,
+            ingredients: parsedIngredients.join("|"),
+          });
+          const searchResponse = await fetch(`/api/search?${searchParams}`);
+          const searchData = readJsonSafely(await searchResponse.text()) as
+            | { products?: Product[] }
+            | null;
+          const fetchedProducts = Array.isArray(searchData?.products)
+            ? searchData.products
+            : [];
+          const storeOptions = buildIngredientStoreOptions(fetchedProducts);
+          const cheapestOption = storeOptions[0] ?? null;
+
+          return {
+            ingredient,
+            product: cheapestOption?.product ?? null,
+            store: cheapestOption?.store ?? null,
+            storeOptions,
+          };
+        }),
+      );
+
+      setRecipeResults(ingredientResults);
+      window.setTimeout(() => {
+        shoppingListRef.current?.scrollIntoView({
+          behavior: "smooth",
+          block: "start",
+        });
+      }, 50);
+    } catch (err) {
+      setRecipeError(err instanceof Error ? err.message : "Něco se pokazilo.");
+    } finally {
+      setRecipeLoading(false);
+    }
+  }
+
+  // Search filters
   const availableFilters = [...BASE_SOURCE_FILTERS];
   const seenFilters = new Set<string>(availableFilters.map((filter) => filter.key));
 
@@ -221,29 +579,82 @@ export default function Home() {
   return (
     <main className="min-h-screen bg-[radial-gradient(circle_at_top,_rgba(110,231,183,0.28),_transparent_40%),linear-gradient(180deg,_#ecfdf5_0%,_#f8fafc_48%,_#f5f7f6_100%)] px-4 py-6 text-zinc-900 sm:px-6 lg:px-8">
       <div className="mx-auto flex max-w-6xl flex-col gap-8">
+        {/* Hero Section */}
         <section className="overflow-hidden rounded-[2rem] border border-white/60 bg-[linear-gradient(135deg,_rgba(236,253,245,0.92),_rgba(209,250,229,0.88)_42%,_rgba(167,243,208,0.78)_100%)] p-5 shadow-[0_30px_90px_-40px_rgba(5,150,105,0.55)] sm:p-8 lg:p-10">
           <div className="absolute inset-x-0 top-0 -z-10 h-32 bg-[radial-gradient(circle,_rgba(16,185,129,0.18),_transparent_70%)] blur-3xl" />
-          <SiteHeader current="home" />
-          <div className="mt-10 grid gap-8 lg:grid-cols-[minmax(0,1.2fr)_minmax(280px,0.8fr)] lg:items-end">
-            <div className="space-y-5">
-              <div className="space-y-4">
-                <h1 className="max-w-3xl text-4xl font-bold tracking-tight text-emerald-950 sm:text-5xl lg:text-6xl">
-                  Najděte nejlevnější akční cenu dřív, než vyrazíte do obchodu.
-                </h1>
-                <p className="max-w-2xl text-base leading-7 text-emerald-950/75 sm:text-lg">
-                  foodapka prochází aktuální nabídky a ukáže vám, kde dnes
-                  vychází konkrétní produkt nejlépe. Výsledek je přehledný,
-                  rychlý a připravený i pro mobil.
-                </p>
-              </div>
-              <SearchBar
-                onResults={handleResults}
-                onLoading={setLoading}
-                onSearchStart={() => setHasSearched(true)}
-              />
+          <SiteHeader current={mode === "search" ? "home" : "recipes"} />
+          
+          <div className="mt-10 space-y-6">
+            {/* Animated header text */}
+            <div className={`transition-all duration-500 ease-out ${mode === "recipes" ? "max-h-0 overflow-hidden opacity-0 mb-0" : "max-h-64 opacity-100"}`}>
+              <h1 className="max-w-3xl text-4xl font-bold tracking-tight text-emerald-950 sm:text-5xl lg:text-6xl">
+                Najděte nejlevnější akční cenu dřív, než vyrazíte do obchodu.
+              </h1>
+              <p className="mt-4 max-w-2xl text-base leading-7 text-emerald-950/75 sm:text-lg">
+                foodapka prochází aktuální nabídky a ukáže vám, kde dnes
+                vychází konkrétní produkt nejlépe.
+              </p>
             </div>
-
-            <div className="grid gap-4 rounded-[1.75rem] border border-white/60 bg-white/65 p-4 backdrop-blur sm:grid-cols-3 lg:grid-cols-1">
+            
+            {/* Recipe header */}
+            <div className={`transition-all duration-500 ease-out ${mode === "search" ? "max-h-0 overflow-hidden opacity-0" : "max-h-32 opacity-100"}`}>
+              <h1 className="max-w-3xl text-3xl font-bold tracking-tight text-emerald-950 sm:text-4xl">
+                Vyberte si recept a najdeme nejlevnější suroviny
+              </h1>
+            </div>
+            
+            {/* Search bar with mode toggle */}
+            <SearchBar
+              onResults={handleResults}
+              onLoading={setLoading}
+              onSearchStart={() => setHasSearched(true)}
+              mode={mode}
+              onModeChange={handleModeChange}
+            />
+            
+            {/* Recipe cards - shown when in recipes mode */}
+            <div className={`transition-all duration-500 ease-out ${mode === "recipes" ? "max-h-[2000px] opacity-100" : "max-h-0 overflow-hidden opacity-0"}`}>
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                {RECIPE_PRESETS.map((recipe) => (
+                  <button
+                    key={recipe.name}
+                    type="button"
+                    onClick={() => void runRecipeSearch(recipe.name)}
+                    className="group rounded-[1.5rem] border border-emerald-100 bg-white/80 p-5 text-left shadow-sm transition-all hover:border-emerald-200 hover:shadow-md hover:-translate-y-0.5"
+                  >
+                    <span className="inline-block rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700">
+                      {recipe.tag}
+                    </span>
+                    <h3 className="mt-3 text-lg font-semibold text-emerald-950 group-hover:text-emerald-700">
+                      {recipe.name}
+                    </h3>
+                    <p className="mt-2 text-sm text-zinc-600 line-clamp-2">
+                      {recipe.description}
+                    </p>
+                    <div className="mt-3 flex flex-wrap gap-1">
+                      {recipe.ingredients.slice(0, 3).map((ing) => (
+                        <span
+                          key={ing}
+                          className="rounded-full bg-zinc-100 px-2 py-0.5 text-xs text-zinc-600"
+                        >
+                          {ing}
+                        </span>
+                      ))}
+                      {recipe.ingredients.length > 3 && (
+                        <span className="rounded-full bg-zinc-100 px-2 py-0.5 text-xs text-zinc-500">
+                          +{recipe.ingredients.length - 3}
+                        </span>
+                      )}
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+          
+          {/* Stats sidebar - only in search mode */}
+          {mode === "search" && (
+            <div className="mt-8 grid gap-4 rounded-[1.75rem] border border-white/60 bg-white/65 p-4 backdrop-blur sm:grid-cols-3">
               {[
                 ["5", "nejrelevantnějších produktů"],
                 ["7+", "sledovaných řetězců"],
@@ -258,210 +669,484 @@ export default function Home() {
                 </div>
               ))}
             </div>
-          </div>
+          )}
         </section>
 
-        <section className="space-y-5">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-            <div>
-              <h2 className="text-2xl font-semibold tracking-tight text-emerald-950 sm:text-3xl">
-                Výsledky hledání
-              </h2>
-              <p className="mt-1 text-sm text-zinc-600">
-                Obchody jsou uvnitř každé karty řazené od nejlevnější ceny.
-              </p>
-            </div>
-            <div className="flex flex-wrap items-center gap-2">
-              {!loading && visibleProducts.length > 0 && (
-                <p className="rounded-full border border-emerald-200 bg-white px-4 py-2 text-sm font-medium text-emerald-800">
-                  {visibleProducts.length} produktů
+        {/* Search Results Section */}
+        {mode === "search" && (
+          <section className="space-y-5">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+              <div>
+                <h2 className="text-2xl font-semibold tracking-tight text-emerald-950 sm:text-3xl">
+                  Výsledky hledání
+                </h2>
+                <p className="mt-1 text-sm text-zinc-600">
+                  Obchody jsou uvnitř každé karty řazené od nejlevnější ceny.
                 </p>
-              )}
-              {!loading && visibleProducts.length > 0 && (
-                <div className="flex flex-wrap gap-2">
-                  {[
-                    { key: "relevance", label: "Relevance" },
-                    { key: "cheapest", label: "Nejlevnější" },
-                    { key: "coverage", label: "Nejvíc obchodů" },
-                  ].map((option) => {
-                    const isActive = selectedSort === option.key;
+              </div>
+              <div className="flex flex-wrap items-center gap-2">
+                {!loading && visibleProducts.length > 0 && (
+                  <p className="rounded-full border border-emerald-200 bg-white px-4 py-2 text-sm font-medium text-emerald-800">
+                    {visibleProducts.length} produktů
+                  </p>
+                )}
+                {!loading && visibleProducts.length > 0 && (
+                  <div className="flex flex-wrap gap-2">
+                    {[
+                      { key: "relevance", label: "Relevance" },
+                      { key: "cheapest", label: "Nejlevnější" },
+                      { key: "coverage", label: "Nejvíc obchodů" },
+                    ].map((option) => {
+                      const isActive = selectedSort === option.key;
 
-                    return (
-                      <button
-                        key={option.key}
-                        type="button"
-                        onClick={() => setSelectedSort(option.key as ProductSort)}
-                        className={`rounded-full border px-4 py-2 text-sm font-semibold transition ${
-                          isActive
-                            ? "border-emerald-600 bg-emerald-600 text-white"
-                            : "border-emerald-200 bg-white text-emerald-900 hover:border-emerald-300 hover:bg-emerald-50"
-                        }`}
-                      >
-                        {option.label}
-                      </button>
-                    );
-                  })}
-                </div>
-              )}
+                      return (
+                        <button
+                          key={option.key}
+                          type="button"
+                          onClick={() => setSelectedSort(option.key as ProductSort)}
+                          className={`rounded-full border px-4 py-2 text-sm font-semibold transition ${
+                            isActive
+                              ? "border-emerald-600 bg-emerald-600 text-white"
+                              : "border-emerald-200 bg-white text-emerald-900 hover:border-emerald-300 hover:bg-emerald-50"
+                          }`}
+                        >
+                          {option.label}
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
             </div>
-          </div>
 
-          {!loading && products.length > 0 && (
-            <div className="flex flex-wrap gap-2">
-              {availableFilters.map((filter) => {
-                const count = getFilterCount(products, filter.key);
-                const isActive = selectedFilter === filter.key;
-                const isDisabled = filter.key !== "all" && count === 0;
+            {!loading && products.length > 0 && (
+              <div className="flex flex-wrap gap-2">
+                {availableFilters.map((filter) => {
+                  const count = getFilterCount(products, filter.key);
+                  const isActive = selectedFilter === filter.key;
+                  const isDisabled = filter.key !== "all" && count === 0;
 
-                return (
-                  <button
-                    key={filter.key}
-                    type="button"
-                    onClick={() => setSelectedFilter(filter.key)}
-                    disabled={isDisabled}
-                    className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-semibold transition ${
-                      isActive
-                        ? "border-emerald-600 bg-emerald-600 text-white"
-                        : isDisabled
-                          ? "cursor-not-allowed border-zinc-200 bg-zinc-100 text-zinc-400"
-                          : "border-emerald-200 bg-white text-emerald-900 hover:border-emerald-300 hover:bg-emerald-50"
-                    }`}
-                  >
-                    <span>{filter.label}</span>
-                    <span
-                      className={`rounded-full px-2 py-0.5 text-xs ${
+                  return (
+                    <button
+                      key={filter.key}
+                      type="button"
+                      onClick={() => setSelectedFilter(filter.key)}
+                      disabled={isDisabled}
+                      className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-semibold transition ${
                         isActive
-                          ? "bg-white/20 text-white"
+                          ? "border-emerald-600 bg-emerald-600 text-white"
                           : isDisabled
-                            ? "bg-white text-zinc-400"
-                            : "bg-emerald-100 text-emerald-700"
+                            ? "cursor-not-allowed border-zinc-200 bg-zinc-100 text-zinc-400"
+                            : "border-emerald-200 bg-white text-emerald-900 hover:border-emerald-300 hover:bg-emerald-50"
                       }`}
                     >
-                      {count}
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
-          )}
+                      <span>{filter.label}</span>
+                      <span
+                        className={`rounded-full px-2 py-0.5 text-xs ${
+                          isActive
+                            ? "bg-white/20 text-white"
+                            : isDisabled
+                              ? "bg-white text-zinc-400"
+                              : "bg-emerald-100 text-emerald-700"
+                        }`}
+                      >
+                        {count}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            )}
 
-          {loading && <LoadingCards />}
+            {loading && <LoadingCards />}
 
-          {!loading && sortedVisibleProducts.length > 0 && (
-            <div className="grid gap-4">
-              {sortedVisibleProducts.map((product) => {
-                const stores = sortStoresByPrice(product.stores);
+            {!loading && sortedVisibleProducts.length > 0 && (
+              <div className="grid gap-4">
+                {sortedVisibleProducts.map((product) => {
+                  const stores = sortStoresByPrice(product.stores);
 
-                return (
-                  <article
-                    key={product.url}
-                    className="rounded-[2rem] border border-emerald-100 bg-white/90 p-5 shadow-[0_25px_60px_-35px_rgba(16,185,129,0.45)] sm:p-6"
-                  >
-                    <div className="flex flex-col gap-5">
-                      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-                        <div className="space-y-2">
-                          <h3 className="text-xl font-semibold text-zinc-950">
-                            {cleanProductName(product.name)}
-                          </h3>
-                          <p className="text-sm text-zinc-500">
-                            Dostupné v {stores.length} obchodech
-                          </p>
+                  return (
+                    <article
+                      key={product.url}
+                      className="rounded-[2rem] border border-emerald-100 bg-white/90 p-5 shadow-[0_25px_60px_-35px_rgba(16,185,129,0.45)] sm:p-6"
+                    >
+                      <div className="flex flex-col gap-5">
+                        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                          <div className="space-y-2">
+                            <h3 className="text-xl font-semibold text-zinc-950">
+                              {cleanProductName(product.name)}
+                            </h3>
+                            <p className="text-sm text-zinc-500">
+                              Dostupné v {stores.length} obchodech
+                            </p>
+                          </div>
+                          <a
+                            href={product.url}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="inline-flex items-center justify-center rounded-full border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm font-semibold text-emerald-800 transition hover:border-emerald-300 hover:bg-emerald-100"
+                          >
+                            Detail nabídky
+                          </a>
                         </div>
-                        <a
-                          href={product.url}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="inline-flex items-center justify-center rounded-full border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm font-semibold text-emerald-800 transition hover:border-emerald-300 hover:bg-emerald-100"
-                        >
-                          Detail nabídky
-                        </a>
-                      </div>
 
-                      <ul className="grid gap-3">
-                        {stores.map((item, index) => {
-                          const cheapest = index === 0;
+                        <ul className="grid gap-3">
+                          {stores.map((item, index) => {
+                            const cheapest = index === 0;
 
-                          return (
-                            <li
-                              key={`${item.shopId}-${item.price}-${index}`}
-                              className={`rounded-[1.5rem] border px-4 py-4 transition sm:px-5 ${
-                                cheapest
-                                  ? "border-emerald-300 bg-emerald-50 shadow-[0_18px_35px_-28px_rgba(5,150,105,0.8)]"
-                                  : "border-zinc-100 bg-zinc-50"
-                              }`}
-                            >
-                              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                                <div className="space-y-2">
-                                  <div className="flex flex-wrap items-center gap-2">
-                                    <StoreBrand shopName={item.shopName} />
-                                    {item.sourceLabel && (
-                                      <span className="rounded-full border border-zinc-200 bg-white px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">
-                                        {item.sourceLabel}
-                                      </span>
-                                    )}
-                                    {cheapest && (
-                                      <span className="rounded-full bg-emerald-600 px-3 py-1 text-xs font-semibold text-white">
-                                        Nejlevnější
-                                      </span>
-                                    )}
-                                  </div>
-                                  {(item.validity || item.pricePerUnit) && (
-                                    <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-zinc-500">
-                                      {item.validity && (
-                                        <span>Platnost: {item.validity}</span>
+                            return (
+                              <li
+                                key={`${item.shopId}-${item.price}-${index}`}
+                                className={`rounded-[1.5rem] border px-4 py-4 transition sm:px-5 ${
+                                  cheapest
+                                    ? "border-emerald-300 bg-emerald-50 shadow-[0_18px_35px_-28px_rgba(5,150,105,0.8)]"
+                                    : "border-zinc-100 bg-zinc-50"
+                                }`}
+                              >
+                                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                                  <div className="space-y-2">
+                                    <div className="flex flex-wrap items-center gap-2">
+                                      <StoreBrand shopName={item.shopName} />
+                                      {item.sourceLabel && (
+                                        <span className="rounded-full border border-zinc-200 bg-white px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">
+                                          {item.sourceLabel}
+                                        </span>
                                       )}
-                                      {item.pricePerUnit && (
-                                        <span>Jednotková cena: {item.pricePerUnit}</span>
+                                      {cheapest && (
+                                        <span className="rounded-full bg-emerald-600 px-3 py-1 text-xs font-semibold text-white">
+                                          Nejlevnější
+                                        </span>
                                       )}
                                     </div>
+                                    {(item.validity || item.pricePerUnit) && (
+                                      <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-zinc-500">
+                                        {item.validity && (
+                                          <span>Platnost: {item.validity}</span>
+                                        )}
+                                        {item.pricePerUnit && (
+                                          <span>Jednotková cena: {item.pricePerUnit}</span>
+                                        )}
+                                      </div>
+                                    )}
+                                  </div>
+
+                                  <div className="flex flex-col items-start gap-3 sm:items-end">
+                                    <div className="text-left sm:text-right">
+                                      <p
+                                        className={`text-xl font-bold ${
+                                          cheapest
+                                            ? "text-emerald-700"
+                                            : "text-zinc-900"
+                                        }`}
+                                      >
+                                        {item.price}
+                                      </p>
+                                      {item.amount && (
+                                        <p className="text-xs text-zinc-500">
+                                          Sleva: {item.amount}
+                                        </p>
+                                      )}
+                                    </div>
+
+                                    {item.leafletUrl && (
+                                      <a
+                                        href={item.leafletUrl}
+                                        target="_blank"
+                                        rel="noreferrer"
+                                        className="inline-flex items-center rounded-full border border-zinc-200 bg-white px-3 py-1.5 text-xs font-semibold text-zinc-700 transition hover:border-emerald-300 hover:text-emerald-700"
+                                      >
+                                        V letáku
+                                      </a>
+                                    )}
+                                  </div>
+                                </div>
+                              </li>
+                            );
+                          })}
+                        </ul>
+                      </div>
+                    </article>
+                  );
+                })}
+              </div>
+            )}
+
+            {!loading && visibleProducts.length === 0 && (
+              <EmptyState hasSearched={hasSearched} />
+            )}
+          </section>
+        )}
+
+        {/* Recipe Shopping List Section */}
+        {mode === "recipes" && (
+          <section ref={shoppingListRef} className="space-y-5">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+              <div>
+                <h2 className="text-2xl font-semibold tracking-tight text-emerald-950">
+                  Nákupní list
+                </h2>
+                <p className="text-sm text-zinc-600">
+                  Přepněte si, jestli chcete nejlevnější nákup napříč obchody,
+                  nebo co nejlevnější variantu v jednom řetězci.
+                </p>
+              </div>
+              {ingredients.length > 0 && !recipeLoading && (
+                <p className="rounded-full border border-emerald-200 bg-white px-4 py-2 text-sm font-medium text-emerald-800">
+                  {ingredients.length} ingrediencí
+                </p>
+              )}
+            </div>
+
+            {recipeError && (
+              <div className="rounded-[1.5rem] border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                {recipeError}
+              </div>
+            )}
+
+            {recipeLoading && <RecipeSkeleton />}
+
+            {!recipeLoading && recipeResults.length > 0 && (
+              <div className="grid gap-4">
+                <div className="rounded-[1.75rem] border border-emerald-100 bg-white/95 p-4 shadow-[0_20px_50px_-35px_rgba(16,185,129,0.45)] sm:p-5">
+                  <div className="flex flex-col gap-4 border-b border-emerald-100 pb-4 sm:flex-row sm:items-start sm:justify-between">
+                    <div>
+                      <p className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-700">
+                        Nákup pro
+                      </p>
+                      <h3 className="mt-1 text-2xl font-semibold text-zinc-950">
+                        {activeRecipe}
+                      </h3>
+                      <p className="mt-2 text-sm text-zinc-600">
+                        {checkedIngredients.length}/{recipeResults.length} položek máte
+                        doma
+                      </p>
+                    </div>
+
+                    <div className="flex flex-wrap gap-2">
+                      <button
+                        type="button"
+                        onClick={saveShoppingList}
+                        className="inline-flex items-center rounded-full border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm font-semibold text-emerald-800 transition hover:border-emerald-300 hover:bg-emerald-100"
+                      >
+                        Uložit seznam
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => void shareShoppingList()}
+                        className="inline-flex items-center rounded-full border border-zinc-200 bg-white px-4 py-2 text-sm font-semibold text-zinc-700 transition hover:border-emerald-300 hover:text-emerald-700"
+                      >
+                        Sdílet
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                    <div className="inline-flex rounded-full border border-emerald-200 bg-emerald-50 p-1">
+                      <button
+                        type="button"
+                        onClick={() => setShoppingMode("cross_store")}
+                        className={`rounded-full px-4 py-2 text-sm font-semibold transition ${
+                          shoppingMode === "cross_store"
+                            ? "bg-emerald-600 text-white"
+                            : "text-emerald-800 hover:bg-emerald-100"
+                        }`}
+                      >
+                        Napříč obchody
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setShoppingMode("single_store")}
+                        className={`rounded-full px-4 py-2 text-sm font-semibold transition ${
+                          shoppingMode === "single_store"
+                            ? "bg-emerald-600 text-white"
+                            : "text-emerald-800 hover:bg-emerald-100"
+                        }`}
+                      >
+                        Jeden obchod
+                      </button>
+                    </div>
+
+                    {shoppingMode === "single_store" && bestSingleStorePlan && (
+                      <p className="rounded-full border border-zinc-200 bg-white px-4 py-2 text-sm font-medium text-zinc-700">
+                        <span className="mr-3 inline-flex align-middle">
+                          <StoreBrand shopName={bestSingleStorePlan.shopName} />
+                        </span>
+                        {!getStoreLogoPath(bestSingleStorePlan.shopName) && (
+                          <>{bestSingleStorePlan.shopName} · </>
+                        )}
+                        {bestSingleStorePlan.matchedCount}/{itemsToBuy.length}{" "}
+                        položek
+                      </p>
+                    )}
+                  </div>
+
+                  {shareMessage && (
+                    <div className="mt-4 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
+                      {shareMessage}
+                    </div>
+                  )}
+
+                  <ul className="mt-4 grid gap-3">
+                    {selectedResults.map((item) => {
+                      const isChecked = checkedIngredients.includes(item.ingredient);
+
+                      return (
+                        <li
+                          key={item.ingredient}
+                          className={`rounded-[1.5rem] border px-4 py-4 transition ${
+                            isChecked
+                              ? "border-emerald-200 bg-emerald-50/70"
+                              : "border-zinc-100 bg-zinc-50"
+                          }`}
+                        >
+                          <div className="flex gap-3">
+                            <button
+                              type="button"
+                              onClick={() => toggleIngredient(item.ingredient)}
+                              className={`mt-1 flex h-6 w-6 shrink-0 items-center justify-center rounded-full border text-sm font-bold transition ${
+                                isChecked
+                                  ? "border-emerald-600 bg-emerald-600 text-white"
+                                  : "border-zinc-300 bg-white text-transparent"
+                              }`}
+                              aria-label={`Označit ${item.ingredient}`}
+                            >
+                              ✓
+                            </button>
+
+                            <div className="min-w-0 flex-1">
+                              <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                                <div className="space-y-2">
+                                  <p
+                                    className={`text-lg font-semibold ${
+                                      isChecked
+                                        ? "text-zinc-500 line-through"
+                                        : "text-zinc-950"
+                                    }`}
+                                  >
+                                    {item.ingredient}
+                                  </p>
+
+                                  {item.selectedProduct && item.selectedStore ? (
+                                    <>
+                                      <p className="text-sm font-medium text-zinc-800">
+                                        {cleanProductName(item.selectedProduct.name)}
+                                      </p>
+                                      <div className="flex flex-wrap items-center gap-2 text-sm text-zinc-600">
+                                        <StoreBrand shopName={item.selectedStore.shopName} />
+                                        {!getStoreLogoPath(item.selectedStore.shopName) && (
+                                          <span>{item.selectedStore.shopName}</span>
+                                        )}
+                                        {item.selectedStore.sourceLabel && (
+                                          <span className="rounded-full border border-zinc-200 bg-white px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">
+                                            {item.selectedStore.sourceLabel}
+                                          </span>
+                                        )}
+                                        <span className="rounded-full bg-emerald-600 px-3 py-1 text-xs font-semibold text-white">
+                                          {shoppingMode === "single_store"
+                                            ? "Vybráno v jednom obchodě"
+                                            : "Nejlevnější"}
+                                        </span>
+                                      </div>
+                                      {(item.selectedStore.validity ||
+                                        item.selectedStore.pricePerUnit) && (
+                                        <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-zinc-500">
+                                          {item.selectedStore.validity && (
+                                            <span>
+                                              Platnost: {item.selectedStore.validity}
+                                            </span>
+                                          )}
+                                          {item.selectedStore.pricePerUnit && (
+                                            <span>
+                                              Jednotková cena:{" "}
+                                              {item.selectedStore.pricePerUnit}
+                                            </span>
+                                          )}
+                                        </div>
+                                      )}
+                                    </>
+                                  ) : (
+                                    <p className="text-sm text-zinc-600">
+                                      {shoppingMode === "single_store" &&
+                                      bestSingleStorePlan
+                                        ? `V ${bestSingleStorePlan.shopName} jsme pro tuto ingredienci nenašli akční nabídku.`
+                                        : "Pro tuto ingredienci jsme zatím nenašli odpovídající akční nabídku."}
+                                    </p>
                                   )}
                                 </div>
 
                                 <div className="flex flex-col items-start gap-3 sm:items-end">
-                                  <div className="text-left sm:text-right">
-                                    <p
-                                      className={`text-xl font-bold ${
-                                        cheapest
-                                          ? "text-emerald-700"
-                                          : "text-zinc-900"
-                                      }`}
-                                    >
-                                      {item.price}
-                                    </p>
-                                    {item.amount && (
-                                      <p className="text-xs text-zinc-500">
-                                        Sleva: {item.amount}
+                                  {item.selectedStore ? (
+                                    <>
+                                      <p className="text-2xl font-bold text-emerald-700">
+                                        {item.selectedStore.price}
                                       </p>
-                                    )}
-                                  </div>
-
-                                  {item.leafletUrl && (
-                                    <a
-                                      href={item.leafletUrl}
-                                      target="_blank"
-                                      rel="noreferrer"
-                                      className="inline-flex items-center rounded-full border border-zinc-200 bg-white px-3 py-1.5 text-xs font-semibold text-zinc-700 transition hover:border-emerald-300 hover:text-emerald-700"
-                                    >
-                                      V letáku
-                                    </a>
+                                      <a
+                                        href={item.selectedProduct?.url ?? ""}
+                                        target="_blank"
+                                        rel="noreferrer"
+                                        className="inline-flex items-center rounded-full border border-emerald-200 bg-white px-4 py-2 text-sm font-semibold text-emerald-800 transition hover:border-emerald-300 hover:bg-emerald-100"
+                                      >
+                                        Detail nabídky
+                                      </a>
+                                    </>
+                                  ) : (
+                                    <span className="rounded-full border border-zinc-200 bg-white px-3 py-1 text-xs font-semibold text-zinc-500">
+                                      Bez ceny
+                                    </span>
                                   )}
                                 </div>
                               </div>
-                            </li>
-                          );
-                        })}
-                      </ul>
-                    </div>
-                  </article>
-                );
-              })}
-            </div>
-          )}
+                            </div>
+                          </div>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </div>
 
-          {!loading && visibleProducts.length === 0 && (
-            <EmptyState hasSearched={hasSearched} />
-          )}
-        </section>
+                <div className="rounded-[1.75rem] border border-emerald-200 bg-emerald-950 px-5 py-6 text-white shadow-[0_25px_60px_-35px_rgba(5,150,105,0.8)]">
+                  <p className="text-sm uppercase tracking-[0.2em] text-emerald-200">
+                    {shoppingMode === "single_store"
+                      ? "Cena v jednom obchodě"
+                      : "Cena napříč obchody"}
+                  </p>
+                  <p className="mt-2 text-3xl font-bold">
+                    {totalPrice.toFixed(2).replace(".", ",")} Kč
+                  </p>
+                  <p className="mt-2 text-sm text-emerald-100">
+                    {shoppingMode === "single_store"
+                      ? bestSingleStorePlan
+                        ? `Nejlíp vychází ${bestSingleStorePlan.shopName}. Pokrývá ${bestSingleStorePlan.matchedCount}/${itemsToBuy.length} položek.`
+                        : "Pro tento seznam zatím nemáme společný obchod."
+                      : "Součet nejlevnějších nalezených variant napříč všemi obchody."}
+                  </p>
+                  {shoppingMode === "single_store" &&
+                    bestSingleStorePlan &&
+                    bestSingleStorePlan.missingCount > 0 && (
+                      <p className="mt-2 text-sm text-emerald-200">
+                        {bestSingleStorePlan.missingCount} položek je potřeba
+                        dokoupit jinde nebo počkat na jinou akci.
+                      </p>
+                    )}
+                </div>
+              </div>
+            )}
+
+            {!recipeLoading && !recipeError && recipeResults.length === 0 && (
+              <div className="rounded-[1.75rem] border border-dashed border-emerald-200 bg-white/70 px-6 py-12 text-center">
+                <div className="mx-auto mb-5 flex h-20 w-20 items-center justify-center rounded-full bg-emerald-100 text-4xl">
+                  🍲
+                </div>
+                <h2 className="text-xl font-semibold text-emerald-950">
+                  Vyberte recept výše
+                </h2>
+                <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-zinc-600">
+                  Klikněte na některý z receptů a my vám najdeme nejlevnější ingredience.
+                </p>
+              </div>
+            )}
+          </section>
+        )}
       </div>
     </main>
   );
