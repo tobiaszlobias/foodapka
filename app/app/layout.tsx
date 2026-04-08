@@ -5,6 +5,14 @@ import Sidebar from "@/components/Sidebar";
 import BottomNav from "@/components/BottomNav";
 import { Suspense } from "react";
 
+function SidebarFallback() {
+  return <div className="hidden lg:block w-72 flex-shrink-0" />;
+}
+
+function BottomNavFallback() {
+  return <div className="lg:hidden fixed bottom-0 left-0 right-0 h-16 bg-white dark:bg-black border-t dark:border-zinc-800" />;
+}
+
 export default function DashboardLayout({
   children,
 }: {
@@ -15,7 +23,9 @@ export default function DashboardLayout({
       <AppHeader />
       
       <div className="flex pt-20 pb-20 lg:pb-0">
-        <Sidebar />
+        <Suspense fallback={<SidebarFallback />}>
+          <Sidebar />
+        </Suspense>
         
         {/* Spacer for fixed sidebar on desktop */}
         <div className="hidden lg:block w-72 flex-shrink-0" />
@@ -34,7 +44,9 @@ export default function DashboardLayout({
         </main>
       </div>
 
-      <BottomNav />
+      <Suspense fallback={<BottomNavFallback />}>
+        <BottomNav />
+      </Suspense>
     </div>
   );
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { createClient } from "@/lib/supabase/client";
 
 type DietType = "none" | "vegetarian" | "vegan" | "pescatarian";
@@ -48,7 +48,7 @@ const FOOD_CATEGORIES = [
   "Česká klasika",
 ];
 
-export default function SettingsPage() {
+function SettingsContent() {
   const supabase = createClient();
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -406,5 +406,18 @@ export default function SettingsPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function SettingsPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex items-center justify-center py-20 text-zinc-400">
+        <span className="material-symbols-outlined animate-spin mr-2">progress_activity</span>
+        Načítání...
+      </div>
+    }>
+      <SettingsContent />
+    </Suspense>
   );
 }
