@@ -84,17 +84,22 @@ export default function HomePage() {
             </div>
           </div>
 
-          {/* Hero Image - Optimized for all screens */}
+          {/* Hero Image - Optimized with priority */}
           <div className="relative mt-8 lg:mt-0 px-4 md:px-0">
             <div className="absolute -right-4 md:-right-10 -top-4 md:-top-10 h-40 md:h-80 w-40 md:w-80 rounded-full bg-primary/10 blur-3xl"></div>
             <div className="relative mx-auto max-w-lg lg:max-w-none">
-              <img
-                src="/hero-food.png"
-                alt="Čerstvé potraviny"
-                className="h-[300px] md:h-[500px] w-full rounded-2xl md:rounded-3xl object-cover shadow-2xl"
-              />
-              {/* Floating ingredients card - smaller on mobile */}
-              <div className="absolute -bottom-4 -left-2 md:-bottom-6 md:-left-6 rounded-xl md:rounded-2xl bg-white p-3 md:p-5 shadow-xl border border-foodapka-100 max-w-[200px] md:max-w-none">
+              <div className="relative h-[300px] md:h-[500px] w-full overflow-hidden rounded-2xl md:rounded-3xl shadow-2xl">
+                <Image
+                  src="/hero-food.png"
+                  alt="Čerstvé potraviny"
+                  fill
+                  className="object-cover"
+                  priority
+                  sizes="(max-width: 768px) 100vw, 50vw"
+                />
+              </div>
+              {/* Floating ingredients card */}
+              <div className="absolute -bottom-4 -left-2 md:-bottom-6 md:-left-6 rounded-xl md:rounded-2xl bg-white p-3 md:p-5 shadow-xl border border-foodapka-100 max-w-[200px] md:max-w-none z-10">
                 <p className="mb-2 md:mb-3 text-[10px] md:text-xs font-bold uppercase tracking-wider text-primary">Ingredience v akci</p>
                 <div className="flex flex-wrap gap-1.5 md:gap-2">
                   <span className="rounded-full bg-red-50 px-2 py-0.5 md:px-3 md:py-1 text-[10px] md:text-sm">🍅 Rajčata</span>
@@ -105,14 +110,14 @@ export default function HomePage() {
                 </p>
               </div>
               {/* Floating savings badge */}
-              <div className="absolute -right-2 top-4 md:-right-4 md:top-8 rounded-full bg-foodapka-600 px-3 md:px-4 py-1.5 md:py-2 text-white shadow-lg text-xs md:text-base font-black">
+              <div className="absolute -right-2 top-4 md:-right-4 md:top-8 rounded-full bg-foodapka-600 px-3 md:px-4 py-1.5 md:py-2 text-white shadow-lg text-xs md:text-base font-black z-10">
                 -35%
               </div>
             </div>
           </div>
         </section>
 
-        {/* Stats + Popular Products - Mobile Grid */}
+        {/* Stats + Popular Products - Optimized images */}
         <section className="mx-auto max-w-7xl px-4 md:px-8 pb-10 md:pb-16">
           <div className="grid gap-4 md:gap-6 grid-cols-2 md:grid-cols-6 auto-rows-[160px] md:auto-rows-[200px]">
             {/* Stat 1 */}
@@ -121,17 +126,19 @@ export default function HomePage() {
                 <span className="text-4xl md:text-5xl font-bold tracking-tighter text-primary">5 mil.</span>
                 <p className="mt-1 text-sm md:text-base font-semibold text-on-surface-variant">Porovnaných produktů</p>
               </div>
-              <div className="absolute -bottom-4 -right-4 transform opacity-10 transition-transform duration-500 group-hover:scale-110">
+              <div className="absolute -bottom-4 -right-4 transform opacity-10 transition-transform duration-500 group-hover:scale-110 text-primary">
                 <span className="material-symbols-outlined text-[6rem] md:text-[8rem]">shopping_basket</span>
               </div>
             </div>
             
             {/* Pečivo */}
             <div className="col-span-1 md:col-span-2 md:row-span-2 group relative overflow-hidden rounded-2xl bg-white shadow-sm border border-zinc-100">
-              <img
+              <Image
                 src="/pecivo.png"
                 alt="Čerstvé pečivo"
-                className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                fill
+                className="object-cover transition-transform duration-500 group-hover:scale-105"
+                sizes="(max-width: 768px) 50vw, 33vw"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
               <div className="absolute bottom-4 left-4 right-4 text-white">
@@ -141,10 +148,12 @@ export default function HomePage() {
 
             {/* Ovoce a zelenina */}
             <div className="col-span-1 md:col-span-2 md:row-span-1 group relative overflow-hidden rounded-2xl bg-white shadow-sm border border-zinc-100">
-              <img
+              <Image
                 src="/zeleninaovoce.png"
                 alt="Ovoce a zelenina"
-                className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                fill
+                className="object-cover transition-transform duration-500 group-hover:scale-105"
+                sizes="(max-width: 768px) 50vw, 33vw"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
               <div className="absolute bottom-4 left-4 right-4 text-white text-xs md:text-base font-bold">
@@ -160,12 +169,14 @@ export default function HomePage() {
               </p>
             </div>
 
-            {/* Maso - Wide on mobile */}
+            {/* Maso */}
             <div className="col-span-2 md:col-span-4 md:row-span-2 group relative overflow-hidden rounded-2xl bg-white shadow-lg border border-zinc-100">
-              <img
+              <Image
                 src="/maso.png"
                 alt="Čerstvé maso"
-                className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                fill
+                className="object-cover transition-transform duration-500 group-hover:scale-105"
+                sizes="(max-width: 768px) 100vw, 66vw"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
               <div className="absolute bottom-5 left-5 right-5 text-white">
@@ -176,7 +187,7 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* User Journey Section - Stacked on mobile */}
+        {/* User Journey Section */}
         <section className="mx-auto max-w-7xl px-4 md:px-8 py-16 md:py-24">
           <div className="mb-10 md:mb-12 text-center">
             <h2 className="text-3xl md:text-5xl font-black tracking-tight text-zinc-900 mb-3 md:mb-4 px-2">Vaše cesta k úspoře</h2>
@@ -186,10 +197,12 @@ export default function HomePage() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 md:gap-16 items-center">
             {/* Left Side - Hero Image */}
             <div className="relative aspect-[4/3] md:aspect-square rounded-2xl md:rounded-3xl overflow-hidden shadow-2xl group">
-              <img
+              <Image
                 alt="Myšlenková mapa foodapka"
-                className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700"
+                fill
+                className="object-cover object-center group-hover:scale-105 transition-transform duration-700"
                 src="/myslenkova mapa hero.png"
+                sizes="(max-width: 1024px) 100vw, 50vw"
               />
               <div className="absolute inset-0 bg-gradient-to-br from-foodapka-600/20 via-transparent to-black/30"></div>
             </div>
@@ -232,7 +245,7 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* Store Leaflets - Horizontal Scroll on Mobile */}
+        {/* Store Leaflets */}
         <section id="letaky" className="bg-zinc-50 py-16 md:py-20 border-y border-zinc-100">
           <div className="mx-auto max-w-7xl px-4 md:px-8">
             <div className="mb-10 text-center">

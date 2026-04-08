@@ -22,7 +22,6 @@ export function StoreBrand({ shopName, small = false }: { shopName: string; smal
               ? (isLidl ? "h-6 w-6" : "h-5 w-5") 
               : (isLidl ? "h-10 w-10 md:h-14 md:w-14" : "h-8 w-8 md:h-12 md:w-12")
           } object-contain`}
-          unoptimized
         />
       </span>
     );

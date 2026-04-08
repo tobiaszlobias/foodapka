@@ -102,7 +102,13 @@ export default function RecipeSection({
           >
             {recipe.image && (
               <div className="h-32 md:h-44 relative">
-                <Image src={recipe.image} alt={recipe.name} fill className="object-cover" unoptimized />
+                <Image 
+                  src={recipe.image} 
+                  alt={recipe.name} 
+                  fill 
+                  className="object-cover" 
+                  sizes="(max-width: 768px) 100vw, 33vw"
+                />
                 <div className="absolute top-2 left-2 px-2 py-0.5 rounded-full bg-foodapka-100/90 backdrop-blur-md text-[9px] font-black text-foodapka-800 uppercase tracking-widest">
                   {recipe.tag}
                 </div>
