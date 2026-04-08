@@ -619,8 +619,8 @@ function HomeContent({
       {/* Watchdog Page */}
       {mode === "watchdog" && (
         <div className="space-y-6">
-          <header className="mb-6 md:mb-10 px-1 md:px-2">
-            <h1 className="text-2xl md:text-4xl lg:text-5xl font-extrabold tracking-tight text-foodapka-950 dark:text-white leading-tight mb-2">
+          <header className="mb-6 md:mb-10 px-1 md:px-2 text-left">
+            <h1 className="text-3xl md:text-4xl lg:text-5xl font-extrabold tracking-tight text-foodapka-950 dark:text-white leading-tight mb-2">
               Hlídací pes 🐕
             </h1>
             <p className="text-sm md:text-lg text-zinc-600 dark:text-zinc-400">
@@ -642,7 +642,6 @@ function HomeContent({
               onClick={() => router.push("/app")}
               className="inline-flex items-center gap-2 rounded-full bg-foodapka-500 px-6 py-2.5 font-semibold text-white transition hover:bg-foodapka-600 text-sm"
             >
-              <span className="material-symbols-outlined text-lg">search</span>
               Vyhledat produkty
             </button>
           </div>
@@ -673,9 +672,9 @@ function HomeContent({
       {/* Shopping Lists Page */}
       {mode === "lists" && (
         <div className="space-y-6">
-          <header className="mb-6 md:mb-10 px-1 md:px-2">
-            <h1 className="text-2xl md:text-4xl lg:text-5xl font-extrabold tracking-tight text-foodapka-950 dark:text-white leading-tight mb-2">
-              Nákupní seznamy 📝
+          <header className="mb-6 md:mb-10 px-1 md:px-2 text-left">
+            <h1 className="text-3xl md:text-4xl lg:text-5xl font-extrabold tracking-tight text-foodapka-950 dark:text-white leading-tight mb-2">
+              Seznamy 📝
             </h1>
             <p className="text-sm md:text-lg text-zinc-600 dark:text-zinc-400">
               Vytvářejte a spravujte své seznamy.
@@ -706,7 +705,7 @@ function HomeContent({
       {/* Search/Recipes content - only show when in search or recipes mode */}
       {(mode === "search" || mode === "recipes") && (
         <div className="space-y-6 md:space-y-8">
-          <header className="px-1 md:px-2">
+          <header className="px-1 md:px-2 text-left">
             {/* Animated header text */}
             <div className={`transition-all duration-500 ease-out ${mode === "recipes" ? "max-h-0 overflow-hidden opacity-0" : "max-h-64 opacity-100 mb-4"}`}>
               <h1 className="text-2xl md:text-4xl lg:text-5xl font-extrabold tracking-tight text-foodapka-950 dark:text-white leading-tight">
@@ -787,312 +786,313 @@ function HomeContent({
 
       {/* Search Results Section */}
       {mode === "search" && (
-        <section className="space-y-4 md:space-y-5">
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between px-1 md:px-2">
-            <div>
-              <h2 className="text-xl md:text-2xl font-semibold tracking-tight text-foodapka-950 dark:text-white">
+        <section className="space-y-4">
+          <div className="flex flex-col gap-3 px-1 md:px-2">
+            <div className="flex items-center justify-between gap-4">
+              <h2 className="text-xl font-bold tracking-tight text-foodapka-950 dark:text-white whitespace-nowrap">
                 Výsledky hledání
               </h2>
-              <p className="mt-0.5 text-xs md:text-sm text-zinc-600 dark:text-zinc-400">
-                Řazeno od nejlevnějšího.
-              </p>
+              <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1 flex-1 justify-end">
+                {[
+                  { key: "relevance", label: "Relevance" },
+                  { key: "cheapest", label: "Nejlevnější" },
+                ].map((option) => {
+                  const isActive = selectedSort === option.key;
+                  return (
+                    <button
+                      key={option.key}
+                      onClick={() => setSelectedSort(option.key as ProductSort)}
+                      className={`whitespace-nowrap rounded-full border px-3 py-1.5 text-[11px] font-bold transition-all ${
+                        isActive
+                          ? "border-foodapka-600 bg-foodapka-600 text-white shadow-md shadow-foodapka-500/20"
+                          : "border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-zinc-600 dark:text-zinc-400"
+                      }`}
+                    >
+                      {option.label}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
-            <div className="flex flex-wrap items-center gap-2 overflow-x-auto pb-1 no-scrollbar">
-              {!loading && visibleProducts.length > 0 && (
-                <div className="flex gap-2">
-                  {[
-                    { key: "relevance", label: "Relevance" },
-                    { key: "cheapest", label: "Nejlevnější" },
-                  ].map((option) => {
-                    const isActive = selectedSort === option.key;
 
-                    return (
-                      <button
-                        key={option.key}
-                        type="button"
-                        onClick={() => setSelectedSort(option.key as ProductSort)}
-                        className={`whitespace-nowrap rounded-full border px-3 py-1.5 text-xs font-semibold transition ${
-                          isActive
-                            ? "border-foodapka-600 bg-foodapka-600 text-white"
-                            : "border-foodapka-200 dark:border-zinc-800 bg-white dark:bg-foodapka-950 text-foodapka-900 dark:text-zinc-100 hover:border-foodapka-300"
-                        }`}
-                      >
-                        {option.label}
-                      </button>
-                    );
-                  })}
+            {!loading && products.length > 0 && (
+              <div className="flex gap-2 overflow-x-auto no-scrollbar pb-2 -mx-1 md:mx-0 px-1 md:px-0">
+                {availableFilters.map((filter) => {
+                  const count = getFilterCount(products, filter.key);
+                  const isActive = selectedFilter === filter.key;
+                  if (filter.key !== "all" && count === 0) return null;
+
+                  return (
+                    <button
+                      key={filter.key}
+                      onClick={() => setSelectedFilter(filter.key)}
+                      className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-[11px] font-bold transition-all whitespace-nowrap ${
+                        isActive
+                          ? "border-foodapka-600 bg-foodapka-600 text-white shadow-md shadow-foodapka-500/20"
+                          : "border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-zinc-600 dark:text-zinc-400 hover:border-foodapka-300"
+                      }`}
+                    >
+                      <span>{filter.label}</span>
+                      <span className={`rounded-full px-1.5 py-0.5 text-[9px] ${isActive ? "bg-white/20 text-white" : "bg-foodapka-100 dark:bg-foodapka-900/50 text-foodapka-700 dark:text-foodapka-300"}`}>
+                        {count}
+                      </span>
+                    </button>
+                  );
+                })}
               </div>
             )}
           </div>
-        </div>
 
-        {!loading && products.length > 0 && (
-          <div className="flex flex-wrap gap-2 px-1 md:px-2 overflow-x-auto pb-1 no-scrollbar">
-            {availableFilters.slice(0, 6).map((filter) => {
-              const count = getFilterCount(products, filter.key);
-              const isActive = selectedFilter === filter.key;
-              const isDisabled = filter.key !== "all" && count === 0;
+          {loading && <LoadingCards />}
 
-              return (
-                <button
-                  key={filter.key}
-                  type="button"
-                  onClick={() => setSelectedFilter(filter.key)}
-                  disabled={isDisabled}
-                  className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold transition whitespace-nowrap ${
-                    isActive
-                      ? "border-foodapka-600 bg-foodapka-600 text-white"
-                      : isDisabled
-                        ? "opacity-40 cursor-not-allowed border-zinc-200 dark:border-zinc-800"
-                        : "border-foodapka-200 dark:border-zinc-800 bg-white dark:bg-foodapka-950 text-foodapka-900 dark:text-zinc-100"
-                  }`}
-                >
-                  <span>{filter.label}</span>
-                  <span className={`rounded-full px-1.5 py-0.5 text-[10px] ${isActive ? "bg-white/20 text-white" : "bg-foodapka-100 dark:bg-foodapka-900/50 text-foodapka-700"}`}>
-                    {count}
-                  </span>
-                </button>
-              );
-            })}
-          </div>
-        )}
+          {!loading && sortedVisibleProducts.length > 0 && (
+            <div className="grid gap-3 md:gap-4">
+              {sortedVisibleProducts.map((product) => {
+                const stores = sortStoresByPrice(product.stores);
 
-        {loading && <LoadingCards />}
-
-        {!loading && sortedVisibleProducts.length > 0 && (
-          <div className="grid gap-3 md:gap-4">
-            {sortedVisibleProducts.map((product) => {
-              const stores = sortStoresByPrice(product.stores);
-
-              return (
-                <article
-                  key={product.url}
-                  className="rounded-2xl border border-foodapka-100 dark:border-zinc-800 bg-white/90 dark:bg-foodapka-950 p-4 shadow-sm"
-                >
-                  <div className="flex flex-col gap-4">
-                    <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
-                      <div className="space-y-1">
-                        <h3 className="text-base md:text-xl font-semibold text-zinc-950 dark:text-white leading-snug">
-                          {cleanProductName(product.name)}
-                        </h3>
-                        <p className="text-[11px] md:text-sm text-zinc-500 dark:text-zinc-400">
-                          V {stores.length} {stores.length === 1 ? "obchodě" : "obchodech"}
-                        </p>
+                return (
+                  <article
+                    key={product.url}
+                    className="rounded-2xl border border-foodapka-100 dark:border-zinc-800 bg-white/90 dark:bg-foodapka-950 p-4 shadow-sm"
+                  >
+                    <div className="flex flex-col gap-4">
+                      <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                        <div className="space-y-1">
+                          <h3 className="text-base md:text-xl font-semibold text-zinc-950 dark:text-white leading-snug">
+                            {cleanProductName(product.name)}
+                          </h3>
+                          <p className="text-[11px] md:text-sm text-zinc-500 dark:text-zinc-400">
+                            V {stores.length} {stores.length === 1 ? "obchodě" : "obchodech"}
+                          </p>
+                        </div>
+                        <a
+                          href={product.url}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="inline-flex items-center justify-center rounded-full border border-foodapka-200 dark:border-zinc-800 bg-foodapka-50 dark:bg-zinc-900 px-3 py-1.5 text-xs font-semibold text-foodapka-800 dark:text-foodapka-300 transition hover:bg-foodapka-100 self-start sm:self-auto"
+                        >
+                          Detail nabídky
+                        </a>
                       </div>
-                      <a
-                        href={product.url}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="inline-flex items-center justify-center rounded-full border border-foodapka-200 dark:border-zinc-800 bg-foodapka-50 dark:bg-zinc-900 px-3 py-1.5 text-xs font-semibold text-foodapka-800 dark:text-foodapka-300 transition hover:bg-foodapka-100 self-start sm:self-auto"
-                      >
-                        Detail nabídky
-                      </a>
-                    </div>
 
-                    <ul className="grid gap-2">
-                      {stores.map((item, index) => {
-                        const cheapest = index === 0;
+                      <ul className="grid gap-2">
+                        {stores.map((item, index) => {
+                          const cheapest = index === 0;
 
-                        return (
-                          <li
-                            key={`${item.shopId}-${item.price}-${index}`}
-                            className={`rounded-xl border px-3 py-3 transition ${
-                              cheapest
-                                ? "border-foodapka-300 dark:border-foodapka-800 bg-foodapka-50 dark:bg-foodapka-900/30"
-                                : "border-zinc-100 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/50"
-                            }`}
-                          >
-                            <div className="flex items-center justify-between gap-2">
-                              <div className="flex flex-col gap-1">
-                                <div className="flex items-center gap-2">
-                                  <StoreBrand shopName={item.shopName} />
-                                  {cheapest && (
-                                    <span className="rounded-full bg-foodapka-600 px-2 py-0.5 text-[10px] font-semibold text-white">
-                                      TOP
+                          return (
+                            <li
+                              key={`${item.shopId}-${item.price}-${index}`}
+                              className={`rounded-xl border px-3 py-3 transition ${
+                                cheapest
+                                  ? "border-foodapka-300 dark:border-foodapka-800 bg-foodapka-50 dark:bg-foodapka-900/30 shadow-[0_10px_20px_-10px_rgba(132,204,22,0.2)]"
+                                  : "border-zinc-100 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/50"
+                              }`}
+                            >
+                              <div className="flex items-center justify-between gap-2">
+                                <div className="flex flex-col gap-1 min-w-0">
+                                  <div className="flex items-center gap-2">
+                                    <div className="flex-shrink-0">
+                                      <StoreBrand shopName={item.shopName} />
+                                    </div>
+                                    {cheapest && (
+                                      <span className="rounded-full bg-foodapka-600 px-2 py-0.5 text-[9px] font-bold text-white uppercase tracking-tighter">
+                                        TOP
+                                      </span>
+                                    )}
+                                  </div>
+                                  {item.validity && (
+                                    <span className="text-[10px] text-zinc-500 dark:text-zinc-400 truncate">
+                                      Do {item.validity.split(" - ")[1] || item.validity}
                                     </span>
                                   )}
                                 </div>
-                                {item.validity && (
-                                  <span className="text-[10px] text-zinc-500 dark:text-zinc-400">
-                                    Do {item.validity.split(" - ")[1] || item.validity}
-                                  </span>
-                                )}
-                              </div>
 
-                              <div className="text-right">
-                                <p className={`text-lg font-bold ${cheapest ? "text-foodapka-700 dark:text-foodapka-400" : "text-zinc-900 dark:text-white"}`}>
-                                  {item.price}
-                                </p>
-                                {item.amount && (
-                                  <p className="text-[10px] text-zinc-500 dark:text-zinc-400">
-                                    {item.amount}
+                                <div className="text-right flex-shrink-0">
+                                  <p className={`text-lg font-bold ${cheapest ? "text-foodapka-700 dark:text-foodapka-400" : "text-zinc-900 dark:text-white"}`}>
+                                    {item.price}
                                   </p>
-                                )}
+                                  {item.amount && (
+                                    <p className="text-[10px] text-zinc-500 dark:text-zinc-400">
+                                      {item.amount}
+                                    </p>
+                                  )}
+                                </div>
                               </div>
-                            </div>
-                          </li>
-                        );
-                      })}
-                    </ul>
-                  </div>
-                </article>
-              );
-            })}
-          </div>
-        )}
+                            </li>
+                          );
+                        })}
+                      </ul>
+                    </div>
+                  </article>
+                );
+              })}
+            </div>
+          )}
 
-        {!loading && visibleProducts.length === 0 && (
-          <EmptyState hasSearched={hasSearched} />
-        )}
-      </section>
-    )}
+          {!loading && visibleProducts.length === 0 && (
+            <EmptyState hasSearched={hasSearched} />
+          )}
+        </section>
+      )}
 
-    {/* Recipe Shopping List Section */}
-    {mode === "recipes" && (
-      <section ref={shoppingListRef} className="space-y-5 px-1 md:px-2">
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <h2 className="text-xl md:text-2xl font-semibold tracking-tight text-foodapka-950 dark:text-white">
+      {/* Recipe Shopping List Section */}
+      {mode === "recipes" && (
+        <section ref={shoppingListRef} className="space-y-5 px-1 md:px-2">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+            <h2 className="text-xl md:text-2xl font-bold tracking-tight text-foodapka-950 dark:text-white">
               Nákupní list
             </h2>
+            {ingredients.length > 0 && !recipeLoading && (
+              <p className="rounded-full border border-foodapka-200 dark:border-zinc-800 bg-white dark:bg-foodapka-950 px-3 py-1.5 text-xs font-medium text-foodapka-800 dark:text-foodapka-300 w-fit">
+                {ingredients.length} ingrediencí
+              </p>
+            )}
           </div>
-          {ingredients.length > 0 && !recipeLoading && (
-            <p className="rounded-full border border-foodapka-200 dark:border-zinc-800 bg-white dark:bg-foodapka-950 px-3 py-1.5 text-xs font-medium text-foodapka-800 dark:text-foodapka-300 w-fit">
-              {ingredients.length} ingrediencí
-            </p>
+
+          {recipeError && (
+            <div className="rounded-xl border border-red-200 bg-red-50 dark:bg-red-900/30 px-4 py-3 text-xs text-red-700 dark:text-red-300">
+              {recipeError}
+            </div>
           )}
-        </div>
 
-        {recipeError && (
-          <div className="rounded-xl border border-red-200 bg-red-50 dark:bg-red-900/30 px-4 py-3 text-xs text-red-700 dark:text-red-300">
-            {recipeError}
-          </div>
-        )}
+          {recipeLoading && <RecipeSkeleton />}
 
-        {recipeLoading && <RecipeSkeleton />}
+          {!recipeLoading && recipeResults.length > 0 && (
+            <div className="grid gap-4">
+              <div className="rounded-2xl border border-foodapka-100 dark:border-zinc-800 bg-white/95 dark:bg-foodapka-950 p-4 md:p-6 shadow-sm">
+                <div className="flex flex-col gap-4 border-b border-foodapka-100 dark:border-zinc-800 pb-4 sm:flex-row sm:items-start sm:justify-between">
+                  <div>
+                    <p className="text-[10px] font-semibold uppercase tracking-widest text-foodapka-700 dark:text-foodapka-400">
+                      Nákup pro
+                    </p>
+                    <h3 className="mt-1 text-xl md:text-2xl font-semibold text-zinc-950 dark:text-white leading-tight">
+                      {activeRecipe}
+                    </h3>
+                  </div>
 
-        {!recipeLoading && recipeResults.length > 0 && (
-          <div className="grid gap-4">
-            <div className="rounded-2xl border border-foodapka-100 dark:border-zinc-800 bg-white/95 dark:bg-foodapka-950 p-4 md:p-6 shadow-sm">
-              <div className="flex flex-col gap-4 border-b border-foodapka-100 dark:border-zinc-800 pb-4 sm:flex-row sm:items-start sm:justify-between">
-                <div>
-                  <p className="text-[10px] font-semibold uppercase tracking-widest text-foodapka-700 dark:text-foodapka-400">
-                    Nákup pro
-                  </p>
-                  <h3 className="mt-1 text-xl md:text-2xl font-semibold text-zinc-950 dark:text-white">
-                    {activeRecipe}
-                  </h3>
+                  <div className="flex flex-wrap gap-2">
+                    <button
+                      type="button"
+                      onClick={saveShoppingList}
+                      className="inline-flex items-center rounded-full border border-foodapka-200 dark:border-zinc-800 bg-foodapka-50 dark:bg-zinc-900 px-3 py-1.5 text-xs font-semibold text-foodapka-800 dark:text-foodapka-300 transition hover:bg-foodapka-100"
+                    >
+                      Uložit
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => void shareShoppingList()}
+                      className="inline-flex items-center rounded-full border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-3 py-1.5 text-xs font-semibold text-zinc-700 dark:text-zinc-300 transition hover:bg-zinc-100"
+                    >
+                      Sdílet
+                    </button>
+                  </div>
                 </div>
 
-                <div className="flex flex-wrap gap-2">
-                  <button
-                    type="button"
-                    onClick={saveShoppingList}
-                    className="inline-flex items-center rounded-full border border-foodapka-200 dark:border-zinc-800 bg-foodapka-50 dark:bg-zinc-900 px-3 py-1.5 text-xs font-semibold text-foodapka-800 dark:text-foodapka-300 transition hover:bg-foodapka-100"
-                  >
-                    Uložit
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => void shareShoppingList()}
-                    className="inline-flex items-center rounded-full border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-3 py-1.5 text-xs font-semibold text-zinc-700 dark:text-zinc-300 transition hover:bg-zinc-100"
-                  >
-                    Sdílet
-                  </button>
-                </div>
-              </div>
-
-              <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                <div className="inline-flex rounded-full border border-foodapka-200 dark:border-zinc-800 bg-foodapka-50 dark:bg-zinc-900 p-1 w-fit">
-                  <button
-                    type="button"
-                    onClick={() => setShoppingMode("cross_store")}
-                    className={`rounded-full px-3 py-1.5 text-xs font-semibold transition ${
-                      shoppingMode === "cross_store"
-                        ? "bg-foodapka-600 text-white"
-                        : "text-foodapka-800 dark:text-foodapka-400"
-                    }`}
-                  >
-                    Všude
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setShoppingMode("single_store")}
-                    className={`rounded-full px-3 py-1.5 text-xs font-semibold transition ${
-                      shoppingMode === "single_store"
-                        ? "bg-foodapka-600 text-white"
-                        : "text-foodapka-800 dark:text-foodapka-400"
-                    }`}
-                  >
-                    Jeden obchod
-                  </button>
-                </div>
-              </div>
-
-              <ul className="mt-4 grid gap-2">
-                {selectedResults.map((item) => {
-                  const isChecked = checkedIngredients.includes(item.ingredient);
-
-                  return (
-                    <li
-                      key={item.ingredient}
-                      className={`rounded-xl border px-3 py-3 transition ${
-                        isChecked
-                          ? "border-foodapka-200 dark:border-zinc-800 bg-foodapka-50/70 dark:bg-foodapka-900/20"
-                          : "border-zinc-100 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/50"
+                <div className="mt-4">
+                  <div className="inline-flex rounded-full border border-foodapka-200 dark:border-zinc-800 bg-foodapka-50 dark:bg-zinc-900 p-1 w-fit">
+                    <button
+                      type="button"
+                      onClick={() => setShoppingMode("cross_store")}
+                      className={`rounded-full px-3 py-1.5 text-xs font-semibold transition ${
+                        shoppingMode === "cross_store"
+                          ? "bg-foodapka-600 text-white"
+                          : "text-foodapka-800 dark:text-foodapka-400"
                       }`}
                     >
-                      <div className="flex gap-3">
-                        <button
-                          type="button"
-                          onClick={() => toggleIngredient(item.ingredient)}
-                          className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border text-[10px] font-bold transition ${
-                            isChecked
-                              ? "border-foodapka-600 bg-foodapka-600 text-white"
-                              : "border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-transparent"
-                          }`}
-                        >
-                          ✓
-                        </button>
+                      Všude
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setShoppingMode("single_store")}
+                      className={`rounded-full px-3 py-1.5 text-xs font-semibold transition ${
+                        shoppingMode === "single_store"
+                          ? "bg-foodapka-600 text-white"
+                          : "text-foodapka-800 dark:text-foodapka-400"
+                      }`}
+                    >
+                      Jeden obchod
+                    </button>
+                  </div>
+                </div>
 
-                        <div className="min-w-0 flex-1">
-                          <div className="flex items-center justify-between gap-2">
-                            <p className={`text-sm md:text-base font-semibold truncate ${isChecked ? "text-zinc-500 line-through" : "text-zinc-950 dark:text-white"}`}>
-                              {item.ingredient}
-                            </p>
-                            <p className={`text-base font-bold whitespace-nowrap ${isChecked ? "text-zinc-400" : "text-foodapka-700 dark:text-foodapka-400"}`}>
-                              {item.selectedStore?.price || "—"}
-                            </p>
-                          </div>
-                          {!isChecked && item.selectedStore && (
-                            <div className="flex items-center gap-2 mt-1">
-                              <StoreBrand shopName={item.selectedStore.shopName} />
-                              <span className="text-[10px] text-zinc-500 dark:text-zinc-400 truncate">
-                                {cleanProductName(item.selectedProduct?.name || "")}
-                              </span>
+                <ul className="mt-4 grid gap-2">
+                  {selectedResults.map((item) => {
+                    const isChecked = checkedIngredients.includes(item.ingredient);
+
+                    return (
+                      <li
+                        key={item.ingredient}
+                        className={`rounded-xl border px-3 py-3 transition ${
+                          isChecked
+                            ? "border-foodapka-200 dark:border-zinc-800 bg-foodapka-50/70 dark:bg-foodapka-900/20"
+                            : "border-zinc-100 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/50"
+                        }`}
+                      >
+                        <div className="flex gap-3">
+                          <button
+                            type="button"
+                            onClick={() => toggleIngredient(item.ingredient)}
+                            className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border text-[10px] font-bold transition ${
+                              isChecked
+                                ? "border-foodapka-600 bg-foodapka-600 text-white"
+                                : "border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-transparent"
+                            }`}
+                          >
+                            ✓
+                          </button>
+
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-center justify-between gap-2">
+                              <p className={`text-sm md:text-base font-semibold truncate ${isChecked ? "text-zinc-500 line-through" : "text-zinc-950 dark:text-white"}`}>
+                                {item.ingredient}
+                              </p>
+                              <p className={`text-base font-bold whitespace-nowrap ${isChecked ? "text-zinc-400" : "text-foodapka-700 dark:text-foodapka-400"}`}>
+                                {item.selectedStore?.price || "—"}
+                              </p>
                             </div>
-                          )}
+                            {!isChecked && item.selectedStore && (
+                              <div className="flex items-center gap-2 mt-1">
+                                <StoreBrand shopName={item.selectedStore.shopName} />
+                                <span className="text-[10px] text-zinc-500 dark:text-zinc-400 truncate flex-1">
+                                  {cleanProductName(item.selectedProduct?.name || "")}
+                                </span>
+                              </div>
+                            )}
+                          </div>
                         </div>
-                      </div>
-                    </li>
-                  );
-                })}
-              </ul>
-            </div>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
 
-            <div className="rounded-2xl border border-foodapka-200 dark:border-zinc-800 bg-foodapka-950 px-5 py-5 text-white shadow-lg">
-              <p className="text-[10px] uppercase tracking-widest text-foodapka-200">
-                Celková cena
-              </p>
-              <p className="mt-1 text-2xl font-bold">
-                {totalPrice.toFixed(2).replace(".", ",")} Kč
+              <div className="rounded-2xl border border-foodapka-200 dark:border-zinc-800 bg-foodapka-950 px-5 py-5 text-white shadow-lg">
+                <p className="text-[10px] uppercase tracking-widest text-foodapka-200">
+                  Celková cena
+                </p>
+                <p className="mt-1 text-2xl font-bold">
+                  {totalPrice.toFixed(2).replace(".", ",")} Kč
+                </p>
+              </div>
+            </div>
+          )}
+
+          {!recipeLoading && !recipeError && recipeResults.length === 0 && (
+            <div className="rounded-2xl border border-dashed border-foodapka-200 dark:border-zinc-800 bg-white/70 dark:bg-foodapka-950 p-12 text-center">
+              <div className="mx-auto mb-5 flex h-20 w-20 items-center justify-center rounded-full bg-foodapka-100 dark:bg-zinc-800 text-4xl">
+                🍲
+              </div>
+              <h2 className="text-xl font-semibold text-foodapka-950 dark:text-white">
+                Vyberte recept výše
+              </h2>
+              <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-zinc-600 dark:text-zinc-400">
+                Klikněte na některý z receptů a mi vám najdeme nejlevnější ingredience.
               </p>
             </div>
-          </div>
-        )}
-      </section>
-    )}
-    </div>
+          )}
+        </section>
+      )}
+      </>
   );
 }
 
