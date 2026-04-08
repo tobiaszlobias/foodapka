@@ -1092,7 +1092,9 @@ function HomeContent({
           )}
         </section>
       )}
-      </>
+      </div>
+      )}
+    </>
   );
 }
 
