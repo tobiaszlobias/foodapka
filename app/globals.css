@@ -8,6 +8,15 @@
   }
 }
 
+@keyframes scroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(calc(-250px * 7)); }
+}
+
+.animate-scroll {
+  animation: scroll 30s linear infinite;
+}
+
 /* Enable dark mode via data-theme attribute */
 @custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
 
