@@ -139,43 +139,43 @@ export default function SearchBar({
   return (
     <form
       onSubmit={handleSearch}
-      className="flex w-full flex-col gap-3 rounded-full border border-white/50 bg-white/90 p-3 shadow-[0_20px_60px_-20px_rgba(132,204,22,0.35)] backdrop-blur sm:flex-row sm:items-center"
+      className="flex w-full flex-col gap-2 rounded-2xl md:rounded-full border border-white/50 dark:border-zinc-800 bg-white/90 dark:bg-zinc-900/90 p-2 md:p-3 shadow-[0_20px_60px_-20px_rgba(132,204,22,0.35)] dark:shadow-none backdrop-blur sm:flex-row sm:items-center"
     >
       <label htmlFor="product-search" className="sr-only">
         Hledat produkty
       </label>
       
       {/* Mode Toggle */}
-      <div className="flex rounded-full bg-foodapka-50 p-1">
+      <div className="flex rounded-full bg-foodapka-50 dark:bg-black/50 p-1 self-start sm:self-auto">
         <button
           type="button"
           onClick={() => onModeChange("search")}
-          className={`flex items-center gap-2 rounded-full px-4 py-2.5 text-sm font-medium transition-all ${
+          className={`flex items-center gap-2 rounded-full px-3 md:px-4 py-2 text-xs md:text-sm font-medium transition-all ${
             mode === "search"
-              ? "bg-white text-foodapka-700 shadow-sm"
-              : "text-foodapka-600 hover:text-foodapka-700"
+              ? "bg-white dark:bg-zinc-800 text-foodapka-700 dark:text-foodapka-400 shadow-sm"
+              : "text-zinc-500 hover:text-foodapka-700"
           }`}
         >
           <SearchIcon />
-          <span className="hidden sm:inline">Hledat</span>
+          <span>Hledat</span>
         </button>
         <button
           type="button"
           onClick={() => onModeChange("recipes")}
-          className={`flex items-center gap-2 rounded-full px-4 py-2.5 text-sm font-medium transition-all ${
+          className={`flex items-center gap-2 rounded-full px-3 md:px-4 py-2 text-xs md:text-sm font-medium transition-all ${
             mode === "recipes"
-              ? "bg-white text-foodapka-700 shadow-sm"
-              : "text-foodapka-600 hover:text-foodapka-700"
+              ? "bg-white dark:bg-zinc-800 text-foodapka-700 dark:text-foodapka-400 shadow-sm"
+              : "text-zinc-500 hover:text-foodapka-700"
           }`}
         >
           <RecipeIcon />
-          <span className="hidden sm:inline">Recepty</span>
+          <span>Recepty</span>
         </button>
       </div>
 
       {/* Search Input - only shown in search mode */}
       {mode === "search" && (
-        <>
+        <div className="flex flex-1 gap-2">
           <div className="relative flex-1">
             <input
               ref={inputRef}
@@ -188,36 +188,33 @@ export default function SearchBar({
               }}
               onFocus={() => setShowSuggestions(true)}
               onKeyDown={handleKeyDown}
-              placeholder="Hledejte třeba mléko, pečivo nebo limonádu"
+              placeholder="Co chcete nakoupit?"
               autoComplete="off"
-              className="h-12 w-full rounded-full border border-foodapka-100 bg-foodapka-50/70 px-5 text-base text-zinc-900 outline-none transition placeholder:text-zinc-500 focus:border-foodapka-400 focus:bg-white focus:ring-2 focus:ring-foodapka-200"
+              className="h-11 md:h-12 w-full rounded-xl md:rounded-full border border-foodapka-100 dark:border-zinc-800 bg-foodapka-50/70 dark:bg-black/50 px-4 md:px-5 text-sm md:text-base text-zinc-900 dark:text-white outline-none transition placeholder:text-zinc-500 focus:border-foodapka-400"
             />
             
             {/* Custom Suggestions Dropdown */}
             {showSuggestions && filteredSuggestions.length > 0 && (
               <div
                 ref={suggestionsRef}
-                className="absolute left-0 right-0 top-full z-50 mt-2 overflow-hidden rounded-2xl border border-foodapka-100 bg-white shadow-lg"
+                className="absolute left-0 right-0 top-full z-50 mt-2 overflow-hidden rounded-xl border border-foodapka-100 dark:border-zinc-800 bg-white dark:bg-zinc-900 shadow-lg"
               >
-                <div className="px-4 py-2 text-xs font-medium text-zinc-400 uppercase tracking-wider">
-                  {query.trim() ? "Návrhy" : "Oblíbené hledání"}
-                </div>
                 <ul className="py-1">
                   {filteredSuggestions.map((suggestion, index) => (
                     <li key={suggestion}>
                       <button
                         type="button"
                         onClick={() => selectSuggestion(suggestion)}
-                        className={`flex w-full items-center gap-3 px-4 py-3 text-left transition-colors ${
+                        className={`flex w-full items-center gap-3 px-4 py-2.5 text-left transition-colors ${
                           index === selectedIndex
-                            ? "bg-foodapka-50 text-foodapka-700"
-                            : "text-zinc-700 hover:bg-foodapka-50/50"
+                            ? "bg-foodapka-50 dark:bg-zinc-800 text-foodapka-700"
+                            : "text-zinc-700 dark:text-zinc-300 hover:bg-foodapka-50/50"
                         }`}
                       >
-                        <span className="material-symbols-outlined text-lg text-foodapka-400">
+                        <span className="material-symbols-outlined text-base text-foodapka-400">
                           {query.trim() ? "search" : "trending_up"}
                         </span>
-                        <span className="font-medium">{suggestion}</span>
+                        <span className="text-sm font-medium">{suggestion}</span>
                       </button>
                     </li>
                   ))}
@@ -227,11 +224,11 @@ export default function SearchBar({
           </div>
           <button
             type="submit"
-            className="h-12 rounded-full bg-foodapka-500 hover:bg-foodapka-600 px-6 font-bold text-white transition-all shadow-md"
+            className="h-11 md:h-12 rounded-xl md:rounded-full bg-foodapka-500 hover:bg-foodapka-600 px-4 md:px-6 text-sm font-bold text-white transition-all shadow-md active:scale-95"
           >
             Hledat
           </button>
-        </>
+        </div>
       )}
     </form>
   );
