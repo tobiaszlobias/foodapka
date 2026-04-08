@@ -5,8 +5,6 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense } from "react";
 import SearchBar from "@/components/SearchBar";
-import AppHeader from "@/components/AppHeader";
-import Sidebar from "@/components/Sidebar";
 import { FOODORA_STORE_CONFIGS } from "@/data/foodoraStores";
 import {
   cleanProductName,
@@ -125,7 +123,7 @@ function StoreBrand({ shopName }: { shopName: string }) {
   return (
     <>
       <span className="text-lg">{getStoreIcon(shopName)}</span>
-      <span className="font-semibold text-zinc-800">{shopName}</span>
+      <span className="font-semibold text-zinc-800 dark:text-zinc-200">{shopName}</span>
     </>
   );
 }
@@ -144,24 +142,24 @@ function LoadingCards() {
       {Array.from({ length: 3 }).map((_, index) => (
         <article
           key={index}
-          className="overflow-hidden rounded-[2rem] border border-foodapka-100 bg-white/90 p-5 shadow-[0_20px_50px_-30px_rgba(132,204,22,0.4)]"
+          className="overflow-hidden rounded-2xl border border-foodapka-100 dark:border-zinc-800 bg-white/90 dark:bg-foodapka-950 p-5 shadow-[0_20px_50px_-30px_rgba(132,204,22,0.2)]"
         >
           <div className="animate-pulse space-y-4">
-            <div className="h-6 w-2/3 rounded-full bg-foodapka-100" />
-            <div className="h-4 w-40 rounded-full bg-zinc-100" />
+            <div className="h-6 w-2/3 rounded-full bg-foodapka-100 dark:bg-zinc-800" />
+            <div className="h-4 w-40 rounded-full bg-zinc-100 dark:bg-zinc-900" />
             <div className="grid gap-3">
               {Array.from({ length: 3 }).map((_, storeIndex) => (
                 <div
                   key={storeIndex}
-                  className="flex items-center justify-between rounded-2xl border border-zinc-100 bg-zinc-50 px-4 py-4"
+                  className="flex items-center justify-between rounded-xl border border-zinc-100 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/50 px-4 py-4"
                 >
                   <div className="space-y-2">
-                    <div className="h-4 w-24 rounded-full bg-zinc-200" />
-                    <div className="h-3 w-16 rounded-full bg-zinc-100" />
+                    <div className="h-4 w-24 rounded-full bg-zinc-200 dark:bg-zinc-800" />
+                    <div className="h-3 w-16 rounded-full bg-zinc-100 dark:bg-zinc-900" />
                   </div>
                   <div className="space-y-2">
-                    <div className="h-4 w-20 rounded-full bg-foodapka-100" />
-                    <div className="h-3 w-24 rounded-full bg-zinc-100" />
+                    <div className="h-4 w-20 rounded-full bg-foodapka-100 dark:bg-foodapka-900" />
+                    <div className="h-3 w-24 rounded-full bg-zinc-100 dark:bg-zinc-900" />
                   </div>
                 </div>
               ))}
@@ -179,10 +177,10 @@ function RecipeSkeleton() {
       {Array.from({ length: 4 }).map((_, index) => (
         <div
           key={index}
-          className="animate-pulse rounded-[1.75rem] border border-foodapka-100 bg-white/85 p-5"
+          className="animate-pulse rounded-2xl border border-foodapka-100 dark:border-zinc-800 bg-white/85 dark:bg-foodapka-950 p-5 shadow-[0_20px_50px_-30px_rgba(132,204,22,0.2)]"
         >
-          <div className="h-5 w-36 rounded-full bg-foodapka-100" />
-          <div className="mt-4 h-20 rounded-[1.25rem] bg-zinc-100" />
+          <div className="h-5 w-36 rounded-full bg-foodapka-100 dark:bg-zinc-800" />
+          <div className="mt-4 h-20 rounded-xl bg-zinc-100 dark:bg-zinc-900" />
         </div>
       ))}
     </div>
@@ -191,14 +189,14 @@ function RecipeSkeleton() {
 
 function EmptyState({ hasSearched }: { hasSearched: boolean }) {
   return (
-    <div className="rounded-[2rem] border border-dashed border-foodapka-200 bg-white/70 px-6 py-12 text-center shadow-[0_20px_40px_-35px_rgba(132,204,22,0.5)]">
-      <div className="mx-auto mb-5 flex h-20 w-20 items-center justify-center rounded-full bg-foodapka-100 text-4xl">
+    <div className="rounded-2xl border border-dashed border-foodapka-200 dark:border-zinc-800 bg-white/70 dark:bg-foodapka-950 px-6 py-12 text-center shadow-[0_20px_40px_-35px_rgba(132,204,22,0.5)]">
+      <div className="mx-auto mb-5 flex h-20 w-20 items-center justify-center rounded-full bg-foodapka-100 dark:bg-zinc-800 text-4xl">
         {hasSearched ? "🧺" : "🥬"}
       </div>
-      <h2 className="text-xl font-semibold text-foodapka-950">
+      <h2 className="text-xl font-semibold text-foodapka-950 dark:text-white">
         {hasSearched ? "Nic jsme nenašli" : "Začněte hledat výhodnější nákup"}
       </h2>
-      <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-zinc-600">
+      <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-zinc-600 dark:text-zinc-400">
         {hasSearched
           ? "Zkuste jiný název produktu nebo obecnější výraz. Výsledky taháme z aktuálních akčních letáků."
           : "Zadejte název potraviny a foodapka vám ukáže akční ceny napříč obchody seřazené od nejlevnější nabídky."}
@@ -617,712 +615,698 @@ function HomeContent({
   });
 
   return (
-    <div className="min-h-screen">
-      <AppHeader />
-      <div className="flex pt-20">
-        <Sidebar currentPage={mode} />
-        
-        {/* Spacer for fixed sidebar */}
-        <div className="hidden lg:block w-72 flex-shrink-0" />
-        
-        <main className="flex-1 p-6 lg:p-10 text-zinc-900 dark:text-zinc-100">
+    <>
+      {/* Watchdog Page */}
+      {mode === "watchdog" && (
+        <div className="space-y-6">
+          <section className="rounded-2xl border border-foodapka-100 dark:border-zinc-800 bg-white/90 dark:bg-foodapka-950 p-6 shadow-sm">
+            <header>
+              <h1 className="text-3xl lg:text-5xl font-extrabold tracking-tight text-foodapka-950 dark:text-white leading-tight mb-2 md:mb-4">
+                Hlídací pes 🐕
+              </h1>
+              <p className="text-base md:text-lg text-zinc-600 dark:text-zinc-400">
+                Nastavte si hlídání cen a my vás upozorníme, když cena klesne.
+              </p>
+            </header>
+          </section>
           
-          {/* Watchdog Page */}
-          {mode === "watchdog" && (
-            <section className="max-w-4xl">
-              <header className="mb-10">
-                <h1 className="text-4xl lg:text-5xl font-extrabold tracking-tight text-foodapka-950 dark:text-white leading-tight mb-4">
-                  Hlídací pes 🐕
-                </h1>
-                <p className="text-lg text-zinc-600 dark:text-zinc-400">
-                  Nastavte si hlídání cen a my vás upozorníme, když cena klesne.
-                </p>
-              </header>
-              
-              <div className="space-y-6">
-                <div className="rounded-2xl border border-dashed border-foodapka-300 dark:border-foodapka-800 bg-white/90 dark:bg-foodapka-950 p-8 text-center shadow-[0_20px_50px_-30px_rgba(132,204,22,0.2)]">
-                  <div className="mx-auto mb-5 flex h-20 w-20 items-center justify-center rounded-full bg-foodapka-100 dark:bg-zinc-800 text-4xl">
-                    🔔
-                  </div>
-                  <h2 className="text-xl font-semibold text-foodapka-950 dark:text-white mb-2">
-                    Zatím nemáte žádné hlídané produkty
-                  </h2>
-                  <p className="text-zinc-600 dark:text-zinc-400 mb-6 max-w-md mx-auto">
-                    Vyhledejte produkt a klikněte na &quot;Hlídat cenu&quot; pro přidání do hlídacího psa.
-                  </p>
-                  <button
-                    onClick={() => router.push("/app")}
-                    className="inline-flex items-center gap-2 rounded-full bg-foodapka-500 px-6 py-3 font-semibold text-white transition hover:bg-foodapka-600"
-                  >
-                    <span className="material-symbols-outlined">search</span>
-                    Vyhledat produkty
-                  </button>
-                </div>
-                
-                <div className="rounded-2xl border border-foodapka-100 dark:border-zinc-800 bg-white/90 dark:bg-foodapka-950 p-6 shadow-[0_20px_50px_-30px_rgba(132,204,22,0.2)]">
-                  <h3 className="font-semibold text-zinc-900 dark:text-white mb-4 flex items-center gap-2">
-                    <span className="material-symbols-outlined text-foodapka-500">info</span>
-                    Jak to funguje?
-                  </h3>
-                  <ul className="space-y-3 text-zinc-600 dark:text-zinc-400">
-                    <li className="flex items-start gap-3">
-                      <span className="text-foodapka-500 font-bold">1.</span>
-                      Vyhledejte produkt, který chcete hlídat
-                    </li>
-                    <li className="flex items-start gap-3">
-                      <span className="text-foodapka-500 font-bold">2.</span>
-                      Nastavte cílovou cenu, při které chcete být upozorněni
-                    </li>
-                    <li className="flex items-start gap-3">
-                      <span className="text-foodapka-500 font-bold">3.</span>
-                      Dostanete notifikaci, jakmile cena klesne pod váš limit
-                    </li>
-                  </ul>
-                </div>
-              </div>
-            </section>
-          )}
+          <div className="rounded-2xl border border-dashed border-foodapka-300 dark:border-foodapka-800 bg-white/90 dark:bg-foodapka-950 p-8 text-center shadow-[0_20px_50px_-30px_rgba(132,204,22,0.2)]">
+            <div className="mx-auto mb-5 flex h-20 w-20 items-center justify-center rounded-full bg-foodapka-100 dark:bg-zinc-800 text-4xl">
+              🔔
+            </div>
+            <h2 className="text-xl font-semibold text-foodapka-950 dark:text-white mb-2">
+              Zatím nemáte žádné hlídané produkty
+            </h2>
+            <p className="text-zinc-600 dark:text-zinc-400 mb-6 max-w-md mx-auto">
+              Vyhledejte produkt a klikněte na &quot;Hlídat cenu&quot; pro přidání do hlídacího psa.
+            </p>
+            <button
+              onClick={() => router.push("/app")}
+              className="inline-flex items-center gap-2 rounded-full bg-foodapka-500 px-6 py-3 font-semibold text-white transition hover:bg-foodapka-600"
+            >
+              <span className="material-symbols-outlined">search</span>
+              Vyhledat produkty
+            </button>
+          </div>
           
-          {/* Shopping Lists Page */}
-          {mode === "lists" && (
-            <section className="max-w-4xl">
-              <header className="mb-10">
-                <h1 className="text-4xl lg:text-5xl font-extrabold tracking-tight text-foodapka-950 dark:text-white leading-tight mb-4">
-                  Nákupní seznamy 📝
-                </h1>
-                <p className="text-lg text-zinc-600 dark:text-zinc-400">
-                  Vytvářejte a spravujte své nákupní seznamy.
-                </p>
-              </header>
-              
-              <div className="space-y-6">
-                <div className="flex gap-4">
-                  <button className="inline-flex items-center gap-2 rounded-full bg-foodapka-500 px-6 py-3 font-semibold text-white transition hover:bg-foodapka-600">
-                    <span className="material-symbols-outlined">add</span>
-                    Nový seznam
-                  </button>
-                </div>
-                
-                <div className="rounded-2xl border border-dashed border-foodapka-300 dark:border-foodapka-800 bg-white/90 dark:bg-foodapka-950 p-8 text-center shadow-[0_20px_50px_-30px_rgba(132,204,22,0.2)]">
-                  <div className="mx-auto mb-5 flex h-20 w-20 items-center justify-center rounded-full bg-foodapka-100 dark:bg-zinc-800 text-4xl">
-                    📋
-                  </div>
-                  <h2 className="text-xl font-semibold text-foodapka-950 dark:text-white mb-2">
-                    Zatím nemáte žádné nákupní seznamy
-                  </h2>
-                  <p className="text-zinc-600 dark:text-zinc-400 max-w-md mx-auto">
-                    Vytvořte si nový seznam a přidávejte do něj produkty z vyhledávání nebo receptů.
-                  </p>
-                </div>
-                
-                <div className="rounded-2xl border border-foodapka-100 dark:border-zinc-800 bg-white/90 dark:bg-foodapka-950 p-6 shadow-[0_20px_50px_-30px_rgba(132,204,22,0.2)]">
-                  <h3 className="font-semibold text-zinc-900 dark:text-white mb-4 flex items-center gap-2">
-                    <span className="material-symbols-outlined text-foodapka-500">lightbulb</span>
-                    Tipy
-                  </h3>
-                  <ul className="space-y-3 text-zinc-600 dark:text-zinc-400">
-                    <li className="flex items-start gap-3">
-                      <span className="material-symbols-outlined text-foodapka-500 text-lg">check_circle</span>
-                      Seznamy můžete sdílet s rodinou nebo spolubydlícími
-                    </li>
-                    <li className="flex items-start gap-3">
-                      <span className="material-symbols-outlined text-foodapka-500 text-lg">check_circle</span>
-                      Označujte položky jako koupené přímo v obchodě
-                    </li>
-                    <li className="flex items-start gap-3">
-                      <span className="material-symbols-outlined text-foodapka-500 text-lg">check_circle</span>
-                      Přidávejte ingredience z receptů jedním kliknutím
-                    </li>
-                  </ul>
-                </div>
-              </div>
-            </section>
-          )}
+          <div className="rounded-2xl border border-foodapka-100 dark:border-zinc-800 bg-white/90 dark:bg-foodapka-950 p-6 shadow-[0_20px_50px_-30px_rgba(132,204,22,0.2)]">
+            <h3 className="font-semibold text-zinc-900 dark:text-white mb-4 flex items-center gap-2">
+              <span className="material-symbols-outlined text-foodapka-500">info</span>
+              Jak to funguje?
+            </h3>
+            <ul className="space-y-3 text-zinc-600 dark:text-zinc-400">
+              <li className="flex items-start gap-3">
+                <span className="text-foodapka-500 font-bold">1.</span>
+                Vyhledejte produkt, který chcete hlídat
+              </li>
+              <li className="flex items-start gap-3">
+                <span className="text-foodapka-500 font-bold">2.</span>
+                Nastavte cílovou cenu, při které chcete být upozorněni
+              </li>
+              <li className="flex items-start gap-3">
+                <span className="text-foodapka-500 font-bold">3.</span>
+                Dostanete notifikaci, jakmile cena klesne pod váš limit
+              </li>
+            </ul>
+          </div>
+        </div>
+      )}
+      
+      {/* Shopping Lists Page */}
+      {mode === "lists" && (
+        <div className="space-y-6">
+          <section className="rounded-2xl border border-foodapka-100 dark:border-zinc-800 bg-white/90 dark:bg-foodapka-950 p-6 shadow-sm">
+            <header>
+              <h1 className="text-3xl lg:text-5xl font-extrabold tracking-tight text-foodapka-950 dark:text-white leading-tight mb-2 md:mb-4">
+                Nákupní seznamy 📝
+              </h1>
+              <p className="text-base md:text-lg text-zinc-600 dark:text-zinc-400">
+                Vytvářejte a spravujte své nákupní seznamy.
+              </p>
+            </header>
+          </section>
           
-          {/* Search/Recipes content - only show when in search or recipes mode */}
-          {(mode === "search" || mode === "recipes") && (
-            <>
-              {/* Hero Header */}
-              <header className="mb-10 max-w-4xl">
-                {/* Animated header text */}
-                <div className={`transition-all duration-500 ease-out ${mode === "recipes" ? "max-h-0 overflow-hidden opacity-0" : "max-h-64 opacity-100 mb-6"}`}>
-                  <h1 className="text-4xl lg:text-5xl font-extrabold tracking-tight text-foodapka-950 dark:text-white leading-tight">
-                    Najděte nejlevnější akční cenu <br />
-                    <span className="text-foodapka-600 dark:text-foodapka-400">dřív, než vyrazíte do obchodu</span>
-                  </h1>
-                </div>
-                
-                {/* Recipe header */}
-                <div className={`transition-all duration-500 ease-out ${mode === "search" ? "max-h-0 overflow-hidden opacity-0" : "max-h-64 opacity-100 mb-6"}`}>
-                  <h1 className="text-4xl lg:text-5xl font-extrabold tracking-tight text-foodapka-950 leading-tight">
-                    Vyberte si recept a najdeme <br />
-                    <span className="text-foodapka-600">nejlevnější suroviny</span>
-                  </h1>
-                </div>
-                
-                {/* Search bar with mode toggle */}
-                <SearchBar
-                  onResults={handleResults}
-                  onLoading={setLoading}
-                  onSearchStart={() => setHasSearched(true)}
-                  mode={mode === "recipes" ? "recipes" : "search"}
-                  onModeChange={handleModeChange}
-                />
-              </header>
+          <div className="flex gap-4 px-2">
+            <button className="inline-flex items-center gap-2 rounded-full bg-foodapka-500 px-6 py-3 font-semibold text-white transition hover:bg-foodapka-600">
+              <span className="material-symbols-outlined">add</span>
+              Nový seznam
+            </button>
+          </div>
+          
+          <div className="rounded-2xl border border-dashed border-foodapka-300 dark:border-foodapka-800 bg-white/90 dark:bg-foodapka-950 p-8 text-center shadow-[0_20px_50px_-30px_rgba(132,204,22,0.2)]">
+            <div className="mx-auto mb-5 flex h-20 w-20 items-center justify-center rounded-full bg-foodapka-100 dark:bg-zinc-800 text-4xl">
+              📋
+            </div>
+            <h2 className="text-xl font-semibold text-foodapka-950 dark:text-white mb-2">
+              Zatím nemáte žádné nákupní seznamy
+            </h2>
+            <p className="text-zinc-600 dark:text-zinc-400 max-w-md mx-auto">
+              Vytvořte si nový seznam a přidávejte do něj produkty z vyhledávání nebo receptů.
+            </p>
+          </div>
+          
+          <div className="rounded-2xl border border-foodapka-100 dark:border-zinc-800 bg-white/90 dark:bg-foodapka-950 p-6 shadow-[0_20px_50px_-30px_rgba(132,204,22,0.2)]">
+            <h3 className="font-semibold text-zinc-900 dark:text-white mb-4 flex items-center gap-2">
+              <span className="material-symbols-outlined text-foodapka-500">lightbulb</span>
+              Tipy
+            </h3>
+            <ul className="space-y-3 text-zinc-600 dark:text-zinc-400">
+              <li className="flex items-start gap-3">
+                <span className="material-symbols-outlined text-foodapka-500 text-lg">check_circle</span>
+                Seznamy můžete sdílet s rodinou nebo spolubydlícími
+              </li>
+              <li className="flex items-start gap-3">
+                <span className="material-symbols-outlined text-foodapka-500 text-lg">check_circle</span>
+                Označujte položky jako koupené přímo v obchodě
+              </li>
+              <li className="flex items-start gap-3">
+                <span className="material-symbols-outlined text-foodapka-500 text-lg">check_circle</span>
+                Přidávejte ingredience z receptů jedním kliknutím
+              </li>
+            </ul>
+          </div>
+        </div>
+      )}
+      
+      {/* Search/Recipes content - only show when in search or recipes mode */}
+      {(mode === "search" || mode === "recipes") && (
+        <div className="space-y-8">
+          <header className="px-2">
+            {/* Animated header text */}
+            <div className={`transition-all duration-500 ease-out ${mode === "recipes" ? "max-h-0 overflow-hidden opacity-0" : "max-h-64 opacity-100 mb-4 md:mb-6"}`}>
+              <h1 className="text-3xl lg:text-5xl font-extrabold tracking-tight text-foodapka-950 dark:text-white leading-tight">
+                Najděte nejlevnější akční cenu <br />
+                <span className="text-foodapka-600 dark:text-foodapka-400">dřív, než vyrazíte do obchodu</span>
+              </h1>
+            </div>
             
-          {/* Recipe cards - shown when in recipes mode */}
-          <section className={`transition-all duration-500 ease-out mb-10 ${mode === "recipes" ? "max-h-[3000px] opacity-100" : "max-h-0 overflow-hidden opacity-0"}`}>
-            <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
-              {RECIPE_PRESETS.map((recipe) => (
-                <div
-                  key={recipe.name}
-                  onClick={() => void runRecipeSearch(recipe.name)}
-                  className="group rounded-[1.25rem] bg-white border border-zinc-100 overflow-hidden text-left shadow-sm transition-all hover:shadow-xl hover:-translate-y-1 flex flex-col cursor-pointer"
-                >
-                  {recipe.image && (
-                    <div className="h-44 overflow-hidden relative">
-                      <Image
-                        src={recipe.image}
-                        alt={recipe.name}
-                        fill
-                        className="object-cover group-hover:scale-105 transition-transform duration-500"
-                        unoptimized
-                      />
-                      <div className="absolute top-3 left-3">
-                        <span className="bg-foodapka-100/90 backdrop-blur-md text-foodapka-800 text-[10px] uppercase tracking-widest font-bold px-3 py-1 rounded-full">
-                          {recipe.tag}
-                        </span>
-                      </div>
-                      <button
-                        type="button"
-                        className="absolute bottom-3 right-3 bg-white/90 backdrop-blur-md p-2 rounded-full shadow-md text-zinc-400 hover:text-red-500 transition-all"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        <span className="material-symbols-outlined text-xl">favorite</span>
-                      </button>
-                    </div>
-                  )}
-                  <div className="p-5 flex-1 flex flex-col">
-                    {!recipe.image && (
-                      <span className="inline-block rounded-full bg-foodapka-100 px-3 py-1 text-xs font-semibold text-foodapka-700 w-fit mb-3">
-                        {recipe.tag}
-                      </span>
-                    )}
-                    <h3 className="text-lg font-bold text-zinc-900 group-hover:text-foodapka-600 transition-colors">
-                      {recipe.name}
-                    </h3>
-                    <p className="mt-2 text-sm text-zinc-500 line-clamp-2 flex-1">
-                      {recipe.description}
-                    </p>
-                    <div className="mt-4 pt-4 border-t border-zinc-100">
-                      <div className="flex items-center justify-between">
-                        <div className="flex -space-x-2">
-                          {recipe.ingredients.slice(0, 3).map((ing, i) => (
-                            <div
-                              key={ing}
-                              className="w-7 h-7 rounded-full border-2 border-white dark:border-foodapka-900 bg-foodapka-100 dark:bg-foodapka-800 flex items-center justify-center text-[10px] font-bold text-foodapka-700 dark:text-foodapka-300"
-                            >
-                              {ing.charAt(0).toUpperCase()}
-                            </div>
-                          ))}
-                          {recipe.ingredients.length > 3 && (
-                            <div className="w-7 h-7 rounded-full border-2 border-white dark:border-foodapka-900 bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center text-[10px] font-bold text-zinc-500 dark:text-zinc-400">
-                              +{recipe.ingredients.length - 3}
-                            </div>
-                          )}
-                        </div>
-                        <span className="text-foodapka-600 dark:text-foodapka-400 font-semibold text-sm flex items-center gap-1">
-                          <span className="material-symbols-outlined text-sm">trending_down</span>
-                          Najít ceny
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ))}
+            {/* Recipe header */}
+            <div className={`transition-all duration-500 ease-out ${mode === "search" ? "max-h-0 overflow-hidden opacity-0" : "max-h-64 opacity-100 mb-4 md:mb-6"}`}>
+              <h1 className="text-3xl lg:text-5xl font-extrabold tracking-tight text-foodapka-950 dark:text-white leading-tight">
+                Vyberte si recept a najdeme <br />
+                <span className="text-foodapka-600 dark:text-foodapka-400">nejlevnější suroviny</span>
+              </h1>
             </div>
-          </section>
-
-          {/* Search Results Section */}
-          {mode === "search" && (
-            <section className="space-y-5">
-              <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-                <div>
-                  <h2 className="text-2xl font-semibold tracking-tight text-foodapka-950 sm:text-3xl">
-                    Výsledky hledání
-                  </h2>
-                  <p className="mt-1 text-sm text-zinc-600">
-                    Obchody jsou uvnitř každé karty řazené od nejlevnější ceny.
-                  </p>
-                </div>
-                <div className="flex flex-wrap items-center gap-2">
-                  {!loading && visibleProducts.length > 0 && (
-                    <p className="rounded-full border border-foodapka-200 bg-white px-4 py-2 text-sm font-medium text-foodapka-800">
-                      {visibleProducts.length} produktů
-                    </p>
-                  )}
-                  {!loading && visibleProducts.length > 0 && (
-                    <div className="flex flex-wrap gap-2">
-                      {[
-                        { key: "relevance", label: "Relevance" },
-                        { key: "cheapest", label: "Nejlevnější" },
-                        { key: "coverage", label: "Nejvíc obchodů" },
-                      ].map((option) => {
-                        const isActive = selectedSort === option.key;
-
-                        return (
-                          <button
-                            key={option.key}
-                            type="button"
-                            onClick={() => setSelectedSort(option.key as ProductSort)}
-                            className={`rounded-full border px-4 py-2 text-sm font-semibold transition ${
-                              isActive
-                                ? "border-foodapka-600 bg-foodapka-600 text-white"
-                                : "border-foodapka-200 bg-white text-foodapka-900 hover:border-foodapka-300 hover:bg-foodapka-50"
-                            }`}
-                          >
-                            {option.label}
-                          </button>
-                        );
-                      })}
+            
+            {/* Search bar with mode toggle */}
+            <SearchBar
+              onResults={handleResults}
+              onLoading={setLoading}
+              onSearchStart={() => setHasSearched(true)}
+              mode={mode === "recipes" ? "recipes" : "search"}
+              onModeChange={handleModeChange}
+            />
+          </header>
+        
+      {/* Recipe cards - shown when in recipes mode */}
+      <section className={`transition-all duration-500 ease-out mb-10 ${mode === "recipes" ? "max-h-[3000px] opacity-100" : "max-h-0 overflow-hidden opacity-0"}`}>
+        <div className="grid gap-4 md:gap-6 sm:grid-cols-2">
+          {RECIPE_PRESETS.map((recipe) => (
+            <div
+              key={recipe.name}
+              onClick={() => void runRecipeSearch(recipe.name)}
+              className="group rounded-2xl bg-white dark:bg-foodapka-950 border border-zinc-100 dark:border-zinc-800 overflow-hidden text-left shadow-sm transition-all hover:shadow-xl hover:-translate-y-1 flex flex-col cursor-pointer"
+            >
+              {recipe.image && (
+                <div className="h-44 overflow-hidden relative">
+                  <Image
+                    src={recipe.image}
+                    alt={recipe.name}
+                    fill
+                    className="object-cover group-hover:scale-105 transition-transform duration-500"
+                    unoptimized
+                  />
+                  <div className="absolute top-3 left-3">
+                    <span className="bg-foodapka-100/90 backdrop-blur-md text-foodapka-800 text-[10px] uppercase tracking-widest font-bold px-3 py-1 rounded-full">
+                      {recipe.tag}
+                    </span>
                   </div>
+                  <button
+                    type="button"
+                    className="absolute bottom-3 right-3 bg-white/90 backdrop-blur-md p-2 rounded-full shadow-md text-zinc-400 hover:text-red-500 transition-all"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <span className="material-symbols-outlined text-xl">favorite</span>
+                  </button>
+                </div>
+              )}
+              <div className="p-5 flex-1 flex flex-col">
+                {!recipe.image && (
+                  <span className="inline-block rounded-full bg-foodapka-100 px-3 py-1 text-xs font-semibold text-foodapka-700 w-fit mb-3">
+                    {recipe.tag}
+                  </span>
                 )}
+                <h3 className="text-lg font-bold text-zinc-900 dark:text-white group-hover:text-foodapka-600 transition-colors">
+                  {recipe.name}
+                </h3>
+                <p className="mt-2 text-sm text-zinc-500 dark:text-zinc-400 line-clamp-2 flex-1">
+                  {recipe.description}
+                </p>
+                <div className="mt-4 pt-4 border-t border-zinc-100 dark:border-zinc-800">
+                  <div className="flex items-center justify-between">
+                    <div className="flex -space-x-2">
+                      {recipe.ingredients.slice(0, 3).map((ing, i) => (
+                        <div
+                          key={ing}
+                          className="w-7 h-7 rounded-full border-2 border-white dark:border-foodapka-900 bg-foodapka-100 dark:bg-foodapka-800 flex items-center justify-center text-[10px] font-bold text-foodapka-700 dark:text-foodapka-300"
+                        >
+                          {ing.charAt(0).toUpperCase()}
+                        </div>
+                      ))}
+                      {recipe.ingredients.length > 3 && (
+                        <div className="w-7 h-7 rounded-full border-2 border-white dark:border-foodapka-900 bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center text-[10px] font-bold text-zinc-500 dark:text-zinc-400">
+                          +{recipe.ingredients.length - 3}
+                        </div>
+                      )}
+                    </div>
+                    <span className="text-foodapka-600 dark:text-foodapka-400 font-semibold text-sm flex items-center gap-1">
+                      <span className="material-symbols-outlined text-sm">trending_down</span>
+                      Najít ceny
+                    </span>
+                  </div>
+                </div>
               </div>
             </div>
+          ))}
+        </div>
+      </section>
 
-            {!loading && products.length > 0 && (
-              <div className="flex flex-wrap gap-2">
-                {availableFilters.map((filter) => {
-                  const count = getFilterCount(products, filter.key);
-                  const isActive = selectedFilter === filter.key;
-                  const isDisabled = filter.key !== "all" && count === 0;
-
-                  return (
-                    <button
-                      key={filter.key}
-                      type="button"
-                      onClick={() => setSelectedFilter(filter.key)}
-                      disabled={isDisabled}
-                      className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-semibold transition ${
-                        isActive
-                          ? "border-foodapka-600 bg-foodapka-600 text-white"
-                          : isDisabled
-                            ? "cursor-not-allowed border-zinc-200 bg-zinc-100 text-zinc-400"
-                            : "border-foodapka-200 bg-white text-foodapka-900 hover:border-foodapka-300 hover:bg-foodapka-50"
-                      }`}
-                    >
-                      <span>{filter.label}</span>
-                      <span
-                        className={`rounded-full px-2 py-0.5 text-xs ${
-                          isActive
-                            ? "bg-white/20 text-white"
-                            : isDisabled
-                              ? "bg-white text-zinc-400"
-                              : "bg-foodapka-100 text-foodapka-700"
-                        }`}
-                      >
-                        {count}
-                      </span>
-                    </button>
-                  );
-                })}
-              </div>
-            )}
-
-            {loading && <LoadingCards />}
-
-            {!loading && sortedVisibleProducts.length > 0 && (
-              <div className="grid gap-4">
-                {sortedVisibleProducts.map((product) => {
-                  const stores = sortStoresByPrice(product.stores);
-
-                  return (
-                    <article
-                      key={product.url}
-                      className="rounded-[2rem] border border-foodapka-100 bg-white/90 p-5 shadow-[0_25px_60px_-35px_rgba(132,204,22,0.45)] sm:p-6"
-                    >
-                      <div className="flex flex-col gap-5">
-                        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-                          <div className="space-y-2">
-                            <h3 className="text-xl font-semibold text-zinc-950">
-                              {cleanProductName(product.name)}
-                            </h3>
-                            <p className="text-sm text-zinc-500">
-                              Dostupné v {stores.length} obchodech
-                            </p>
-                          </div>
-                          <a
-                            href={product.url}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="inline-flex items-center justify-center rounded-full border border-foodapka-200 bg-foodapka-50 px-4 py-2 text-sm font-semibold text-foodapka-800 transition hover:border-foodapka-300 hover:bg-foodapka-100"
-                          >
-                            Detail nabídky
-                          </a>
-                        </div>
-
-                        <ul className="grid gap-3">
-                          {stores.map((item, index) => {
-                            const cheapest = index === 0;
-
-                            return (
-                              <li
-                                key={`${item.shopId}-${item.price}-${index}`}
-                                className={`rounded-[1.5rem] border px-4 py-4 transition sm:px-5 ${
-                                  cheapest
-                                    ? "border-foodapka-300 bg-foodapka-50 shadow-[0_18px_35px_-28px_rgba(101,163,13,0.8)]"
-                                    : "border-zinc-100 bg-zinc-50"
-                                }`}
-                              >
-                                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                                  <div className="space-y-2">
-                                    <div className="flex flex-wrap items-center gap-2">
-                                      <StoreBrand shopName={item.shopName} />
-                                      {item.sourceLabel && (
-                                        <span className="rounded-full border border-zinc-200 bg-white px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">
-                                          {item.sourceLabel}
-                                        </span>
-                                      )}
-                                      {cheapest && (
-                                        <span className="rounded-full bg-foodapka-600 px-3 py-1 text-xs font-semibold text-white">
-                                          Nejlevnější
-                                        </span>
-                                      )}
-                                    </div>
-                                    {(item.validity || item.pricePerUnit) && (
-                                      <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-zinc-500">
-                                        {item.validity && (
-                                          <span>Platnost: {item.validity}</span>
-                                        )}
-                                        {item.pricePerUnit && (
-                                          <span>Jednotková cena: {item.pricePerUnit}</span>
-                                        )}
-                                      </div>
-                                    )}
-                                  </div>
-
-                                  <div className="flex flex-col items-start gap-3 sm:items-end">
-                                    <div className="text-left sm:text-right">
-                                      <p
-                                        className={`text-xl font-bold ${
-                                          cheapest
-                                            ? "text-foodapka-700"
-                                            : "text-zinc-900"
-                                        }`}
-                                      >
-                                        {item.price}
-                                      </p>
-                                      {item.amount && (
-                                        <p className="text-xs text-zinc-500">
-                                          Sleva: {item.amount}
-                                        </p>
-                                      )}
-                                    </div>
-
-                                    {item.leafletUrl && (
-                                      <a
-                                        href={item.leafletUrl}
-                                        target="_blank"
-                                        rel="noreferrer"
-                                        className="inline-flex items-center rounded-full border border-zinc-200 bg-white px-3 py-1.5 text-xs font-semibold text-zinc-700 transition hover:border-foodapka-300 hover:text-foodapka-700"
-                                      >
-                                        V letáku
-                                      </a>
-                                    )}
-                                  </div>
-                                </div>
-                              </li>
-                            );
-                          })}
-                        </ul>
-                      </div>
-                    </article>
-                  );
-                })}
-              </div>
-            )}
-
-            {!loading && visibleProducts.length === 0 && (
-              <EmptyState hasSearched={hasSearched} />
-            )}
-          </section>
-        )}
-
-        {/* Recipe Shopping List Section */}
-        {mode === "recipes" && (
-          <section ref={shoppingListRef} className="space-y-5">
-            <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
-              <div>
-                <h2 className="text-2xl font-semibold tracking-tight text-foodapka-950">
-                  Nákupní list
-                </h2>
-                <p className="text-sm text-zinc-600">
-                  Přepněte si, jestli chcete nejlevnější nákup napříč obchody,
-                  nebo co nejlevnější variantu v jednom řetězci.
-                </p>
-              </div>
-              {ingredients.length > 0 && !recipeLoading && (
-                <p className="rounded-full border border-foodapka-200 bg-white px-4 py-2 text-sm font-medium text-foodapka-800">
-                  {ingredients.length} ingrediencí
+      {/* Search Results Section */}
+      {mode === "search" && (
+        <section className="space-y-5">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between px-2">
+            <div>
+              <h2 className="text-2xl font-semibold tracking-tight text-foodapka-950 dark:text-white sm:text-3xl">
+                Výsledky hledání
+              </h2>
+              <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
+                Obchody jsou uvnitř každé karty řazené od nejlevnější ceny.
+              </p>
+            </div>
+            <div className="flex flex-wrap items-center gap-2">
+              {!loading && visibleProducts.length > 0 && (
+                <p className="rounded-full border border-foodapka-200 dark:border-zinc-800 bg-white dark:bg-foodapka-950 px-4 py-2 text-sm font-medium text-foodapka-800 dark:text-foodapka-300">
+                  {visibleProducts.length} produktů
                 </p>
               )}
-            </div>
+              {!loading && visibleProducts.length > 0 && (
+                <div className="flex flex-wrap gap-2">
+                  {[
+                    { key: "relevance", label: "Relevance" },
+                    { key: "cheapest", label: "Nejlevnější" },
+                    { key: "coverage", label: "Nejvíc" },
+                  ].map((option) => {
+                    const isActive = selectedSort === option.key;
 
-            {recipeError && (
-              <div className="rounded-[1.5rem] border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-                {recipeError}
+                    return (
+                      <button
+                        key={option.key}
+                        type="button"
+                        onClick={() => setSelectedSort(option.key as ProductSort)}
+                        className={`rounded-full border px-4 py-2 text-sm font-semibold transition ${
+                          isActive
+                            ? "border-foodapka-600 bg-foodapka-600 text-white"
+                            : "border-foodapka-200 dark:border-zinc-800 bg-white dark:bg-foodapka-950 text-foodapka-900 dark:text-zinc-100 hover:border-foodapka-300 hover:bg-foodapka-50 dark:hover:bg-zinc-800"
+                        }`}
+                      >
+                        {option.label}
+                      </button>
+                    );
+                  })}
               </div>
             )}
+          </div>
+        </div>
 
-            {recipeLoading && <RecipeSkeleton />}
+        {!loading && products.length > 0 && (
+          <div className="flex flex-wrap gap-2 px-2">
+            {availableFilters.map((filter) => {
+              const count = getFilterCount(products, filter.key);
+              const isActive = selectedFilter === filter.key;
+              const isDisabled = filter.key !== "all" && count === 0;
 
-            {!recipeLoading && recipeResults.length > 0 && (
-              <div className="grid gap-4">
-                <div className="rounded-[1.75rem] border border-foodapka-100 bg-white/95 p-4 shadow-[0_20px_50px_-35px_rgba(132,204,22,0.45)] sm:p-5">
-                  <div className="flex flex-col gap-4 border-b border-foodapka-100 pb-4 sm:flex-row sm:items-start sm:justify-between">
-                    <div>
-                      <p className="text-xs font-semibold uppercase tracking-[0.2em] text-foodapka-700">
-                        Nákup pro
-                      </p>
-                      <h3 className="mt-1 text-2xl font-semibold text-zinc-950">
-                        {activeRecipe}
-                      </h3>
-                      <p className="mt-2 text-sm text-zinc-600">
-                        {checkedIngredients.length}/{recipeResults.length} položek máte
-                        doma
-                      </p>
+              return (
+                <button
+                  key={filter.key}
+                  type="button"
+                  onClick={() => setSelectedFilter(filter.key)}
+                  disabled={isDisabled}
+                  className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-semibold transition ${
+                    isActive
+                      ? "border-foodapka-600 bg-foodapka-600 text-white"
+                      : isDisabled
+                        ? "cursor-not-allowed border-zinc-200 bg-zinc-100 text-zinc-400 dark:bg-zinc-900 dark:border-zinc-800"
+                        : "border-foodapka-200 dark:border-zinc-800 bg-white dark:bg-foodapka-950 text-foodapka-900 dark:text-zinc-100 hover:border-foodapka-300 hover:bg-foodapka-50 dark:hover:bg-zinc-800"
+                  }`}
+                >
+                  <span>{filter.label}</span>
+                  <span
+                    className={`rounded-full px-2 py-0.5 text-xs ${
+                      isActive
+                        ? "bg-white/20 text-white"
+                        : isDisabled
+                          ? "bg-white text-zinc-400"
+                          : "bg-foodapka-100 dark:bg-foodapka-900/50 text-foodapka-700 dark:text-foodapka-300"
+                    }`}
+                  >
+                    {count}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        )}
+
+        {loading && <LoadingCards />}
+
+        {!loading && sortedVisibleProducts.length > 0 && (
+          <div className="grid gap-4">
+            {sortedVisibleProducts.map((product) => {
+              const stores = sortStoresByPrice(product.stores);
+
+              return (
+                <article
+                  key={product.url}
+                  className="rounded-2xl border border-foodapka-100 dark:border-zinc-800 bg-white/90 dark:bg-foodapka-950 p-4 md:p-5 shadow-[0_20px_50px_-30px_rgba(132,204,22,0.2)]"
+                >
+                  <div className="flex flex-col gap-5">
+                    <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                      <div className="space-y-2">
+                        <h3 className="text-xl font-semibold text-zinc-950 dark:text-white">
+                          {cleanProductName(product.name)}
+                        </h3>
+                        <p className="text-sm text-zinc-500 dark:text-zinc-400">
+                          Dostupné v {stores.length} obchodech
+                        </p>
+                      </div>
+                      <a
+                        href={product.url}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="inline-flex items-center justify-center rounded-full border border-foodapka-200 dark:border-zinc-800 bg-foodapka-50 dark:bg-zinc-900 px-4 py-2 text-sm font-semibold text-foodapka-800 dark:text-foodapka-300 transition hover:border-foodapka-300 hover:bg-foodapka-100 dark:hover:bg-zinc-800"
+                      >
+                        Detail nabídky
+                      </a>
                     </div>
 
-                    <div className="flex flex-wrap gap-2">
-                      <button
-                        type="button"
-                        onClick={saveShoppingList}
-                        className="inline-flex items-center rounded-full border border-foodapka-200 bg-foodapka-50 px-4 py-2 text-sm font-semibold text-foodapka-800 transition hover:border-foodapka-300 hover:bg-foodapka-100"
-                      >
-                        Uložit seznam
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => void shareShoppingList()}
-                        className="inline-flex items-center rounded-full border border-zinc-200 bg-white px-4 py-2 text-sm font-semibold text-zinc-700 transition hover:border-foodapka-300 hover:text-foodapka-700"
-                      >
-                        Sdílet
-                      </button>
-                    </div>
-                  </div>
+                    <ul className="grid gap-3">
+                      {stores.map((item, index) => {
+                        const cheapest = index === 0;
 
-                  <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                    <div className="inline-flex rounded-full border border-foodapka-200 bg-foodapka-50 p-1">
-                      <button
-                        type="button"
-                        onClick={() => setShoppingMode("cross_store")}
-                        className={`rounded-full px-4 py-2 text-sm font-semibold transition ${
-                          shoppingMode === "cross_store"
-                            ? "bg-foodapka-600 text-white"
-                            : "text-foodapka-800 hover:bg-foodapka-100"
-                        }`}
-                      >
-                        Napříč obchody
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setShoppingMode("single_store")}
-                        className={`rounded-full px-4 py-2 text-sm font-semibold transition ${
-                          shoppingMode === "single_store"
-                            ? "bg-foodapka-600 text-white"
-                            : "text-foodapka-800 hover:bg-foodapka-100"
-                        }`}
-                      >
-                        Jeden obchod
-                      </button>
-                    </div>
+                        return (
+                          <li
+                            key={`${item.shopId}-${item.price}-${index}`}
+                            className={`rounded-xl border px-4 py-4 transition sm:px-5 ${
+                              cheapest
+                                ? "border-foodapka-300 dark:border-foodapka-800 bg-foodapka-50 dark:bg-foodapka-900/50 shadow-[0_18px_35px_-28px_rgba(101,163,13,0.8)]"
+                                : "border-zinc-100 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/50"
+                            }`}
+                          >
+                            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                              <div className="space-y-2">
+                                <div className="flex flex-wrap items-center gap-2">
+                                  <StoreBrand shopName={item.shopName} />
+                                  {item.sourceLabel && (
+                                    <span className="rounded-full border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500 dark:text-zinc-400">
+                                      {item.sourceLabel}
+                                    </span>
+                                  )}
+                                  {cheapest && (
+                                    <span className="rounded-full bg-foodapka-600 px-3 py-1 text-xs font-semibold text-white">
+                                      Nejlevnější
+                                    </span>
+                                  )}
+                                </div>
+                                {(item.validity || item.pricePerUnit) && (
+                                  <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-zinc-500 dark:text-zinc-400">
+                                    {item.validity && (
+                                      <span>Platnost: {item.validity}</span>
+                                    )}
+                                    {item.pricePerUnit && (
+                                      <span>Jednotková cena: {item.pricePerUnit}</span>
+                                    )}
+                                  </div>
+                                )}
+                              </div>
 
-                    {shoppingMode === "single_store" && bestSingleStorePlan && (
-                      <p className="rounded-full border border-zinc-200 bg-white px-4 py-2 text-sm font-medium text-zinc-700">
-                        <span className="mr-3 inline-flex align-middle">
-                          <StoreBrand shopName={bestSingleStorePlan.shopName} />
-                        </span>
-                        {!getStoreLogoPath(bestSingleStorePlan.shopName) && (
-                          <>{bestSingleStorePlan.shopName} · </>
-                        )}
-                        {bestSingleStorePlan.matchedCount}/{itemsToBuy.length}{" "}
-                        položek
-                      </p>
-                    )}
-                  </div>
-
-                  {shareMessage && (
-                    <div className="mt-4 rounded-2xl border border-foodapka-200 bg-foodapka-50 px-4 py-3 text-sm text-foodapka-800">
-                      {shareMessage}
-                    </div>
-                  )}
-
-                  <ul className="mt-4 grid gap-3">
-                    {selectedResults.map((item) => {
-                      const isChecked = checkedIngredients.includes(item.ingredient);
-
-                      return (
-                        <li
-                          key={item.ingredient}
-                          className={`rounded-[1.5rem] border px-4 py-4 transition ${
-                            isChecked
-                              ? "border-foodapka-200 bg-foodapka-50/70"
-                              : "border-zinc-100 bg-zinc-50"
-                          }`}
-                        >
-                          <div className="flex gap-3">
-                            <button
-                              type="button"
-                              onClick={() => toggleIngredient(item.ingredient)}
-                              className={`mt-1 flex h-6 w-6 shrink-0 items-center justify-center rounded-full border text-sm font-bold transition ${
-                                isChecked
-                                  ? "border-foodapka-600 bg-foodapka-600 text-white"
-                                  : "border-zinc-300 bg-white text-transparent"
-                              }`}
-                              aria-label={`Označit ${item.ingredient}`}
-                            >
-                              ✓
-                            </button>
-
-                            <div className="min-w-0 flex-1">
-                              <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                                <div className="space-y-2">
+                              <div className="flex flex-col items-start gap-3 sm:items-end">
+                                <div className="text-left sm:text-right">
                                   <p
-                                    className={`text-lg font-semibold ${
-                                      isChecked
-                                        ? "text-zinc-500 line-through"
-                                        : "text-zinc-950"
+                                    className={`text-xl font-bold ${
+                                      cheapest
+                                        ? "text-foodapka-700 dark:text-foodapka-400"
+                                        : "text-zinc-900 dark:text-white"
                                     }`}
                                   >
-                                    {item.ingredient}
+                                    {item.price}
                                   </p>
-
-                                  {item.selectedProduct && item.selectedStore ? (
-                                    <>
-                                      <p className="text-sm font-medium text-zinc-800">
-                                        {cleanProductName(item.selectedProduct.name)}
-                                      </p>
-                                      <div className="flex flex-wrap items-center gap-2 text-sm text-zinc-600">
-                                        <StoreBrand shopName={item.selectedStore.shopName} />
-                                        {!getStoreLogoPath(item.selectedStore.shopName) && (
-                                          <span>{item.selectedStore.shopName}</span>
-                                        )}
-                                        {item.selectedStore.sourceLabel && (
-                                          <span className="rounded-full border border-zinc-200 bg-white px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">
-                                            {item.selectedStore.sourceLabel}
-                                          </span>
-                                        )}
-                                        <span className="rounded-full bg-foodapka-600 px-3 py-1 text-xs font-semibold text-white">
-                                          {shoppingMode === "single_store"
-                                            ? "Vybráno v jednom obchodě"
-                                            : "Nejlevnější"}
-                                        </span>
-                                      </div>
-                                      {(item.selectedStore.validity ||
-                                        item.selectedStore.pricePerUnit) && (
-                                        <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-zinc-500">
-                                          {item.selectedStore.validity && (
-                                            <span>
-                                              Platnost: {item.selectedStore.validity}
-                                            </span>
-                                          )}
-                                          {item.selectedStore.pricePerUnit && (
-                                            <span>
-                                              Jednotková cena:{" "}
-                                              {item.selectedStore.pricePerUnit}
-                                            </span>
-                                          )}
-                                        </div>
-                                      )}
-                                    </>
-                                  ) : (
-                                    <p className="text-sm text-zinc-600">
-                                      {shoppingMode === "single_store" &&
-                                      bestSingleStorePlan
-                                        ? `V ${bestSingleStorePlan.shopName} jsme pro tuto ingredienci nenašli akční nabídku.`
-                                        : "Pro tuto ingredienci jsme zatím nenašli odpovídající akční nabídku."}
+                                  {item.amount && (
+                                    <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                                      Sleva: {item.amount}
                                     </p>
                                   )}
                                 </div>
 
-                                <div className="flex flex-col items-start gap-3 sm:items-end">
-                                  {item.selectedStore ? (
-                                    <>
-                                      <p className="text-2xl font-bold text-foodapka-700">
-                                        {item.selectedStore.price}
-                                      </p>
-                                      <a
-                                        href={item.selectedProduct?.url ?? ""}
-                                        target="_blank"
-                                        rel="noreferrer"
-                                        className="inline-flex items-center rounded-full border border-foodapka-200 bg-white px-4 py-2 text-sm font-semibold text-foodapka-800 transition hover:border-foodapka-300 hover:bg-foodapka-100"
-                                      >
-                                        Detail nabídky
-                                      </a>
-                                    </>
-                                  ) : (
-                                    <span className="rounded-full border border-zinc-200 bg-white px-3 py-1 text-xs font-semibold text-zinc-500">
-                                      Bez ceny
-                                    </span>
-                                  )}
-                                </div>
+                                {item.leafletUrl && (
+                                  <a
+                                    href={item.leafletUrl}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className="inline-flex items-center rounded-full border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-3 py-1.5 text-xs font-semibold text-zinc-700 dark:text-zinc-300 transition hover:border-foodapka-300 hover:text-foodapka-700"
+                                  >
+                                    V letáku
+                                  </a>
+                                )}
                               </div>
                             </div>
-                          </div>
-                        </li>
-                      );
-                    })}
-                  </ul>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  </div>
+                </article>
+              );
+            })}
+          </div>
+        )}
+
+        {!loading && visibleProducts.length === 0 && (
+          <EmptyState hasSearched={hasSearched} />
+        )}
+      </section>
+    )}
+
+    {/* Recipe Shopping List Section */}
+    {mode === "recipes" && (
+      <section ref={shoppingListRef} className="space-y-5">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between px-2">
+          <div>
+            <h2 className="text-2xl font-semibold tracking-tight text-foodapka-950 dark:text-white">
+              Nákupní list
+            </h2>
+            <p className="text-sm text-zinc-600 dark:text-zinc-400">
+              Přepněte si, jestli chcete nejlevnější nákup napříč obchody,
+              nebo co nejlevnější variantu v jednom řetězci.
+            </p>
+          </div>
+          {ingredients.length > 0 && !recipeLoading && (
+            <p className="rounded-full border border-foodapka-200 dark:border-zinc-800 bg-white dark:bg-foodapka-950 px-4 py-2 text-sm font-medium text-foodapka-800 dark:text-foodapka-300">
+              {ingredients.length} ingrediencí
+            </p>
+          )}
+        </div>
+
+        {recipeError && (
+          <div className="rounded-xl border border-red-200 bg-red-50 dark:bg-red-900/30 px-4 py-3 text-sm text-red-700 dark:text-red-300">
+            {recipeError}
+          </div>
+        )}
+
+        {recipeLoading && <RecipeSkeleton />}
+
+        {!recipeLoading && recipeResults.length > 0 && (
+          <div className="grid gap-4">
+            <div className="rounded-2xl border border-foodapka-100 dark:border-zinc-800 bg-white/95 dark:bg-foodapka-950 p-4 shadow-[0_20px_50px_-30px_rgba(132,204,22,0.2)] sm:p-6">
+              <div className="flex flex-col gap-4 border-b border-foodapka-100 dark:border-zinc-800 pb-4 sm:flex-row sm:items-start sm:justify-between">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-[0.2em] text-foodapka-700 dark:text-foodapka-400">
+                    Nákup pro
+                  </p>
+                  <h3 className="mt-1 text-2xl font-semibold text-zinc-950 dark:text-white">
+                    {activeRecipe}
+                  </h3>
+                  <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
+                    {checkedIngredients.length}/{recipeResults.length} položek máte
+                    doma
+                  </p>
                 </div>
 
-                <div className="rounded-[1.75rem] border border-foodapka-200 bg-foodapka-950 px-5 py-6 text-white shadow-[0_25px_60px_-35px_rgba(101,163,13,0.8)]">
-                  <p className="text-sm uppercase tracking-[0.2em] text-foodapka-200">
-                    {shoppingMode === "single_store"
-                      ? "Cena v jednom obchodě"
-                      : "Cena napříč obchody"}
-                  </p>
-                  <p className="mt-2 text-3xl font-bold">
-                    {totalPrice.toFixed(2).replace(".", ",")} Kč
-                  </p>
-                  <p className="mt-2 text-sm text-foodapka-100">
-                    {shoppingMode === "single_store"
-                      ? bestSingleStorePlan
-                        ? `Nejlíp vychází ${bestSingleStorePlan.shopName}. Pokrývá ${bestSingleStorePlan.matchedCount}/${itemsToBuy.length} položek.`
-                        : "Pro tento seznam zatím nemáme společný obchod."
-                      : "Součet nejlevnějších nalezených variant napříč všemi obchody."}
-                  </p>
-                  {shoppingMode === "single_store" &&
-                    bestSingleStorePlan &&
-                    bestSingleStorePlan.missingCount > 0 && (
-                      <p className="mt-2 text-sm text-foodapka-200">
-                        {bestSingleStorePlan.missingCount} položek je potřeba
-                        dokoupit jinde nebo počkat na jinou akci.
-                      </p>
+                <div className="flex flex-wrap gap-2">
+                  <button
+                    type="button"
+                    onClick={saveShoppingList}
+                    className="inline-flex items-center rounded-full border border-foodapka-200 dark:border-zinc-800 bg-foodapka-50 dark:bg-zinc-900 px-4 py-2 text-sm font-semibold text-foodapka-800 dark:text-foodapka-300 transition hover:border-foodapka-300 hover:bg-foodapka-100 dark:hover:bg-zinc-800"
+                  >
+                    Uložit seznam
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => void shareShoppingList()}
+                    className="inline-flex items-center rounded-full border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-4 py-2 text-sm font-semibold text-zinc-700 dark:text-zinc-300 transition hover:border-foodapka-300 hover:text-foodapka-700 dark:hover:bg-zinc-800"
+                  >
+                    Sdílet
+                  </button>
+                </div>
+              </div>
+
+              <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <div className="inline-flex rounded-full border border-foodapka-200 dark:border-zinc-800 bg-foodapka-50 dark:bg-zinc-900 p-1">
+                  <button
+                    type="button"
+                    onClick={() => setShoppingMode("cross_store")}
+                    className={`rounded-full px-4 py-2 text-sm font-semibold transition ${
+                      shoppingMode === "cross_store"
+                        ? "bg-foodapka-600 text-white"
+                        : "text-foodapka-800 dark:text-foodapka-400 hover:bg-foodapka-100 dark:hover:bg-zinc-800"
+                    }`}
+                  >
+                    Napříč obchody
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setShoppingMode("single_store")}
+                    className={`rounded-full px-4 py-2 text-sm font-semibold transition ${
+                      shoppingMode === "single_store"
+                        ? "bg-foodapka-600 text-white"
+                        : "text-foodapka-800 dark:text-foodapka-400 hover:bg-foodapka-100 dark:hover:bg-zinc-800"
+                    }`}
+                  >
+                    Jeden obchod
+                  </button>
+                </div>
+
+                {shoppingMode === "single_store" && bestSingleStorePlan && (
+                  <p className="rounded-full border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-4 py-2 text-sm font-medium text-zinc-700 dark:text-zinc-300">
+                    <span className="mr-3 inline-flex align-middle">
+                      <StoreBrand shopName={bestSingleStorePlan.shopName} />
+                    </span>
+                    {!getStoreLogoPath(bestSingleStorePlan.shopName) && (
+                      <>{bestSingleStorePlan.shopName} · </>
                     )}
-                </div>
+                    {bestSingleStorePlan.matchedCount}/{itemsToBuy.length}{" "}
+                    položek
+                  </p>
+                )}
               </div>
-            )}
 
-            {!recipeLoading && !recipeError && recipeResults.length === 0 && (
-              <div className="rounded-[1.75rem] border border-dashed border-foodapka-200 bg-white/70 px-6 py-12 text-center">
-                <div className="mx-auto mb-5 flex h-20 w-20 items-center justify-center rounded-full bg-foodapka-100 text-4xl">
-                  🍲
+              {shareMessage && (
+                <div className="mt-4 rounded-xl border border-foodapka-200 dark:border-zinc-800 bg-foodapka-50 dark:bg-foodapka-900/30 px-4 py-3 text-sm text-foodapka-800 dark:text-foodapka-300">
+                  {shareMessage}
                 </div>
-                <h2 className="text-xl font-semibold text-foodapka-950">
-                  Vyberte recept výše
-                </h2>
-                <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-zinc-600">
-                  Klikněte na některý z receptů a my vám najdeme nejlevnější ingredience.
-                </p>
-              </div>
-            )}
-          </section>
+              )}
+
+              <ul className="mt-4 grid gap-3">
+                {selectedResults.map((item) => {
+                  const isChecked = checkedIngredients.includes(item.ingredient);
+
+                  return (
+                    <li
+                      key={item.ingredient}
+                      className={`rounded-xl border px-4 py-4 transition ${
+                        isChecked
+                          ? "border-foodapka-200 dark:border-zinc-800 bg-foodapka-50/70 dark:bg-foodapka-900/20"
+                          : "border-zinc-100 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/50"
+                      }`}
+                    >
+                      <div className="flex gap-3">
+                        <button
+                          type="button"
+                          onClick={() => toggleIngredient(item.ingredient)}
+                          className={`mt-1 flex h-6 w-6 shrink-0 items-center justify-center rounded-full border text-sm font-bold transition ${
+                            isChecked
+                              ? "border-foodapka-600 bg-foodapka-600 text-white"
+                              : "border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-transparent"
+                          }`}
+                          aria-label={`Označit ${item.ingredient}`}
+                        >
+                          ✓
+                        </button>
+
+                        <div className="min-w-0 flex-1">
+                          <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                            <div className="space-y-2">
+                              <p
+                                className={`text-lg font-semibold ${
+                                  isChecked
+                                    ? "text-zinc-500 line-through"
+                                    : "text-zinc-950 dark:text-white"
+                                }`}
+                              >
+                                {item.ingredient}
+                              </p>
+
+                              {item.selectedProduct && item.selectedStore ? (
+                                <>
+                                  <p className="text-sm font-medium text-zinc-800 dark:text-zinc-200">
+                                    {cleanProductName(item.selectedProduct.name)}
+                                  </p>
+                                  <div className="flex flex-wrap items-center gap-2 text-sm text-zinc-600 dark:text-zinc-400">
+                                    <StoreBrand shopName={item.selectedStore.shopName} />
+                                    {!getStoreLogoPath(item.selectedStore.shopName) && (
+                                      <span>{item.selectedStore.shopName}</span>
+                                    )}
+                                    {item.selectedStore.sourceLabel && (
+                                      <span className="rounded-full border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500 dark:text-zinc-400">
+                                        {item.selectedStore.sourceLabel}
+                                      </span>
+                                    )}
+                                    <span className="rounded-full bg-foodapka-600 px-3 py-1 text-xs font-semibold text-white">
+                                      {shoppingMode === "single_store"
+                                        ? "Vybráno v jednom obchodě"
+                                        : "Nejlevnější"}
+                                    </span>
+                                  </div>
+                                  {(item.selectedStore.validity ||
+                                    item.selectedStore.pricePerUnit) && (
+                                    <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-zinc-500 dark:text-zinc-400">
+                                      {item.selectedStore.validity && (
+                                        <span>
+                                          Platnost: {item.selectedStore.validity}
+                                        </span>
+                                      )}
+                                      {item.selectedStore.pricePerUnit && (
+                                        <span>
+                                          Jednotková cena:{" "}
+                                          {item.selectedStore.pricePerUnit}
+                                        </span>
+                                      )}
+                                    </div>
+                                  )}
+                                </>
+                              ) : (
+                                <p className="text-sm text-zinc-600 dark:text-zinc-400">
+                                  {shoppingMode === "single_store" &&
+                                  bestSingleStorePlan
+                                    ? `V ${bestSingleStorePlan.shopName} jsme pro tuto ingredienci nenašli akční nabídku.`
+                                    : "Pro tuto ingredienci jsme zatím nenašli odpovídající akční nabídku."}
+                                </p>
+                              )}
+                            </div>
+
+                            <div className="flex flex-col items-start gap-3 sm:items-end">
+                              {item.selectedStore ? (
+                                <>
+                                  <p className="text-2xl font-bold text-foodapka-700 dark:text-foodapka-400">
+                                    {item.selectedStore.price}
+                                  </p>
+                                  <a
+                                    href={item.selectedProduct?.url ?? ""}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className="inline-flex items-center rounded-full border border-foodapka-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-4 py-2 text-sm font-semibold text-foodapka-800 dark:text-foodapka-300 transition hover:border-foodapka-300 hover:bg-foodapka-100 dark:hover:bg-zinc-800"
+                                  >
+                                    Detail nabídky
+                                  </a>
+                                </>
+                              ) : (
+                                <span className="rounded-full border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-3 py-1 text-xs font-semibold text-zinc-500 dark:text-zinc-400">
+                                  Bez ceny
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+
+            <div className="rounded-2xl border border-foodapka-200 dark:border-zinc-800 bg-foodapka-950 px-5 py-6 text-white shadow-[0_25px_60px_-35px_rgba(101,163,13,0.8)]">
+              <p className="text-sm uppercase tracking-[0.2em] text-foodapka-200">
+                {shoppingMode === "single_store"
+                  ? "Cena v jednom obchodě"
+                  : "Cena napříč obchody"}
+              </p>
+              <p className="mt-2 text-3xl font-bold">
+                {totalPrice.toFixed(2).replace(".", ",")} Kč
+              </p>
+              <p className="mt-2 text-sm text-foodapka-100">
+                {shoppingMode === "single_store"
+                  ? bestSingleStorePlan
+                    ? `Nejlíp vychází ${bestSingleStorePlan.shopName}. Pokrývá ${bestSingleStorePlan.matchedCount}/${itemsToBuy.length} položek.`
+                    : "Pro tento seznam zatím nemáme společný obchod."
+                  : "Součet nejlevnějších nalezených variant napříč všemi obchody."}
+              </p>
+              {shoppingMode === "single_store" &&
+                bestSingleStorePlan &&
+                bestSingleStorePlan.missingCount > 0 && (
+                  <p className="mt-2 text-sm text-foodapka-200">
+                    {bestSingleStorePlan.missingCount} položek je potřeba
+                    dokoupit jinde nebo počkat na jinou akci.
+                  </p>
+                )}
+            </div>
+          </div>
         )}
-        </>
+
+        {!recipeLoading && !recipeError && recipeResults.length === 0 && (
+          <div className="rounded-2xl border border-dashed border-foodapka-200 dark:border-zinc-800 bg-white/70 dark:bg-foodapka-950 p-12 text-center">
+            <div className="mx-auto mb-5 flex h-20 w-20 items-center justify-center rounded-full bg-foodapka-100 dark:bg-zinc-800 text-4xl">
+              🍲
+            </div>
+            <h2 className="text-xl font-semibold text-foodapka-950 dark:text-white">
+              Vyberte recept výše
+            </h2>
+            <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-zinc-600 dark:text-zinc-400">
+              Klikněte na některý z receptů a mi vám najdeme nejlevnější ingredience.
+            </p>
+          </div>
         )}
-        </main>
-      </div>
-    </div>
+      </section>
+    )}
+    </>
   );
 }
 

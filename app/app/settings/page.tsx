@@ -2,9 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
-import AppHeader from "@/components/AppHeader";
-import Sidebar from "@/components/Sidebar";
-import { useSearchParams } from "next/navigation";
 
 type DietType = "none" | "vegetarian" | "vegan" | "pescatarian";
 
@@ -158,300 +155,255 @@ export default function SettingsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen">
-        <AppHeader />
-        <div className="flex pt-20">
-          <Sidebar currentPage="settings" />
-          <div className="hidden lg:block w-72 flex-shrink-0" />
-          <main className="flex-1 p-6 lg:p-10 flex items-center justify-center">
-            <div className="flex items-center gap-3 text-zinc-400">
-              <span className="material-symbols-outlined animate-spin">progress_activity</span>
-              <span>Načítání...</span>
-            </div>
-          </main>
-        </div>
+      <div className="flex items-center justify-center py-20 text-zinc-400">
+        <span className="material-symbols-outlined animate-spin mr-2">progress_activity</span>
+        <span>Načítání...</span>
       </div>
     );
   }
 
   if (!user) {
     return (
-      <div className="min-h-screen">
-        <AppHeader />
-        <div className="flex pt-20">
-          <Sidebar currentPage="settings" />
-          <div className="hidden lg:block w-72 flex-shrink-0" />
-          <main className="flex-1 p-6 lg:p-10">
-            <div className="max-w-md mx-auto text-center py-20">
-              <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-foodapka-100 text-4xl">
-                🔐
-              </div>
-              <h1 className="text-2xl font-bold text-zinc-900 dark:text-white mb-3">
-                Přihlaste se
-              </h1>
-              <p className="text-zinc-600 dark:text-zinc-400 mb-6">
-                Pro nastavení preferencí se musíte nejprve přihlásit.
-              </p>
-              <a
-                href="/login"
-                className="inline-flex items-center gap-2 rounded-full bg-foodapka-500 px-6 py-3 font-semibold text-white transition hover:bg-foodapka-600"
-              >
-                <span className="material-symbols-outlined">login</span>
-                Přihlásit se
-              </a>
-            </div>
-          </main>
+      <div className="max-w-md mx-auto text-center py-20 px-4">
+        <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-foodapka-100 dark:bg-foodapka-900/30 text-4xl">
+          🔐
         </div>
+        <h1 className="text-2xl font-bold text-zinc-900 dark:text-white mb-3">
+          Přihlaste se
+        </h1>
+        <p className="text-zinc-600 dark:text-zinc-400 mb-6">
+          Pro nastavení preferencí se musíte nejprve přihlásit.
+        </p>
+        <a
+          href="/login"
+          className="inline-flex items-center gap-2 rounded-full bg-foodapka-500 px-6 py-3 font-semibold text-white transition hover:bg-foodapka-600"
+        >
+          <span className="material-symbols-outlined">login</span>
+          Přihlásit se
+        </a>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen">
-      <AppHeader />
-      <div className="flex pt-20">
-        <Sidebar currentPage="settings" />
-        <div className="hidden lg:block w-72 flex-shrink-0" />
-        <main className="flex-1 p-6 lg:p-10 text-zinc-900 dark:text-zinc-100">
-          <div className="max-w-4xl">
-            <header className="mb-10">
-              <h1 className="text-4xl lg:text-5xl font-extrabold tracking-tight text-foodapka-950 dark:text-white leading-tight mb-4">
-                Nastavení ⚙️
-              </h1>
-              <p className="text-lg text-zinc-600 dark:text-zinc-400">
-                Upravte svoje preference pro lepší doporučení a personalizovaný zážitek.
+    <div className="space-y-6">
+      <header className="mb-10 px-2">
+        <h1 className="text-3xl lg:text-5xl font-extrabold tracking-tight text-foodapka-950 dark:text-white leading-tight mb-2 md:mb-4">
+          Nastavení ⚙️
+        </h1>
+        <p className="text-base md:text-lg text-zinc-600 dark:text-zinc-400">
+          Upravte svoje preference pro lepší doporučení a personalizovaný zážitek.
+        </p>
+      </header>
+
+      <div className="space-y-6">
+        {/* Oblíbené obchody */}
+        <section className="rounded-2xl border border-foodapka-100 dark:border-zinc-800 bg-white/90 dark:bg-foodapka-950 p-6 shadow-sm">
+          <div className="flex items-center gap-3 mb-5">
+            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-foodapka-100 dark:bg-foodapka-900/50">
+              <span className="material-symbols-outlined text-foodapka-600 dark:text-foodapka-400 text-2xl">
+                store
+              </span>
+            </div>
+            <div>
+              <h2 className="text-lg font-bold text-zinc-900 dark:text-white">
+                Oblíbené obchody
+              </h2>
+              <p className="text-sm text-zinc-500 dark:text-zinc-400">
+                Označte obchody, které preferujete
               </p>
-            </header>
+            </div>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+            {AVAILABLE_STORES.map((store) => (
+              <button
+                key={store}
+                onClick={() => toggleStore(store)}
+                className={`p-4 rounded-xl border-2 transition-all text-left font-medium text-sm md:text-base ${
+                  preferences.favorite_stores.includes(store)
+                    ? "border-foodapka-500 bg-foodapka-50 dark:bg-foodapka-900/30 text-foodapka-700 dark:text-foodapka-300"
+                    : "border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 hover:border-foodapka-300 dark:hover:border-foodapka-600"
+                }`}
+              >
+                {store}
+              </button>
+            ))}
+          </div>
+        </section>
 
-            <div className="space-y-6">
-              {/* Oblíbené obchody */}
-              <section className="rounded-2xl border border-foodapka-100 dark:border-zinc-800 bg-white/90 dark:bg-foodapka-950 p-6 shadow-[0_20px_50px_-30px_rgba(132,204,22,0.2)]">
-                <div className="flex items-center gap-3 mb-5">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-foodapka-100 dark:bg-foodapka-900/50">
-                    <span className="material-symbols-outlined text-foodapka-600 dark:text-foodapka-400 text-2xl">
-                      store
-                    </span>
-                  </div>
-                  <div>
-                    <h2 className="text-lg font-bold text-zinc-900 dark:text-white">
-                      Oblíbené obchody
-                    </h2>
-                    <p className="text-sm text-zinc-500 dark:text-zinc-400">
-                      Označte obchody, které preferujete
-                    </p>
-                  </div>
-                </div>
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                  {AVAILABLE_STORES.map((store) => (
-                    <button
-                      key={store}
-                      onClick={() => toggleStore(store)}
-                      className={`p-4 rounded-xl border-2 transition-all text-left font-medium ${
-                        preferences.favorite_stores.includes(store)
-                          ? "border-foodapka-500 bg-foodapka-50 dark:bg-foodapka-900/30 text-foodapka-700 dark:text-foodapka-300"
-                          : "border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 hover:border-foodapka-300 dark:hover:border-foodapka-600"
-                      }`}
-                    >
-                      {store}
-                    </button>
-                  ))}
-                </div>
-              </section>
+        {/* Stravovací preference */}
+        <section className="rounded-2xl border border-foodapka-100 dark:border-zinc-800 bg-white/90 dark:bg-foodapka-950 p-6 shadow-sm">
+          <div className="flex items-center gap-3 mb-5">
+            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-foodapka-100 dark:bg-foodapka-900/50">
+              <span className="material-symbols-outlined text-foodapka-600 dark:text-foodapka-400 text-2xl">
+                restaurant
+              </span>
+            </div>
+            <div>
+              <h2 className="text-lg font-bold text-zinc-900 dark:text-white">
+                Stravovací preference
+              </h2>
+              <p className="text-sm text-zinc-500 dark:text-zinc-400">
+                Vyberte typ stravy, který dodržujete
+              </p>
+            </div>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            {[
+              { value: "none", label: "Bez omezení", icon: "🍽️" },
+              { value: "vegetarian", label: "Vegetariánská", icon: "🥬" },
+              { value: "vegan", label: "Veganská", icon: "🌱" },
+              { value: "pescatarian", label: "Pescatariánská", icon: "🐟" },
+            ].map((diet) => (
+              <button
+                key={diet.value}
+                onClick={() =>
+                  setPreferences((prev) => ({
+                    ...prev,
+                    diet_type: diet.value as DietType,
+                  }))
+                }
+                className={`p-4 rounded-xl border-2 transition-all font-medium flex items-center gap-3 ${
+                  preferences.diet_type === diet.value
+                    ? "border-foodapka-500 bg-foodapka-50 dark:bg-foodapka-900/30 text-foodapka-700 dark:text-foodapka-300"
+                    : "border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 hover:border-foodapka-300 dark:hover:border-foodapka-600"
+                }`}
+              >
+                <span className="text-xl">{diet.icon}</span>
+                {diet.label}
+              </button>
+            ))}
+          </div>
+        </section>
 
-              {/* Stravovací preference */}
-              <section className="rounded-2xl border border-foodapka-100 dark:border-zinc-800 bg-white/90 dark:bg-foodapka-950 p-6 shadow-[0_20px_50px_-30px_rgba(132,204,22,0.2)]">
-                <div className="flex items-center gap-3 mb-5">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-foodapka-100 dark:bg-foodapka-900/50">
-                    <span className="material-symbols-outlined text-foodapka-600 dark:text-foodapka-400 text-2xl">
-                      restaurant
-                    </span>
-                  </div>
-                  <div>
-                    <h2 className="text-lg font-bold text-zinc-900 dark:text-white">
-                      Stravovací preference
-                    </h2>
-                    <p className="text-sm text-zinc-500 dark:text-zinc-400">
-                      Vyberte typ stravy, který dodržujete
-                    </p>
-                  </div>
-                </div>
-                <div className="grid grid-cols-2 gap-3">
-                  {[
-                    { value: "none", label: "Bez omezení", icon: "🍽️" },
-                    { value: "vegetarian", label: "Vegetariánská", icon: "🥬" },
-                    { value: "vegan", label: "Veganská", icon: "🌱" },
-                    { value: "pescatarian", label: "Pescatariánská", icon: "🐟" },
-                  ].map((diet) => (
-                    <button
-                      key={diet.value}
-                      onClick={() =>
-                        setPreferences((prev) => ({
-                          ...prev,
-                          diet_type: diet.value as DietType,
-                        }))
-                      }
-                      className={`p-4 rounded-xl border-2 transition-all font-medium flex items-center gap-3 ${
-                        preferences.diet_type === diet.value
-                          ? "border-foodapka-500 bg-foodapka-50 dark:bg-foodapka-900/30 text-foodapka-700 dark:text-foodapka-300"
-                          : "border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 hover:border-foodapka-300 dark:hover:border-foodapka-600"
-                      }`}
-                    >
-                      <span className="text-xl">{diet.icon}</span>
-                      {diet.label}
-                    </button>
-                  ))}
-                </div>
-              </section>
+        {/* Alergeny */}
+        <section className="rounded-2xl border border-red-100 dark:border-zinc-800 bg-white/90 dark:bg-foodapka-950 p-6 shadow-sm">
+          <div className="flex items-center gap-3 mb-5">
+            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-red-100 dark:bg-red-900/30">
+              <span className="material-symbols-outlined text-red-600 dark:text-red-400 text-2xl">
+                warning
+              </span>
+            </div>
+            <div>
+              <h2 className="text-lg font-bold text-zinc-900 dark:text-white">Alergeny</h2>
+              <p className="text-sm text-zinc-500 dark:text-zinc-400">
+                Označte alergeny, kterým se vyhýbáte
+              </p>
+            </div>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
+            {ALLERGENS.map((allergen) => (
+              <button
+                key={allergen}
+                onClick={() => toggleAllergen(allergen)}
+                className={`p-3 rounded-xl border-2 transition-all text-center font-medium text-xs md:text-sm ${
+                  preferences.allergens.includes(allergen)
+                    ? "border-red-500 bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-300"
+                    : "border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 hover:border-red-300 dark:hover:border-red-600"
+                }`}
+              >
+                {allergen}
+              </button>
+            ))}
+          </div>
+        </section>
 
-              {/* Alergeny */}
-              <section className="rounded-2xl border border-red-100 dark:border-zinc-800 bg-white/90 dark:bg-foodapka-950 p-6 shadow-[0_20px_50px_-30px_rgba(239,68,68,0.15)]">
-                <div className="flex items-center gap-3 mb-5">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-red-100 dark:bg-red-900/30">
-                    <span className="material-symbols-outlined text-red-600 dark:text-red-400 text-2xl">
-                      warning
-                    </span>
-                  </div>
-                  <div>
-                    <h2 className="text-lg font-bold text-zinc-900 dark:text-white">Alergeny</h2>
-                    <p className="text-sm text-zinc-500 dark:text-zinc-400">
-                      Označte alergeny, kterým se vyhýbáte
-                    </p>
-                  </div>
-                </div>
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
-                  {ALLERGENS.map((allergen) => (
-                    <button
-                      key={allergen}
-                      onClick={() => toggleAllergen(allergen)}
-                      className={`p-3 rounded-xl border-2 transition-all text-center font-medium text-sm ${
-                        preferences.allergens.includes(allergen)
-                          ? "border-red-500 bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-300"
-                          : "border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 hover:border-red-300 dark:hover:border-red-600"
-                      }`}
-                    >
-                      {allergen}
-                    </button>
-                  ))}
-                </div>
-              </section>
+        {/* Oblíbené kategorie jídel */}
+        <section className="rounded-2xl border border-foodapka-100 dark:border-zinc-800 bg-white/90 dark:bg-foodapka-950 p-6 shadow-sm">
+          <div className="flex items-center gap-3 mb-5">
+            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-foodapka-100 dark:bg-foodapka-900/50">
+              <span className="material-symbols-outlined text-foodapka-600 dark:text-foodapka-400 text-2xl">
+                favorite
+              </span>
+            </div>
+            <div>
+              <h2 className="text-lg font-bold text-zinc-900 dark:text-white">
+                Oblíbené kategorie
+              </h2>
+              <p className="text-sm text-zinc-500 dark:text-zinc-400">
+                Vyberte typy jídel, které máte rádi
+              </p>
+            </div>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            {FOOD_CATEGORIES.map((category) => (
+              <button
+                key={category}
+                onClick={() => toggleCategory(category)}
+                className={`p-4 rounded-xl border-2 transition-all text-center font-medium text-sm md:text-base ${
+                  preferences.favorite_categories.includes(category)
+                    ? "border-foodapka-500 bg-foodapka-50 dark:bg-foodapka-900/30 text-foodapka-700 dark:text-foodapka-300"
+                    : "border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 hover:border-foodapka-300 dark:hover:border-foodapka-600"
+                }`}
+              >
+                {category}
+              </button>
+            ))}
+          </div>
+        </section>
 
-              {/* Oblíbené kategorie jídel */}
-              <section className="rounded-2xl border border-foodapka-100 dark:border-zinc-800 bg-white/90 dark:bg-foodapka-950 p-6 shadow-[0_20px_50px_-30px_rgba(132,204,22,0.2)]">
-                <div className="flex items-center gap-3 mb-5">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-foodapka-100 dark:bg-foodapka-900/50">
-                    <span className="material-symbols-outlined text-foodapka-600 dark:text-foodapka-400 text-2xl">
-                      favorite
-                    </span>
-                  </div>
-                  <div>
-                    <h2 className="text-lg font-bold text-zinc-900 dark:text-white">
-                      Oblíbené kategorie
-                    </h2>
-                    <p className="text-sm text-zinc-500 dark:text-zinc-400">
-                      Vyberte typy jídel, které máte rádi
-                    </p>
-                  </div>
-                </div>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                  {FOOD_CATEGORIES.map((category) => (
-                    <button
-                      key={category}
-                      onClick={() => toggleCategory(category)}
-                      className={`p-4 rounded-xl border-2 transition-all text-center font-medium ${
-                        preferences.favorite_categories.includes(category)
-                          ? "border-foodapka-500 bg-foodapka-50 dark:bg-foodapka-900/30 text-foodapka-700 dark:text-foodapka-300"
-                          : "border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 hover:border-foodapka-300 dark:hover:border-foodapka-600"
-                      }`}
-                    >
-                      {category}
-                    </button>
-                  ))}
-                </div>
-              </section>
-
-              {/* Nápověda */}
-              <section id="napoveda" className="rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white/90 dark:bg-foodapka-950 p-6 scroll-mt-32">
-                <div className="flex items-center gap-3 mb-5">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-100 dark:bg-blue-900/30">
-                    <span className="material-symbols-outlined text-blue-600 dark:text-blue-400 text-2xl">
-                      help
-                    </span>
-                  </div>
-                  <div>
-                    <h2 className="text-lg font-bold text-zinc-900 dark:text-white">Nápověda</h2>
-                    <p className="text-sm text-zinc-500 dark:text-zinc-400">
-                      Jak používat Foodapku
-                    </p>
-                  </div>
-                </div>
-                <div className="space-y-4">
-                  <div className="flex gap-4 p-4 rounded-xl bg-zinc-50 dark:bg-zinc-800/50">
-                    <span className="material-symbols-outlined text-foodapka-500 text-xl mt-0.5">search</span>
-                    <div>
-                      <h3 className="font-semibold text-zinc-900 dark:text-white mb-1">Vyhledávání produktů</h3>
-                      <p className="text-sm text-zinc-600 dark:text-zinc-400">
-                        Zadejte název produktu do vyhledávače a my vám najdeme nejlepší akční ceny ze všech obchodů.
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex gap-4 p-4 rounded-xl bg-zinc-50 dark:bg-zinc-800/50">
-                    <span className="material-symbols-outlined text-foodapka-500 text-xl mt-0.5">restaurant</span>
-                    <div>
-                      <h3 className="font-semibold text-zinc-900 dark:text-white mb-1">Recepty</h3>
-                      <p className="text-sm text-zinc-600 dark:text-zinc-400">
-                        Vyberte si recept a my automaticky vyhledáme nejlevnější ingredience. Můžete nakupovat v jednom obchodě nebo kombinovat nabídky.
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex gap-4 p-4 rounded-xl bg-zinc-50 dark:bg-zinc-800/50">
-                    <span className="material-symbols-outlined text-foodapka-500 text-xl mt-0.5">trending_down</span>
-                    <div>
-                      <h3 className="font-semibold text-zinc-900 dark:text-white mb-1">Hlídací pes</h3>
-                      <p className="text-sm text-zinc-600 dark:text-zinc-400">
-                        Nastavte si hlídání ceny u produktů a dostanete notifikaci, jakmile cena klesne pod váš limit.
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex gap-4 p-4 rounded-xl bg-zinc-50 dark:bg-zinc-800/50">
-                    <span className="material-symbols-outlined text-foodapka-500 text-xl mt-0.5">receipt_long</span>
-                    <div>
-                      <h3 className="font-semibold text-zinc-900 dark:text-white mb-1">Nákupní seznamy</h3>
-                      <p className="text-sm text-zinc-600 dark:text-zinc-400">
-                        Vytvářejte nákupní seznamy, přidávejte produkty a sdílejte je s rodinou. V obchodě pak snadno odškrtávejte položky.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </section>
-
-              {/* Uložit tlačítko */}
-              <div className="sticky bottom-6 pt-4">
-                <button
-                  onClick={() => void savePreferences()}
-                  disabled={saving}
-                  className="w-full bg-foodapka-500 hover:bg-foodapka-600 text-white rounded-full px-6 py-3 font-bold transition-all shadow-md disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-                >
-                  {saving ? (
-                    <>
-                      <span className="material-symbols-outlined animate-spin text-xl">progress_activity</span>
-                      Ukládám...
-                    </>
-                  ) : saved ? (
-                    <>
-                      <span className="material-symbols-outlined text-xl">check_circle</span>
-                      Uloženo!
-                    </>
-                  ) : (
-                    <>
-                      <span className="material-symbols-outlined text-xl">save</span>
-                      Uložit nastavení
-                    </>
-                  )}
-                </button>
+        {/* Nápověda */}
+        <section id="napoveda" className="rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white/90 dark:bg-foodapka-950 p-6 scroll-mt-32 shadow-sm">
+          <div className="flex items-center gap-3 mb-5">
+            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-100 dark:bg-blue-900/30">
+              <span className="material-symbols-outlined text-blue-600 dark:text-blue-400 text-2xl">
+                help
+              </span>
+            </div>
+            <div>
+              <h2 className="text-lg font-bold text-zinc-900 dark:text-white">Nápověda</h2>
+              <p className="text-sm text-zinc-500 dark:text-zinc-400">
+                Jak používat Foodapku
+              </p>
+            </div>
+          </div>
+          <div className="space-y-4">
+            <div className="flex gap-4 p-4 rounded-xl bg-zinc-50 dark:bg-zinc-800/50">
+              <span className="material-symbols-outlined text-foodapka-500 text-xl mt-0.5">search</span>
+              <div>
+                <h3 className="font-semibold text-zinc-900 dark:text-white mb-1">Vyhledávání produktů</h3>
+                <p className="text-sm text-zinc-600 dark:text-zinc-400">
+                  Zadejte název produktu do vyhledávače a my vám najdeme nejlepší akční ceny ze všech obchodů.
+                </p>
+              </div>
+            </div>
+            <div className="flex gap-4 p-4 rounded-xl bg-zinc-50 dark:bg-zinc-800/50">
+              <span className="material-symbols-outlined text-foodapka-500 text-xl mt-0.5">restaurant</span>
+              <div>
+                <h3 className="font-semibold text-zinc-900 dark:text-white mb-1">Recepty</h3>
+                <p className="text-sm text-zinc-600 dark:text-zinc-400">
+                  Vyberte si recept a my automaticky vyhledáme nejlevnější ingredience. Můžete nakupovat v jednom obchodě nebo kombinovat nabídky.
+                </p>
               </div>
             </div>
           </div>
-        </main>
+        </section>
+
+        {/* Uložit tlačítko */}
+        <div className="sticky bottom-20 lg:bottom-6 pt-4 z-30">
+          <button
+            onClick={() => void savePreferences()}
+            disabled={saving}
+            className="w-full bg-foodapka-500 hover:bg-foodapka-600 text-white rounded-full px-6 py-4 font-bold transition-all shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+          >
+            {saving ? (
+              <>
+                <span className="material-symbols-outlined animate-spin text-xl">progress_activity</span>
+                Ukládám...
+              </>
+            ) : saved ? (
+              <>
+                <span className="material-symbols-outlined text-xl">check_circle</span>
+                Uloženo!
+              </>
+            ) : (
+              <>
+                <span className="material-symbols-outlined text-xl">save</span>
+                Uložit nastavení
+              </>
+            )}
+          </button>
+        </div>
       </div>
     </div>
   );

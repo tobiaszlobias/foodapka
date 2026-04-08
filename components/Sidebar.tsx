@@ -1,13 +1,10 @@
 "use client";
 
 import Link from "next/link";
-
-type SidebarProps = {
-  currentPage: "search" | "watchdog" | "lists" | "recipes" | "settings";
-};
+import { usePathname, useSearchParams } from "next/navigation";
 
 type NavItem = {
-  id: SidebarProps["currentPage"];
+  id: string;
   label: string;
   icon: string;
   href: string;
@@ -21,12 +18,18 @@ const NAV_ITEMS: NavItem[] = [
   { id: "settings", label: "Nastavení", icon: "settings", href: "/app/settings" },
 ];
 
-export default function Sidebar({ currentPage }: SidebarProps) {
+export default function Sidebar() {
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const mode = searchParams.get("mode") || "search";
+
   return (
     <aside className="hidden lg:flex h-[calc(100vh-5rem)] w-72 flex-col gap-2 rounded-r-[2rem] bg-foodapka-50/80 dark:bg-foodapka-950/90 p-6 shadow-[0px_20px_40px_rgba(0,33,20,0.08)] dark:shadow-none fixed top-20 left-0 z-40">
       <nav className="flex flex-col gap-2 mt-4">
         {NAV_ITEMS.map((item) => {
-          const isActive = currentPage === item.id;
+          const isSettings = item.id === "settings" && pathname.includes("/settings");
+          const isModeActive = !pathname.includes("/settings") && item.id === mode;
+          const isActive = isSettings || isModeActive;
 
           return (
             <Link
