@@ -38,7 +38,7 @@ export default function LoginPage() {
     <main className="min-h-screen flex items-center justify-center bg-[radial-gradient(circle_at_top,_rgba(110,231,183,0.18),_transparent_40%),linear-gradient(180deg,_#f5fbf5_0%,_#f8fafc_100%)] px-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <Link href="/" className="text-3xl font-bold text-emerald-700">
+          <Link href="/" className="text-3xl font-bold text-foodapka-700">
             foodapka
           </Link>
           <p className="mt-2 text-zinc-600">Přihlaste se do svého účtu</p>
@@ -46,7 +46,7 @@ export default function LoginPage() {
 
         <form
           onSubmit={handleSubmit}
-          className="bg-white rounded-[2rem] p-8 shadow-[0_20px_60px_-20px_rgba(16,185,129,0.25)] border border-emerald-100"
+          className="bg-white rounded-[2rem] p-8 shadow-[0_20px_60px_-20px_rgba(16,185,129,0.25)] border border-foodapka-100"
         >
           {error && (
             <div className="mb-6 rounded-xl bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700">
@@ -68,7 +68,7 @@ export default function LoginPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="w-full h-12 rounded-xl border border-zinc-200 bg-zinc-50 px-4 text-zinc-900 outline-none transition focus:border-emerald-500 focus:bg-white focus:ring-2 focus:ring-emerald-500/20"
+                className="w-full h-12 rounded-xl border border-zinc-200 bg-zinc-50 px-4 text-zinc-900 outline-none transition focus:border-foodapka-500 focus:bg-white focus:ring-2 focus:ring-foodapka-500/20"
                 placeholder="vas@email.cz"
               />
             </div>
@@ -86,7 +86,7 @@ export default function LoginPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                className="w-full h-12 rounded-xl border border-zinc-200 bg-zinc-50 px-4 text-zinc-900 outline-none transition focus:border-emerald-500 focus:bg-white focus:ring-2 focus:ring-emerald-500/20"
+                className="w-full h-12 rounded-xl border border-zinc-200 bg-zinc-50 px-4 text-zinc-900 outline-none transition focus:border-foodapka-500 focus:bg-white focus:ring-2 focus:ring-foodapka-500/20"
                 placeholder="••••••••"
               />
             </div>
@@ -95,7 +95,7 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={loading}
-            className="mt-6 w-full h-12 rounded-xl bg-emerald-600 text-white font-semibold transition hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="mt-6 w-full h-12 rounded-xl bg-foodapka-600 text-white font-semibold transition hover:bg-foodapka-700 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? "Přihlašování..." : "Přihlásit se"}
           </button>
@@ -104,7 +104,7 @@ export default function LoginPage() {
             Nemáte účet?{" "}
             <Link
               href="/signup"
-              className="font-semibold text-emerald-600 hover:text-emerald-700"
+              className="font-semibold text-foodapka-600 hover:text-foodapka-700"
             >
               Zaregistrujte se
             </Link>

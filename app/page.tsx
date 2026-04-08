@@ -2,12 +2,18 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 
 export default function HomePage() {
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
+
+  // Force light mode on landing page
+  useEffect(() => {
+    document.documentElement.dataset.theme = "light";
+    document.documentElement.style.colorScheme = "light";
+  }, []);
 
   function handleSearch(e: React.FormEvent) {
     e.preventDefault();
@@ -17,25 +23,25 @@ export default function HomePage() {
   }
 
   return (
-    <div className="min-h-screen bg-surface text-on-surface antialiased">
+    <div className="min-h-screen bg-surface text-on-surface antialiased overflow-x-hidden">
       {/* Top Navigation Bar */}
-      <nav className="fixed top-0 z-50 w-full bg-emerald-50/80 backdrop-blur-xl">
+      <nav className="fixed top-0 z-50 w-full bg-foodapka-50/80 backdrop-blur-xl border-b border-foodapka-100">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-8 py-4">
-          <div className="text-2xl font-bold tracking-tight text-emerald-700">foodapka</div>
+          <div className="text-2xl font-bold tracking-tight text-foodapka-700">foodapka</div>
           <div className="hidden items-center space-x-8 md:flex">
-            <Link href="/recepty" className="border-b-2 border-emerald-600 font-semibold text-emerald-700">
+            <Link href="/recepty" className="border-b-2 border-foodapka-600 font-semibold text-foodapka-700">
               Recepty
             </Link>
-            <a className="text-zinc-600 transition-all duration-300 hover:text-emerald-600" href="#letaky">
+            <a className="text-zinc-600 transition-all duration-300 hover:text-foodapka-600" href="#letaky">
               Letáky
             </a>
-            <a className="text-zinc-600 transition-all duration-300 hover:text-emerald-600" href="#funkce">
+            <a className="text-zinc-600 transition-all duration-300 hover:text-foodapka-600" href="#funkce">
               Funkce
             </a>
           </div>
           <Link
             href="/app?mode=recipes"
-            className="transform rounded-full bg-primary px-6 py-2.5 font-semibold text-white shadow-md transition-all duration-300 hover:bg-primary-container active:scale-95"
+            className="transform rounded-full bg-foodapka-500 px-6 py-2.5 font-semibold text-white shadow-md transition-all duration-300 hover:bg-foodapka-600 active:scale-95"
           >
             Začít hledat
           </Link>
@@ -46,7 +52,7 @@ export default function HomePage() {
         {/* Hero Section */}
         <section className="mx-auto grid max-w-7xl grid-cols-1 items-center gap-12 px-8 py-16 lg:grid-cols-2">
           <div className="space-y-8">
-            <h1 className="text-5xl font-extrabold leading-[1.1] tracking-tight text-primary lg:text-6xl">
+            <h1 className="text-5xl font-extrabold leading-[1.1] tracking-tight text-black lg:text-6xl">
               Najděte nejlevnější akční cenu dřív, než vyrazíte do obchodu.
             </h1>
             <form onSubmit={handleSearch} className="group relative max-w-xl">
@@ -93,7 +99,7 @@ export default function HomePage() {
                 <div className="flex gap-2">
                   <span className="rounded-full bg-red-50 px-3 py-1 text-sm">🍅 Rajčata</span>
                   <span className="rounded-full bg-green-50 px-3 py-1 text-sm">🧀 Mozzarella</span>
-                  <span className="rounded-full bg-emerald-50 px-3 py-1 text-sm">🌿 Bazalka</span>
+                  <span className="rounded-full bg-foodapka-50 px-3 py-1 text-sm">🌿 Bazalka</span>
                 </div>
                 <p className="mt-3 text-sm text-on-surface-variant">
                   Ušetříte <span className="font-bold text-primary">47 Kč</span>
@@ -287,6 +293,106 @@ export default function HomePage() {
           </div>
         </section>
 
+        {/* User Journey Section */}
+        <section className="mx-auto max-w-7xl px-8 py-24">
+          <div className="mb-12 text-center">
+            <h2 className="text-4xl md:text-5xl font-black tracking-tight text-zinc-900 mb-4">Vaše cesta k lepšímu stravování</h2>
+            <p className="text-lg text-zinc-600 max-w-2xl mx-auto">Od výběru surovin až po první sousto.</p>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+            {/* Left Side - Hero Image (Square) */}
+            <div className="relative aspect-square rounded-3xl overflow-hidden shadow-2xl group order-2 lg:order-1">
+              <img
+                alt="Myšlenková mapa foodapka"
+                className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700"
+                src="/myslenkova mapa hero.png"
+              />
+              <div className="absolute inset-0 bg-gradient-to-br from-foodapka-600/20 via-transparent to-black/30"></div>
+            </div>
+
+            {/* Right Side - Steps (Vertical) */}
+            <div className="relative flex flex-col gap-8 order-1 lg:order-2">
+              {/* Point 1 */}
+              <div className="flex items-start gap-6 group">
+                <div className="flex-shrink-0 w-16 h-16 bg-gradient-to-br from-foodapka-400 to-foodapka-600 text-white rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 group-hover:rotate-3 transition-all">
+                  <span className="material-symbols-outlined text-3xl">shopping_cart</span>
+                </div>
+                <div className="flex-1">
+                  <h4 className="text-xs font-black text-foodapka-600 tracking-widest uppercase mb-2">Krok 1</h4>
+                  <h3 className="text-2xl font-bold text-zinc-900 mb-2">Nákup s Foodapkou</h3>
+                  <p className="text-sm text-zinc-600 leading-relaxed">Najdeme pro vás nejvýhodnější nabídky v okolí a ušetříme váš čas i peníze.</p>
+                </div>
+              </div>
+
+              {/* Arrow Down */}
+              <div className="flex justify-start pl-8">
+                <svg width="40" height="60" viewBox="0 0 40 60" className="opacity-60">
+                  <defs>
+                    <marker id="arrow-down-1" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto">
+                      <polygon points="0 0, 6 3, 0 6" fill="#92D63F" />
+                    </marker>
+                  </defs>
+                  <path 
+                    d="M 20 5 Q 30 30, 20 55" 
+                    stroke="#92D63F" 
+                    strokeWidth="2.5" 
+                    fill="none" 
+                    strokeDasharray="5,5"
+                    markerEnd="url(#arrow-down-1)"
+                    className="animate-pulse"
+                  />
+                </svg>
+              </div>
+
+              {/* Point 2 */}
+              <div className="flex items-start gap-6 group">
+                <div className="flex-shrink-0 w-16 h-16 bg-gradient-to-br from-foodapka-500 to-foodapka-700 text-white rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 group-hover:rotate-3 transition-all">
+                  <span className="material-symbols-outlined text-3xl">home</span>
+                </div>
+                <div className="flex-1">
+                  <h4 className="text-xs font-black text-foodapka-600 tracking-widest uppercase mb-2">Krok 2</h4>
+                  <h3 className="text-2xl font-bold text-zinc-900 mb-2">Příprava jídla</h3>
+                  <p className="text-sm text-zinc-600 leading-relaxed">S našimi recepty je vaření radost, ne starost. Krok za krokem k dokonalému jídlu.</p>
+                </div>
+              </div>
+
+              {/* Arrow Down */}
+              <div className="flex justify-start pl-8">
+                <svg width="40" height="60" viewBox="0 0 40 60" className="opacity-60">
+                  <defs>
+                    <marker id="arrow-down-2" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto">
+                      <polygon points="0 0, 6 3, 0 6" fill="#7bc02e" />
+                    </marker>
+                  </defs>
+                  <path 
+                    d="M 20 5 Q 10 30, 20 55" 
+                    stroke="#7bc02e" 
+                    strokeWidth="2.5" 
+                    fill="none" 
+                    strokeDasharray="5,5"
+                    markerEnd="url(#arrow-down-2)"
+                    className="animate-pulse"
+                    style={{ animationDelay: '0.5s' }}
+                  />
+                </svg>
+              </div>
+
+              {/* Point 3 */}
+              <div className="flex items-start gap-6 group">
+                <div className="flex-shrink-0 w-16 h-16 bg-gradient-to-br from-foodapka-600 to-foodapka-800 text-white rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 group-hover:rotate-3 transition-all">
+                  <span className="material-symbols-outlined text-3xl" style={{ fontVariationSettings: "'FILL' 1" }}>favorite</span>
+                </div>
+                <div className="flex-1">
+                  <h4 className="text-xs font-black text-foodapka-600 tracking-widest uppercase mb-2">Krok 3</h4>
+                  <h3 className="text-2xl font-bold text-zinc-900 mb-2">Hotové zdravé jídlo</h3>
+                  <p className="text-sm text-zinc-600 leading-relaxed">Vychutnejte si nutričně vyvážené jídlo s rodinou a přáteli.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
         {/* Store Leaflets Section */}
         <section id="letaky" className="bg-surface-container-low py-20">
           <div className="mx-auto max-w-7xl px-8">
@@ -451,25 +557,28 @@ export default function HomePage() {
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
               {[
                 {
-                  name: "Caprese salát",
-                  time: "15 min",
-                  savings: "47 Kč",
-                  ingredients: ["Rajčata", "Mozzarella", "Bazalka"],
-                  image: "/hero-food.png",
+                  name: "Domácí hummus s pita chlebem",
+                  time: "20 min",
+                  savings: "38 Kč",
+                  tag: "Snack",
+                  ingredients: ["Cizrna", "Tahini", "Česnek"],
+                  image: "/humus.png",
                 },
                 {
-                  name: "Domácí pizza",
-                  time: "45 min",
-                  savings: "62 Kč",
-                  ingredients: ["Mouka", "Šunka", "Sýr"],
-                  image: "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=600&h=400&fit=crop",
-                },
-                {
-                  name: "Krémové rizoto",
+                  name: "Zdravé krabičkové kuře s rýží",
                   time: "35 min",
-                  savings: "45 Kč",
-                  ingredients: ["Rýže", "Parmazán", "Víno"],
-                  image: "https://images.unsplash.com/photo-1476124369491-e7addf5db371?w=600&h=400&fit=crop",
+                  savings: "52 Kč",
+                  tag: "Krabičkové",
+                  ingredients: ["Kuřecí prsa", "Rýže", "Brokolice"],
+                  image: "/krabickove kure.png",
+                },
+                {
+                  name: "Overnight oats s ovocem",
+                  time: "10 min",
+                  savings: "29 Kč",
+                  tag: "Fit snídaně",
+                  ingredients: ["Ovesné vločky", "Jogurt", "Banán"],
+                  image: "/overnight oats.png",
                 },
               ].map((recipe) => (
                 <div
@@ -482,6 +591,9 @@ export default function HomePage() {
                       alt={recipe.name}
                       className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                     />
+                    <div className="absolute left-3 top-3 rounded-full bg-foodapka-100/90 backdrop-blur-md px-3 py-1 text-xs font-bold text-foodapka-800 shadow-lg uppercase tracking-wider">
+                      {recipe.tag}
+                    </div>
                     <div className="absolute right-3 top-3 rounded-full bg-tertiary px-3 py-1 text-sm font-bold text-white shadow-lg">
                       Ušetříte {recipe.savings}
                     </div>
@@ -536,10 +648,10 @@ export default function HomePage() {
       </main>
 
       {/* Footer */}
-      <footer className="w-full bg-emerald-50 text-sm leading-relaxed">
+      <footer className="w-full bg-foodapka-50 text-sm leading-relaxed">
         <div className="mx-auto flex max-w-7xl flex-col items-center justify-between px-12 py-16 md:flex-row">
           <div className="mb-8 space-y-4 md:mb-0">
-            <div className="text-xl font-bold text-emerald-800">foodapka</div>
+            <div className="text-xl font-bold text-foodapka-800">foodapka</div>
             <p className="max-w-xs text-zinc-500">
               Pomáháme českým domácnostem nakupovat chytře a šetřit čas i peníze každý den.
             </p>
@@ -547,19 +659,19 @@ export default function HomePage() {
           <div className="flex flex-wrap justify-center gap-12">
             <div className="flex flex-col space-y-3">
               <span className="mb-2 font-bold text-on-surface">Aplikace</span>
-              <Link href="/app?mode=recipes" className="text-zinc-500 transition-transform duration-200 hover:translate-x-1 hover:text-emerald-600">
+              <Link href="/app?mode=recipes" className="text-zinc-500 transition-transform duration-200 hover:translate-x-1 hover:text-foodapka-600">
                 Vyhledávač
               </Link>
-              <Link href="/recepty" className="text-zinc-500 transition-transform duration-200 hover:translate-x-1 hover:text-emerald-600">
+              <Link href="/recepty" className="text-zinc-500 transition-transform duration-200 hover:translate-x-1 hover:text-foodapka-600">
                 Recepty
               </Link>
             </div>
             <div className="flex flex-col space-y-3">
               <span className="mb-2 font-bold text-on-surface">Právní</span>
-              <a className="text-zinc-500 transition-transform duration-200 hover:translate-x-1 hover:text-emerald-600" href="#">
+              <a className="text-zinc-500 transition-transform duration-200 hover:translate-x-1 hover:text-foodapka-600" href="#">
                 Ochrana údajů
               </a>
-              <a className="text-zinc-500 transition-transform duration-200 hover:translate-x-1 hover:text-emerald-600" href="#">
+              <a className="text-zinc-500 transition-transform duration-200 hover:translate-x-1 hover:text-foodapka-600" href="#">
                 Podmínky
               </a>
             </div>

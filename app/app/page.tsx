@@ -2,6 +2,8 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Suspense } from "react";
 import SearchBar from "@/components/SearchBar";
 import AppHeader from "@/components/AppHeader";
 import Sidebar from "@/components/Sidebar";
@@ -19,7 +21,7 @@ import { RECIPE_PRESETS } from "@/lib/recipes";
 import { getStoreLogoPath } from "@/lib/storeLogos";
 import { useEffect, useRef, useState } from "react";
 
-type AppMode = "search" | "recipes";
+type AppMode = "search" | "recipes" | "watchdog" | "lists";
 type ShoppingMode = "cross_store" | "single_store";
 type ProductSort = "relevance" | "cheapest" | "coverage";
 
@@ -142,10 +144,10 @@ function LoadingCards() {
       {Array.from({ length: 3 }).map((_, index) => (
         <article
           key={index}
-          className="overflow-hidden rounded-[2rem] border border-emerald-100 bg-white/90 p-5 shadow-[0_20px_50px_-30px_rgba(16,185,129,0.4)]"
+          className="overflow-hidden rounded-[2rem] border border-foodapka-100 bg-white/90 p-5 shadow-[0_20px_50px_-30px_rgba(132,204,22,0.4)]"
         >
           <div className="animate-pulse space-y-4">
-            <div className="h-6 w-2/3 rounded-full bg-emerald-100" />
+            <div className="h-6 w-2/3 rounded-full bg-foodapka-100" />
             <div className="h-4 w-40 rounded-full bg-zinc-100" />
             <div className="grid gap-3">
               {Array.from({ length: 3 }).map((_, storeIndex) => (
@@ -158,7 +160,7 @@ function LoadingCards() {
                     <div className="h-3 w-16 rounded-full bg-zinc-100" />
                   </div>
                   <div className="space-y-2">
-                    <div className="h-4 w-20 rounded-full bg-emerald-100" />
+                    <div className="h-4 w-20 rounded-full bg-foodapka-100" />
                     <div className="h-3 w-24 rounded-full bg-zinc-100" />
                   </div>
                 </div>
@@ -177,9 +179,9 @@ function RecipeSkeleton() {
       {Array.from({ length: 4 }).map((_, index) => (
         <div
           key={index}
-          className="animate-pulse rounded-[1.75rem] border border-emerald-100 bg-white/85 p-5"
+          className="animate-pulse rounded-[1.75rem] border border-foodapka-100 bg-white/85 p-5"
         >
-          <div className="h-5 w-36 rounded-full bg-emerald-100" />
+          <div className="h-5 w-36 rounded-full bg-foodapka-100" />
           <div className="mt-4 h-20 rounded-[1.25rem] bg-zinc-100" />
         </div>
       ))}
@@ -189,11 +191,11 @@ function RecipeSkeleton() {
 
 function EmptyState({ hasSearched }: { hasSearched: boolean }) {
   return (
-    <div className="rounded-[2rem] border border-dashed border-emerald-200 bg-white/70 px-6 py-12 text-center shadow-[0_20px_40px_-35px_rgba(16,185,129,0.5)]">
-      <div className="mx-auto mb-5 flex h-20 w-20 items-center justify-center rounded-full bg-emerald-100 text-4xl">
+    <div className="rounded-[2rem] border border-dashed border-foodapka-200 bg-white/70 px-6 py-12 text-center shadow-[0_20px_40px_-35px_rgba(132,204,22,0.5)]">
+      <div className="mx-auto mb-5 flex h-20 w-20 items-center justify-center rounded-full bg-foodapka-100 text-4xl">
         {hasSearched ? "🧺" : "🥬"}
       </div>
-      <h2 className="text-xl font-semibold text-emerald-950">
+      <h2 className="text-xl font-semibold text-foodapka-950">
         {hasSearched ? "Nic jsme nenašli" : "Začněte hledat výhodnější nákup"}
       </h2>
       <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-zinc-600">
@@ -308,23 +310,28 @@ function readJsonSafely(text: string) {
   }
 }
 
-export default function Home({
-  searchParams,
+// Inner component that uses useSearchParams
+function HomeContent({
+  serverSearchParams,
 }: {
-  searchParams: Promise<{ mode?: string; query?: string }>;
+  serverSearchParams: Promise<{ mode?: string; query?: string }>;
 }) {
-  // Mode
-  const [mode, setMode] = useState<AppMode>("search");
+  const router = useRouter();
+  const searchParams = useSearchParams();
   
-  // Check URL params on mount
+  // Mode derived from URL params (reactive)
+  const urlMode = searchParams.get("mode");
+  const mode: AppMode = 
+    urlMode === "recipes" ? "recipes" : 
+    urlMode === "watchdog" ? "watchdog" :
+    urlMode === "lists" ? "lists" : 
+    "search";
+  
+  // Check URL params on mount for query auto-search
   useEffect(() => {
-    void searchParams.then((params) => {
-      if (params.mode === "recipes") {
-        setMode("recipes");
-      }
+    void serverSearchParams.then((params) => {
       // Auto-trigger search if query param exists
       if (params.query) {
-        setMode("search");
         // Trigger search after a short delay to ensure components are mounted
         setTimeout(() => {
           const searchInput = document.querySelector('input[type="text"]') as HTMLInputElement;
@@ -340,7 +347,7 @@ export default function Home({
         }, 100);
       }
     });
-  }, [searchParams]);
+  }, [serverSearchParams]);
   
   // Search state
   const [products, setProducts] = useState<Product[]>([]);
@@ -399,7 +406,9 @@ export default function Home({
   }
 
   function handleModeChange(newMode: AppMode) {
-    setMode(newMode);
+    // Navigate via URL - mode is derived from URL params
+    const url = newMode === "recipes" ? "/app?mode=recipes" : "/app";
+    router.push(url, { scroll: false });
   }
 
   // Recipe handlers
@@ -608,39 +617,158 @@ export default function Home({
   });
 
   return (
-    <>
+    <div className="min-h-screen">
       <AppHeader />
-      <div className="flex pt-20 min-h-screen bg-[radial-gradient(circle_at_top,_rgba(110,231,183,0.18),_transparent_40%),linear-gradient(180deg,_#f5fbf5_0%,_#f8fafc_48%,_#f5f7f6_100%)]">
-        <Sidebar currentPage={mode === "search" ? "search" : "recipes"} />
+      <div className="flex pt-20">
+        <Sidebar currentPage={mode} />
         
-        <main className="flex-1 p-6 lg:p-10 overflow-y-auto text-zinc-900">
-          {/* Hero Header */}
-          <header className="mb-10 max-w-4xl">
-            {/* Animated header text */}
-            <div className={`transition-all duration-500 ease-out ${mode === "recipes" ? "max-h-0 overflow-hidden opacity-0" : "max-h-64 opacity-100 mb-6"}`}>
-              <h1 className="text-4xl lg:text-5xl font-extrabold tracking-tight text-emerald-950 leading-tight">
-                Najděte nejlevnější akční cenu <br />
-                <span className="text-emerald-600 italic">dřív, než vyrazíte do obchodu</span>
-              </h1>
-            </div>
-            
-            {/* Recipe header */}
-            <div className={`transition-all duration-500 ease-out ${mode === "search" ? "max-h-0 overflow-hidden opacity-0" : "max-h-64 opacity-100 mb-6"}`}>
-              <h1 className="text-4xl lg:text-5xl font-extrabold tracking-tight text-emerald-950 leading-tight">
-                Vyberte si recept a najdeme <br />
-                <span className="text-emerald-600 italic">nejlevnější suroviny</span>
-              </h1>
-            </div>
-            
-            {/* Search bar with mode toggle */}
-            <SearchBar
-              onResults={handleResults}
-              onLoading={setLoading}
-              onSearchStart={() => setHasSearched(true)}
-              mode={mode}
-              onModeChange={handleModeChange}
-            />
-          </header>
+        {/* Spacer for fixed sidebar */}
+        <div className="hidden lg:block w-72 flex-shrink-0" />
+        
+        <main className="flex-1 p-6 lg:p-10 text-zinc-900 dark:text-zinc-100">
+          
+          {/* Watchdog Page */}
+          {mode === "watchdog" && (
+            <section className="max-w-4xl">
+              <header className="mb-10">
+                <h1 className="text-4xl lg:text-5xl font-extrabold tracking-tight text-foodapka-950 dark:text-white leading-tight mb-4">
+                  Hlídací pes 🐕
+                </h1>
+                <p className="text-lg text-zinc-600 dark:text-zinc-400">
+                  Nastavte si hlídání cen a my vás upozorníme, když cena klesne.
+                </p>
+              </header>
+              
+              <div className="space-y-6">
+                <div className="rounded-2xl border border-dashed border-foodapka-300 dark:border-foodapka-800 bg-white/90 dark:bg-foodapka-950 p-8 text-center shadow-[0_20px_50px_-30px_rgba(132,204,22,0.2)]">
+                  <div className="mx-auto mb-5 flex h-20 w-20 items-center justify-center rounded-full bg-foodapka-100 dark:bg-zinc-800 text-4xl">
+                    🔔
+                  </div>
+                  <h2 className="text-xl font-semibold text-foodapka-950 dark:text-white mb-2">
+                    Zatím nemáte žádné hlídané produkty
+                  </h2>
+                  <p className="text-zinc-600 dark:text-zinc-400 mb-6 max-w-md mx-auto">
+                    Vyhledejte produkt a klikněte na &quot;Hlídat cenu&quot; pro přidání do hlídacího psa.
+                  </p>
+                  <button
+                    onClick={() => router.push("/app")}
+                    className="inline-flex items-center gap-2 rounded-full bg-foodapka-500 px-6 py-3 font-semibold text-white transition hover:bg-foodapka-600"
+                  >
+                    <span className="material-symbols-outlined">search</span>
+                    Vyhledat produkty
+                  </button>
+                </div>
+                
+                <div className="rounded-2xl border border-foodapka-100 dark:border-zinc-800 bg-white/90 dark:bg-foodapka-950 p-6 shadow-[0_20px_50px_-30px_rgba(132,204,22,0.2)]">
+                  <h3 className="font-semibold text-zinc-900 dark:text-white mb-4 flex items-center gap-2">
+                    <span className="material-symbols-outlined text-foodapka-500">info</span>
+                    Jak to funguje?
+                  </h3>
+                  <ul className="space-y-3 text-zinc-600 dark:text-zinc-400">
+                    <li className="flex items-start gap-3">
+                      <span className="text-foodapka-500 font-bold">1.</span>
+                      Vyhledejte produkt, který chcete hlídat
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <span className="text-foodapka-500 font-bold">2.</span>
+                      Nastavte cílovou cenu, při které chcete být upozorněni
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <span className="text-foodapka-500 font-bold">3.</span>
+                      Dostanete notifikaci, jakmile cena klesne pod váš limit
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </section>
+          )}
+          
+          {/* Shopping Lists Page */}
+          {mode === "lists" && (
+            <section className="max-w-4xl">
+              <header className="mb-10">
+                <h1 className="text-4xl lg:text-5xl font-extrabold tracking-tight text-foodapka-950 dark:text-white leading-tight mb-4">
+                  Nákupní seznamy 📝
+                </h1>
+                <p className="text-lg text-zinc-600 dark:text-zinc-400">
+                  Vytvářejte a spravujte své nákupní seznamy.
+                </p>
+              </header>
+              
+              <div className="space-y-6">
+                <div className="flex gap-4">
+                  <button className="inline-flex items-center gap-2 rounded-full bg-foodapka-500 px-6 py-3 font-semibold text-white transition hover:bg-foodapka-600">
+                    <span className="material-symbols-outlined">add</span>
+                    Nový seznam
+                  </button>
+                </div>
+                
+                <div className="rounded-2xl border border-dashed border-foodapka-300 dark:border-foodapka-800 bg-white/90 dark:bg-foodapka-950 p-8 text-center shadow-[0_20px_50px_-30px_rgba(132,204,22,0.2)]">
+                  <div className="mx-auto mb-5 flex h-20 w-20 items-center justify-center rounded-full bg-foodapka-100 dark:bg-zinc-800 text-4xl">
+                    📋
+                  </div>
+                  <h2 className="text-xl font-semibold text-foodapka-950 dark:text-white mb-2">
+                    Zatím nemáte žádné nákupní seznamy
+                  </h2>
+                  <p className="text-zinc-600 dark:text-zinc-400 max-w-md mx-auto">
+                    Vytvořte si nový seznam a přidávejte do něj produkty z vyhledávání nebo receptů.
+                  </p>
+                </div>
+                
+                <div className="rounded-2xl border border-foodapka-100 dark:border-zinc-800 bg-white/90 dark:bg-foodapka-950 p-6 shadow-[0_20px_50px_-30px_rgba(132,204,22,0.2)]">
+                  <h3 className="font-semibold text-zinc-900 dark:text-white mb-4 flex items-center gap-2">
+                    <span className="material-symbols-outlined text-foodapka-500">lightbulb</span>
+                    Tipy
+                  </h3>
+                  <ul className="space-y-3 text-zinc-600 dark:text-zinc-400">
+                    <li className="flex items-start gap-3">
+                      <span className="material-symbols-outlined text-foodapka-500 text-lg">check_circle</span>
+                      Seznamy můžete sdílet s rodinou nebo spolubydlícími
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <span className="material-symbols-outlined text-foodapka-500 text-lg">check_circle</span>
+                      Označujte položky jako koupené přímo v obchodě
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <span className="material-symbols-outlined text-foodapka-500 text-lg">check_circle</span>
+                      Přidávejte ingredience z receptů jedním kliknutím
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </section>
+          )}
+          
+          {/* Search/Recipes content - only show when in search or recipes mode */}
+          {(mode === "search" || mode === "recipes") && (
+            <>
+              {/* Hero Header */}
+              <header className="mb-10 max-w-4xl">
+                {/* Animated header text */}
+                <div className={`transition-all duration-500 ease-out ${mode === "recipes" ? "max-h-0 overflow-hidden opacity-0" : "max-h-64 opacity-100 mb-6"}`}>
+                  <h1 className="text-4xl lg:text-5xl font-extrabold tracking-tight text-foodapka-950 dark:text-white leading-tight">
+                    Najděte nejlevnější akční cenu <br />
+                    <span className="text-foodapka-600 dark:text-foodapka-400">dřív, než vyrazíte do obchodu</span>
+                  </h1>
+                </div>
+                
+                {/* Recipe header */}
+                <div className={`transition-all duration-500 ease-out ${mode === "search" ? "max-h-0 overflow-hidden opacity-0" : "max-h-64 opacity-100 mb-6"}`}>
+                  <h1 className="text-4xl lg:text-5xl font-extrabold tracking-tight text-foodapka-950 leading-tight">
+                    Vyberte si recept a najdeme <br />
+                    <span className="text-foodapka-600">nejlevnější suroviny</span>
+                  </h1>
+                </div>
+                
+                {/* Search bar with mode toggle */}
+                <SearchBar
+                  onResults={handleResults}
+                  onLoading={setLoading}
+                  onSearchStart={() => setHasSearched(true)}
+                  mode={mode === "recipes" ? "recipes" : "search"}
+                  onModeChange={handleModeChange}
+                />
+              </header>
             
           {/* Recipe cards - shown when in recipes mode */}
           <section className={`transition-all duration-500 ease-out mb-10 ${mode === "recipes" ? "max-h-[3000px] opacity-100" : "max-h-0 overflow-hidden opacity-0"}`}>
@@ -661,7 +789,7 @@ export default function Home({
                         unoptimized
                       />
                       <div className="absolute top-3 left-3">
-                        <span className="bg-emerald-100/90 backdrop-blur-md text-emerald-800 text-[10px] uppercase tracking-widest font-bold px-3 py-1 rounded-full">
+                        <span className="bg-foodapka-100/90 backdrop-blur-md text-foodapka-800 text-[10px] uppercase tracking-widest font-bold px-3 py-1 rounded-full">
                           {recipe.tag}
                         </span>
                       </div>
@@ -676,11 +804,11 @@ export default function Home({
                   )}
                   <div className="p-5 flex-1 flex flex-col">
                     {!recipe.image && (
-                      <span className="inline-block rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700 w-fit mb-3">
+                      <span className="inline-block rounded-full bg-foodapka-100 px-3 py-1 text-xs font-semibold text-foodapka-700 w-fit mb-3">
                         {recipe.tag}
                       </span>
                     )}
-                    <h3 className="text-lg font-bold text-zinc-900 group-hover:text-emerald-600 transition-colors">
+                    <h3 className="text-lg font-bold text-zinc-900 group-hover:text-foodapka-600 transition-colors">
                       {recipe.name}
                     </h3>
                     <p className="mt-2 text-sm text-zinc-500 line-clamp-2 flex-1">
@@ -692,18 +820,18 @@ export default function Home({
                           {recipe.ingredients.slice(0, 3).map((ing, i) => (
                             <div
                               key={ing}
-                              className="w-7 h-7 rounded-full border-2 border-white bg-emerald-100 flex items-center justify-center text-[10px] font-bold text-emerald-700"
+                              className="w-7 h-7 rounded-full border-2 border-white dark:border-foodapka-900 bg-foodapka-100 dark:bg-foodapka-800 flex items-center justify-center text-[10px] font-bold text-foodapka-700 dark:text-foodapka-300"
                             >
                               {ing.charAt(0).toUpperCase()}
                             </div>
                           ))}
                           {recipe.ingredients.length > 3 && (
-                            <div className="w-7 h-7 rounded-full border-2 border-white bg-zinc-100 flex items-center justify-center text-[10px] font-bold text-zinc-500">
+                            <div className="w-7 h-7 rounded-full border-2 border-white dark:border-foodapka-900 bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center text-[10px] font-bold text-zinc-500 dark:text-zinc-400">
                               +{recipe.ingredients.length - 3}
                             </div>
                           )}
                         </div>
-                        <span className="text-emerald-600 font-semibold text-sm flex items-center gap-1">
+                        <span className="text-foodapka-600 dark:text-foodapka-400 font-semibold text-sm flex items-center gap-1">
                           <span className="material-symbols-outlined text-sm">trending_down</span>
                           Najít ceny
                         </span>
@@ -720,7 +848,7 @@ export default function Home({
             <section className="space-y-5">
               <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
                 <div>
-                  <h2 className="text-2xl font-semibold tracking-tight text-emerald-950 sm:text-3xl">
+                  <h2 className="text-2xl font-semibold tracking-tight text-foodapka-950 sm:text-3xl">
                     Výsledky hledání
                   </h2>
                   <p className="mt-1 text-sm text-zinc-600">
@@ -729,7 +857,7 @@ export default function Home({
                 </div>
                 <div className="flex flex-wrap items-center gap-2">
                   {!loading && visibleProducts.length > 0 && (
-                    <p className="rounded-full border border-emerald-200 bg-white px-4 py-2 text-sm font-medium text-emerald-800">
+                    <p className="rounded-full border border-foodapka-200 bg-white px-4 py-2 text-sm font-medium text-foodapka-800">
                       {visibleProducts.length} produktů
                     </p>
                   )}
@@ -749,8 +877,8 @@ export default function Home({
                             onClick={() => setSelectedSort(option.key as ProductSort)}
                             className={`rounded-full border px-4 py-2 text-sm font-semibold transition ${
                               isActive
-                                ? "border-emerald-600 bg-emerald-600 text-white"
-                                : "border-emerald-200 bg-white text-emerald-900 hover:border-emerald-300 hover:bg-emerald-50"
+                                ? "border-foodapka-600 bg-foodapka-600 text-white"
+                                : "border-foodapka-200 bg-white text-foodapka-900 hover:border-foodapka-300 hover:bg-foodapka-50"
                             }`}
                           >
                             {option.label}
@@ -777,10 +905,10 @@ export default function Home({
                       disabled={isDisabled}
                       className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-semibold transition ${
                         isActive
-                          ? "border-emerald-600 bg-emerald-600 text-white"
+                          ? "border-foodapka-600 bg-foodapka-600 text-white"
                           : isDisabled
                             ? "cursor-not-allowed border-zinc-200 bg-zinc-100 text-zinc-400"
-                            : "border-emerald-200 bg-white text-emerald-900 hover:border-emerald-300 hover:bg-emerald-50"
+                            : "border-foodapka-200 bg-white text-foodapka-900 hover:border-foodapka-300 hover:bg-foodapka-50"
                       }`}
                     >
                       <span>{filter.label}</span>
@@ -790,7 +918,7 @@ export default function Home({
                             ? "bg-white/20 text-white"
                             : isDisabled
                               ? "bg-white text-zinc-400"
-                              : "bg-emerald-100 text-emerald-700"
+                              : "bg-foodapka-100 text-foodapka-700"
                         }`}
                       >
                         {count}
@@ -811,7 +939,7 @@ export default function Home({
                   return (
                     <article
                       key={product.url}
-                      className="rounded-[2rem] border border-emerald-100 bg-white/90 p-5 shadow-[0_25px_60px_-35px_rgba(16,185,129,0.45)] sm:p-6"
+                      className="rounded-[2rem] border border-foodapka-100 bg-white/90 p-5 shadow-[0_25px_60px_-35px_rgba(132,204,22,0.45)] sm:p-6"
                     >
                       <div className="flex flex-col gap-5">
                         <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
@@ -827,7 +955,7 @@ export default function Home({
                             href={product.url}
                             target="_blank"
                             rel="noreferrer"
-                            className="inline-flex items-center justify-center rounded-full border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm font-semibold text-emerald-800 transition hover:border-emerald-300 hover:bg-emerald-100"
+                            className="inline-flex items-center justify-center rounded-full border border-foodapka-200 bg-foodapka-50 px-4 py-2 text-sm font-semibold text-foodapka-800 transition hover:border-foodapka-300 hover:bg-foodapka-100"
                           >
                             Detail nabídky
                           </a>
@@ -842,7 +970,7 @@ export default function Home({
                                 key={`${item.shopId}-${item.price}-${index}`}
                                 className={`rounded-[1.5rem] border px-4 py-4 transition sm:px-5 ${
                                   cheapest
-                                    ? "border-emerald-300 bg-emerald-50 shadow-[0_18px_35px_-28px_rgba(5,150,105,0.8)]"
+                                    ? "border-foodapka-300 bg-foodapka-50 shadow-[0_18px_35px_-28px_rgba(101,163,13,0.8)]"
                                     : "border-zinc-100 bg-zinc-50"
                                 }`}
                               >
@@ -856,7 +984,7 @@ export default function Home({
                                         </span>
                                       )}
                                       {cheapest && (
-                                        <span className="rounded-full bg-emerald-600 px-3 py-1 text-xs font-semibold text-white">
+                                        <span className="rounded-full bg-foodapka-600 px-3 py-1 text-xs font-semibold text-white">
                                           Nejlevnější
                                         </span>
                                       )}
@@ -878,7 +1006,7 @@ export default function Home({
                                       <p
                                         className={`text-xl font-bold ${
                                           cheapest
-                                            ? "text-emerald-700"
+                                            ? "text-foodapka-700"
                                             : "text-zinc-900"
                                         }`}
                                       >
@@ -896,7 +1024,7 @@ export default function Home({
                                         href={item.leafletUrl}
                                         target="_blank"
                                         rel="noreferrer"
-                                        className="inline-flex items-center rounded-full border border-zinc-200 bg-white px-3 py-1.5 text-xs font-semibold text-zinc-700 transition hover:border-emerald-300 hover:text-emerald-700"
+                                        className="inline-flex items-center rounded-full border border-zinc-200 bg-white px-3 py-1.5 text-xs font-semibold text-zinc-700 transition hover:border-foodapka-300 hover:text-foodapka-700"
                                       >
                                         V letáku
                                       </a>
@@ -925,7 +1053,7 @@ export default function Home({
           <section ref={shoppingListRef} className="space-y-5">
             <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
               <div>
-                <h2 className="text-2xl font-semibold tracking-tight text-emerald-950">
+                <h2 className="text-2xl font-semibold tracking-tight text-foodapka-950">
                   Nákupní list
                 </h2>
                 <p className="text-sm text-zinc-600">
@@ -934,7 +1062,7 @@ export default function Home({
                 </p>
               </div>
               {ingredients.length > 0 && !recipeLoading && (
-                <p className="rounded-full border border-emerald-200 bg-white px-4 py-2 text-sm font-medium text-emerald-800">
+                <p className="rounded-full border border-foodapka-200 bg-white px-4 py-2 text-sm font-medium text-foodapka-800">
                   {ingredients.length} ingrediencí
                 </p>
               )}
@@ -950,10 +1078,10 @@ export default function Home({
 
             {!recipeLoading && recipeResults.length > 0 && (
               <div className="grid gap-4">
-                <div className="rounded-[1.75rem] border border-emerald-100 bg-white/95 p-4 shadow-[0_20px_50px_-35px_rgba(16,185,129,0.45)] sm:p-5">
-                  <div className="flex flex-col gap-4 border-b border-emerald-100 pb-4 sm:flex-row sm:items-start sm:justify-between">
+                <div className="rounded-[1.75rem] border border-foodapka-100 bg-white/95 p-4 shadow-[0_20px_50px_-35px_rgba(132,204,22,0.45)] sm:p-5">
+                  <div className="flex flex-col gap-4 border-b border-foodapka-100 pb-4 sm:flex-row sm:items-start sm:justify-between">
                     <div>
-                      <p className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-700">
+                      <p className="text-xs font-semibold uppercase tracking-[0.2em] text-foodapka-700">
                         Nákup pro
                       </p>
                       <h3 className="mt-1 text-2xl font-semibold text-zinc-950">
@@ -969,14 +1097,14 @@ export default function Home({
                       <button
                         type="button"
                         onClick={saveShoppingList}
-                        className="inline-flex items-center rounded-full border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm font-semibold text-emerald-800 transition hover:border-emerald-300 hover:bg-emerald-100"
+                        className="inline-flex items-center rounded-full border border-foodapka-200 bg-foodapka-50 px-4 py-2 text-sm font-semibold text-foodapka-800 transition hover:border-foodapka-300 hover:bg-foodapka-100"
                       >
                         Uložit seznam
                       </button>
                       <button
                         type="button"
                         onClick={() => void shareShoppingList()}
-                        className="inline-flex items-center rounded-full border border-zinc-200 bg-white px-4 py-2 text-sm font-semibold text-zinc-700 transition hover:border-emerald-300 hover:text-emerald-700"
+                        className="inline-flex items-center rounded-full border border-zinc-200 bg-white px-4 py-2 text-sm font-semibold text-zinc-700 transition hover:border-foodapka-300 hover:text-foodapka-700"
                       >
                         Sdílet
                       </button>
@@ -984,14 +1112,14 @@ export default function Home({
                   </div>
 
                   <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                    <div className="inline-flex rounded-full border border-emerald-200 bg-emerald-50 p-1">
+                    <div className="inline-flex rounded-full border border-foodapka-200 bg-foodapka-50 p-1">
                       <button
                         type="button"
                         onClick={() => setShoppingMode("cross_store")}
                         className={`rounded-full px-4 py-2 text-sm font-semibold transition ${
                           shoppingMode === "cross_store"
-                            ? "bg-emerald-600 text-white"
-                            : "text-emerald-800 hover:bg-emerald-100"
+                            ? "bg-foodapka-600 text-white"
+                            : "text-foodapka-800 hover:bg-foodapka-100"
                         }`}
                       >
                         Napříč obchody
@@ -1001,8 +1129,8 @@ export default function Home({
                         onClick={() => setShoppingMode("single_store")}
                         className={`rounded-full px-4 py-2 text-sm font-semibold transition ${
                           shoppingMode === "single_store"
-                            ? "bg-emerald-600 text-white"
-                            : "text-emerald-800 hover:bg-emerald-100"
+                            ? "bg-foodapka-600 text-white"
+                            : "text-foodapka-800 hover:bg-foodapka-100"
                         }`}
                       >
                         Jeden obchod
@@ -1024,7 +1152,7 @@ export default function Home({
                   </div>
 
                   {shareMessage && (
-                    <div className="mt-4 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
+                    <div className="mt-4 rounded-2xl border border-foodapka-200 bg-foodapka-50 px-4 py-3 text-sm text-foodapka-800">
                       {shareMessage}
                     </div>
                   )}
@@ -1038,7 +1166,7 @@ export default function Home({
                           key={item.ingredient}
                           className={`rounded-[1.5rem] border px-4 py-4 transition ${
                             isChecked
-                              ? "border-emerald-200 bg-emerald-50/70"
+                              ? "border-foodapka-200 bg-foodapka-50/70"
                               : "border-zinc-100 bg-zinc-50"
                           }`}
                         >
@@ -1048,7 +1176,7 @@ export default function Home({
                               onClick={() => toggleIngredient(item.ingredient)}
                               className={`mt-1 flex h-6 w-6 shrink-0 items-center justify-center rounded-full border text-sm font-bold transition ${
                                 isChecked
-                                  ? "border-emerald-600 bg-emerald-600 text-white"
+                                  ? "border-foodapka-600 bg-foodapka-600 text-white"
                                   : "border-zinc-300 bg-white text-transparent"
                               }`}
                               aria-label={`Označit ${item.ingredient}`}
@@ -1084,7 +1212,7 @@ export default function Home({
                                             {item.selectedStore.sourceLabel}
                                           </span>
                                         )}
-                                        <span className="rounded-full bg-emerald-600 px-3 py-1 text-xs font-semibold text-white">
+                                        <span className="rounded-full bg-foodapka-600 px-3 py-1 text-xs font-semibold text-white">
                                           {shoppingMode === "single_store"
                                             ? "Vybráno v jednom obchodě"
                                             : "Nejlevnější"}
@@ -1120,14 +1248,14 @@ export default function Home({
                                 <div className="flex flex-col items-start gap-3 sm:items-end">
                                   {item.selectedStore ? (
                                     <>
-                                      <p className="text-2xl font-bold text-emerald-700">
+                                      <p className="text-2xl font-bold text-foodapka-700">
                                         {item.selectedStore.price}
                                       </p>
                                       <a
                                         href={item.selectedProduct?.url ?? ""}
                                         target="_blank"
                                         rel="noreferrer"
-                                        className="inline-flex items-center rounded-full border border-emerald-200 bg-white px-4 py-2 text-sm font-semibold text-emerald-800 transition hover:border-emerald-300 hover:bg-emerald-100"
+                                        className="inline-flex items-center rounded-full border border-foodapka-200 bg-white px-4 py-2 text-sm font-semibold text-foodapka-800 transition hover:border-foodapka-300 hover:bg-foodapka-100"
                                       >
                                         Detail nabídky
                                       </a>
@@ -1147,8 +1275,8 @@ export default function Home({
                   </ul>
                 </div>
 
-                <div className="rounded-[1.75rem] border border-emerald-200 bg-emerald-950 px-5 py-6 text-white shadow-[0_25px_60px_-35px_rgba(5,150,105,0.8)]">
-                  <p className="text-sm uppercase tracking-[0.2em] text-emerald-200">
+                <div className="rounded-[1.75rem] border border-foodapka-200 bg-foodapka-950 px-5 py-6 text-white shadow-[0_25px_60px_-35px_rgba(101,163,13,0.8)]">
+                  <p className="text-sm uppercase tracking-[0.2em] text-foodapka-200">
                     {shoppingMode === "single_store"
                       ? "Cena v jednom obchodě"
                       : "Cena napříč obchody"}
@@ -1156,7 +1284,7 @@ export default function Home({
                   <p className="mt-2 text-3xl font-bold">
                     {totalPrice.toFixed(2).replace(".", ",")} Kč
                   </p>
-                  <p className="mt-2 text-sm text-emerald-100">
+                  <p className="mt-2 text-sm text-foodapka-100">
                     {shoppingMode === "single_store"
                       ? bestSingleStorePlan
                         ? `Nejlíp vychází ${bestSingleStorePlan.shopName}. Pokrývá ${bestSingleStorePlan.matchedCount}/${itemsToBuy.length} položek.`
@@ -1166,7 +1294,7 @@ export default function Home({
                   {shoppingMode === "single_store" &&
                     bestSingleStorePlan &&
                     bestSingleStorePlan.missingCount > 0 && (
-                      <p className="mt-2 text-sm text-emerald-200">
+                      <p className="mt-2 text-sm text-foodapka-200">
                         {bestSingleStorePlan.missingCount} položek je potřeba
                         dokoupit jinde nebo počkat na jinou akci.
                       </p>
@@ -1176,11 +1304,11 @@ export default function Home({
             )}
 
             {!recipeLoading && !recipeError && recipeResults.length === 0 && (
-              <div className="rounded-[1.75rem] border border-dashed border-emerald-200 bg-white/70 px-6 py-12 text-center">
-                <div className="mx-auto mb-5 flex h-20 w-20 items-center justify-center rounded-full bg-emerald-100 text-4xl">
+              <div className="rounded-[1.75rem] border border-dashed border-foodapka-200 bg-white/70 px-6 py-12 text-center">
+                <div className="mx-auto mb-5 flex h-20 w-20 items-center justify-center rounded-full bg-foodapka-100 text-4xl">
                   🍲
                 </div>
-                <h2 className="text-xl font-semibold text-emerald-950">
+                <h2 className="text-xl font-semibold text-foodapka-950">
                   Vyberte recept výše
                 </h2>
                 <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-zinc-600">
@@ -1190,8 +1318,28 @@ export default function Home({
             )}
           </section>
         )}
+        </>
+        )}
         </main>
       </div>
-    </>
+    </div>
+  );
+}
+
+
+// Wrapper component with Suspense for useSearchParams
+export default function Home({
+  searchParams,
+}: {
+  searchParams: Promise<{ mode?: string; query?: string }>;
+}) {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 flex items-center justify-center">
+        <span className="text-zinc-400">Načítání...</span>
+      </div>
+    }>
+      <HomeContent serverSearchParams={searchParams} />
+    </Suspense>
   );
 }

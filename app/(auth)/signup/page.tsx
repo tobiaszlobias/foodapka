@@ -54,9 +54,9 @@ export default function SignupPage() {
     return (
       <main className="min-h-screen flex items-center justify-center bg-[radial-gradient(circle_at_top,_rgba(110,231,183,0.18),_transparent_40%),linear-gradient(180deg,_#f5fbf5_0%,_#f8fafc_100%)] px-4">
         <div className="w-full max-w-md text-center">
-          <div className="bg-white rounded-[2rem] p-8 shadow-[0_20px_60px_-20px_rgba(16,185,129,0.25)] border border-emerald-100">
-            <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-emerald-100 flex items-center justify-center">
-              <span className="material-symbols-outlined text-emerald-600 text-3xl">
+          <div className="bg-white rounded-[2rem] p-8 shadow-[0_20px_60px_-20px_rgba(16,185,129,0.25)] border border-foodapka-100">
+            <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-foodapka-100 flex items-center justify-center">
+              <span className="material-symbols-outlined text-foodapka-600 text-3xl">
                 mark_email_read
               </span>
             </div>
@@ -69,7 +69,7 @@ export default function SignupPage() {
             </p>
             <Link
               href="/login"
-              className="inline-block px-6 py-3 rounded-xl bg-emerald-600 text-white font-semibold hover:bg-emerald-700 transition"
+              className="inline-block px-6 py-3 rounded-xl bg-foodapka-600 text-white font-semibold hover:bg-foodapka-700 transition"
             >
               Zpět na přihlášení
             </Link>
@@ -83,7 +83,7 @@ export default function SignupPage() {
     <main className="min-h-screen flex items-center justify-center bg-[radial-gradient(circle_at_top,_rgba(110,231,183,0.18),_transparent_40%),linear-gradient(180deg,_#f5fbf5_0%,_#f8fafc_100%)] px-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <Link href="/" className="text-3xl font-bold text-emerald-700">
+          <Link href="/" className="text-3xl font-bold text-foodapka-700">
             foodapka
           </Link>
           <p className="mt-2 text-zinc-600">Vytvořte si účet zdarma</p>
@@ -91,7 +91,7 @@ export default function SignupPage() {
 
         <form
           onSubmit={handleSubmit}
-          className="bg-white rounded-[2rem] p-8 shadow-[0_20px_60px_-20px_rgba(16,185,129,0.25)] border border-emerald-100"
+          className="bg-white rounded-[2rem] p-8 shadow-[0_20px_60px_-20px_rgba(16,185,129,0.25)] border border-foodapka-100"
         >
           {error && (
             <div className="mb-6 rounded-xl bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700">
@@ -113,7 +113,7 @@ export default function SignupPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="w-full h-12 rounded-xl border border-zinc-200 bg-zinc-50 px-4 text-zinc-900 outline-none transition focus:border-emerald-500 focus:bg-white focus:ring-2 focus:ring-emerald-500/20"
+                className="w-full h-12 rounded-xl border border-zinc-200 bg-zinc-50 px-4 text-zinc-900 outline-none transition focus:border-foodapka-500 focus:bg-white focus:ring-2 focus:ring-foodapka-500/20"
                 placeholder="vas@email.cz"
               />
             </div>
@@ -131,7 +131,7 @@ export default function SignupPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                className="w-full h-12 rounded-xl border border-zinc-200 bg-zinc-50 px-4 text-zinc-900 outline-none transition focus:border-emerald-500 focus:bg-white focus:ring-2 focus:ring-emerald-500/20"
+                className="w-full h-12 rounded-xl border border-zinc-200 bg-zinc-50 px-4 text-zinc-900 outline-none transition focus:border-foodapka-500 focus:bg-white focus:ring-2 focus:ring-foodapka-500/20"
                 placeholder="Minimálně 6 znaků"
               />
             </div>
@@ -149,7 +149,7 @@ export default function SignupPage() {
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 required
-                className="w-full h-12 rounded-xl border border-zinc-200 bg-zinc-50 px-4 text-zinc-900 outline-none transition focus:border-emerald-500 focus:bg-white focus:ring-2 focus:ring-emerald-500/20"
+                className="w-full h-12 rounded-xl border border-zinc-200 bg-zinc-50 px-4 text-zinc-900 outline-none transition focus:border-foodapka-500 focus:bg-white focus:ring-2 focus:ring-foodapka-500/20"
                 placeholder="Zopakujte heslo"
               />
             </div>
@@ -158,7 +158,7 @@ export default function SignupPage() {
           <button
             type="submit"
             disabled={loading}
-            className="mt-6 w-full h-12 rounded-xl bg-emerald-600 text-white font-semibold transition hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="mt-6 w-full h-12 rounded-xl bg-foodapka-600 text-white font-semibold transition hover:bg-foodapka-700 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? "Vytváření účtu..." : "Vytvořit účet"}
           </button>
@@ -167,7 +167,7 @@ export default function SignupPage() {
             Už máte účet?{" "}
             <Link
               href="/login"
-              className="font-semibold text-emerald-600 hover:text-emerald-700"
+              className="font-semibold text-foodapka-600 hover:text-foodapka-700"
             >
               Přihlaste se
             </Link>

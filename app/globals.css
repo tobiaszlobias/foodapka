@@ -1,14 +1,50 @@
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Manrope:wght@400;500;600;700&display=swap');
 @import "tailwindcss";
 
+/* Enable dark mode via data-theme attribute */
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+/* ========================================
+   FOODAPKA COLOR PALETTE
+   ========================================
+   BRIGHT (Light mode):
+   - primary: #92D63F (lime green)
+   - secondary: #D8F0BA (light lime)
+   - text: #000000
+   
+   DARK mode:
+   - primary: #92D63F (same)
+   - secondary: #D8F0BA (same)
+   - text: #FFFFFF
+   ======================================== */
+
 :root {
-  --background: #f5fbf5;
-  --foreground: #171d19;
+  --background: #f8fcf4;
+  --foreground: #000000;
+  
+  /* Brand Colors */
+  --brand-primary: #92D63F;
+  --brand-secondary: #D8F0BA;
+  --brand-primary-dark: #6da825;
+  --brand-primary-light: #a8e050;
+  
+  /* Foodapka Custom Colors for Tailwind - more saturated, less "brcálové" */
+  --foodapka-50: #f7fee7;
+  --foodapka-100: #ecfccb;
+  --foodapka-200: #d9f99d;
+  --foodapka-300: #bef264;
+  --foodapka-400: #a3e635;
+  --foodapka-500: #84cc16;
+  --foodapka-600: #65a30d;
+  --foodapka-700: #4d7c0f;
+  --foodapka-800: #3f6212;
+  --foodapka-900: #365314;
+  --foodapka-950: #1a2e05;
 }
 
 html[data-theme="dark"] {
-  --background: #0d1713;
-  --foreground: #eefaf3;
+  --background: #0a0f0a;
+  --foreground: #ffffff;
 }
 
 @theme inline {
@@ -19,55 +55,68 @@ html[data-theme="dark"] {
   --font-headline: "Plus Jakarta Sans", "Segoe UI", Arial, Helvetica, sans-serif;
   --font-mono: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
 
-  /* Material Design 3 Color System */
-  --color-primary: #006948;
-  --color-primary-container: #00855c;
-  --color-primary-fixed: #86f8c3;
-  --color-primary-fixed-dim: #69dba8;
-  --color-on-primary: #ffffff;
-  --color-on-primary-container: #f5fff7;
-  --color-on-primary-fixed: #002114;
-  --color-on-primary-fixed-variant: #005237;
+  /* Foodapka Brand Colors - Lime palette, more saturated */
+  --color-foodapka-50: #f7fee7;
+  --color-foodapka-100: #ecfccb;
+  --color-foodapka-200: #d9f99d;
+  --color-foodapka-300: #bef264;
+  --color-foodapka-400: #a3e635;
+  --color-foodapka-500: #84cc16;
+  --color-foodapka-600: #65a30d;
+  --color-foodapka-700: #4d7c0f;
+  --color-foodapka-800: #3f6212;
+  --color-foodapka-900: #365314;
+  --color-foodapka-950: #1a2e05;
 
-  --color-secondary: #3e6753;
-  --color-secondary-container: #c0edd3;
-  --color-secondary-fixed: #c0edd3;
-  --color-secondary-fixed-dim: #a5d0b8;
+  /* Brand Color System - Based on #84cc16 (lime-500) */
+  --color-primary: #84cc16;
+  --color-primary-container: #65a30d;
+  --color-primary-fixed: #ecfccb;
+  --color-primary-fixed-dim: #bef264;
+  --color-on-primary: #1a2e05;
+  --color-on-primary-container: #ffffff;
+  --color-on-primary-fixed: #1a2e05;
+  --color-on-primary-fixed-variant: #365314;
+
+  --color-secondary: #6a9a3d;
+  --color-secondary-container: #D8F0BA;
+  --color-secondary-fixed: #D8F0BA;
+  --color-secondary-fixed-dim: #c4e89e;
   --color-on-secondary: #ffffff;
-  --color-on-secondary-container: #446d58;
-  --color-on-secondary-fixed: #002114;
-  --color-on-secondary-fixed-variant: #264e3c;
+  --color-on-secondary-container: #3d5c1a;
+  --color-on-secondary-fixed: #1a2e0a;
+  --color-on-secondary-fixed-variant: #3d5c1a;
 
-  --color-tertiary: #9b3e3b;
-  --color-tertiary-container: #ba5551;
-  --color-tertiary-fixed: #ffdad7;
+  --color-tertiary: #d64f3f;
+  --color-tertiary-container: #e87060;
+  --color-tertiary-fixed: #ffdad6;
   --color-tertiary-fixed-dim: #ffb3ae;
   --color-on-tertiary: #ffffff;
-  --color-on-tertiary-container: #fffbff;
+  --color-on-tertiary-container: #ffffff;
   --color-on-tertiary-fixed: #410004;
   --color-on-tertiary-fixed-variant: #7f2928;
 
-  --color-surface: #f5fbf5;
-  --color-surface-dim: #d6dcd5;
-  --color-surface-bright: #f5fbf5;
-  --color-surface-variant: #dee4de;
-  --color-surface-tint: #006c4a;
-  --color-surface-container: #e9efe9;
-  --color-surface-container-low: #eff5ef;
+  --color-surface: #f8fcf4;
+  --color-surface-dim: #e8f0e0;
+  --color-surface-bright: #f8fcf4;
+  --color-surface-variant: #e8f0e0;
+  --color-surface-tint: #92D63F;
+  --color-surface-container: #f0f5ea;
+  --color-surface-container-low: #f4f9ee;
   --color-surface-container-lowest: #ffffff;
-  --color-surface-container-high: #e4eae4;
-  --color-surface-container-highest: #dee4de;
+  --color-surface-container-high: #e8f0e0;
+  --color-surface-container-highest: #dce8d0;
 
-  --color-on-surface: #171d19;
-  --color-on-surface-variant: #3d4a42;
-  --color-inverse-surface: #2c322e;
-  --color-inverse-on-surface: #ecf2ec;
-  --color-inverse-primary: #69dba8;
+  --color-on-surface: #000000;
+  --color-on-surface-variant: #3d4a3d;
+  --color-inverse-surface: #1a2e0a;
+  --color-inverse-on-surface: #f8fcf4;
+  --color-inverse-primary: #b5e876;
 
-  --color-outline: #6d7a72;
-  --color-outline-variant: #bccac0;
-  --color-background: #f5fbf5;
-  --color-on-background: #171d19;
+  --color-outline: #6a7a6a;
+  --color-outline-variant: #c4d4c4;
+  --color-background: #f8fcf4;
+  --color-on-background: #000000;
 
   --color-error: #ba1a1a;
   --color-error-container: #ffdad6;
@@ -116,6 +165,11 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans);
+  overflow-x: hidden;
+}
+
+html {
+  overflow-x: hidden;
 }
 
 html,
@@ -126,34 +180,13 @@ body {
 }
 
 html[data-theme="dark"] body {
-  background:
-    radial-gradient(circle at top, rgba(16, 185, 129, 0.16), transparent 34%),
-    linear-gradient(180deg, #08110e 0%, #0d1713 52%, #101916 100%);
-  color: #eefaf3;
+  background: #0a0a0a;
+  color: #ffffff;
 }
 
 html[data-theme="dark"] main {
-  background:
-    radial-gradient(circle at top, rgba(16, 185, 129, 0.12), transparent 28%),
-    linear-gradient(180deg, #08110e 0%, #0d1713 52%, #101916 100%) !important;
-  color: #eefaf3;
-}
-
-html[data-theme="dark"] section,
-html[data-theme="dark"] article,
-html[data-theme="dark"] form {
-  border-color: rgba(110, 231, 183, 0.18) !important;
-  background: rgba(14, 26, 21, 0.9) !important;
-  box-shadow: 0 24px 60px -40px rgba(0, 0, 0, 0.75) !important;
-}
-
-html[data-theme="dark"] section,
-html[data-theme="dark"] article,
-html[data-theme="dark"] form,
-html[data-theme="dark"] .bg-white,
-html[data-theme="dark"] .bg-zinc-50,
-html[data-theme="dark"] .bg-zinc-100 {
-  background-color: rgba(14, 26, 21, 0.9) !important;
+  background: transparent !important;
+  color: #ffffff;
 }
 
 html[data-theme="dark"] h1,
@@ -163,8 +196,10 @@ html[data-theme="dark"] .text-emerald-950,
 html[data-theme="dark"] .text-zinc-950,
 html[data-theme="dark"] .text-zinc-900,
 html[data-theme="dark"] .text-zinc-800,
-html[data-theme="dark"] .text-emerald-900 {
-  color: #eefaf3 !important;
+html[data-theme="dark"] .text-emerald-900,
+html[data-theme="dark"] .text-lime-950,
+html[data-theme="dark"] .text-lime-900 {
+  color: #ffffff !important;
 }
 
 html[data-theme="dark"] p,
@@ -172,30 +207,38 @@ html[data-theme="dark"] .text-zinc-700,
 html[data-theme="dark"] .text-zinc-600,
 html[data-theme="dark"] .text-zinc-500,
 html[data-theme="dark"] .text-emerald-800,
-html[data-theme="dark"] .text-emerald-700 {
-  color: rgba(220, 252, 231, 0.78) !important;
+html[data-theme="dark"] .text-emerald-700,
+html[data-theme="dark"] .text-lime-800,
+html[data-theme="dark"] .text-lime-700,
+html[data-theme="dark"] .text-foodapka-800,
+html[data-theme="dark"] .text-foodapka-700 {
+  color: rgba(216, 240, 186, 0.85) !important;
 }
 
 html[data-theme="dark"] input {
-  background: rgba(10, 20, 16, 0.92) !important;
-  border-color: rgba(110, 231, 183, 0.22) !important;
-  color: #eefaf3 !important;
+  background: rgba(10, 18, 10, 0.92) !important;
+  border-color: rgba(146, 214, 63, 0.22) !important;
+  color: #ffffff !important;
 }
 
 html[data-theme="dark"] input::placeholder {
-  color: rgba(220, 252, 231, 0.42) !important;
+  color: rgba(216, 240, 186, 0.42) !important;
 }
 
 html[data-theme="dark"] button:not(:disabled),
 html[data-theme="dark"] a[role="button"] {
-  border-color: rgba(110, 231, 183, 0.2);
+  border-color: rgba(146, 214, 63, 0.2);
 }
 
 html[data-theme="dark"] .bg-emerald-50,
 html[data-theme="dark"] .bg-emerald-50\/60,
 html[data-theme="dark"] .bg-emerald-50\/70,
-html[data-theme="dark"] .bg-emerald-100 {
-  background-color: rgba(16, 185, 129, 0.16) !important;
+html[data-theme="dark"] .bg-emerald-100,
+html[data-theme="dark"] .bg-lime-50,
+html[data-theme="dark"] .bg-lime-100,
+html[data-theme="dark"] .bg-foodapka-50,
+html[data-theme="dark"] .bg-foodapka-100 {
+  background-color: rgba(146, 214, 63, 0.12) !important;
 }
 
 html[data-theme="dark"] .bg-white\/65,
@@ -203,25 +246,31 @@ html[data-theme="dark"] .bg-white\/70,
 html[data-theme="dark"] .bg-white\/85,
 html[data-theme="dark"] .bg-white\/90,
 html[data-theme="dark"] .bg-white\/95 {
-  background: rgba(14, 26, 21, 0.9) !important;
+  background: rgba(15, 26, 15, 0.9) !important;
 }
 
 html[data-theme="dark"] [class*="bg-white/"],
 html[data-theme="dark"] [class*="bg-zinc-"],
 html[data-theme="dark"] [class*="bg-white "] {
-  background: rgba(14, 26, 21, 0.9) !important;
+  background: rgba(15, 26, 15, 0.9) !important;
 }
 
 html[data-theme="dark"] [class*="text-zinc-"],
 html[data-theme="dark"] [class*="text-emerald-95"],
-html[data-theme="dark"] [class*="text-emerald-90"] {
-  color: #eefaf3 !important;
+html[data-theme="dark"] [class*="text-emerald-90"],
+html[data-theme="dark"] [class*="text-lime-95"],
+html[data-theme="dark"] [class*="text-lime-90"],
+html[data-theme="dark"] [class*="text-foodapka-95"],
+html[data-theme="dark"] [class*="text-foodapka-90"] {
+  color: #ffffff !important;
 }
 
 html[data-theme="dark"] [class*="border-white/"],
 html[data-theme="dark"] [class*="border-zinc-"],
-html[data-theme="dark"] [class*="border-emerald-"] {
-  border-color: rgba(110, 231, 183, 0.18) !important;
+html[data-theme="dark"] [class*="border-emerald-"],
+html[data-theme="dark"] [class*="border-lime-"],
+html[data-theme="dark"] [class*="border-foodapka-"] {
+  border-color: rgba(146, 214, 63, 0.18) !important;
 }
 
 html[data-theme="dark"] .border-white\/30,
@@ -233,6 +282,9 @@ html[data-theme="dark"] .border-zinc-200,
 html[data-theme="dark"] .border-zinc-300,
 html[data-theme="dark"] .border-emerald-100,
 html[data-theme="dark"] .border-emerald-200,
-html[data-theme="dark"] .border-emerald-300 {
-  border-color: rgba(110, 231, 183, 0.18) !important;
+html[data-theme="dark"] .border-emerald-300,
+html[data-theme="dark"] .border-lime-100,
+html[data-theme="dark"] .border-lime-200,
+html[data-theme="dark"] .border-lime-300 {
+  border-color: rgba(146, 214, 63, 0.18) !important;
 }
