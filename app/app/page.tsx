@@ -6,7 +6,8 @@ import SearchSection from "@/components/dashboard/SearchSection";
 import RecipeSection from "@/components/dashboard/RecipeSection";
 import WatchdogSection from "@/components/dashboard/WatchdogSection";
 import ListsSection from "@/components/dashboard/ListsSection";
-import { type Product, type Store } from "@/lib/food";
+import { type Product, type Store, parsePrice } from "@/lib/food";
+import { createClient } from "@/lib/supabase/client";
 
 type AppMode = "search" | "recipes" | "watchdog" | "lists";
 type ShoppingMode = "cross_store" | "single_store";
@@ -27,6 +28,10 @@ type IngredientResult = {
 function HomeContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const supabase = createClient();
+  
+  // Auth state
+  const [user, setUser] = useState<any>(null);
   
   // Mode derived from URL
   const mode = (searchParams.get("mode") as AppMode) || "search";
@@ -47,7 +52,15 @@ function HomeContent() {
   const [shoppingMode, setShoppingMode] = useState<ShoppingMode>("cross_store");
   const [recipeError, setRecipeError] = useState<string | null>(null);
   const [shareMessage, setShareMessage] = useState<string | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
   const shoppingListRef = useRef<HTMLElement | null>(null);
+
+  // Fetch user on mount
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      setUser(user);
+    });
+  }, []);
 
   // Handlers
   const handleResults = (nextProducts: Product[]) => {
@@ -92,8 +105,7 @@ function HomeContent() {
           const sRes = await fetch(`/api/search?q=${encodeURIComponent(ing)}`);
           const sData = await sRes.json();
           const products = sData.products || [];
-          // Simple pick cheapest for now, similar to original
-          const store = products[0]?.stores?.sort((a: any, b: any) => parseFloat(a.price) - parseFloat(b.price))[0] || null;
+          const store = products[0]?.stores?.sort((a: any, b: any) => parsePrice(a.price) - parsePrice(b.price))[0] || null;
           return { ingredient: ing, product: products[0] || null, store, storeOptions: [] };
         })
       );
@@ -105,13 +117,54 @@ function HomeContent() {
     }
   }
 
-  const saveShoppingList = () => {
-    setShareMessage("Seznam uložen!");
-    setTimeout(() => setShareMessage(null), 2000);
+  const saveShoppingList = async () => {
+    if (!user) {
+      setShareMessage("Pro uložení se musíte přihlásit.");
+      setTimeout(() => setShareMessage(null), 3000);
+      return;
+    }
+
+    if (recipeResults.length === 0) return;
+
+    setIsSaving(true);
+    
+    const totalPrice = recipeResults.reduce((sum, item) => {
+      if (checkedIngredients.includes(item.ingredient) || !item.store) return sum;
+      return sum + parsePrice(item.store.price);
+    }, 0);
+
+    const { error } = await supabase.from("shopping_lists").insert({
+      user_id: user.id,
+      recipe_name: activeRecipe || "Nákupní seznam",
+      items: recipeResults.map(r => ({
+        ingredient: r.ingredient,
+        product_name: r.product?.name,
+        price: r.store?.price,
+        shop_name: r.store?.shopName,
+        is_checked: checkedIngredients.includes(r.ingredient)
+      })),
+      total_price: totalPrice
+    });
+
+    setIsSaving(false);
+
+    if (error) {
+      console.error("Save error full object:", error);
+      const errorDetail = error.message || error.details || "Neznámá chyba";
+      setShareMessage(`❌ Chyba: ${errorDetail} (Kód: ${error.code || '?'})`);
+    } else {
+      setShareMessage("✅ Seznam byl uložen do vašich seznamů!");
+      // Optional: switch to lists mode after a delay
+      setTimeout(() => {
+        setShareMessage(null);
+      }, 3000);
+    }
   };
 
   const shareShoppingList = () => {
-    setShareMessage("Odkaz zkopírován!");
+    const text = recipeResults.map(r => `${r.ingredient}: ${r.store?.price || '—'} (${r.store?.shopName || '—'})`).join('\n');
+    navigator.clipboard.writeText(`Můj nákupní seznam z foodapky:\n\n${text}`);
+    setShareMessage("📋 Odkaz zkopírován!");
     setTimeout(() => setShareMessage(null), 2000);
   };
 
@@ -153,11 +206,12 @@ function HomeContent() {
           setLoading={setLoading}
           handleResults={handleResults}
           setHasSearched={setHasSearched}
+          isSaving={isSaving}
         />
       )}
 
       {mode === "watchdog" && <WatchdogSection />}
-      {mode === "lists" && <ListsSection />}
+      {mode === "lists" && <ListsSection user={user} onAddClick={() => handleModeChange("recipes")} />}
     </div>
   );
 }

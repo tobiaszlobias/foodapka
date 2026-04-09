@@ -19,7 +19,7 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="min-h-screen bg-surface dark:bg-black transition-colors duration-200">
+    <div className="min-h-screen bg-surface dark:bg-black transition-colors duration-200 overflow-x-hidden">
       <AppHeader />
       
       <div className="flex pt-20 pb-20 lg:pb-0">

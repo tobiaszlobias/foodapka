@@ -36,6 +36,7 @@ type RecipeSectionProps = {
   recipeError: string | null;
   shareMessage: string | null;
   shoppingListRef: any;
+  isSaving?: boolean;
   toggleIngredient: (ing: string) => void;
   runRecipeSearch: (name: string) => void;
   saveShoppingList: () => void;
@@ -57,6 +58,7 @@ export default function RecipeSection({
   recipeError,
   shareMessage,
   shoppingListRef,
+  isSaving,
   toggleIngredient,
   runRecipeSearch,
   saveShoppingList,
@@ -143,7 +145,23 @@ export default function RecipeSection({
                   <h3 className="text-xl md:text-2xl font-bold text-zinc-950 dark:text-white">{activeRecipe}</h3>
                 </div>
                 <div className="flex gap-2">
-                  <button onClick={saveShoppingList} className="flex-1 sm:flex-none px-4 py-2 rounded-full bg-foodapka-50 dark:bg-zinc-900 text-xs font-bold text-foodapka-800 dark:text-foodapka-300">Uložit</button>
+                  <button 
+                    onClick={saveShoppingList} 
+                    disabled={isSaving}
+                    className="flex-1 sm:flex-none px-4 py-2 rounded-full bg-foodapka-500 text-white text-xs font-bold shadow-md hover:bg-foodapka-600 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+                  >
+                    {isSaving ? (
+                      <>
+                        <span className="material-symbols-outlined animate-spin text-sm">progress_activity</span>
+                        Ukládám...
+                      </>
+                    ) : (
+                      <>
+                        <span className="material-symbols-outlined text-sm">save</span>
+                        Uložit
+                      </>
+                    )}
+                  </button>
                   <button onClick={shareShoppingList} className="flex-1 sm:flex-none px-4 py-2 rounded-full bg-zinc-900 dark:bg-white text-xs font-bold text-white dark:text-black">Sdílet</button>
                 </div>
               </div>
@@ -155,7 +173,7 @@ export default function RecipeSection({
                 </div>
               </div>
 
-              {shareMessage && <div className="mt-4 p-3 rounded-xl bg-foodapka-50 dark:bg-foodapka-900/30 text-xs font-bold text-foodapka-800 dark:text-foodapka-300 border border-foodapka-100 dark:border-foodapka-800">{shareMessage}</div>}
+              {shareMessage && <div className={`mt-4 p-3 rounded-xl text-xs font-bold border transition-all ${shareMessage.includes('✅') ? 'bg-green-50 border-green-100 text-green-800 dark:bg-green-900/20 dark:border-green-800 dark:text-green-400' : 'bg-foodapka-50 border-foodapka-100 text-foodapka-800 dark:bg-foodapka-900/20 dark:border-foodapka-800 dark:text-foodapka-300'}`}>{shareMessage}</div>}
 
               <ul className="mt-4 space-y-2">
                 {recipeResults.map((item) => {
