@@ -6,6 +6,7 @@ import SearchSection from "@/components/dashboard/SearchSection";
 import RecipeSection from "@/components/dashboard/RecipeSection";
 import WatchdogSection from "@/components/dashboard/WatchdogSection";
 import ListsSection from "@/components/dashboard/ListsSection";
+import SearchBar from "@/components/SearchBar";
 import { type Product, type Store, parsePrice } from "@/lib/food";
 import { createClient } from "@/lib/supabase/client";
 
@@ -70,12 +71,20 @@ function HomeContent() {
   // Handle mode transitions
   useEffect(() => {
     if (mode !== activeView) {
-      setIsChangingMode(true);
-      const timer = setTimeout(() => {
+      const isSearchOrRecipe = (m: string) => m === "search" || m === "recipes";
+      const shouldAnimate = isSearchOrRecipe(mode) && isSearchOrRecipe(activeView);
+
+      if (shouldAnimate) {
+        setIsChangingMode(true);
+        const timer = setTimeout(() => {
+          setActiveView(mode);
+          setIsChangingMode(false);
+        }, 200); // Duration of transition
+        return () => clearTimeout(timer);
+      } else {
         setActiveView(mode);
         setIsChangingMode(false);
-      }, 200); // Duration of transition
-      return () => clearTimeout(timer);
+      }
     }
   }, [mode, activeView]);
 
@@ -210,50 +219,85 @@ function HomeContent() {
   };
 
   return (
-    <div className={`pb-10 transition-all duration-300 ${isChangingMode ? "opacity-0 translate-y-4 scale-[0.98]" : "opacity-100 translate-y-0 scale-100"}`}>
-      {activeView === "search" && (
-        <SearchSection
-          products={products}
-          loading={loading}
-          hasSearched={hasSearched}
-          selectedFilter={selectedFilter}
-          setSelectedFilter={setSelectedFilter}
-          selectedSort={selectedSort}
-          setSelectedSort={setSelectedSort}
-          handleResults={handleResults}
-          setLoading={setLoading}
-          setHasSearched={setHasSearched}
-          handleModeChange={handleModeChange}
-          initialQuery={urlQuery}
-        />
+    <div className="max-w-5xl mx-auto px-4 md:px-6 pt-2 md:pt-4">
+      {/* Persistent Header with SearchBar - Only shown in Search and Recipes modes */}
+      {(mode === "search" || mode === "recipes") && (
+        <header className="px-1 md:px-2 w-full mb-6">
+          <h1 className="text-2xl md:text-4xl lg:text-5xl font-extrabold tracking-tight text-foodapka-950 dark:text-white leading-tight mb-4 transition-all duration-300">
+            {mode === "search" ? (
+              <>
+                Najděte nejlevnější akční cenu <br className="hidden md:block" />
+                <span className="text-foodapka-600 dark:text-foodapka-400">dřív, než vyrazíte nakoupit</span>
+              </>
+            ) : (
+              <>
+                Vyberte si recept a najdeme <br className="hidden md:block" />
+                <span className="text-foodapka-600 dark:text-foodapka-400">nejlevnější suroviny</span>
+              </>
+            )}
+          </h1>
+          
+          <div className="w-full">
+            <SearchBar
+              onResults={handleResults}
+              onLoading={setLoading}
+              onSearchStart={() => setHasSearched(true)}
+              mode={mode === "recipes" ? "recipes" : "search"}
+              onModeChange={(newMode) => handleModeChange(newMode as AppMode)}
+              initialQuery={urlQuery}
+            />
+          </div>
+        </header>
       )}
 
-      {activeView === "recipes" && (
-        <RecipeSection
-          activeRecipe={activeRecipe}
-          recipeLoading={recipeLoading}
-          ingredients={ingredients}
-          recipeResults={recipeResults}
-          checkedIngredients={checkedIngredients}
-          shoppingMode={shoppingMode}
-          recipeError={recipeError}
-          shareMessage={shareMessage}
-          shoppingListRef={shoppingListRef}
-          toggleIngredient={toggleIngredient}
-          runRecipeSearch={runRecipeSearch}
-          saveShoppingList={saveShoppingList}
-          shareShoppingList={shareShoppingList}
-          setShoppingMode={setShoppingMode}
-          handleModeChange={handleModeChange}
-          setLoading={setLoading}
-          handleResults={handleResults}
-          setHasSearched={setHasSearched}
-          isSaving={isSaving}
-        />
-      )}
+      {/* Animated Content Area */}
+      <div className={`transition-all duration-300 ${isChangingMode ? "opacity-0 translate-y-4 scale-[0.98]" : "opacity-100 translate-y-0 scale-100"}`}>
+        {activeView === "search" && (
+          <SearchSection
+            products={products}
+            loading={loading}
+            hasSearched={hasSearched}
+            selectedFilter={selectedFilter}
+            setSelectedFilter={setSelectedFilter}
+            selectedSort={selectedSort}
+            setSelectedSort={setSelectedSort}
+            handleResults={handleResults}
+            setLoading={setLoading}
+            setHasSearched={setHasSearched}
+            handleModeChange={handleModeChange}
+            initialQuery={urlQuery}
+            hideHeader
+          />
+        )}
 
-      {activeView === "watchdog" && <WatchdogSection />}
-      {activeView === "lists" && <ListsSection user={user} onAddClick={() => handleModeChange("recipes")} />}
+        {activeView === "recipes" && (
+          <RecipeSection
+            activeRecipe={activeRecipe}
+            recipeLoading={recipeLoading}
+            ingredients={ingredients}
+            recipeResults={recipeResults}
+            checkedIngredients={checkedIngredients}
+            shoppingMode={shoppingMode}
+            recipeError={recipeError}
+            shareMessage={shareMessage}
+            shoppingListRef={shoppingListRef}
+            toggleIngredient={toggleIngredient}
+            runRecipeSearch={runRecipeSearch}
+            saveShoppingList={saveShoppingList}
+            shareShoppingList={shareShoppingList}
+            setShoppingMode={setShoppingMode}
+            handleModeChange={handleModeChange}
+            setLoading={setLoading}
+            handleResults={handleResults}
+            setHasSearched={setHasSearched}
+            isSaving={isSaving}
+            hideHeader
+          />
+        )}
+
+        {activeView === "watchdog" && <WatchdogSection />}
+        {activeView === "lists" && <ListsSection user={user} onAddClick={() => handleModeChange("recipes")} />}
+      </div>
     </div>
   );
 }

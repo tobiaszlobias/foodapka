@@ -150,7 +150,7 @@ export default function SearchBar({
   return (
     <form
       onSubmit={handleSearch}
-      className="relative flex w-full flex-col gap-2 rounded-2xl md:rounded-full border border-white/50 dark:border-zinc-800 bg-white/90 dark:bg-zinc-900/90 p-2 md:p-3 shadow-[0_20px_60px_-20px_rgba(132,204,22,0.35)] dark:shadow-none backdrop-blur sm:flex-row sm:items-center z-[110]"
+      className="relative flex w-full flex-col gap-2 rounded-full border border-white/50 dark:border-zinc-800 bg-white/90 dark:bg-zinc-900/90 p-2 md:p-3 shadow-[0_20px_60px_-20px_rgba(132,204,22,0.35)] dark:shadow-none backdrop-blur sm:flex-row sm:items-center z-[110]"
     >
       <label htmlFor="product-search" className="sr-only">Hledat produkty</label>
       
@@ -203,7 +203,7 @@ export default function SearchBar({
             onKeyDown={handleKeyDown}
             placeholder="Co chcete nakoupit?"
             autoComplete="off"
-            className="h-11 md:h-12 w-full rounded-xl md:rounded-full border border-zinc-100 dark:border-zinc-800 bg-zinc-50/50 dark:bg-black/50 px-4 md:px-5 text-sm md:text-base text-zinc-900 dark:text-white outline-none transition placeholder:text-zinc-400 focus:border-foodapka-400"
+            className="h-11 md:h-12 w-full rounded-full border border-zinc-100 dark:border-zinc-800 bg-zinc-50/50 dark:bg-black/50 px-4 md:px-5 text-sm md:text-base text-zinc-900 dark:text-white outline-none transition placeholder:text-zinc-400 focus:border-foodapka-400"
           />
           
           {showSuggestions && filteredSuggestions.length > 0 && mode === "search" && (
@@ -229,7 +229,7 @@ export default function SearchBar({
             </div>
           )}
         </div>
-        <button type="submit" className="h-11 md:h-12 rounded-xl md:rounded-full bg-foodapka-500 hover:bg-foodapka-600 px-4 md:px-6 text-sm font-black text-white transition-all shadow-md active:scale-95 shrink-0">
+        <button type="submit" className="h-11 md:h-12 rounded-full bg-foodapka-500 hover:bg-foodapka-600 px-4 md:px-6 text-sm font-black text-white transition-all shadow-md active:scale-95 shrink-0">
           Hledat
         </button>
       </div>

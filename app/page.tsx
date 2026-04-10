@@ -59,7 +59,7 @@ export default function HomePage() {
           </div>
           <Link
             href="/app"
-            className="transform rounded-full bg-foodapka-500 px-5 md:px-6 py-2 font-bold text-white shadow-lg shadow-foodapka-500/20 transition-all hover:bg-foodapka-600 active:scale-95 text-sm md:text-base"
+            className="transform rounded-full bg-foodapka-500 px-5 md:px-6 py-2 font-black text-white shadow-lg shadow-foodapka-500/20 transition-all hover:bg-foodapka-600 active:scale-95 text-sm md:text-base"
           >
             Spustit aplikaci
           </Link>
@@ -121,7 +121,7 @@ export default function HomePage() {
                       </div>
                       <button 
                         onClick={() => router.push("/app")}
-                        className="w-full py-4 rounded-2xl bg-foodapka-500 text-white font-black text-sm uppercase tracking-widest hover:bg-foodapka-600 transition-all shadow-xl shadow-foodapka-500/20 active:scale-[0.98] flex items-center justify-center gap-2"
+                        className="w-full py-4 rounded-full bg-foodapka-500 text-white font-black text-sm hover:bg-foodapka-600 transition-all shadow-xl shadow-foodapka-500/20 active:scale-[0.98] flex items-center justify-center gap-2"
                       >
                         Více v aplikaci
                         <span className="material-symbols-outlined text-lg">rocket_launch</span>
@@ -165,17 +165,18 @@ export default function HomePage() {
                 className="object-cover transition-transform duration-700 group-hover:scale-105"
                 sizes="(max-width: 768px) 100vw, 66vw"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent"></div>
               <div className="absolute bottom-6 md:bottom-10 left-6 md:left-10 right-6 md:right-10 text-white">
-                <span className="bg-white/20 backdrop-blur-md px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest mb-3 inline-block">Nejhledanější</span>
-                <p className="text-3xl md:text-5xl font-black leading-tight">Čerstvé maso za zlomek ceny</p>
+                <div className="inline-block bg-black/20 backdrop-blur-sm px-6 py-3 rounded-3xl">
+                  <p className="text-3xl md:text-5xl font-black leading-tight tracking-tighter">Čerstvé maso za zlomek ceny</p>
+                </div>
               </div>
-            </div>
+              </div>
 
             {/* Stat 1 */}
             <div className="col-span-2 md:col-span-2 md:row-span-1 flex flex-col justify-center items-center rounded-[2rem] bg-foodapka-500 p-6 text-center text-white shadow-lg shadow-foodapka-500/20">
               <span className="text-4xl md:text-5xl font-black tracking-tighter leading-none">250 tis.</span>
-              <p className="mt-2 text-xs md:text-sm font-bold opacity-90 uppercase tracking-widest leading-tight">Cen srovnáno denně</p>
+              <p className="mt-2 text-xs md:text-sm font-bold opacity-90 leading-tight">Cen srovnáno denně</p>
             </div>
 
             {/* Ovoce a zelenina */}
@@ -187,8 +188,10 @@ export default function HomePage() {
                 className="object-cover transition-transform duration-500 group-hover:scale-105"
                 sizes="33vw"
               />
-              <div className="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition-colors"></div>
-              <div className="absolute inset-0 flex items-center justify-center text-white font-black text-xl md:text-2xl uppercase tracking-tighter text-center px-2">Ovoce & Zelenina</div>
+              <div className="absolute inset-0 bg-black/10 group-hover:bg-black/20 transition-colors"></div>
+              <div className="absolute inset-0 flex items-center justify-center p-4">
+                <div className="bg-black/20 backdrop-blur-sm px-4 py-2 rounded-2xl text-white font-black text-lg md:text-xl tracking-tighter text-center">Ovoce & Zelenina</div>
+              </div>
             </div>
 
             {/* Mléčné výrobky */}
@@ -200,14 +203,16 @@ export default function HomePage() {
                 className="object-cover transition-transform duration-500 group-hover:scale-105"
                 sizes="33vw"
               />
-              <div className="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition-colors"></div>
-              <div className="absolute inset-0 flex items-center justify-center text-white font-black text-xl md:text-2xl uppercase tracking-tighter text-center px-2 text-center leading-none">Mléčné výrobky</div>
+              <div className="absolute inset-0 bg-black/10 group-hover:bg-black/20 transition-colors"></div>
+              <div className="absolute inset-0 flex items-center justify-center p-4">
+                <div className="bg-black/20 backdrop-blur-sm px-4 py-2 rounded-2xl text-white font-black text-lg md:text-xl tracking-tighter text-center leading-none">Mléčné výrobky</div>
+              </div>
             </div>
 
             {/* Stat 2 */}
             <div className="col-span-2 md:col-span-2 md:row-span-1 flex flex-col justify-center items-center rounded-[2rem] bg-zinc-900 p-6 text-center text-white shadow-xl">
               <span className="text-5xl font-black tracking-tighter text-foodapka-400">10+</span>
-              <p className="mt-1 text-sm font-bold opacity-80 uppercase tracking-widest">Řetězců v kapse</p>
+              <p className="mt-1 text-sm font-bold opacity-80">Řetězců v kapse</p>
             </div>
           </div>
         </section>
@@ -228,7 +233,7 @@ export default function HomePage() {
                   className="flex-shrink-0 w-[220px] flex flex-col items-center justify-center rounded-[2rem] bg-white p-8 border border-zinc-100 transition-all hover:shadow-xl hover:-translate-y-2 cursor-pointer"
                 >
                   <Image src={store.logo} alt={`${store.name} logo`} width={80} height={80} className="h-16 w-auto object-contain transition-transform group-hover:scale-110" />
-                  <p className="mt-4 font-black text-zinc-800 text-lg tracking-tight uppercase">{store.name}</p>
+                  <p className="mt-4 font-black text-zinc-800 text-lg tracking-tight">{store.name}</p>
                 </div>
               ))}
               {/* Second loop for seamless infinite scroll */}
@@ -238,7 +243,7 @@ export default function HomePage() {
                   className="flex-shrink-0 w-[220px] flex flex-col items-center justify-center rounded-[2rem] bg-white p-8 border border-zinc-100 transition-all hover:shadow-xl hover:-translate-y-2 cursor-pointer"
                 >
                   <Image src={store.logo} alt={`${store.name} logo`} width={80} height={80} className="h-16 w-auto object-contain transition-transform group-hover:scale-110" />
-                  <p className="mt-4 font-black text-zinc-800 text-lg tracking-tight uppercase">{store.name}</p>
+                  <p className="mt-4 font-black text-zinc-800 text-lg tracking-tight">{store.name}</p>
                 </div>
               ))}
             </div>

@@ -65,6 +65,16 @@ function SettingsContent() {
     void loadUserAndPreferences();
   }, []);
 
+  // Auto-save when preferences change
+  useEffect(() => {
+    if (!loading && user) {
+      const timer = setTimeout(() => {
+        void savePreferences();
+      }, 500); // Debounce save
+      return () => clearTimeout(timer);
+    }
+  }, [preferences, loading, user]);
+
   // Scroll to hash on load
   useEffect(() => {
     if (typeof window !== "undefined" && window.location.hash) {
@@ -187,13 +197,30 @@ function SettingsContent() {
 
   return (
     <div className="space-y-6">
-      <header className="mb-10 px-2">
-        <h1 className="text-3xl lg:text-5xl font-extrabold tracking-tight text-foodapka-950 dark:text-white leading-tight mb-2 md:mb-4">
-          Nastavení ⚙️
-        </h1>
-        <p className="text-base md:text-lg text-zinc-600 dark:text-zinc-400">
-          Upravte svoje preference pro lepší doporučení a personalizovaný zážitek.
-        </p>
+      <header className="mb-10 px-2 flex justify-between items-start">
+        <div>
+          <h1 className="text-3xl lg:text-5xl font-extrabold tracking-tight text-foodapka-950 dark:text-white leading-tight mb-2 md:mb-4">
+            Nastavení ⚙️
+          </h1>
+          <p className="text-base md:text-lg text-zinc-600 dark:text-zinc-400">
+            Upravte svoje preference pro lepší doporučení a personalizovaný zážitek.
+          </p>
+        </div>
+        
+        {/* Save Status Indicator */}
+        <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-foodapka-50 dark:bg-foodapka-900/20 border border-foodapka-100 dark:border-foodapka-800 transition-all duration-500">
+          {saving ? (
+            <>
+              <span className="material-symbols-outlined animate-spin text-sm text-foodapka-600">progress_activity</span>
+              <span className="text-xs font-bold text-foodapka-700 dark:text-foodapka-300 uppercase tracking-widest">Ukládám</span>
+            </>
+          ) : (
+            <>
+              <span className="material-symbols-outlined text-sm text-foodapka-600">check_circle</span>
+              <span className="text-xs font-bold text-foodapka-700 dark:text-foodapka-300 uppercase tracking-widest">Uloženo</span>
+            </>
+          )}
+        </div>
       </header>
 
       <div className="space-y-6">
@@ -219,10 +246,10 @@ function SettingsContent() {
               <button
                 key={store}
                 onClick={() => toggleStore(store)}
-                className={`p-4 rounded-xl border-2 transition-all text-left font-medium text-sm md:text-base ${
+                className={`p-4 rounded-full border-2 transition-all text-center font-bold text-sm md:text-base ${
                   preferences.favorite_stores.includes(store)
-                    ? "border-foodapka-500 bg-foodapka-50 dark:bg-foodapka-900/30 text-foodapka-700 dark:text-foodapka-300"
-                    : "border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 hover:border-foodapka-300 dark:hover:border-foodapka-600"
+                    ? "border-foodapka-500 bg-foodapka-50 dark:bg-foodapka-900/30 text-foodapka-700 dark:text-foodapka-300 shadow-md shadow-foodapka-500/10"
+                    : "border-zinc-100 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-900/50 text-zinc-500 dark:text-zinc-400 hover:border-foodapka-200 dark:hover:border-foodapka-700"
                 }`}
               >
                 {store}
@@ -263,10 +290,10 @@ function SettingsContent() {
                     diet_type: diet.value as DietType,
                   }))
                 }
-                className={`p-4 rounded-xl border-2 transition-all font-medium flex items-center gap-3 ${
+                className={`p-4 rounded-full border-2 transition-all font-bold flex items-center justify-center gap-3 ${
                   preferences.diet_type === diet.value
-                    ? "border-foodapka-500 bg-foodapka-50 dark:bg-foodapka-900/30 text-foodapka-700 dark:text-foodapka-300"
-                    : "border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 hover:border-foodapka-300 dark:hover:border-foodapka-600"
+                    ? "border-foodapka-500 bg-foodapka-50 dark:bg-foodapka-900/30 text-foodapka-700 dark:text-foodapka-300 shadow-md shadow-foodapka-500/10"
+                    : "border-zinc-100 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-900/50 text-zinc-500 dark:text-zinc-400 hover:border-foodapka-200 dark:hover:border-foodapka-700"
                 }`}
               >
                 <span className="text-xl">{diet.icon}</span>
@@ -296,10 +323,10 @@ function SettingsContent() {
               <button
                 key={allergen}
                 onClick={() => toggleAllergen(allergen)}
-                className={`p-3 rounded-xl border-2 transition-all text-center font-medium text-xs md:text-sm ${
+                className={`p-3 rounded-full border-2 transition-all text-center font-bold text-xs md:text-sm ${
                   preferences.allergens.includes(allergen)
-                    ? "border-red-500 bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-300"
-                    : "border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 hover:border-red-300 dark:hover:border-red-600"
+                    ? "border-red-500 bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-300 shadow-md shadow-red-500/10"
+                    : "border-zinc-100 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-900/50 text-zinc-500 dark:text-zinc-400 hover:border-red-200 dark:hover:border-red-700"
                 }`}
               >
                 {allergen}
@@ -330,10 +357,10 @@ function SettingsContent() {
               <button
                 key={category}
                 onClick={() => toggleCategory(category)}
-                className={`p-4 rounded-xl border-2 transition-all text-center font-medium text-sm md:text-base ${
+                className={`p-4 rounded-full border-2 transition-all text-center font-bold text-sm md:text-base ${
                   preferences.favorite_categories.includes(category)
-                    ? "border-foodapka-500 bg-foodapka-50 dark:bg-foodapka-900/30 text-foodapka-700 dark:text-foodapka-300"
-                    : "border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 hover:border-foodapka-300 dark:hover:border-foodapka-600"
+                    ? "border-foodapka-500 bg-foodapka-50 dark:bg-foodapka-900/30 text-foodapka-700 dark:text-foodapka-300 shadow-md shadow-foodapka-500/10"
+                    : "border-zinc-100 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-900/50 text-zinc-500 dark:text-zinc-400 hover:border-foodapka-200 dark:hover:border-foodapka-700"
                 }`}
               >
                 {category}
@@ -378,32 +405,6 @@ function SettingsContent() {
             </div>
           </div>
         </section>
-
-        {/* Uložit tlačítko */}
-        <div className="sticky bottom-20 lg:bottom-6 pt-4 z-30">
-          <button
-            onClick={() => void savePreferences()}
-            disabled={saving}
-            className="w-full bg-foodapka-500 hover:bg-foodapka-600 text-white rounded-full px-6 py-4 font-bold transition-all shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-          >
-            {saving ? (
-              <>
-                <span className="material-symbols-outlined animate-spin text-xl">progress_activity</span>
-                Ukládám...
-              </>
-            ) : saved ? (
-              <>
-                <span className="material-symbols-outlined text-xl">check_circle</span>
-                Uloženo!
-              </>
-            ) : (
-              <>
-                <span className="material-symbols-outlined text-xl">save</span>
-                Uložit nastavení
-              </>
-            )}
-          </button>
-        </div>
       </div>
     </div>
   );

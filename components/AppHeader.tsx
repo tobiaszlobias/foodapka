@@ -11,6 +11,7 @@ export default function AppHeader() {
   const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [showUserMenu, setShowUserMenu] = useState(false);
 
   useEffect(() => {
     const supabase = createClient();
@@ -32,6 +33,7 @@ export default function AppHeader() {
   async function handleLogout() {
     const supabase = createClient();
     await supabase.auth.signOut();
+    setShowUserMenu(false);
     router.push("/");
     router.refresh();
   }
@@ -73,16 +75,51 @@ export default function AppHeader() {
           
           {!loading && (
             user ? (
-              <div className="flex items-center gap-2 md:gap-3 ml-1 md:ml-2">
-                <div className="w-8 h-8 md:w-9 md:h-9 rounded-full bg-foodapka-500 flex items-center justify-center text-white font-semibold text-xs md:text-sm">
-                  {user.email?.charAt(0).toUpperCase()}
-                </div>
-                <button
-                  onClick={handleLogout}
-                  className="hidden md:block text-sm text-zinc-500 dark:text-zinc-400 hover:text-foodapka-600 dark:hover:text-foodapka-400 transition-colors"
+              <div className="relative ml-1 md:ml-2">
+                <button 
+                  onClick={() => setShowUserMenu(!showUserMenu)}
+                  className="w-8 h-8 md:w-9 md:h-9 rounded-full bg-foodapka-500 flex items-center justify-center text-white font-semibold text-xs md:text-sm hover:ring-2 hover:ring-foodapka-300 transition-all active:scale-95"
                 >
-                  Odhlásit
+                  {user.email?.charAt(0).toUpperCase()}
                 </button>
+                
+                {showUserMenu && (
+                  <>
+                    <div 
+                      className="fixed inset-0 z-10" 
+                      onClick={() => setShowUserMenu(false)}
+                    />
+                    <div className="absolute right-0 mt-2 w-48 rounded-2xl bg-white dark:bg-zinc-900 shadow-xl border border-zinc-100 dark:border-zinc-800 py-2 z-20 animate-in fade-in zoom-in-95 duration-100">
+                      <div className="px-4 py-2 border-b border-zinc-100 dark:border-zinc-800 mb-1">
+                        <p className="text-xs font-bold text-zinc-400 uppercase tracking-widest">Můj účet</p>
+                        <p className="text-sm font-bold text-zinc-900 dark:text-white truncate">{user.email}</p>
+                      </div>
+                      <Link 
+                        href="/app/settings" 
+                        onClick={() => setShowUserMenu(false)}
+                        className="flex items-center gap-3 px-4 py-2 text-sm text-zinc-600 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
+                      >
+                        <span className="material-symbols-outlined text-lg">settings</span>
+                        <span>Nastavení</span>
+                      </Link>
+                      <Link 
+                        href="/app?mode=lists" 
+                        onClick={() => setShowUserMenu(false)}
+                        className="flex items-center gap-3 px-4 py-2 text-sm text-zinc-600 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
+                      >
+                        <span className="material-symbols-outlined text-lg">receipt_long</span>
+                        <span>Moje seznamy</span>
+                      </Link>
+                      <button
+                        onClick={handleLogout}
+                        className="w-full flex items-center gap-3 px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors text-left"
+                      >
+                        <span className="material-symbols-outlined text-lg">logout</span>
+                        <span>Odhlásit</span>
+                      </button>
+                    </div>
+                  </>
+                )}
               </div>
             ) : (
               <Link

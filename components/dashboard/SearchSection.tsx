@@ -28,6 +28,7 @@ type SearchSectionProps = {
   setHasSearched: (hasSearched: boolean) => void;
   handleModeChange: (mode: any) => void;
   initialQuery?: string;
+  hideHeader?: boolean;
 };
 
 const BASE_SOURCE_FILTERS = [
@@ -60,6 +61,7 @@ export default function SearchSection({
   setHasSearched,
   handleModeChange,
   initialQuery,
+  hideHeader,
 }: SearchSectionProps) {
   
   const availableFilters = useMemo(() => {
@@ -97,23 +99,25 @@ export default function SearchSection({
 
   return (
     <div className="space-y-6 md:space-y-8 w-full max-w-full overflow-x-hidden">
-      <header className="px-1 md:px-2 w-full">
-        <h1 className="text-2xl md:text-4xl lg:text-5xl font-extrabold tracking-tight text-foodapka-950 dark:text-white leading-tight mb-4">
-          Najděte nejlevnější akční cenu <br className="hidden md:block" />
-          <span className="text-foodapka-600 dark:text-foodapka-400">dřív, než vyrazíte nakoupit</span>
-        </h1>
-        
-        <div className="w-full">
-          <SearchBar
-            onResults={handleResults}
-            onLoading={setLoading}
-            onSearchStart={() => setHasSearched(true)}
-            mode="search"
-            onModeChange={handleModeChange}
-            initialQuery={initialQuery}
-          />
-        </div>
-      </header>
+      {!hideHeader && (
+        <header className="px-1 md:px-2 w-full">
+          <h1 className="text-2xl md:text-4xl lg:text-5xl font-extrabold tracking-tight text-foodapka-950 dark:text-white leading-tight mb-4">
+            Najděte nejlevnější akční cenu <br className="hidden md:block" />
+            <span className="text-foodapka-600 dark:text-foodapka-400">dřív, než vyrazíte nakoupit</span>
+          </h1>
+          
+          <div className="w-full">
+            <SearchBar
+              onResults={handleResults}
+              onLoading={setLoading}
+              onSearchStart={() => setHasSearched(true)}
+              mode="search"
+              onModeChange={handleModeChange}
+              initialQuery={initialQuery}
+            />
+          </div>
+        </header>
+      )}
 
       <section className="space-y-4 w-full">
         <div className="flex items-center justify-between gap-4 px-1 md:px-2 overflow-hidden">

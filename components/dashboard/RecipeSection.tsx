@@ -46,6 +46,7 @@ type RecipeSectionProps = {
   setLoading: (l: boolean) => void;
   handleResults: (r: any) => void;
   setHasSearched: (s: boolean) => void;
+  hideHeader?: boolean;
 };
 
 export default function RecipeSection({
@@ -68,6 +69,7 @@ export default function RecipeSection({
   setLoading,
   handleResults,
   setHasSearched,
+  hideHeader,
 }: RecipeSectionProps) {
 
   const totalPrice = useMemo(() => {
@@ -79,20 +81,22 @@ export default function RecipeSection({
 
   return (
     <div className="space-y-8">
-      <header className="px-1 md:px-2">
-        <h1 className="text-2xl md:text-4xl lg:text-5xl font-extrabold tracking-tight text-foodapka-950 dark:text-white leading-tight mb-4">
-          Vyberte si recept a najdeme <br className="hidden md:block" />
-          <span className="text-foodapka-600 dark:text-foodapka-400">nejlevnější suroviny</span>
-        </h1>
-        
-        <SearchBar
-          onResults={handleResults}
-          onLoading={setLoading}
-          onSearchStart={() => setHasSearched(true)}
-          mode="recipes"
-          onModeChange={handleModeChange}
-        />
-      </header>
+      {!hideHeader && (
+        <header className="px-1 md:px-2">
+          <h1 className="text-2xl md:text-4xl lg:text-5xl font-extrabold tracking-tight text-foodapka-950 dark:text-white leading-tight mb-4">
+            Vyberte si recept a najdeme <br className="hidden md:block" />
+            <span className="text-foodapka-600 dark:text-foodapka-400">nejlevnější suroviny</span>
+          </h1>
+          
+          <SearchBar
+            onResults={handleResults}
+            onLoading={setLoading}
+            onSearchStart={() => setHasSearched(true)}
+            mode="recipes"
+            onModeChange={handleModeChange}
+          />
+        </header>
+      )}
 
       {/* Recipe Grid */}
       <section className="grid gap-4 grid-cols-1 sm:grid-cols-2">
