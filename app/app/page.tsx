@@ -35,6 +35,7 @@ function HomeContent() {
   
   // Mode derived from URL
   const mode = (searchParams.get("mode") as AppMode) || "search";
+  const urlQuery = searchParams.get("query") || "";
   
   // Search state
   const [products, setProducts] = useState<Product[]>([]);
@@ -55,12 +56,49 @@ function HomeContent() {
   const [isSaving, setIsSaving] = useState(false);
   const shoppingListRef = useRef<HTMLElement | null>(null);
 
+  // Animation state
+  const [isChangingMode, setIsChangingMode] = useState(false);
+  const [activeView, setActiveView] = useState(mode);
+
   // Fetch user on mount
   useEffect(() => {
     supabase.auth.getUser().then(({ data: { user } }) => {
       setUser(user);
     });
   }, []);
+
+  // Handle mode transitions
+  useEffect(() => {
+    if (mode !== activeView) {
+      setIsChangingMode(true);
+      const timer = setTimeout(() => {
+        setActiveView(mode);
+        setIsChangingMode(false);
+      }, 200); // Duration of transition
+      return () => clearTimeout(timer);
+    }
+  }, [mode, activeView]);
+
+  // AUTO-SEARCH logic
+  useEffect(() => {
+    if (urlQuery && mode === "search" && !hasSearched) {
+      void triggerInitialSearch(urlQuery);
+    }
+  }, [urlQuery, mode]);
+
+  async function triggerInitialSearch(query: string) {
+    setLoading(true);
+    setHasSearched(true);
+    try {
+      const res = await fetch(`/api/search?q=${encodeURIComponent(query)}`);
+      const data = await res.json();
+      setProducts(data.products || []);
+    } catch (err) {
+      console.error("Auto-search failed:", err);
+    } finally {
+      setLoading(false);
+    }
+  }
 
   // Handlers
   const handleResults = (nextProducts: Product[]) => {
@@ -102,11 +140,15 @@ function HomeContent() {
 
       const results = await Promise.all(
         parsedIngredients.map(async (ing: string) => {
-          const sRes = await fetch(`/api/search?q=${encodeURIComponent(ing)}`);
-          const sData = await sRes.json();
-          const products = sData.products || [];
-          const store = products[0]?.stores?.sort((a: any, b: any) => parsePrice(a.price) - parsePrice(b.price))[0] || null;
-          return { ingredient: ing, product: products[0] || null, store, storeOptions: [] };
+          try {
+            const sRes = await fetch(`/api/search?q=${encodeURIComponent(ing)}`);
+            const sData = await sRes.json();
+            const products = sData.products || [];
+            const store = products[0]?.stores?.sort((a: any, b: any) => parsePrice(a.price) - parsePrice(b.price))[0] || null;
+            return { ingredient: ing, product: products[0] || null, store, storeOptions: [] };
+          } catch {
+            return { ingredient: ing, product: null, store: null, storeOptions: [] };
+          }
         })
       );
       setRecipeResults(results);
@@ -154,7 +196,6 @@ function HomeContent() {
       setShareMessage(`❌ Chyba: ${errorDetail} (Kód: ${error.code || '?'})`);
     } else {
       setShareMessage("✅ Seznam byl uložen do vašich seznamů!");
-      // Optional: switch to lists mode after a delay
       setTimeout(() => {
         setShareMessage(null);
       }, 3000);
@@ -169,8 +210,8 @@ function HomeContent() {
   };
 
   return (
-    <div className="pb-10">
-      {mode === "search" && (
+    <div className={`pb-10 transition-all duration-300 ${isChangingMode ? "opacity-0 translate-y-4 scale-[0.98]" : "opacity-100 translate-y-0 scale-100"}`}>
+      {activeView === "search" && (
         <SearchSection
           products={products}
           loading={loading}
@@ -183,10 +224,11 @@ function HomeContent() {
           setLoading={setLoading}
           setHasSearched={setHasSearched}
           handleModeChange={handleModeChange}
+          initialQuery={urlQuery}
         />
       )}
 
-      {mode === "recipes" && (
+      {activeView === "recipes" && (
         <RecipeSection
           activeRecipe={activeRecipe}
           recipeLoading={recipeLoading}
@@ -210,8 +252,8 @@ function HomeContent() {
         />
       )}
 
-      {mode === "watchdog" && <WatchdogSection />}
-      {mode === "lists" && <ListsSection user={user} onAddClick={() => handleModeChange("recipes")} />}
+      {activeView === "watchdog" && <WatchdogSection />}
+      {activeView === "lists" && <ListsSection user={user} onAddClick={() => handleModeChange("recipes")} />}
     </div>
   );
 }

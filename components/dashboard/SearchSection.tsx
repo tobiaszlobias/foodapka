@@ -27,6 +27,7 @@ type SearchSectionProps = {
   setLoading: (loading: boolean) => void;
   setHasSearched: (hasSearched: boolean) => void;
   handleModeChange: (mode: any) => void;
+  initialQuery?: string;
 };
 
 const BASE_SOURCE_FILTERS = [
@@ -58,6 +59,7 @@ export default function SearchSection({
   setLoading,
   setHasSearched,
   handleModeChange,
+  initialQuery,
 }: SearchSectionProps) {
   
   const availableFilters = useMemo(() => {
@@ -108,6 +110,7 @@ export default function SearchSection({
             onSearchStart={() => setHasSearched(true)}
             mode="search"
             onModeChange={handleModeChange}
+            initialQuery={initialQuery}
           />
         </div>
       </header>
