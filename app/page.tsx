@@ -7,6 +7,8 @@ import { useRouter } from "next/navigation";
 import SearchBar from "@/components/SearchBar";
 import { type Product, cleanProductName, sortStoresByPrice } from "@/lib/food";
 import { StoreBrand } from "@/components/dashboard/DashboardShared";
+import { AuroraBackground } from "@/components/ui/aurora-background";
+import { motion } from "framer-motion";
 
 export default function HomePage() {
   const router = useRouter();
@@ -14,11 +16,18 @@ export default function HomePage() {
   const [loading, setLoading] = useState(false);
   const [hasSearchedDirectly, setHasSearchedDirectly] = useState(false);
   const [searchMode, setSearchMode] = useState<"search" | "recipes">("search");
+  const [scrolled, setScrolled] = useState(false);
 
   // Force light mode on landing page
   useEffect(() => {
     document.documentElement.dataset.theme = "light";
     document.documentElement.style.colorScheme = "light";
+
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 20);
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   const handleModeChange = (mode: string) => {
@@ -52,7 +61,7 @@ export default function HomePage() {
   return (
     <div className="min-h-screen bg-white text-zinc-900 antialiased overflow-x-hidden">
       {/* Top Navigation Bar */}
-      <nav className="fixed top-0 z-50 w-full bg-white/80 backdrop-blur-xl border-b border-zinc-100">
+      <nav className={`fixed top-0 z-50 w-full bg-white/80 backdrop-blur-xl border-b border-zinc-100 transition-all duration-500 ${scrolled ? "translate-y-0 opacity-100" : "-translate-y-full opacity-0"}`}>
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 md:px-8 py-3 md:py-4">
           <div className="text-xl md:text-2xl font-asset tracking-tighter text-foodappka-700">foodappka</div>
           <Link
@@ -64,9 +73,17 @@ export default function HomePage() {
         </div>
       </nav>
 
-      <main className="min-h-screen pt-16 md:pt-20">
-        {/* Hero Section */}
-        <section className="mx-auto grid max-w-7xl grid-cols-1 items-center gap-8 md:gap-12 px-4 md:px-8 py-10 md:py-16 lg:grid-cols-2">
+      <AuroraBackground>
+        <motion.section 
+          initial={{ opacity: 0.0, y: 40 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{
+            delay: 0.3,
+            duration: 0.8,
+            ease: "easeInOut",
+          }}
+          className="mx-auto grid max-w-7xl grid-cols-1 items-center gap-8 md:gap-12 px-4 md:px-8 py-20 md:py-32 lg:grid-cols-2 relative z-10 w-full"
+        >
           <div className="space-y-6 md:space-y-8 text-center lg:text-left">
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-black leading-[1.05] tracking-tight text-zinc-900">
               Ušetřete za nákup <br />
@@ -169,29 +186,54 @@ export default function HomePage() {
                   priority
                   sizes="(max-width: 768px) 100vw, 50vw"
                 />
-                {/* Floating Ingredient Label */}
-                <div className="absolute left-6 bottom-6 md:left-10 md:bottom-10 bg-white/90 backdrop-blur-md rounded-2xl p-4 shadow-xl border border-white/50 animate-in fade-in slide-in-from-bottom-4 duration-1000 delay-500 animate-shimmer">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-foodappka-100 flex items-center justify-center text-foodappka-600">
-                      <span className="material-symbols-outlined">receipt_long</span>
+                {/* Floating Mini Shopping List */}
+                <div className="absolute -left-4 -bottom-6 md:-left-8 md:-bottom-10 bg-white/95 backdrop-blur-xl rounded-[2.5rem] p-6 shadow-[0_20px_50px_-12px_rgba(0,0,0,0.2)] border border-white animate-in fade-in slide-in-from-left-6 duration-1000 delay-500 z-20 w-[240px] md:w-[280px]">
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between border-b border-zinc-100 pb-3">
+                      <span className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">Nákupní seznam</span>
+                      <span className="flex h-5 w-5 items-center justify-center rounded-full bg-foodappka-500 text-[10px] text-white font-black">3</span>
                     </div>
-                    <div>
-                      <p className="text-[10px] font-black text-zinc-400 uppercase tracking-widest leading-none">Suroviny na oběd</p>
-                      <div className="flex items-center gap-2 mt-1">
-                        <span className="text-zinc-400 line-through text-xs font-bold">450 Kč</span>
-                        <span className="text-foodappka-700 font-black text-lg">289 Kč</span>
+                    
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2 min-w-0">
+                          <div className="w-1.5 h-1.5 rounded-full bg-red-400"></div>
+                          <span className="text-xs font-bold text-zinc-700 truncate">Rajčata (500g)</span>
+                        </div>
+                        <span className="text-[10px] font-black text-red-500 bg-red-50 px-1.5 py-0.5 rounded-md">-40%</span>
                       </div>
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2 min-w-0">
+                          <div className="w-1.5 h-1.5 rounded-full bg-blue-400"></div>
+                          <span className="text-xs font-bold text-zinc-700 truncate">Mozzarella (125g)</span>
+                        </div>
+                        <span className="text-[10px] font-black text-foodappka-600 bg-foodappka-50 px-1.5 py-0.5 rounded-md">-25%</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2 min-w-0">
+                          <div className="w-1.5 h-1.5 rounded-full bg-orange-400"></div>
+                          <span className="text-xs font-bold text-zinc-700 truncate">Olivový olej</span>
+                        </div>
+                        <span className="text-[10px] font-black text-red-500 bg-red-50 px-1.5 py-0.5 rounded-md">-30%</span>
+                      </div>
+                    </div>
+
+                    <div className="pt-3 border-t border-zinc-100 flex items-center justify-between">
+                      <p className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">Ušetříte</p>
+                      <p className="text-xl font-asset text-foodappka-700">88 Kč</p>
                     </div>
                   </div>
                 </div>
               </div>
-              <div className="absolute -right-2 top-8 md:-right-6 md:top-12 rounded-2xl bg-[#e2ff3b] px-4 py-3 md:px-6 md:py-4 text-zinc-900 shadow-2xl shadow-[#e2ff3b]/20 transform rotate-12 active:rotate-0 transition-transform">
-                <span className="text-xl md:text-3xl font-black tracking-tighter">-35%</span>
+              <div className="absolute -right-2 top-8 md:-right-6 md:top-12 rounded-2xl bg-[#e2ff3b] px-4 py-3 md:px-6 md:py-4 text-zinc-900 shadow-2xl shadow-[#e2ff3b]/20 transform rotate-12 active:rotate-0 transition-transform z-20 border-2 border-white/50">
+                <span className="text-xl md:text-3xl font-black tracking-tighter leading-none">-35%</span>
               </div>
             </div>
           </div>
-        </section>
+        </motion.section>
+      </AuroraBackground>
 
+      <main>
         {/* Stats + Category Grid */}
         <section className="mx-auto max-w-7xl px-4 md:px-8 pb-16 md:pb-24 pt-10 md:pt-20">
           <div className="grid gap-4 md:gap-6 grid-cols-2 md:grid-cols-6 auto-rows-[180px] md:auto-rows-[240px]">

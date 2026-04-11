@@ -1,6 +1,43 @@
 @import url('https://fonts.googleapis.com/css2?family=Gravitas+One&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Manrope:wght@400;500;600;700&display=swap');
 @import "tailwindcss";
 
+@theme {
+  --font-asset: "Gravitas One", system-ui;
+  --color-primary: #92D63F;
+  --color-primary-container: #D8F0BA;
+  --color-on-primary: #000000;
+  --color-secondary: #586249;
+  --color-secondary-container: #DCE7C8;
+  --color-surface: #FDFCF5;
+  --color-on-surface: #1B1C18;
+  --color-outline: #76796B;
+  --color-outline-variant: #C6C8B9;
+
+  --animate-aurora: aurora 100s linear infinite;
+
+  --color-foodappka-50: #f7fee7;
+  --color-foodappka-100: #ecfccb;
+  --color-foodappka-200: #d9f99d;
+  --color-foodappka-300: #bef264;
+  --color-foodappka-400: #a3e635;
+  --color-foodappka-500: #84cc16;
+  --color-foodappka-600: #65a30d;
+  --color-foodappka-700: #4d7c0f;
+  --color-foodappka-800: #3f6212;
+  --color-foodappka-900: #365314;
+  --color-foodappka-950: #1a2e05;
+
+  /* Aurora Variables */
+  --white: #ffffff;
+  --black: #000000;
+  --transparent: transparent;
+  --blue-300: #ecfccb;
+  --blue-400: #d9f99d;
+  --blue-500: #84cc16;
+  --indigo-300: #bef264;
+  --violet-200: #65a30d;
+}
+
 @utility no-scrollbar {
   scrollbar-width: none;
   &::-webkit-scrollbar {
@@ -16,6 +53,15 @@
 @keyframes shimmer {
   0% { transform: translateX(-100%); }
   100% { transform: translateX(100%); }
+}
+
+@keyframes aurora {
+  from {
+    background-position: 50% 50%, 50% 50%;
+  }
+  to {
+    background-position: 350% 50%, 350% 50%;
+  }
 }
 
 .animate-shimmer {
@@ -45,31 +91,3 @@
 
 /* Enable dark mode via data-theme attribute */
 @custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
-
-/* ========================================
-   FOODAPPKA COLOR PALETTE
-   ======================================== */
-@theme {
-  --font-asset: "Gravitas One", system-ui;
-  --color-primary: #92D63F;
-  --color-primary-container: #D8F0BA;
-  --color-on-primary: #000000;
-  --color-secondary: #586249;
-  --color-secondary-container: #DCE7C8;
-  --color-surface: #FDFCF5;
-  --color-on-surface: #1B1C18;
-  --color-outline: #76796B;
-  --color-outline-variant: #C6C8B9;
-
-  --color-foodappka-50: #f7fee7;
-  --color-foodappka-100: #ecfccb;
-  --color-foodappka-200: #d9f99d;
-  --color-foodappka-300: #bef264;
-  --color-foodappka-400: #a3e635;
-  --color-foodappka-500: #84cc16;
-  --color-foodappka-600: #65a30d;
-  --color-foodappka-700: #4d7c0f;
-  --color-foodappka-800: #3f6212;
-  --color-foodappka-900: #365314;
-  --color-foodappka-950: #1a2e05;
-}
