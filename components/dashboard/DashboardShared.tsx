@@ -42,11 +42,11 @@ export function SearchLoadingAnimation() {
     <div className="flex flex-col items-center justify-center py-12 px-4 text-center overflow-hidden">
       <div className="relative mb-8">
         {/* Pulsing Outer Ring */}
-        <div className="absolute inset-0 rounded-full bg-foodapka-500/20 animate-ping" />
+        <div className="absolute inset-0 rounded-full bg-foodappka-500/20 animate-ping" />
         
         {/* Watchdog Icon */}
-        <div className="relative w-24 h-24 rounded-full bg-white dark:bg-foodapka-950 border-4 border-foodapka-500 flex items-center justify-center shadow-xl z-10">
-          <span className="material-symbols-outlined text-5xl text-foodapka-600 animate-bounce">pets</span>
+        <div className="relative w-24 h-24 rounded-full bg-white dark:bg-foodappka-950 border-4 border-foodappka-500 flex items-center justify-center shadow-xl z-10">
+          <span className="material-symbols-outlined text-5xl text-foodappka-600 animate-bounce">pets</span>
         </div>
 
         {/* Flying store bubbles */}
@@ -69,7 +69,7 @@ export function SearchLoadingAnimation() {
 
       {/* Animated Flyer Scanning Line */}
       <div className="mt-8 w-full max-w-[280px] h-1.5 bg-zinc-100 dark:bg-zinc-800 rounded-full overflow-hidden">
-        <div className="h-full bg-foodapka-500 w-1/3 rounded-full animate-[shimmer_1.5s_infinite_linear]" />
+        <div className="h-full bg-foodappka-500 w-1/3 rounded-full animate-[shimmer_1.5s_infinite_linear]" />
       </div>
     </div>
   );
@@ -81,10 +81,10 @@ export function LoadingCards() {
       {Array.from({ length: 3 }).map((_, index) => (
         <article
           key={index}
-          className="overflow-hidden rounded-2xl border border-foodapka-100 dark:border-zinc-800 bg-white/90 dark:bg-foodapka-950 p-5 shadow-sm"
+          className="overflow-hidden rounded-2xl border border-foodappka-100 dark:border-zinc-800 bg-white/90 dark:bg-foodappka-950 p-5 shadow-sm"
         >
           <div className="animate-pulse space-y-4">
-            <div className="h-6 w-2/3 rounded-full bg-foodapka-100 dark:bg-zinc-800" />
+            <div className="h-6 w-2/3 rounded-full bg-foodappka-100 dark:bg-zinc-800" />
             <div className="h-4 w-40 rounded-full bg-zinc-100 dark:bg-zinc-900" />
             <div className="grid gap-3">
               {Array.from({ length: 2 }).map((_, storeIndex) => (
@@ -107,9 +107,9 @@ export function RecipeSkeleton() {
       {Array.from({ length: 3 }).map((_, index) => (
         <div
           key={index}
-          className="animate-pulse rounded-2xl border border-foodapka-100 dark:border-zinc-800 bg-white/85 dark:bg-foodapka-950 p-5 shadow-sm"
+          className="animate-pulse rounded-2xl border border-foodappka-100 dark:border-zinc-800 bg-white/85 dark:bg-foodappka-950 p-5 shadow-sm"
         >
-          <div className="h-5 w-36 rounded-full bg-foodapka-100 dark:bg-zinc-800" />
+          <div className="h-5 w-36 rounded-full bg-foodappka-100 dark:bg-zinc-800" />
           <div className="mt-4 h-20 rounded-xl bg-zinc-100 dark:bg-zinc-900" />
         </div>
       ))}
@@ -124,17 +124,17 @@ export function EmptyState({ hasSearched, title, description, icon }: {
   icon?: string;
 }) {
   return (
-    <div className="rounded-2xl border border-dashed border-foodapka-200 dark:border-zinc-800 bg-white/70 dark:bg-foodapka-950 px-6 py-12 text-center shadow-sm">
-      <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-full bg-foodapka-100 dark:bg-zinc-800 text-3xl">
+    <div className="rounded-2xl border border-dashed border-foodappka-200 dark:border-zinc-800 bg-white/70 dark:bg-foodappka-950 px-6 py-12 text-center shadow-sm">
+      <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-full bg-foodappka-100 dark:bg-zinc-800 text-3xl">
         {icon || (hasSearched ? "🧺" : "🥬")}
       </div>
-      <h2 className="text-lg font-semibold text-foodapka-950 dark:text-white">
+      <h2 className="text-lg font-semibold text-foodappka-950 dark:text-white">
         {title || (hasSearched ? "Nic jsme nenašli" : "Začněte hledat")}
       </h2>
       <p className="mx-auto mt-3 max-w-xs text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
         {description || (hasSearched 
           ? "Zkuste jiný název nebo obecnější výraz." 
-          : "Zadejte název potraviny a foodapka vám ukáže nejlepší akční ceny.")}
+          : "Zadejte název potraviny a foodappka vám ukáže nejlepší akční ceny.")}
       </p>
     </div>
   );

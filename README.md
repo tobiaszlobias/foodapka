@@ -1,6 +1,6 @@
-# 🥬 Foodapka
+# 🥬 Foodappka
 
-**Foodapka** je moderní webová aplikace pro chytré nakupování potravin. Pomáháme vám najít nejlepší akční ceny z českých letáků a efektivně plánovat vaření díky integrovanému vyhledávači receptů.
+**Foodappka** je moderní webová aplikace pro chytré nakupování potravin. Pomáháme vám najít nejlepší akční ceny z českých letáků a efektivně plánovat vaření díky integrovanému vyhledávači receptů.
 
 ## ✨ Klíčové funkce
 
@@ -38,4 +38,4 @@
 Podrobnější technické informace a pravidla pro vývoj naleznete v souboru [PROJECT_CONTEXT.md](./PROJECT_CONTEXT.md).
 
 ---
-© 2026 foodapka. Všechna práva vyhrazena.
+© 2026 foodappka. Všechna práva vyhrazena.

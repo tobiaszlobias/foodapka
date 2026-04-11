@@ -10,12 +10,12 @@ export default function SiteHeader({ current = "home" }: SiteHeaderProps) {
     <header className="flex items-center justify-between">
       <Link
         href="/"
-        className="text-lg font-semibold tracking-tight text-foodapka-950"
+        className="text-lg font-semibold tracking-tight text-foodappka-950"
       >
-        foodapka
+        foodappka
       </Link>
       <div className="flex items-center gap-3">
-        <span className="rounded-full bg-foodapka-100 px-3 py-1.5 text-xs font-medium text-foodapka-700">
+        <span className="rounded-full bg-foodappka-100 px-3 py-1.5 text-xs font-medium text-foodappka-700">
           {current === "home" ? "Vyhledávání" : "Recepty"}
         </span>
         <ThemeToggle />

@@ -3,10 +3,33 @@
 import { useEffect, useState, useCallback } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { EmptyState } from "./DashboardShared";
+import type { User } from "@supabase/supabase-js";
+
+type ShoppingListItem = {
+  ingredient: string;
+  product_name?: string;
+  price?: string;
+  shop_name?: string;
+  is_checked: boolean;
+};
+
+type ShoppingList = {
+  id: string;
+  user_id: string;
+  recipe_name: string;
+  items: ShoppingListItem[];
+  total_price: number;
+  created_at: string;
+};
+
+type ListsSectionProps = {
+  user: User | null;
+  onAddClick: () => void;
+};
 
 export default function ListsSection({ user, onAddClick }: ListsSectionProps) {
   const supabase = createClient();
-  const [lists, setLists] = useState<any[]>([]);
+  const [lists, setLists] = useState<ShoppingList[]>([]);
   const [loading, setLoading] = useState(!!user);
 
   useEffect(() => {
@@ -38,7 +61,7 @@ export default function ListsSection({ user, onAddClick }: ListsSectionProps) {
     return (
       <div className="space-y-6">
         <header className="mb-6 px-1 text-left">
-          <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight text-foodapka-950 dark:text-white mb-2">
+          <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight text-foodappka-950 dark:text-white mb-2">
             Seznamy 📝
           </h1>
           <p className="text-sm md:text-lg text-zinc-600 dark:text-zinc-400">
@@ -58,7 +81,7 @@ export default function ListsSection({ user, onAddClick }: ListsSectionProps) {
   return (
     <div className="space-y-6">
       <header className="mb-6 px-1 text-left">
-        <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight text-foodapka-950 dark:text-white mb-2">
+        <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight text-foodappka-950 dark:text-white mb-2">
           Moje seznamy 📝
         </h1>
         <p className="text-sm md:text-lg text-zinc-600 dark:text-zinc-400">
@@ -69,7 +92,7 @@ export default function ListsSection({ user, onAddClick }: ListsSectionProps) {
       <div className="flex gap-4 px-1 md:px-2">
         <button 
           onClick={onAddClick}
-          className="inline-flex items-center gap-2 rounded-full bg-foodapka-500 px-5 py-2.5 font-semibold text-white transition hover:bg-foodapka-600 text-sm shadow-md active:scale-95"
+          className="inline-flex items-center gap-2 rounded-full bg-foodappka-500 px-5 py-2.5 font-semibold text-white transition hover:bg-foodappka-600 text-sm shadow-md active:scale-95"
         >
           <span className="material-symbols-outlined text-lg">add</span>
           Nový seznam
@@ -85,7 +108,7 @@ export default function ListsSection({ user, onAddClick }: ListsSectionProps) {
       ) : lists.length > 0 ? (
         <div className="grid gap-4">
           {lists.map((list) => (
-            <div key={list.id} className="rounded-2xl border border-foodapka-100 dark:border-zinc-800 bg-white dark:bg-foodapka-950 p-5 shadow-sm">
+            <div key={list.id} className="rounded-2xl border border-foodappka-100 dark:border-zinc-800 bg-white dark:bg-foodappka-950 p-5 shadow-sm">
               <div className="flex justify-between items-start mb-4">
                 <div>
                   <h3 className="font-bold text-lg text-zinc-900 dark:text-white">{list.recipe_name}</h3>
@@ -115,10 +138,10 @@ export default function ListsSection({ user, onAddClick }: ListsSectionProps) {
               </div>
 
               <div className="flex items-center justify-between pt-4 border-t border-zinc-50 dark:border-zinc-800">
-                <span className="text-xl font-black text-foodapka-700 dark:text-foodapka-400">
+                <span className="text-xl font-black text-foodappka-700 dark:text-foodappka-400">
                   {list.total_price?.toFixed(2).replace('.', ',')} Kč
                 </span>
-                <button className="px-4 py-2 rounded-full bg-foodapka-50 dark:bg-zinc-900 text-xs font-bold text-foodapka-800 dark:text-foodapka-300">
+                <button className="px-4 py-2 rounded-full bg-foodappka-50 dark:bg-zinc-900 text-xs font-bold text-foodappka-800 dark:text-foodappka-300">
                   Zobrazit detail
                 </button>
               </div>

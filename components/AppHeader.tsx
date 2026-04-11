@@ -39,11 +39,11 @@ export default function AppHeader() {
   }
 
   return (
-    <nav className="fixed top-0 w-full z-50 h-16 bg-foodapka-50/80 dark:bg-foodapka-950/90 backdrop-blur-xl border-b border-foodapka-100 dark:border-foodapka-900/50">
+    <nav className="fixed top-0 w-full z-50 h-16 bg-foodappka-50/80 dark:bg-foodappka-950/90 backdrop-blur-xl border-b border-foodappka-100 dark:border-foodappka-900/50">
       <div className="flex justify-between items-center px-4 md:px-8 py-2 max-w-[1800px] mx-auto h-full">
         <div className="flex items-center gap-4 md:gap-8">
-          <Link href="/" className="text-xl md:text-2xl font-asset tracking-tight text-foodapka-700 dark:text-foodapka-400">
-            foodapka
+          <Link href="/" className="text-xl md:text-2xl font-asset tracking-tight text-foodappka-700 dark:text-foodappka-400">
+            foodappka
           </Link>
         </div>
         
@@ -51,17 +51,17 @@ export default function AppHeader() {
           <div className="hidden sm:flex items-center gap-2 md:gap-4">
             <Link 
               href="/app?mode=notifications"
-              className="flex h-10 w-10 items-center justify-center hover:bg-foodapka-100/50 dark:hover:bg-foodapka-800/50 rounded-full transition-all active:scale-95 duration-200"
+              className="flex h-10 w-10 items-center justify-center hover:bg-foodappka-100/50 dark:hover:bg-foodappka-800/50 rounded-full transition-all active:scale-95 duration-200"
               title="Oznámení"
             >
-              <span className="material-symbols-outlined text-foodapka-600 dark:text-foodapka-400">notifications</span>
+              <span className="material-symbols-outlined text-foodappka-600 dark:text-foodappka-400">notifications</span>
             </Link>
             <Link 
               href="/app?mode=favorites"
-              className="flex h-10 w-10 items-center justify-center hover:bg-foodapka-100/50 dark:hover:bg-foodapka-800/50 rounded-full transition-all active:scale-95 duration-200"
+              className="flex h-10 w-10 items-center justify-center hover:bg-foodappka-100/50 dark:hover:bg-foodappka-800/50 rounded-full transition-all active:scale-95 duration-200"
               title="Oblíbené"
             >
-              <span className="material-symbols-outlined text-foodapka-600 dark:text-foodapka-400">favorite</span>
+              <span className="material-symbols-outlined text-foodappka-600 dark:text-foodappka-400">favorite</span>
             </Link>
           </div>
           
@@ -72,7 +72,7 @@ export default function AppHeader() {
               <div className="relative ml-1 md:ml-2">
                 <button 
                   onClick={() => setShowUserMenu(!showUserMenu)}
-                  className="w-10 h-10 rounded-full bg-foodapka-500 flex items-center justify-center text-white font-black text-sm hover:ring-2 hover:ring-foodapka-300 transition-all active:scale-95 shadow-sm"
+                  className="w-10 h-10 rounded-full bg-foodappka-500 flex items-center justify-center text-white font-black text-sm hover:ring-2 hover:ring-foodappka-300 transition-all active:scale-95 shadow-sm"
                 >
                   {user.email?.charAt(0).toUpperCase()}
                 </button>
@@ -118,7 +118,7 @@ export default function AppHeader() {
             ) : (
               <Link
                 href="/login"
-                className="ml-1 md:ml-2 px-4 md:px-5 py-1.5 md:py-2 rounded-full bg-foodapka-500 text-white font-semibold text-xs md:text-sm hover:bg-foodapka-600 transition-colors"
+                className="ml-1 md:ml-2 px-4 md:px-5 py-1.5 md:py-2 rounded-full bg-foodappka-500 text-white font-semibold text-xs md:text-sm hover:bg-foodappka-600 transition-colors"
               >
                 Přihlásit
               </Link>

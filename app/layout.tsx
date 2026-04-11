@@ -3,7 +3,7 @@ import ThemeScript from "@/components/ThemeScript";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "foodapka",
+  title: "foodappka",
   description: "Porovnání akčních cen potravin a recepty s chytrým nákupem",
 };
 

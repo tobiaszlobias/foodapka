@@ -8,7 +8,7 @@ export default function HomePage() {
       <nav className="fixed top-0 z-50 w-full border-b border-emerald-100/50 bg-white/80 backdrop-blur-xl">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4 lg:px-8">
           <div className="text-2xl font-black tracking-tight text-emerald-800" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
-            foodapka
+            foodappka
           </div>
           <div className="hidden items-center gap-8 md:flex">
             <a href="#recepty" className="font-semibold text-emerald-800 transition hover:text-emerald-600">
@@ -291,7 +291,7 @@ export default function HomePage() {
             Jste připraveni ušetřit tisíce každý měsíc?
           </h2>
           <p className="relative mx-auto mb-12 max-w-2xl text-xl text-emerald-800">
-            Začněte používat foodapka ještě dnes a připojte se k chytrým nakupujícím po celé zemi.
+            Začněte používat foodappka ještě dnes a připojte se k chytrým nakupujícím po celé zemi.
           </p>
           <div className="relative flex flex-col items-center justify-center gap-6 sm:flex-row">
             <Link
@@ -322,7 +322,7 @@ export default function HomePage() {
       <footer className="w-full bg-emerald-50 pb-8 pt-16">
         <div className="mx-auto grid max-w-7xl grid-cols-1 gap-12 px-6 md:grid-cols-4 lg:px-8">
           <div className="col-span-1 md:col-span-1">
-            <div className="mb-6 text-lg font-bold text-emerald-800">foodapka</div>
+            <div className="mb-6 text-lg font-bold text-emerald-800">foodappka</div>
             <p className="max-w-xs text-sm text-emerald-700">
               Váš osobní kulinářský kurátor. Prohledáváme každý leták a obchod, 
               abychom vám našli nejlepší nabídky na ingredience, které milujete.
@@ -369,7 +369,7 @@ export default function HomePage() {
           </div>
         </div>
         <div className="mx-auto mt-16 flex max-w-7xl items-center justify-between border-t border-emerald-200 px-6 pt-8 text-sm text-emerald-700 lg:px-8">
-          <div>© 2024 foodapka. Všechna práva vyhrazena.</div>
+          <div>© 2024 foodappka. Všechna práva vyhrazena.</div>
           <div className="flex gap-6">
             <span className="cursor-pointer text-emerald-700">🌍</span>
             <span className="font-bold">Česká republika</span>

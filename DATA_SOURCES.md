@@ -1,6 +1,6 @@
-# Zdroje dat - Foodapka
+# Zdroje dat - Foodappka
 
-Tento dokument obsahuje kompletní seznam všech externích zdrojů dat používaných v aplikaci Foodapka. Před nasazením aplikace prosím zkontrolujte obchodní podmínky jednotlivých služeb.
+Tento dokument obsahuje kompletní seznam všech externích zdrojů dat používaných v aplikaci Foodappka. Před nasazením aplikace prosím zkontrolujte obchodní podmínky jednotlivých služeb.
 
 ---
 

@@ -47,7 +47,7 @@
 @custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
 
 /* ========================================
-   FOODAPKA COLOR PALETTE
+   FOODAPPKA COLOR PALETTE
    ======================================== */
 @theme {
   --font-asset: "Gravitas One", system-ui;
@@ -61,15 +61,15 @@
   --color-outline: #76796B;
   --color-outline-variant: #C6C8B9;
 
-  --color-foodapka-50: #f7fee7;
-  --color-foodapka-100: #ecfccb;
-  --color-foodapka-200: #d9f99d;
-  --color-foodapka-300: #bef264;
-  --color-foodapka-400: #a3e635;
-  --color-foodapka-500: #84cc16;
-  --color-foodapka-600: #65a30d;
-  --color-foodapka-700: #4d7c0f;
-  --color-foodapka-800: #3f6212;
-  --color-foodapka-900: #365314;
-  --color-foodapka-950: #1a2e05;
+  --color-foodappka-50: #f7fee7;
+  --color-foodappka-100: #ecfccb;
+  --color-foodappka-200: #d9f99d;
+  --color-foodappka-300: #bef264;
+  --color-foodappka-400: #a3e635;
+  --color-foodappka-500: #84cc16;
+  --color-foodappka-600: #65a30d;
+  --color-foodappka-700: #4d7c0f;
+  --color-foodappka-800: #3f6212;
+  --color-foodappka-900: #365314;
+  --color-foodappka-950: #1a2e05;
 }

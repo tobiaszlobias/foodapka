@@ -4,8 +4,8 @@ import { useSyncExternalStore } from "react";
 
 type ThemeMode = "light" | "dark";
 
-const STORAGE_KEY = "foodapka-theme";
-const THEME_EVENT = "foodapka-theme-change";
+const STORAGE_KEY = "foodappka-theme";
+const THEME_EVENT = "foodappka-theme-change";
 
 function applyTheme(theme: ThemeMode) {
   document.documentElement.dataset.theme = theme;
@@ -44,7 +44,7 @@ export default function ThemeToggle() {
           ? "Přepnout na světlý režim"
           : "Přepnout na tmavý režim"
       }
-      className="relative flex h-10 w-[72px] items-center rounded-full bg-foodapka-100/50 dark:bg-foodapka-800/50 p-1 transition-all hover:bg-foodapka-100 dark:hover:bg-foodapka-800 active:scale-95 group"
+      className="relative flex h-10 w-[72px] items-center rounded-full bg-foodappka-100/50 dark:bg-foodappka-800/50 p-1 transition-all hover:bg-foodappka-100 dark:hover:bg-foodappka-800 active:scale-95 group"
     >
       {/* Sliding Pill - Exactly centered over icons area */}
       <div 
@@ -56,12 +56,12 @@ export default function ThemeToggle() {
       {/* Icons Layer - Symmetrical distribution */}
       <div className="relative flex w-full items-center z-10 pointer-events-none">
         <div className="flex-1 flex items-center justify-center">
-          <span className={`material-symbols-outlined text-[18px] transition-colors duration-300 ${theme === 'light' ? 'text-foodapka-700' : 'text-foodapka-400/50'}`}>
+          <span className={`material-symbols-outlined text-[18px] transition-colors duration-300 ${theme === 'light' ? 'text-foodappka-700' : 'text-foodappka-400/50'}`}>
             light_mode
           </span>
         </div>
         <div className="flex-1 flex items-center justify-center">
-          <span className={`material-symbols-outlined text-[18px] transition-colors duration-300 ${theme === 'dark' ? 'text-foodapka-400' : 'text-foodapka-700/50'}`}>
+          <span className={`material-symbols-outlined text-[18px] transition-colors duration-300 ${theme === 'dark' ? 'text-foodappka-400' : 'text-foodappka-700/50'}`}>
             dark_mode
           </span>
         </div>

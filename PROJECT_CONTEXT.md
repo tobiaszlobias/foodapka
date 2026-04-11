@@ -1,9 +1,9 @@
-# 🥬 Foodapka - Projektový Kontext
+# 🥬 Foodappka - Projektový Kontext
 
-Tento dokument slouží jako hlavní zdroj informací pro AI agenty pracující na projektu Foodapka. Obsahuje architektonické principy, technologický stack a konvence kódování.
+Tento dokument slouží jako hlavní zdroj informací pro AI agenty pracující na projektu Foodappka. Obsahuje architektonické principy, technologický stack a konvence kódování.
 
 ## 🚀 O projektu
-Foodapka je moderní srovnávač akčních cen potravin z českých letáků kombinovaný s chytrým vyhledávačem receptů. Umožňuje uživatelům najít nejlevnější ingredience pro konkrétní jídla napříč řetězci.
+Foodappka je moderní srovnávač akčních cen potravin z českých letáků kombinovaný s chytrým vyhledávačem receptů. Umožňuje uživatelům najít nejlevnější ingredience pro konkrétní jídla napříč řetězci.
 
 ## 🛠 Technologický Stack
 - **Framework:** Next.js 16 (App Router)
@@ -30,11 +30,11 @@ Aplikace nepoužívá jen prostý fulltext. V `lib/food.ts` je implementován so
 ## 🎨 Design Systém & Stylování
 - **Logo:** Používá font **Gravitas One** (definováno jako `font-asset`).
 - **Barevná paleta:** 
-  - Primární: Custom Lime systém (`--foodapka-50` až `950`). Hlavní barva: `#84cc16`.
+  - Primární: Custom Lime systém (`--foodappka-50` až `950`). Hlavní barva: `#84cc16`.
   - Akcentní: Žlutá `#e2ff3b` (použita pro slevové badge a důležité statistiky).
 - **Dark Mode:** Implementován pomocí `data-theme="dark"`.
-  - Černé pozadí (`bg-black`) nebo tmavě zelené (`foodapka-950`).
-  - Prvky v headeru používají v dark modu `foodapka-800/50`.
+  - Černé pozadí (`bg-black`) nebo tmavě zelené (`foodappka-950`).
+  - Prvky v headeru používají v dark modu `foodappka-800/50`.
 - **Konvence:**
   - Zaoblení: `rounded-[3rem]` pro velké sekce na landing page, `rounded-2xl` pro karty, `rounded-full` pro všechna tlačítka a search bar.
   - Šířka obsahu: `max-w-5xl` pro hlavní dashboard.

@@ -9,6 +9,7 @@ import ListsSection from "@/components/dashboard/ListsSection";
 import SearchBar from "@/components/SearchBar";
 import { type Product, type Store, parsePrice } from "@/lib/food";
 import { createClient } from "@/lib/supabase/client";
+import type { User } from "@supabase/supabase-js";
 
 type AppMode = "search" | "recipes" | "watchdog" | "lists" | "favorites" | "notifications";
 type ShoppingMode = "cross_store" | "single_store";
@@ -26,14 +27,27 @@ type IngredientResult = {
   storeOptions: IngredientStoreOption[];
 };
 
+type FavoriteItem = {
+  id: string;
+  name: string;
+  addedAt: string;
+  url?: string; // present for products
+  stores?: Store[]; // present for products
+  image?: string; // present for recipes
+  description?: string; // present for recipes
+};
+
 function HomeContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const supabase = createClient();
-  
+
   // Auth state
-  const [user, setUser] = useState<any>(null);
-  
+  const [user, setUser] = useState<User | null>(null);
+
+  // Favorites state
+  const [favorites, setFavorites] = useState<FavoriteItem[]>([]);
+
   // Mode derived from URL
   const mode = (searchParams.get("mode") as AppMode) || "search";
   const urlQuery = searchParams.get("query") || "";
@@ -60,9 +74,6 @@ function HomeContent() {
   // Animation state
   const [isChangingMode, setIsChangingMode] = useState(false);
   const [activeView, setActiveView] = useState(mode);
-
-  // Favorites state
-  const [favorites, setFavorites] = useState<any[]>([]);
 
   // Fetch user and favorites on mount
   useEffect(() => {
@@ -138,12 +149,22 @@ function HomeContent() {
     }
     
     setFavorites(prev => {
-      const isFav = prev.find(f => f.id === (item.url || item.name));
+      const itemId = item.url || item.name;
+      const isFav = prev.find(f => f.id === itemId);
       let next;
       if (isFav) {
-        next = prev.filter(f => f.id !== (item.url || item.name));
+        next = prev.filter(f => f.id !== itemId);
       } else {
-        next = [...prev, { ...item, id: item.url || item.name, addedAt: new Date().toISOString() }];
+        const newItem: FavoriteItem = {
+          id: itemId,
+          name: item.name,
+          addedAt: new Date().toISOString(),
+          url: item.url,
+          stores: item.stores,
+          image: item.image,
+          description: item.description
+        };
+        next = [...prev, newItem];
       }
       localStorage.setItem(`favs_${user.id}`, JSON.stringify(next));
       return next;
@@ -257,16 +278,16 @@ function HomeContent() {
       {/* Persistent Header with SearchBar - Only shown in Search and Recipes modes */}
       {(mode === "search" || mode === "recipes") && (
         <header className="px-1 md:px-2 w-full mb-6">
-          <h1 className="text-2xl md:text-4xl lg:text-5xl font-extrabold tracking-tight text-foodapka-950 dark:text-white leading-tight mb-4 transition-all duration-300">
+          <h1 className="text-2xl md:text-4xl lg:text-5xl font-extrabold tracking-tight text-foodappka-950 dark:text-white leading-tight mb-4 transition-all duration-300">
             {mode === "search" ? (
               <>
                 Najděte nejlevnější akční cenu <br className="hidden md:block" />
-                <span className="text-foodapka-600 dark:text-foodapka-400">dřív, než vyrazíte nakoupit</span>
+                <span className="text-foodappka-600 dark:text-foodappka-400">dřív, než vyrazíte nakoupit</span>
               </>
             ) : (
               <>
                 Vyberte si recept a najdeme <br className="hidden md:block" />
-                <span className="text-foodapka-600 dark:text-foodapka-400">nejlevnější suroviny</span>
+                <span className="text-foodappka-600 dark:text-foodappka-400">nejlevnější suroviny</span>
               </>
             )}
           </h1>
@@ -339,16 +360,16 @@ function HomeContent() {
         {activeView === "favorites" && (
           <div className="space-y-6">
             <header className="px-1 md:px-2">
-              <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight text-foodapka-950 dark:text-white mb-2">Oblíbené ❤️</h1>
+              <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight text-foodappka-950 dark:text-white mb-2">Oblíbené ❤️</h1>
               <p className="text-sm md:text-lg text-zinc-600 dark:text-zinc-400">Vaše uložené recepty a produkty na jednom místě.</p>
             </header>
             
             {favorites.length > 0 ? (
               <div className="grid gap-4">
                 {favorites.map((fav) => (
-                  <article key={fav.id} className="rounded-2xl border border-foodapka-100 dark:border-zinc-800 bg-white/95 dark:bg-foodapka-950 p-4 shadow-sm flex items-center justify-between gap-4">
+                  <article key={fav.id} className="rounded-2xl border border-foodappka-100 dark:border-zinc-800 bg-white/95 dark:bg-foodappka-950 p-4 shadow-sm flex items-center justify-between gap-4">
                     <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 rounded-xl bg-foodapka-100 dark:bg-foodapka-900/50 flex items-center justify-center text-2xl">
+                      <div className="w-12 h-12 rounded-xl bg-foodappka-100 dark:bg-foodappka-900/50 flex items-center justify-center text-2xl">
                         {fav.stores ? "🧺" : "🥘"}
                       </div>
                       <div>
@@ -366,14 +387,14 @@ function HomeContent() {
                       <button 
                         onClick={() => {
                           if (fav.stores) {
-                            handleResults([fav]);
+                            handleResults([fav as any]);
                             handleModeChange("search");
                           } else {
                             runRecipeSearch(fav.name);
                             handleModeChange("recipes");
                           }
                         }}
-                        className="px-4 py-2 rounded-full bg-foodapka-500 text-white text-xs font-bold hover:bg-foodapka-600 transition-all"
+                        className="px-4 py-2 rounded-full bg-foodappka-500 text-white text-xs font-bold hover:bg-foodappka-600 transition-all"
                       >
                         Ukázat
                       </button>
@@ -393,7 +414,7 @@ function HomeContent() {
         {activeView === "notifications" && (
           <div className="space-y-6">
             <header className="px-1 md:px-2">
-              <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight text-foodapka-950 dark:text-white mb-2">Oznámení 🔔</h1>
+              <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight text-foodappka-950 dark:text-white mb-2">Oznámení 🔔</h1>
               <p className="text-sm md:text-lg text-zinc-600 dark:text-zinc-400">Aktuální informace o slevách a novinkách.</p>
             </header>
             

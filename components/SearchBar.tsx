@@ -171,7 +171,7 @@ export default function SearchBar({
           type="button" 
           onClick={() => onModeChange("search")} 
           className={`relative z-10 flex items-center gap-2 rounded-full px-3 md:px-4 py-2 text-xs md:text-sm font-bold transition-colors duration-300 ${
-            mode === "search" ? "text-foodapka-700 dark:text-foodapka-400" : "text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300"
+            mode === "search" ? "text-foodappka-700 dark:text-foodappka-400" : "text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300"
           }`}
         >
           <SearchIcon />
@@ -181,7 +181,7 @@ export default function SearchBar({
           type="button" 
           onClick={() => onModeChange("recipes")} 
           className={`relative z-10 flex items-center gap-2 rounded-full px-3 md:px-4 py-2 text-xs md:text-sm font-bold transition-colors duration-300 ${
-            mode === "recipes" ? "text-foodapka-700 dark:text-foodapka-400" : "text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300"
+            mode === "recipes" ? "text-foodappka-700 dark:text-foodappka-400" : "text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300"
           }`}
         >
           <RecipeIcon />
@@ -205,7 +205,7 @@ export default function SearchBar({
             onKeyDown={handleKeyDown}
             placeholder="Co chcete nakoupit?"
             autoComplete="off"
-            className="h-11 md:h-12 w-full rounded-full border border-zinc-100 dark:border-zinc-800 bg-zinc-50/50 dark:bg-black/50 px-4 md:px-5 text-sm md:text-base text-zinc-900 dark:text-white outline-none transition placeholder:text-zinc-400 focus:border-foodapka-400"
+            className="h-11 md:h-12 w-full rounded-full border border-zinc-100 dark:border-zinc-800 bg-zinc-50/50 dark:bg-black/50 px-4 md:px-5 text-sm md:text-base text-zinc-900 dark:text-white outline-none transition placeholder:text-zinc-400 focus:border-foodappka-400"
           />
           
           {showSuggestions && filteredSuggestions.length > 0 && mode === "search" && (
@@ -216,7 +216,7 @@ export default function SearchBar({
               <ul className="py-1">
                 {filteredSuggestions.map((suggestion, index) => (
                   <li key={suggestion}>
-                    <div onClick={() => selectSuggestion(suggestion)} className={`flex w-full items-center justify-between gap-3 px-4 py-3 text-left transition-colors group cursor-pointer ${index === selectedIndex ? "bg-foodapka-50 dark:bg-zinc-800 text-foodapka-700 dark:text-foodapka-400" : "text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800/50"}`} role="button" tabIndex={0}>
+                    <div onClick={() => selectSuggestion(suggestion)} className={`flex w-full items-center justify-between gap-3 px-4 py-3 text-left transition-colors group cursor-pointer ${index === selectedIndex ? "bg-foodappka-50 dark:bg-zinc-800 text-foodappka-700 dark:text-foodappka-400" : "text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800/50"}`} role="button" tabIndex={0}>
                       <div className="flex items-center gap-3 min-w-0">
                         <span className="material-symbols-outlined text-base text-zinc-400">{query.trim() ? "search" : "trending_up"}</span>
                         <span className="text-sm font-bold truncate">{suggestion}</span>
@@ -231,7 +231,7 @@ export default function SearchBar({
             </div>
           )}
         </div>
-        <button type="submit" className="h-11 md:h-12 rounded-full bg-foodapka-500 hover:bg-foodapka-600 px-4 md:px-6 text-sm font-black text-white transition-all shadow-md active:scale-95 shrink-0">
+        <button type="submit" className="h-11 md:h-12 rounded-full bg-foodappka-500 hover:bg-foodappka-600 px-4 md:px-6 text-sm font-black text-white transition-all shadow-md active:scale-95 shrink-0">
           Hledat
         </button>
       </div>

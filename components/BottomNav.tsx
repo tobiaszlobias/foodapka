@@ -37,7 +37,7 @@ export default function BottomNav() {
               href={item.href}
               className={`flex-1 flex flex-col items-center justify-center gap-1 transition-all active:scale-90 active:bg-zinc-50 dark:active:bg-zinc-900/50 ${
                 isActive
-                  ? "text-foodapka-600 dark:text-foodapka-400"
+                  ? "text-foodappka-600 dark:text-foodappka-400"
                   : "text-zinc-400 dark:text-zinc-600"
               }`}
             >
@@ -51,7 +51,7 @@ export default function BottomNav() {
                 {item.label}
               </span>
               {isActive && (
-                <div className="absolute bottom-1.5 w-1 h-1 rounded-full bg-foodapka-600 dark:bg-foodapka-400" />
+                <div className="absolute bottom-1.5 w-1 h-1 rounded-full bg-foodappka-600 dark:bg-foodappka-400" />
               )}
             </Link>
           );

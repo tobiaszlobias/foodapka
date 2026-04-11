@@ -2,7 +2,7 @@ export default function ThemeScript() {
   const script = `
     (function() {
       try {
-        var saved = window.localStorage.getItem('foodapka-theme');
+        var saved = window.localStorage.getItem('foodappka-theme');
         var theme = saved === 'dark' ? 'dark' : 'light';
         document.documentElement.dataset.theme = theme;
         document.documentElement.style.colorScheme = theme;

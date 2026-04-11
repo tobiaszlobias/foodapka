@@ -43,7 +43,7 @@ type SingleStorePlan = {
   missingCount: number;
 };
 
-const STORAGE_KEY = "foodapka-shopping-list";
+const STORAGE_KEY = "foodappka-shopping-list";
 
 function StoreBrand({ shopName }: { shopName: string }) {
   const logoPath = getStoreLogoPath(shopName);
@@ -78,9 +78,9 @@ function RecipeSkeleton() {
       {Array.from({ length: 4 }).map((_, index) => (
         <div
           key={index}
-          className="animate-pulse rounded-2xl border border-foodapka-100 dark:border-zinc-800 bg-white/85 dark:bg-foodapka-950 p-5 shadow-[0_20px_50px_-30px_rgba(132,204,22,0.2)]"
+          className="animate-pulse rounded-2xl border border-foodappka-100 dark:border-zinc-800 bg-white/85 dark:bg-foodappka-950 p-5 shadow-[0_20px_50px_-30px_rgba(132,204,22,0.2)]"
         >
-          <div className="h-5 w-36 rounded-full bg-foodapka-100 dark:bg-zinc-800" />
+          <div className="h-5 w-36 rounded-full bg-foodappka-100 dark:bg-zinc-800" />
           <div className="mt-4 h-20 rounded-xl bg-zinc-100 dark:bg-zinc-900" />
         </div>
       ))}
@@ -427,29 +427,29 @@ export default function RecipesPage() {
   return (
     <main className="min-h-screen bg-surface dark:bg-black px-4 py-6 sm:px-6 lg:px-8 text-on-surface dark:text-zinc-100">
       <div className="mx-auto flex max-w-4xl flex-col gap-8">
-        <section className="rounded-2xl border border-foodapka-100 dark:border-zinc-800 bg-white/90 dark:bg-foodapka-950 p-6 shadow-[0_20px_50px_-30px_rgba(132,204,22,0.2)]">
+        <section className="rounded-2xl border border-foodappka-100 dark:border-zinc-800 bg-white/90 dark:bg-foodappka-950 p-6 shadow-[0_20px_50px_-30px_rgba(132,204,22,0.2)]">
           <SiteHeader current="recipes" />
           <div className="mt-10 grid gap-8 lg:grid-cols-[minmax(0,1.15fr)_minmax(280px,0.85fr)] lg:items-center">
             <div className="space-y-4">
-              <h1 className="text-4xl font-bold tracking-tight text-foodapka-950 dark:text-white sm:text-5xl leading-tight">
-                Napište recept a foodapka najde nejlevnější suroviny.
+              <h1 className="text-4xl font-bold tracking-tight text-foodappka-950 dark:text-white sm:text-5xl leading-tight">
+                Napište recept a foodappka najde nejlevnější suroviny.
               </h1>
               <p className="max-w-2xl text-base leading-7 text-zinc-600 dark:text-zinc-400 sm:text-lg">
                 Ingredience bereme z připraveného katalogu receptů a ke každé
                 dohledáme nejlevnější aktuálně dostupnou variantu.
               </p>
-              <p className="text-sm font-medium text-foodapka-700 dark:text-foodapka-400">
+              <p className="text-sm font-medium text-foodappka-700 dark:text-foodappka-400">
                 Výsledek si pak můžete uložit nebo poslat jako nákupní list.
               </p>
             </div>
 
             <form
               onSubmit={handleSubmit}
-              className="rounded-xl border border-foodapka-100 dark:border-zinc-800 bg-white/85 dark:bg-zinc-900 p-4 shadow-sm"
+              className="rounded-xl border border-foodappka-100 dark:border-zinc-800 bg-white/85 dark:bg-zinc-900 p-4 shadow-sm"
             >
               <label
                 htmlFor="recipe-name"
-                className="mb-3 block text-sm font-semibold text-foodapka-900 dark:text-foodapka-300"
+                className="mb-3 block text-sm font-semibold text-foodappka-900 dark:text-foodappka-300"
               >
                 Název receptu
               </label>
@@ -459,11 +459,11 @@ export default function RecipesPage() {
                 value={recipe}
                 onChange={(event) => setRecipe(event.target.value)}
                 placeholder="Např. Svíčková, Carbonara..."
-                className="h-14 w-full rounded-lg border border-foodapka-100 dark:border-zinc-800 bg-foodapka-50/60 dark:bg-black px-4 text-base text-zinc-900 dark:text-white outline-none transition focus:border-foodapka-400"
+                className="h-14 w-full rounded-lg border border-foodappka-100 dark:border-zinc-800 bg-foodappka-50/60 dark:bg-black px-4 text-base text-zinc-900 dark:text-white outline-none transition focus:border-foodappka-400"
               />
               <button
                 type="submit"
-                className="mt-4 inline-flex h-12 w-full items-center justify-center rounded-full bg-foodapka-600 px-5 text-sm font-semibold text-white transition hover:bg-foodapka-700"
+                className="mt-4 inline-flex h-12 w-full items-center justify-center rounded-full bg-foodappka-600 px-5 text-sm font-semibold text-white transition hover:bg-foodappka-700"
               >
                 Najít ingredience
               </button>
@@ -473,7 +473,7 @@ export default function RecipesPage() {
 
         <section className="space-y-5">
           <div>
-            <h2 className="text-2xl font-semibold tracking-tight text-foodapka-950 dark:text-white">
+            <h2 className="text-2xl font-semibold tracking-tight text-foodappka-950 dark:text-white">
               Rychlý výběr
             </h2>
             <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
@@ -489,9 +489,9 @@ export default function RecipesPage() {
                   setRecipe(preset.name);
                   void runRecipeSearch(preset.name);
                 }}
-                className="rounded-2xl border border-foodapka-100 dark:border-zinc-800 bg-white/90 dark:bg-foodapka-950 p-5 text-left shadow-[0_20px_50px_-30px_rgba(132,204,22,0.2)] transition hover:-translate-y-1 hover:border-foodapka-300 dark:hover:border-foodapka-600"
+                className="rounded-2xl border border-foodappka-100 dark:border-zinc-800 bg-white/90 dark:bg-foodappka-950 p-5 text-left shadow-[0_20px_50px_-30px_rgba(132,204,22,0.2)] transition hover:-translate-y-1 hover:border-foodappka-300 dark:hover:border-foodappka-600"
               >
-                <span className="inline-flex rounded-full bg-foodapka-100 dark:bg-foodapka-900/50 px-3 py-1 text-xs font-semibold uppercase tracking-widest text-foodapka-700 dark:text-foodapka-300">
+                <span className="inline-flex rounded-full bg-foodappka-100 dark:bg-foodappka-900/50 px-3 py-1 text-xs font-semibold uppercase tracking-widest text-foodappka-700 dark:text-foodappka-300">
                   {preset.tag}
                 </span>
                 <h3 className="mt-4 text-lg font-semibold text-zinc-950 dark:text-white">
@@ -508,7 +508,7 @@ export default function RecipesPage() {
         <section ref={shoppingListRef} className="space-y-5">
           <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
             <div>
-              <h2 className="text-2xl font-semibold tracking-tight text-foodapka-950 dark:text-white">
+              <h2 className="text-2xl font-semibold tracking-tight text-foodappka-950 dark:text-white">
                 Nákupní list
               </h2>
               <p className="text-sm text-zinc-600 dark:text-zinc-400">
@@ -516,7 +516,7 @@ export default function RecipesPage() {
               </p>
             </div>
             {ingredients.length > 0 && !loading && (
-              <p className="rounded-full border border-foodapka-200 dark:border-zinc-800 bg-white dark:bg-foodapka-950 px-4 py-2 text-sm font-medium text-foodapka-800 dark:text-foodapka-300">
+              <p className="rounded-full border border-foodappka-200 dark:border-zinc-800 bg-white dark:bg-foodappka-950 px-4 py-2 text-sm font-medium text-foodappka-800 dark:text-foodappka-300">
                 {ingredients.length} ingrediencí
               </p>
             )}
@@ -532,10 +532,10 @@ export default function RecipesPage() {
 
           {!loading && results.length > 0 && (
             <div className="grid gap-4">
-              <div className="rounded-2xl border border-foodapka-100 dark:border-zinc-800 bg-white/95 dark:bg-foodapka-950 p-5 shadow-[0_20px_50px_-30px_rgba(132,204,22,0.2)]">
-                <div className="flex flex-col gap-4 border-b border-foodapka-100 dark:border-zinc-800 pb-4 sm:flex-row sm:items-start sm:justify-between">
+              <div className="rounded-2xl border border-foodappka-100 dark:border-zinc-800 bg-white/95 dark:bg-foodappka-950 p-5 shadow-[0_20px_50px_-30px_rgba(132,204,22,0.2)]">
+                <div className="flex flex-col gap-4 border-b border-foodappka-100 dark:border-zinc-800 pb-4 sm:flex-row sm:items-start sm:justify-between">
                   <div>
-                    <p className="text-xs font-semibold uppercase tracking-widest text-foodapka-700 dark:text-foodapka-400">
+                    <p className="text-xs font-semibold uppercase tracking-widest text-foodappka-700 dark:text-foodappka-400">
                       Nákup pro
                     </p>
                     <h3 className="mt-1 text-2xl font-semibold text-zinc-950 dark:text-white">
@@ -551,14 +551,14 @@ export default function RecipesPage() {
                     <button
                       type="button"
                       onClick={saveShoppingList}
-                      className="inline-flex items-center rounded-full border border-foodapka-200 dark:border-zinc-800 bg-foodapka-50 dark:bg-zinc-900 px-4 py-2 text-sm font-semibold text-foodapka-800 dark:text-foodapka-300 transition hover:border-foodapka-300 hover:bg-foodapka-100 dark:hover:bg-zinc-800"
+                      className="inline-flex items-center rounded-full border border-foodappka-200 dark:border-zinc-800 bg-foodappka-50 dark:bg-zinc-900 px-4 py-2 text-sm font-semibold text-foodappka-800 dark:text-foodappka-300 transition hover:border-foodappka-300 hover:bg-foodappka-100 dark:hover:bg-zinc-800"
                     >
                       Uložit seznam
                     </button>
                     <button
                       type="button"
                       onClick={() => void shareShoppingList()}
-                      className="inline-flex items-center rounded-full border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-4 py-2 text-sm font-semibold text-zinc-700 dark:text-zinc-300 transition hover:border-foodapka-300 hover:text-foodapka-700 dark:hover:bg-zinc-800"
+                      className="inline-flex items-center rounded-full border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-4 py-2 text-sm font-semibold text-zinc-700 dark:text-zinc-300 transition hover:border-foodappka-300 hover:text-foodappka-700 dark:hover:bg-zinc-800"
                     >
                       Sdílet
                     </button>
@@ -566,14 +566,14 @@ export default function RecipesPage() {
                 </div>
 
                 <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                  <div className="inline-flex rounded-full border border-foodapka-200 dark:border-zinc-800 bg-foodapka-50 dark:bg-zinc-900 p-1">
+                  <div className="inline-flex rounded-full border border-foodappka-200 dark:border-zinc-800 bg-foodappka-50 dark:bg-zinc-900 p-1">
                     <button
                       type="button"
                       onClick={() => setShoppingMode("cross_store")}
                       className={`rounded-full px-4 py-2 text-sm font-semibold transition ${
                         shoppingMode === "cross_store"
-                          ? "bg-foodapka-600 text-white"
-                          : "text-foodapka-800 dark:text-foodapka-400 hover:bg-foodapka-100 dark:hover:bg-zinc-800"
+                          ? "bg-foodappka-600 text-white"
+                          : "text-foodappka-800 dark:text-foodappka-400 hover:bg-foodappka-100 dark:hover:bg-zinc-800"
                       }`}
                     >
                       Napříč obchody
@@ -583,8 +583,8 @@ export default function RecipesPage() {
                       onClick={() => setShoppingMode("single_store")}
                       className={`rounded-full px-4 py-2 text-sm font-semibold transition ${
                         shoppingMode === "single_store"
-                          ? "bg-foodapka-600 text-white"
-                          : "text-foodapka-800 dark:text-foodapka-400 hover:bg-foodapka-100 dark:hover:bg-zinc-800"
+                          ? "bg-foodappka-600 text-white"
+                          : "text-foodappka-800 dark:text-foodappka-400 hover:bg-foodappka-100 dark:hover:bg-zinc-800"
                       }`}
                     >
                       Jeden obchod
@@ -606,7 +606,7 @@ export default function RecipesPage() {
                 </div>
 
                 {shareMessage && (
-                  <div className="mt-4 rounded-xl border border-foodapka-200 dark:border-zinc-800 bg-foodapka-50 dark:bg-foodapka-900/30 px-4 py-3 text-sm text-foodapka-800 dark:text-foodapka-300">
+                  <div className="mt-4 rounded-xl border border-foodappka-200 dark:border-zinc-800 bg-foodappka-50 dark:bg-foodappka-900/30 px-4 py-3 text-sm text-foodappka-800 dark:text-foodappka-300">
                     {shareMessage}
                   </div>
                 )}
@@ -620,7 +620,7 @@ export default function RecipesPage() {
                         key={item.ingredient}
                         className={`rounded-xl border px-4 py-4 transition ${
                           isChecked
-                            ? "border-foodapka-200 dark:border-zinc-800 bg-foodapka-50/70 dark:bg-foodapka-900/20"
+                            ? "border-foodappka-200 dark:border-zinc-800 bg-foodappka-50/70 dark:bg-foodappka-900/20"
                             : "border-zinc-100 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/50"
                         }`}
                       >
@@ -630,7 +630,7 @@ export default function RecipesPage() {
                             onClick={() => toggleIngredient(item.ingredient)}
                             className={`mt-1 flex h-6 w-6 shrink-0 items-center justify-center rounded-full border text-sm font-bold transition ${
                               isChecked
-                                ? "border-foodapka-600 bg-foodapka-600 text-white"
+                                ? "border-foodappka-600 bg-foodappka-600 text-white"
                                 : "border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-transparent"
                             }`}
                             aria-label={`Označit ${item.ingredient}`}
@@ -666,7 +666,7 @@ export default function RecipesPage() {
                                           {item.selectedStore.sourceLabel}
                                         </span>
                                       )}
-                                      <span className="rounded-full bg-foodapka-600 px-3 py-1 text-xs font-semibold text-white">
+                                      <span className="rounded-full bg-foodappka-600 px-3 py-1 text-xs font-semibold text-white">
                                         {shoppingMode === "single_store"
                                           ? "Vybráno v jednom obchodě"
                                           : "Nejlevnější"}
@@ -702,14 +702,14 @@ export default function RecipesPage() {
                               <div className="flex flex-col items-start gap-3 sm:items-end">
                                 {item.selectedStore ? (
                                   <>
-                                    <p className="text-2xl font-bold text-foodapka-700 dark:text-foodapka-400">
+                                    <p className="text-2xl font-bold text-foodappka-700 dark:text-foodappka-400">
                                       {item.selectedStore.price}
                                     </p>
                                     <a
                                       href={item.selectedProduct?.url ?? ""}
                                       target="_blank"
                                       rel="noreferrer"
-                                      className="inline-flex items-center rounded-full border border-foodapka-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-4 py-2 text-sm font-semibold text-foodapka-800 dark:text-foodapka-300 transition hover:border-foodapka-300 hover:bg-foodapka-100 dark:hover:bg-zinc-800"
+                                      className="inline-flex items-center rounded-full border border-foodappka-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-4 py-2 text-sm font-semibold text-foodappka-800 dark:text-foodappka-300 transition hover:border-foodappka-300 hover:bg-foodappka-100 dark:hover:bg-zinc-800"
                                     >
                                       Detail nabídky
                                     </a>
@@ -729,8 +729,8 @@ export default function RecipesPage() {
                 </ul>
               </div>
 
-              <div className="rounded-2xl border border-foodapka-200 dark:border-zinc-800 bg-foodapka-950 px-5 py-6 text-white shadow-[0_25px_60px_-35px_rgba(101,163,13,0.8)]">
-                <p className="text-sm uppercase tracking-widest text-foodapka-200">
+              <div className="rounded-2xl border border-foodappka-200 dark:border-zinc-800 bg-foodappka-950 px-5 py-6 text-white shadow-[0_25px_60px_-35px_rgba(101,163,13,0.8)]">
+                <p className="text-sm uppercase tracking-widest text-foodappka-200">
                   {shoppingMode === "single_store"
                     ? "Cena v jednom obchodě"
                     : "Cena napříč obchody"}
@@ -738,7 +738,7 @@ export default function RecipesPage() {
                 <p className="mt-2 text-3xl font-bold">
                   {totalPrice.toFixed(2).replace(".", ",")} Kč
                 </p>
-                <p className="mt-2 text-sm text-foodapka-100">
+                <p className="mt-2 text-sm text-foodappka-100">
                   {shoppingMode === "single_store"
                     ? bestSingleStorePlan
                       ? `Nejlíp vychází ${bestSingleStorePlan.shopName}. Pokrývá ${bestSingleStorePlan.matchedCount}/${itemsToBuy.length} položek.`
@@ -750,11 +750,11 @@ export default function RecipesPage() {
           )}
 
           {!loading && !error && results.length === 0 && (
-            <div className="rounded-2xl border border-dashed border-foodapka-200 dark:border-zinc-800 bg-white/70 dark:bg-foodapka-950 p-12 text-center">
-              <div className="mx-auto mb-5 flex h-20 w-20 items-center justify-center rounded-full bg-foodapka-100 dark:bg-zinc-800 text-4xl">
+            <div className="rounded-2xl border border-dashed border-foodappka-200 dark:border-zinc-800 bg-white/70 dark:bg-foodappka-950 p-12 text-center">
+              <div className="mx-auto mb-5 flex h-20 w-20 items-center justify-center rounded-full bg-foodappka-100 dark:bg-zinc-800 text-4xl">
                 🍲
               </div>
-              <h2 className="text-xl font-semibold text-foodapka-950 dark:text-white">
+              <h2 className="text-xl font-semibold text-foodappka-950 dark:text-white">
                 Zatím bez receptu
               </h2>
               <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-zinc-600 dark:text-zinc-400">
