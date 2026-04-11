@@ -15,12 +15,12 @@ export function StoreBrand({ shopName, small = false }: { shopName: string; smal
         <Image
           src={logoPath}
           alt={`${shopName} logo`}
-          width={isLidl ? 68 : 56}
-          height={isLidl ? 68 : 56}
+          width={isLidl ? 100 : 80}
+          height={isLidl ? 100 : 80}
           className={`${
             small 
-              ? (isLidl ? "h-6 w-6" : "h-5 w-5") 
-              : (isLidl ? "h-10 w-10 md:h-14 md:w-14" : "h-8 w-8 md:h-12 md:w-12")
+              ? (isLidl ? "h-10 w-10" : "h-9 w-9") 
+              : (isLidl ? "h-16 w-16 md:h-24 md:w-24" : "h-14 w-14 md:h-20 md:w-20")
           } object-contain`}
         />
       </span>
@@ -28,11 +28,49 @@ export function StoreBrand({ shopName, small = false }: { shopName: string; smal
   }
 
   return (
-    <div className="flex items-center gap-1.5">
-      <span className={small ? "text-xs" : "text-lg"}>{getStoreIcon(shopName)}</span>
-      <span className={`font-bold text-zinc-800 dark:text-zinc-200 ${small ? "text-[10px]" : "text-sm md:text-base"}`}>
+    <div className="flex items-center gap-2">
+      <span className={small ? "text-sm" : "text-xl"}>{getStoreIcon(shopName)}</span>
+      <span className={`font-bold text-zinc-800 dark:text-zinc-200 ${small ? "text-[11px]" : "text-base md:text-lg"}`}>
         {shopName}
       </span>
+    </div>
+  );
+}
+
+export function SearchLoadingAnimation() {
+  return (
+    <div className="flex flex-col items-center justify-center py-12 px-4 text-center overflow-hidden">
+      <div className="relative mb-8">
+        {/* Pulsing Outer Ring */}
+        <div className="absolute inset-0 rounded-full bg-foodapka-500/20 animate-ping" />
+        
+        {/* Watchdog Icon */}
+        <div className="relative w-24 h-24 rounded-full bg-white dark:bg-foodapka-950 border-4 border-foodapka-500 flex items-center justify-center shadow-xl z-10">
+          <span className="material-symbols-outlined text-5xl text-foodapka-600 animate-bounce">pets</span>
+        </div>
+
+        {/* Flying store bubbles */}
+        <div className="absolute -top-4 -left-4 w-10 h-10 rounded-full bg-white dark:bg-zinc-800 shadow-lg border border-zinc-100 dark:border-zinc-700 flex items-center justify-center animate-bounce [animation-delay:0.2s]">
+          <span className="text-xs">🛒</span>
+        </div>
+        <div className="absolute top-0 -right-6 w-12 h-12 rounded-full bg-white dark:bg-zinc-800 shadow-lg border border-zinc-100 dark:border-zinc-700 flex items-center justify-center animate-bounce [animation-delay:0.5s]">
+          <span className="text-xs">🏷️</span>
+        </div>
+        <div className="absolute -bottom-2 -right-2 w-8 h-8 rounded-full bg-white dark:bg-zinc-800 shadow-lg border border-zinc-100 dark:border-zinc-700 flex items-center justify-center animate-bounce [animation-delay:0.8s]">
+          <span className="text-xs">🥓</span>
+        </div>
+      </div>
+
+      <h3 className="text-xl font-black text-zinc-900 dark:text-white mb-2">Hlídací pes právě čmuchá slevy...</h3>
+      <div className="flex items-center gap-2 text-zinc-500 dark:text-zinc-400 font-medium">
+        <span className="material-symbols-outlined animate-spin text-sm">progress_activity</span>
+        <p className="text-sm">Prohledáváme miliony položek z aktuálních letáků</p>
+      </div>
+
+      {/* Animated Flyer Scanning Line */}
+      <div className="mt-8 w-full max-w-[280px] h-1.5 bg-zinc-100 dark:bg-zinc-800 rounded-full overflow-hidden">
+        <div className="h-full bg-foodapka-500 w-1/3 rounded-full animate-[shimmer_1.5s_infinite_linear]" />
+      </div>
     </div>
   );
 }

@@ -10,7 +10,7 @@ import {
   type Product, 
   type Store 
 } from "@/lib/food";
-import { StoreBrand, RecipeSkeleton } from "./DashboardShared";
+import { StoreBrand, RecipeSkeleton, SearchLoadingAnimation } from "./DashboardShared";
 
 type ShoppingMode = "cross_store" | "single_store";
 
@@ -47,6 +47,8 @@ type RecipeSectionProps = {
   handleResults: (r: any) => void;
   setHasSearched: (s: boolean) => void;
   hideHeader?: boolean;
+  favorites: any[];
+  onToggleFavorite: (item: any) => void;
 };
 
 export default function RecipeSection({
@@ -70,6 +72,8 @@ export default function RecipeSection({
   handleResults,
   setHasSearched,
   hideHeader,
+  favorites,
+  onToggleFavorite,
 }: RecipeSectionProps) {
 
   const totalPrice = useMemo(() => {
@@ -100,12 +104,34 @@ export default function RecipeSection({
 
       {/* Recipe Grid */}
       <section className="grid gap-4 grid-cols-1 sm:grid-cols-2">
-        {RECIPE_PRESETS.map((recipe) => (
-          <div
-            key={recipe.name}
-            onClick={() => runRecipeSearch(recipe.name)}
-            className="group rounded-2xl bg-white dark:bg-foodapka-950 border border-zinc-100 dark:border-zinc-800 overflow-hidden shadow-sm transition-all active:scale-[0.98] cursor-pointer"
-          >
+        {RECIPE_PRESETS.map((recipe) => {
+          const isFavorite = favorites.some(f => f.id === recipe.name);
+          return (
+            <div
+              key={recipe.name}
+              onClick={() => runRecipeSearch(recipe.name)}
+              className="group relative rounded-2xl bg-white dark:bg-foodapka-950 border border-zinc-100 dark:border-zinc-800 overflow-hidden shadow-sm transition-all active:scale-[0.98] cursor-pointer"
+            >
+              {/* Favorite Button */}
+              <button 
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onToggleFavorite(recipe);
+                }}
+                className={`absolute top-3 right-3 z-10 flex h-10 w-10 items-center justify-center rounded-full transition-all duration-200 shadow-sm ${
+                  isFavorite 
+                    ? "text-red-500 bg-white/90 backdrop-blur dark:bg-red-900/40" 
+                    : "text-zinc-400 bg-white/80 backdrop-blur hover:text-red-400 dark:bg-zinc-800/80"
+                }`}
+                title={isFavorite ? "Odebrat z oblíbených" : "Přidat do oblíbených"}
+              >
+                <span 
+                  className="material-symbols-outlined text-xl"
+                  style={isFavorite ? { fontVariationSettings: "'FILL' 1" } : undefined}
+                >
+                  favorite
+                </span>
+              </button>
             {recipe.image && (
               <div className="h-32 md:h-44 relative">
                 <Image 
@@ -135,12 +161,13 @@ export default function RecipeSection({
               </div>
             </div>
           </div>
-        ))}
-      </section>
+        );
+      })}
+    </section>
 
       {/* Shopping List */}
       <section ref={shoppingListRef} className="space-y-5 pt-4">
-        {recipeLoading ? <RecipeSkeleton /> : recipeResults.length > 0 && (
+        {recipeLoading ? <SearchLoadingAnimation /> : recipeResults.length > 0 && (
           <div className="space-y-4">
             <div className="rounded-2xl border border-foodapka-100 dark:border-zinc-800 bg-white/95 dark:bg-foodapka-950 p-4 md:p-6 shadow-sm">
               <div className="flex flex-col gap-4 border-b border-foodapka-100 dark:border-zinc-800 pb-4 sm:flex-row sm:items-start sm:justify-between">
@@ -166,7 +193,13 @@ export default function RecipeSection({
                       </>
                     )}
                   </button>
-                  <button onClick={shareShoppingList} className="flex-1 sm:flex-none px-4 py-2 rounded-full bg-zinc-900 dark:bg-white text-xs font-bold text-white dark:text-black">Sdílet</button>
+                  <button 
+                    onClick={shareShoppingList} 
+                    className="flex items-center justify-center w-10 h-10 rounded-full bg-zinc-900 dark:bg-white text-white dark:text-black hover:scale-105 active:scale-95 transition-all shadow-md"
+                    title="Sdílet"
+                  >
+                    <span className="material-symbols-outlined text-lg">ios_share</span>
+                  </button>
                 </div>
               </div>
 

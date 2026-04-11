@@ -13,6 +13,7 @@ export default function HomePage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(false);
   const [hasSearchedDirectly, setHasSearchedDirectly] = useState(false);
+  const [searchMode, setSearchMode] = useState<"search" | "recipes">("search");
 
   // Force light mode on landing page
   useEffect(() => {
@@ -21,7 +22,12 @@ export default function HomePage() {
   }, []);
 
   const handleModeChange = (mode: string) => {
-    router.push(`/app?mode=${mode}`);
+    setSearchMode(mode as "search" | "recipes");
+    // Only clear products if we're actually changing mode to keep it snappy
+    if (mode !== searchMode) {
+      setProducts([]);
+      setHasSearchedDirectly(false);
+    }
   };
 
   const handleDirectResults = (newProducts: Product[]) => {
@@ -48,15 +54,7 @@ export default function HomePage() {
       {/* Top Navigation Bar */}
       <nav className="fixed top-0 z-50 w-full bg-white/80 backdrop-blur-xl border-b border-zinc-100">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 md:px-8 py-3 md:py-4">
-          <div className="text-xl md:text-2xl font-black tracking-tighter text-foodapka-700">foodapka</div>
-          <div className="hidden items-center space-x-8 md:flex">
-            <Link href="/app?mode=recipes" className="font-bold text-zinc-500 hover:text-foodapka-600 transition-colors">
-              Recepty
-            </Link>
-            <a className="font-bold text-zinc-500 hover:text-foodapka-600 transition-colors" href="#letaky">
-              Letáky
-            </a>
-          </div>
+          <div className="text-xl md:text-2xl font-asset tracking-tighter text-foodapka-700">foodapka</div>
           <Link
             href="/app"
             className="transform rounded-full bg-foodapka-500 px-5 md:px-6 py-2 font-black text-white shadow-lg shadow-foodapka-500/20 transition-all hover:bg-foodapka-600 active:scale-95 text-sm md:text-base"
@@ -82,9 +80,35 @@ export default function HomePage() {
               <SearchBar 
                 onResults={handleDirectResults}
                 onLoading={setLoading}
-                mode="search"
+                mode={searchMode}
                 onModeChange={handleModeChange}
+                isLandingPage={true}
               />
+
+              {/* Recipe Mode Preview */}
+              {searchMode === "recipes" && !loading && products.length === 0 && (
+                <div className="mt-6 space-y-3 animate-in fade-in slide-in-from-top-4 duration-500">
+                  <article className="rounded-2xl border border-foodapka-100 bg-white p-6 shadow-[0_10px_30px_-10px_rgba(132,204,22,0.15)] text-left">
+                    <div className="flex items-start gap-4">
+                      <div className="w-12 h-12 rounded-2xl bg-foodapka-50 flex items-center justify-center shrink-0">
+                        <span className="material-symbols-outlined text-foodapka-600 text-2xl">restaurant</span>
+                      </div>
+                      <div>
+                        <h4 className="font-black text-foodapka-950 text-lg leading-tight">Chcete uvařit levněji?</h4>
+                        <p className="text-zinc-500 text-sm mt-1 font-medium">Napište název jídla do vyhledávače a my vám najdeme nejlevnější akční suroviny pro váš nákup.</p>
+                      </div>
+                    </div>
+                  </article>
+                  
+                  <button 
+                    onClick={() => router.push("/app?mode=recipes")}
+                    className="w-full py-4 rounded-full bg-foodapka-500 text-white font-black text-sm hover:bg-foodapka-600 transition-all shadow-xl shadow-foodapka-500/20 active:scale-[0.98] flex items-center justify-center gap-2"
+                  >
+                    Spustit recepty v aplikaci
+                    <span className="material-symbols-outlined text-lg">rocket_launch</span>
+                  </button>
+                </div>
+              )}
 
               {(loading || products.length > 0) && (
                 <div className="mt-6 space-y-3 animate-in fade-in slide-in-from-top-2 duration-500 text-left">
@@ -145,8 +169,23 @@ export default function HomePage() {
                   priority
                   sizes="(max-width: 768px) 100vw, 50vw"
                 />
+                {/* Floating Ingredient Label */}
+                <div className="absolute left-6 bottom-6 md:left-10 md:bottom-10 bg-white/90 backdrop-blur-md rounded-2xl p-4 shadow-xl border border-white/50 animate-in fade-in slide-in-from-bottom-4 duration-1000 delay-500 animate-shimmer">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-foodapka-100 flex items-center justify-center text-foodapka-600">
+                      <span className="material-symbols-outlined">receipt_long</span>
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-black text-zinc-400 uppercase tracking-widest leading-none">Suroviny na oběd</p>
+                      <div className="flex items-center gap-2 mt-1">
+                        <span className="text-zinc-400 line-through text-xs font-bold">450 Kč</span>
+                        <span className="text-foodapka-700 font-black text-lg">289 Kč</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
-              <div className="absolute -right-2 top-8 md:-right-6 md:top-12 rounded-2xl bg-foodapka-500 px-4 py-3 md:px-6 md:py-4 text-white shadow-2xl transform rotate-12 active:rotate-0 transition-transform">
+              <div className="absolute -right-2 top-8 md:-right-6 md:top-12 rounded-2xl bg-[#e2ff3b] px-4 py-3 md:px-6 md:py-4 text-zinc-900 shadow-2xl shadow-[#e2ff3b]/20 transform rotate-12 active:rotate-0 transition-transform">
                 <span className="text-xl md:text-3xl font-black tracking-tighter">-35%</span>
               </div>
             </div>
@@ -154,7 +193,7 @@ export default function HomePage() {
         </section>
 
         {/* Stats + Category Grid */}
-        <section className="mx-auto max-w-7xl px-4 md:px-8 pb-16 md:pb-24">
+        <section className="mx-auto max-w-7xl px-4 md:px-8 pb-16 md:pb-24 pt-10 md:pt-20">
           <div className="grid gap-4 md:gap-6 grid-cols-2 md:grid-cols-6 auto-rows-[180px] md:auto-rows-[240px]">
             {/* Featured Box - Maso */}
             <div className="col-span-2 md:col-span-4 md:row-span-2 group relative overflow-hidden rounded-[2rem] bg-white shadow-xl border border-zinc-100">
@@ -167,9 +206,7 @@ export default function HomePage() {
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent"></div>
               <div className="absolute bottom-6 md:bottom-10 left-6 md:left-10 right-6 md:right-10 text-white">
-                <div className="inline-block bg-black/20 backdrop-blur-sm px-6 py-3 rounded-3xl">
-                  <p className="text-3xl md:text-5xl font-black leading-tight tracking-tighter">Čerstvé maso za zlomek ceny</p>
-                </div>
+                <p className="text-3xl md:text-5xl font-black leading-tight tracking-tighter drop-shadow-md">Čerstvé maso za zlomek ceny</p>
               </div>
               </div>
 
@@ -210,9 +247,9 @@ export default function HomePage() {
             </div>
 
             {/* Stat 2 */}
-            <div className="col-span-2 md:col-span-2 md:row-span-1 flex flex-col justify-center items-center rounded-[2rem] bg-zinc-900 p-6 text-center text-white shadow-xl">
-              <span className="text-5xl font-black tracking-tighter text-foodapka-400">10+</span>
-              <p className="mt-1 text-sm font-bold opacity-80">Řetězců v kapse</p>
+            <div className="col-span-2 md:col-span-2 md:row-span-1 flex flex-col justify-center items-center rounded-[2rem] bg-[#e2ff3b] p-6 text-center text-zinc-900 shadow-xl">
+              <span className="text-5xl font-black tracking-tighter">10+</span>
+              <p className="mt-1 text-sm font-bold text-zinc-600">Řetězců v kapse</p>
             </div>
           </div>
         </section>
@@ -230,22 +267,71 @@ export default function HomePage() {
               {stores.map((store, i) => (
                 <div
                   key={`${store.name}-1-${i}`}
-                  className="flex-shrink-0 w-[220px] flex flex-col items-center justify-center rounded-[2rem] bg-white p-8 border border-zinc-100 transition-all hover:shadow-xl hover:-translate-y-2 cursor-pointer"
+                  className="flex-shrink-0 w-[200px] h-[140px] flex flex-col items-center justify-center rounded-[2rem] bg-white p-6 border border-zinc-100 transition-all hover:shadow-xl hover:-translate-y-2 cursor-pointer group/card"
                 >
-                  <Image src={store.logo} alt={`${store.name} logo`} width={80} height={80} className="h-16 w-auto object-contain transition-transform group-hover:scale-110" />
-                  <p className="mt-4 font-black text-zinc-800 text-lg tracking-tight">{store.name}</p>
+                  <Image src={store.logo} alt={`${store.name} logo`} width={140} height={140} className="h-20 w-auto object-contain transition-transform group-hover/card:scale-110" />
                 </div>
               ))}
               {/* Second loop for seamless infinite scroll */}
               {stores.map((store, i) => (
                 <div
                   key={`${store.name}-2-${i}`}
-                  className="flex-shrink-0 w-[220px] flex flex-col items-center justify-center rounded-[2rem] bg-white p-8 border border-zinc-100 transition-all hover:shadow-xl hover:-translate-y-2 cursor-pointer"
+                  className="flex-shrink-0 w-[200px] h-[140px] flex flex-col items-center justify-center rounded-[2rem] bg-white p-6 border border-zinc-100 transition-all hover:shadow-xl hover:-translate-y-2 cursor-pointer group/card"
                 >
-                  <Image src={store.logo} alt={`${store.name} logo`} width={80} height={80} className="h-16 w-auto object-contain transition-transform group-hover:scale-110" />
-                  <p className="mt-4 font-black text-zinc-800 text-lg tracking-tight">{store.name}</p>
+                  <Image src={store.logo} alt={`${store.name} logo`} width={140} height={140} className="h-20 w-auto object-contain transition-transform group-hover/card:scale-110" />
                 </div>
               ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Process Section */}
+        <section className="mx-auto max-w-7xl px-4 md:px-8 py-16 md:py-24">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            <div className="relative order-2 lg:order-1">
+              <div className="absolute inset-0 bg-foodapka-100/50 blur-3xl rounded-full transform -rotate-12 scale-90"></div>
+              <Image 
+                src="/myslenkova mapa hero.png" 
+                alt="Jak funguje foodapka" 
+                width={600} 
+                height={600} 
+                className="relative w-full h-auto drop-shadow-2xl rounded-[3rem]"
+              />
+            </div>
+            <div className="space-y-8 order-1 lg:order-2 text-left">
+              <h2 className="text-3xl md:text-5xl font-black tracking-tight text-zinc-900 leading-[1.1]">
+                Chytrá cesta k <br />
+                <span className="text-foodapka-600">levnějšímu vaření.</span>
+              </h2>
+              <div className="space-y-6">
+                <div className="flex gap-4">
+                  <div className="w-12 h-12 rounded-2xl bg-foodapka-50 flex items-center justify-center shrink-0 border border-foodapka-100">
+                    <span className="material-symbols-outlined text-foodapka-600">search</span>
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-lg text-zinc-900">Najděte nejnižší ceny</h4>
+                    <p className="text-zinc-500 font-medium">Srovnáváme tisíce položek z akčních letáků v reálném čase. Stačí zadat název receptu nebo potraviny.</p>
+                  </div>
+                </div>
+                <div className="flex gap-4">
+                  <div className="w-12 h-12 rounded-2xl bg-foodapka-50 flex items-center justify-center shrink-0 border border-foodapka-100">
+                    <span className="material-symbols-outlined text-foodapka-600">shopping_cart</span>
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-lg text-zinc-900">Naplánujte nákup</h4>
+                    <p className="text-zinc-500 font-medium">Sestavte si nákupní seznam z nejvýhodnějších nabídek a ušetřete stovky korun při každé návštěvě obchodu.</p>
+                  </div>
+                </div>
+                <div className="flex gap-4">
+                  <div className="w-12 h-12 rounded-2xl bg-foodapka-50 flex items-center justify-center shrink-0 border border-foodapka-100">
+                    <span className="material-symbols-outlined text-foodapka-600">restaurant</span>
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-lg text-zinc-900">Vařte zdravě a levně</h4>
+                    <p className="text-zinc-500 font-medium">Dopřejte si kvalitní suroviny za zlomek ceny. Peníze, které ušetříte, můžete využít na věci, které máte rádi.</p>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </section>
@@ -283,7 +369,7 @@ export default function HomePage() {
       <footer className="w-full bg-zinc-50 text-sm border-t border-zinc-100 py-16">
         <div className="mx-auto flex max-w-7xl flex-col items-center justify-between px-8 md:flex-row">
           <div className="mb-10 md:mb-0 text-center md:text-left">
-            <div className="text-2xl font-black tracking-tighter text-foodapka-800">foodapka</div>
+            <div className="text-2xl font-asset tracking-tighter text-foodapka-800">foodapka</div>
             <p className="max-w-xs text-zinc-500 mt-2 font-medium">
               Chytrý nákup pro každou českou domácnost.
             </p>

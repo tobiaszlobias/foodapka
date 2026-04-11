@@ -39,22 +39,33 @@ export default function ThemeToggle() {
     <button
       type="button"
       onClick={toggleTheme}
-      aria-pressed={theme === "dark"}
       aria-label={
         theme === "dark"
           ? "Přepnout na světlý režim"
           : "Přepnout na tmavý režim"
       }
-      className="inline-flex items-center gap-3 rounded-full border border-white/30 bg-white/70 px-4 py-2 text-sm font-medium text-foodapka-950 transition hover:border-foodapka-300 hover:bg-white"
+      className="relative flex h-10 w-[72px] items-center rounded-full bg-foodapka-100/50 dark:bg-foodapka-800/50 p-1 transition-all hover:bg-foodapka-100 dark:hover:bg-foodapka-800 active:scale-95 group"
     >
-      <span className="text-sm">{theme === "dark" ? "Dark" : "Light"}</span>
-      <span className="relative flex h-6 w-11 items-center rounded-full bg-foodapka-900/15 p-1">
-        <span
-          className={`h-4 w-4 rounded-full bg-white shadow-sm transition ${
-            theme === "dark" ? "translate-x-5 bg-foodapka-600" : "translate-x-0"
-          }`}
-        />
-      </span>
+      {/* Sliding Pill - Exactly centered over icons area */}
+      <div 
+        className={`absolute h-8 w-8 rounded-full bg-white dark:bg-zinc-900 shadow-sm transition-all duration-300 ease-out ${
+          theme === "dark" ? "translate-x-8" : "translate-x-0"
+        }`}
+      />
+      
+      {/* Icons Layer - Symmetrical distribution */}
+      <div className="relative flex w-full items-center z-10 pointer-events-none">
+        <div className="flex-1 flex items-center justify-center">
+          <span className={`material-symbols-outlined text-[18px] transition-colors duration-300 ${theme === 'light' ? 'text-foodapka-700' : 'text-foodapka-400/50'}`}>
+            light_mode
+          </span>
+        </div>
+        <div className="flex-1 flex items-center justify-center">
+          <span className={`material-symbols-outlined text-[18px] transition-colors duration-300 ${theme === 'dark' ? 'text-foodapka-400' : 'text-foodapka-700/50'}`}>
+            dark_mode
+          </span>
+        </div>
+      </div>
     </button>
   );
 }

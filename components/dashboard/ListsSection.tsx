@@ -1,41 +1,38 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { EmptyState } from "./DashboardShared";
 
-export default function ListsSection({ user, onAddClick }: { user: any; onAddClick?: () => void }) {
+export default function ListsSection({ user, onAddClick }: ListsSectionProps) {
   const supabase = createClient();
   const [lists, setLists] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(!!user);
 
   useEffect(() => {
-    if (user) {
-      loadLists();
-    } else {
+    if (!user) return;
+
+    const load = async () => {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from("shopping_lists")
+        .select("*")
+        .order("created_at", { ascending: false });
+
+      if (data && !error) {
+        setLists(data);
+      }
       setLoading(false);
-    }
-  }, [user]);
+    };
+    void load();
+  }, [user, supabase]);
 
-  async function loadLists() {
-    setLoading(true);
-    const { data, error } = await supabase
-      .from("shopping_lists")
-      .select("*")
-      .order("created_at", { ascending: false });
-
-    if (data && !error) {
-      setLists(data);
-    }
-    setLoading(false);
-  }
-
-  async function deleteList(id: string) {
+  const deleteList = useCallback(async (id: string) => {
     const { error } = await supabase.from("shopping_lists").delete().eq("id", id);
     if (!error) {
-      setLists(lists.filter(l => l.id !== id));
+      setLists(prev => prev.filter(l => l.id !== id));
     }
-  }
+  }, [supabase]);
 
   if (!user) {
     return (

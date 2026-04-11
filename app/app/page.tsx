@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { Suspense, useEffect, useRef, useState } from "react";
+import { Suspense, useCallback, useEffect, useRef, useState } from "react";
 import SearchSection from "@/components/dashboard/SearchSection";
 import RecipeSection from "@/components/dashboard/RecipeSection";
 import WatchdogSection from "@/components/dashboard/WatchdogSection";
@@ -10,7 +10,7 @@ import SearchBar from "@/components/SearchBar";
 import { type Product, type Store, parsePrice } from "@/lib/food";
 import { createClient } from "@/lib/supabase/client";
 
-type AppMode = "search" | "recipes" | "watchdog" | "lists";
+type AppMode = "search" | "recipes" | "watchdog" | "lists" | "favorites" | "notifications";
 type ShoppingMode = "cross_store" | "single_store";
 type ProductSort = "relevance" | "cheapest" | "coverage";
 
@@ -61,10 +61,19 @@ function HomeContent() {
   const [isChangingMode, setIsChangingMode] = useState(false);
   const [activeView, setActiveView] = useState(mode);
 
-  // Fetch user on mount
+  // Favorites state
+  const [favorites, setFavorites] = useState<any[]>([]);
+
+  // Fetch user and favorites on mount
   useEffect(() => {
+    const supabase = createClient();
     supabase.auth.getUser().then(({ data: { user } }) => {
       setUser(user);
+      if (user) {
+        // In a real app we'd fetch from DB, for now let's use localStorage for speed
+        const saved = JSON.parse(localStorage.getItem(`favs_${user.id}`) || "[]");
+        setFavorites(saved);
+      }
     });
   }, []);
 
@@ -89,13 +98,7 @@ function HomeContent() {
   }, [mode, activeView]);
 
   // AUTO-SEARCH logic
-  useEffect(() => {
-    if (urlQuery && mode === "search" && !hasSearched) {
-      void triggerInitialSearch(urlQuery);
-    }
-  }, [urlQuery, mode]);
-
-  async function triggerInitialSearch(query: string) {
+  const triggerInitialSearch = useCallback(async (query: string) => {
     setLoading(true);
     setHasSearched(true);
     try {
@@ -107,7 +110,13 @@ function HomeContent() {
     } finally {
       setLoading(false);
     }
-  }
+  }, []);
+
+  useEffect(() => {
+    if (urlQuery && mode === "search" && !hasSearched) {
+      void triggerInitialSearch(urlQuery);
+    }
+  }, [urlQuery, mode, hasSearched, triggerInitialSearch]);
 
   // Handlers
   const handleResults = (nextProducts: Product[]) => {
@@ -119,6 +128,26 @@ function HomeContent() {
   const handleModeChange = (newMode: AppMode) => {
     const url = newMode === "search" ? "/app" : `/app?mode=${newMode}`;
     router.push(url, { scroll: false });
+  };
+
+  const toggleFavorite = (item: any) => {
+    if (!user) {
+      setShareMessage("Pro ukládání oblíbených se musíte přihlásit.");
+      setTimeout(() => setShareMessage(null), 3000);
+      return;
+    }
+    
+    setFavorites(prev => {
+      const isFav = prev.find(f => f.id === (item.url || item.name));
+      let next;
+      if (isFav) {
+        next = prev.filter(f => f.id !== (item.url || item.name));
+      } else {
+        next = [...prev, { ...item, id: item.url || item.name, addedAt: new Date().toISOString() }];
+      }
+      localStorage.setItem(`favs_${user.id}`, JSON.stringify(next));
+      return next;
+    });
   };
 
   const toggleIngredient = (ingredient: string) => {
@@ -134,6 +163,11 @@ function HomeContent() {
     setActiveRecipe(recipeName);
     setRecipeResults([]);
     setCheckedIngredients([]);
+
+    // Scroll to results immediately to show skeleton
+    setTimeout(() => {
+      shoppingListRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 100);
 
     try {
       const res = await fetch("/api/recipe", {
@@ -267,6 +301,8 @@ function HomeContent() {
             handleModeChange={handleModeChange}
             initialQuery={urlQuery}
             hideHeader
+            favorites={favorites}
+            onToggleFavorite={toggleFavorite}
           />
         )}
 
@@ -292,11 +328,81 @@ function HomeContent() {
             setHasSearched={setHasSearched}
             isSaving={isSaving}
             hideHeader
+            favorites={favorites}
+            onToggleFavorite={toggleFavorite}
           />
         )}
 
         {activeView === "watchdog" && <WatchdogSection />}
         {activeView === "lists" && <ListsSection user={user} onAddClick={() => handleModeChange("recipes")} />}
+        
+        {activeView === "favorites" && (
+          <div className="space-y-6">
+            <header className="px-1 md:px-2">
+              <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight text-foodapka-950 dark:text-white mb-2">Oblíbené ❤️</h1>
+              <p className="text-sm md:text-lg text-zinc-600 dark:text-zinc-400">Vaše uložené recepty a produkty na jednom místě.</p>
+            </header>
+            
+            {favorites.length > 0 ? (
+              <div className="grid gap-4">
+                {favorites.map((fav) => (
+                  <article key={fav.id} className="rounded-2xl border border-foodapka-100 dark:border-zinc-800 bg-white/95 dark:bg-foodapka-950 p-4 shadow-sm flex items-center justify-between gap-4">
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 rounded-xl bg-foodapka-100 dark:bg-foodapka-900/50 flex items-center justify-center text-2xl">
+                        {fav.stores ? "🧺" : "🥘"}
+                      </div>
+                      <div>
+                        <h4 className="font-bold text-zinc-900 dark:text-white">{fav.name}</h4>
+                        <p className="text-xs text-zinc-500 dark:text-zinc-400">Přidáno {new Date(fav.addedAt).toLocaleDateString()}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <button 
+                        onClick={() => toggleFavorite(fav)}
+                        className="flex h-10 w-10 items-center justify-center rounded-full hover:bg-red-50 dark:hover:bg-red-900/20 text-red-500 transition-colors"
+                      >
+                        <span className="material-symbols-outlined text-xl" style={{ fontVariationSettings: "'FILL' 1" }}>favorite</span>
+                      </button>
+                      <button 
+                        onClick={() => {
+                          if (fav.stores) {
+                            handleResults([fav]);
+                            handleModeChange("search");
+                          } else {
+                            runRecipeSearch(fav.name);
+                            handleModeChange("recipes");
+                          }
+                        }}
+                        className="px-4 py-2 rounded-full bg-foodapka-500 text-white text-xs font-bold hover:bg-foodapka-600 transition-all"
+                      >
+                        Ukázat
+                      </button>
+                    </div>
+                  </article>
+                ))}
+              </div>
+            ) : (
+              <div className="py-20 text-center rounded-2xl border border-dashed border-zinc-200 dark:border-zinc-800">
+                <span className="material-symbols-outlined text-5xl text-zinc-300 mb-4 block">favorite</span>
+                <p className="text-zinc-500 font-medium">Zatím nemáte žádné oblíbené položky.</p>
+              </div>
+            )}
+          </div>
+        )}
+
+        {activeView === "notifications" && (
+          <div className="space-y-6">
+            <header className="px-1 md:px-2">
+              <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight text-foodapka-950 dark:text-white mb-2">Oznámení 🔔</h1>
+              <p className="text-sm md:text-lg text-zinc-600 dark:text-zinc-400">Aktuální informace o slevách a novinkách.</p>
+            </header>
+            
+            <div className="py-20 text-center rounded-2xl border border-dashed border-zinc-200 dark:border-zinc-800">
+              <span className="material-symbols-outlined text-5xl text-zinc-300 mb-4 block">notifications_off</span>
+              <p className="text-zinc-500 font-medium">Zatím nemáte žádná nová oznámení.</p>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

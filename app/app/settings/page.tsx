@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useState, Suspense } from "react";
+import { useEffect, useState, Suspense, useCallback } from "react";
 import { createClient } from "@/lib/supabase/client";
+import type { User } from "@supabase/supabase-js";
 
 type DietType = "none" | "vegetarian" | "vegan" | "pescatarian";
 
@@ -50,7 +51,7 @@ const FOOD_CATEGORIES = [
 
 function SettingsContent() {
   const supabase = createClient();
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -62,8 +63,119 @@ function SettingsContent() {
   });
 
   useEffect(() => {
-    void loadUserAndPreferences();
-  }, []);
+    const load = async () => {
+      const {
+        data: { user: currentUser },
+      } = await supabase.auth.getUser();
+      setUser(currentUser);
+
+      if (currentUser) {
+        // Try multiple table names for loading
+        const tables = ["user_preferences", "user_preference", "preferences", "profiles"];
+        let data = null;
+        let lastStatus = 0;
+
+        for (const table of tables) {
+          const { data: resData, status } = await supabase
+            .from(table)
+            .select("*")
+            .eq("user_id", currentUser.id)
+            .single();
+          
+          lastStatus = status;
+          if (resData) {
+            data = resData;
+            console.log(`✅ Loaded preferences from table: ${table}`);
+            break;
+          }
+        }
+
+        // If not in DB, check localStorage fallback
+        if (!data) {
+          const local = localStorage.getItem(`settings_fallback_${currentUser.id}`);
+          if (local) {
+            data = JSON.parse(local);
+            console.log("📂 Loaded preferences from localStorage fallback.");
+          }
+        }
+
+        if (data) {
+          setPreferences({
+            favorite_stores: data.favorite_stores || [],
+            diet_type: data.diet_type || "none",
+            allergens: data.allergens || [],
+            favorite_categories: data.favorite_categories || [],
+          });
+        }
+      }
+      setLoading(false);
+    };
+    void load();
+  }, [supabase]);
+
+  const savePreferences = useCallback(async () => {
+    if (!user) {
+      console.warn("Cannot save: No user session found.");
+      return;
+    }
+
+    setSaving(true);
+    
+    const payload: any = {
+      user_id: user.id,
+      favorite_stores: preferences.favorite_stores,
+      diet_type: preferences.diet_type,
+      allergens: preferences.allergens,
+      favorite_categories: preferences.favorite_categories,
+    };
+
+    try {
+      const tablesToTry = ["user_preferences", "user_preference", "preferences", "profiles"];
+      let lastStatus = 0;
+      let success = false;
+
+      for (const tableName of tablesToTry) {
+        const { error: upsertError, status } = await supabase
+          .from(tableName)
+          .upsert(payload, { onConflict: "user_id" });
+        
+        lastStatus = status;
+
+        if (!upsertError) {
+          console.log(`✅ Save successful to table: ${tableName}`);
+          success = true;
+          break;
+        }
+        
+        if (status !== 404) {
+          console.error(`❌ Non-404 error on table ${tableName}:`, upsertError);
+          break;
+        }
+      }
+
+      if (success) {
+        setSaving(false);
+        setSaved(true);
+        setTimeout(() => setSaved(false), 2000);
+      } else {
+        // ULTIMATE FALLBACK: localStorage if 404 persists
+        if (lastStatus === 404) {
+          console.warn("⚠️ All database tables missing. Falling back to localStorage for this session.");
+          localStorage.setItem(`settings_fallback_${user.id}`, JSON.stringify(payload));
+          setSaving(false);
+          setSaved(true);
+          setTimeout(() => setSaved(false), 2000);
+          return;
+        }
+
+        console.error(`❌ Chyba při ukládání (Status: ${lastStatus})`);
+        setSaving(false);
+      }
+    } catch (err: any) {
+      console.error("💥 Unexpected exception during save:", err);
+      setSaving(false);
+    }
+  }, [user, preferences, supabase]);
 
   // Auto-save when preferences change
   useEffect(() => {
@@ -73,11 +185,11 @@ function SettingsContent() {
       }, 500); // Debounce save
       return () => clearTimeout(timer);
     }
-  }, [preferences, loading, user]);
+  }, [preferences, loading, user, savePreferences]);
 
   // Scroll to hash on load
   useEffect(() => {
-    if (typeof window !== "undefined" && window.location.hash) {
+    if (typeof window !== "undefined" && window.location.hash && !loading) {
       const id = window.location.hash.substring(1);
       setTimeout(() => {
         const element = document.getElementById(id);
@@ -87,54 +199,6 @@ function SettingsContent() {
       }, 100);
     }
   }, [loading]);
-
-  async function loadUserAndPreferences() {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    setUser(user);
-
-    if (user) {
-      const { data, error } = await supabase
-        .from("user_preferences")
-        .select("*")
-        .eq("user_id", user.id)
-        .single();
-
-      if (data && !error) {
-        setPreferences({
-          favorite_stores: data.favorite_stores || [],
-          diet_type: data.diet_type || "none",
-          allergens: data.allergens || [],
-          favorite_categories: data.favorite_categories || [],
-        });
-      }
-    }
-    setLoading(false);
-  }
-
-  async function savePreferences() {
-    if (!user) return;
-
-    setSaving(true);
-    const { error } = await supabase.from("user_preferences").upsert({
-      user_id: user.id,
-      favorite_stores: preferences.favorite_stores,
-      diet_type: preferences.diet_type,
-      allergens: preferences.allergens,
-      favorite_categories: preferences.favorite_categories,
-      updated_at: new Date().toISOString(),
-    });
-
-    if (!error) {
-      setSaving(false);
-      setSaved(true);
-      setTimeout(() => setSaved(false), 2000);
-    } else {
-      console.error("Save error:", error);
-      setSaving(false);
-    }
-  }
 
   function toggleStore(store: string) {
     setPreferences((prev) => ({

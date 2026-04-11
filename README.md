@@ -1,36 +1,41 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🥬 Foodapka
 
-## Getting Started
+**Foodapka** je moderní webová aplikace pro chytré nakupování potravin. Pomáháme vám najít nejlepší akční ceny z českých letáků a efektivně plánovat vaření díky integrovanému vyhledávači receptů.
 
-First, run the development server:
+## ✨ Klíčové funkce
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+- **🔍 Srovnávač akcí:** Vyhledejte libovolnou potravinu a okamžitě uvidíte, kde je právě nejlevnější (Lidl, Kaufland, Albert, Tesco, Penny, Billa a další).
+- **🥘 Recepty na míru:** Vyberte si jídlo, které chcete uvařit, a my vám spočítáme nákupní seznam z aktuálně zlevněných surovin.
+- **🐶 Hlídací pes:** Sledujte vývoj cen a nenechte si ujít ty nejlepší nabídky.
+- **❤️ Oblíbené:** Ukládejte si produkty a recepty, které máte rádi, pro rychlý přístup.
+- **📝 Nákupní seznamy:** Sestavte si seznam surovin a sdílejte ho s rodinou.
+- **🌓 Dark Mode:** Pohodlné používání ve dne i v noci.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 🛠 Technologie
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- **Frontend:** Next.js 16, React 19, Tailwind CSS 4
+- **Backend & Auth:** Supabase
+- **Data:** Custom scrapery (Cheerio) pro české maloobchodní řetězce
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 🚀 Jak začít
 
-## Learn More
+1. Nainstalujte závislosti:
+   ```bash
+   npm install
+   ```
 
-To learn more about Next.js, take a look at the following resources:
+2. Nastavte proměnné prostředí v souboru `.env.local` (Supabase URL a klíče).
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+3. Spusťte vývojový server:
+   ```bash
+   npm run dev
+   ```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+4. Otevřete [http://localhost:3000](http://localhost:3000) ve vašem prohlížeči.
 
-## Deploy on Vercel
+## 📄 Dokumentace
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Podrobnější technické informace a pravidla pro vývoj naleznete v souboru [PROJECT_CONTEXT.md](./PROJECT_CONTEXT.md).
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
+© 2026 foodapka. Všechna práva vyhrazena.

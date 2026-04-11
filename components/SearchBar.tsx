@@ -11,6 +11,7 @@ type SearchBarProps = {
   mode: AppMode;
   onModeChange: (mode: AppMode) => void;
   initialQuery?: string;
+  isLandingPage?: boolean;
 };
 
 const DEFAULT_SUGGESTIONS = [
@@ -49,6 +50,7 @@ export default function SearchBar({
   mode,
   onModeChange,
   initialQuery = "",
+  isLandingPage = false,
 }: SearchBarProps) {
   const [query, setQuery] = useState(initialQuery);
   const [showSuggestions, setShowSuggestions] = useState(false);
@@ -68,9 +70,9 @@ export default function SearchBar({
     setSuggestions(DEFAULT_SUGGESTIONS.filter(s => !hidden.includes(s)));
   }, []);
 
-  const filteredSuggestions = query.trim()
+  const filteredSuggestions = (query.trim()
     ? suggestions.filter((s) => s.toLowerCase().includes(query.toLowerCase()))
-    : suggestions;
+    : suggestions).slice(0, isLandingPage ? 3 : 10);
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
@@ -150,7 +152,7 @@ export default function SearchBar({
   return (
     <form
       onSubmit={handleSearch}
-      className="relative flex w-full flex-col gap-2 rounded-full border border-white/50 dark:border-zinc-800 bg-white/90 dark:bg-zinc-900/90 p-2 md:p-3 shadow-[0_20px_60px_-20px_rgba(132,204,22,0.35)] dark:shadow-none backdrop-blur sm:flex-row sm:items-center z-[110]"
+      className="relative flex w-full flex-col gap-2 rounded-full border border-white/50 dark:border-zinc-800 bg-white/90 dark:bg-zinc-900/90 p-2 md:p-3 shadow-[0_20px_60px_-20px_rgba(132,204,22,0.35)] dark:shadow-none backdrop-blur sm:flex-row sm:items-center z-10"
     >
       <label htmlFor="product-search" className="sr-only">Hledat produkty</label>
       

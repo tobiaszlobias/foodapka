@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useRef } from "react";
 import SearchBar from "@/components/SearchBar";
 import { 
   cleanProductName, 
@@ -11,7 +11,7 @@ import {
 } from "@/lib/food";
 import { normalizeText } from "@/lib/food";
 import { FOODORA_STORE_CONFIGS } from "@/data/foodoraStores";
-import { StoreBrand, LoadingCards, EmptyState } from "./DashboardShared";
+import { StoreBrand, EmptyState, SearchLoadingAnimation } from "./DashboardShared";
 
 type ProductSort = "relevance" | "cheapest" | "coverage";
 
@@ -29,6 +29,8 @@ type SearchSectionProps = {
   handleModeChange: (mode: any) => void;
   initialQuery?: string;
   hideHeader?: boolean;
+  favorites: any[];
+  onToggleFavorite: (item: any) => void;
 };
 
 const BASE_SOURCE_FILTERS = [
@@ -62,7 +64,10 @@ export default function SearchSection({
   handleModeChange,
   initialQuery,
   hideHeader,
+  favorites,
+  onToggleFavorite,
 }: SearchSectionProps) {
+  const resultsRef = useRef<HTMLDivElement>(null);
   
   const availableFilters = useMemo(() => {
     const filters = [...BASE_SOURCE_FILTERS];
@@ -81,7 +86,7 @@ export default function SearchSection({
   }, [products]);
 
   const filteredAndSortedProducts = useMemo(() => {
-    let result = selectedFilter === "all" 
+    const filtered = selectedFilter === "all" 
       ? products 
       : products.map(p => ({
           ...p,
@@ -89,12 +94,12 @@ export default function SearchSection({
         })).filter(p => p.stores.length > 0);
 
     if (selectedSort === "cheapest") {
-      return [...result].sort((a, b) => 
+      return [...filtered].sort((a, b) => 
         parsePrice(sortStoresByPrice(a.stores)[0]?.price || "") - 
         parsePrice(sortStoresByPrice(b.stores)[0]?.price || "")
       );
     }
-    return result;
+    return filtered;
   }, [products, selectedFilter, selectedSort]);
 
   return (
@@ -110,7 +115,12 @@ export default function SearchSection({
             <SearchBar
               onResults={handleResults}
               onLoading={setLoading}
-              onSearchStart={() => setHasSearched(true)}
+              onSearchStart={() => {
+                setHasSearched(true);
+                setTimeout(() => {
+                  resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+                }, 100);
+              }}
               mode="search"
               onModeChange={handleModeChange}
               initialQuery={initialQuery}
@@ -119,7 +129,7 @@ export default function SearchSection({
         </header>
       )}
 
-      <section className="space-y-4 w-full">
+      <section ref={resultsRef} className="space-y-4 w-full">
         <div className="flex items-center justify-between gap-4 px-1 md:px-2 overflow-hidden">
           <h2 className="text-lg font-bold text-foodapka-950 dark:text-white shrink-0">Výsledky</h2>
           <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1 min-w-0">
@@ -165,43 +175,67 @@ export default function SearchSection({
           </div>
         )}
 
-        {loading ? <LoadingCards /> : filteredAndSortedProducts.length > 0 ? (
+        {loading ? <SearchLoadingAnimation /> : filteredAndSortedProducts.length > 0 ? (
           <div className="grid gap-3 md:gap-4 w-full">
-            {filteredAndSortedProducts.map((product) => (
-              <article key={product.url} className="rounded-2xl border border-foodapka-100 dark:border-zinc-800 bg-white/90 dark:bg-foodapka-950 p-4 shadow-sm w-full min-w-0 overflow-hidden">
-                <div className="flex flex-col gap-4">
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="min-w-0 flex-1">
-                      <h3 className="text-base md:text-lg font-bold text-zinc-950 dark:text-white leading-tight truncate">
-                        {cleanProductName(product.name)}
-                      </h3>
-                      <p className="text-[11px] text-zinc-500 dark:text-zinc-400 mt-0.5">
-                        V {product.stores.length} {product.stores.length === 1 ? "obchodě" : "obchodech"}
-                      </p>
+            {filteredAndSortedProducts.map((product) => {
+              const isFavorite = favorites.some(f => f.id === product.url);
+              return (
+                <article key={product.url} className="group relative rounded-2xl border border-foodapka-100 dark:border-zinc-800 bg-white/90 dark:bg-foodapka-950 p-4 shadow-sm w-full min-w-0 overflow-hidden">
+                  {/* Favorite Button */}
+                  <button 
+                    onClick={(e) => {
+                      e.preventDefault();
+                      onToggleFavorite(product);
+                    }}
+                    className={`absolute top-3 right-3 z-10 flex h-10 w-10 items-center justify-center rounded-full transition-all duration-200 ${
+                      isFavorite 
+                        ? "text-red-500 bg-red-50 dark:bg-red-900/20" 
+                        : "text-zinc-300 hover:text-red-400 hover:bg-red-50/50 dark:hover:bg-red-900/10"
+                    }`}
+                    title={isFavorite ? "Odebrat z oblíbených" : "Přidat do oblíbených"}
+                  >
+                    <span 
+                      className="material-symbols-outlined text-xl"
+                      style={isFavorite ? { fontVariationSettings: "'FILL' 1" } : undefined}
+                    >
+                      favorite
+                    </span>
+                  </button>
+
+                  <div className="flex flex-col gap-4">
+                    <div className="flex items-start justify-between gap-4 pr-10">
+                      <div className="min-w-0 flex-1">
+                        <h3 className="text-base md:text-lg font-bold text-zinc-950 dark:text-white leading-tight truncate">
+                          {cleanProductName(product.name)}
+                        </h3>
+                        <p className="text-[11px] text-zinc-500 dark:text-zinc-400 mt-0.5">
+                          V {product.stores.length} {product.stores.length === 1 ? "obchodě" : "obchodech"}
+                        </p>
+                      </div>
+                      <a href={product.url} target="_blank" rel="noreferrer" className="shrink-0 rounded-full border border-foodapka-200 dark:border-zinc-800 bg-foodapka-50 dark:bg-zinc-900 px-3 py-1.5 text-xs font-bold text-foodapka-800 dark:text-foodapka-300">
+                        Detail
+                      </a>
                     </div>
-                    <a href={product.url} target="_blank" rel="noreferrer" className="shrink-0 rounded-full border border-foodapka-200 dark:border-zinc-800 bg-foodapka-50 dark:bg-zinc-900 px-3 py-1.5 text-xs font-bold text-foodapka-800 dark:text-foodapka-300">
-                      Detail
-                    </a>
-                  </div>
-                  <ul className="grid gap-2 w-full">
-                    {sortStoresByPrice(product.stores).map((item, idx) => (
-                      <li key={idx} className={`rounded-xl border px-3 py-2.5 flex items-center justify-between gap-3 min-w-0 ${idx === 0 ? "border-foodapka-300 dark:border-foodapka-800 bg-foodapka-50 dark:bg-foodapka-900/20 shadow-sm" : "border-zinc-100 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/50"}`}>
-                        <div className="flex items-center gap-2 min-w-0 flex-1">
-                          <div className="shrink-0">
-                            <StoreBrand shopName={item.shopName} small />
+                    <ul className="grid gap-2 w-full">
+                      {sortStoresByPrice(product.stores).map((item, idx) => (
+                        <li key={idx} className={`rounded-xl border px-3 py-2.5 flex items-center justify-between gap-3 min-w-0 ${idx === 0 ? "border-foodapka-300 dark:border-foodapka-800 bg-foodapka-50 dark:bg-foodapka-900/20 shadow-sm" : "border-zinc-100 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/50"}`}>
+                          <div className="flex items-center gap-2 min-w-0 flex-1">
+                            <div className="shrink-0">
+                              <StoreBrand shopName={item.shopName} small />
+                            </div>
+                            {idx === 0 && <span className="bg-foodapka-600 text-[8px] font-black text-white px-1.5 py-0.5 rounded-full uppercase tracking-tighter shrink-0">TOP</span>}
                           </div>
-                          {idx === 0 && <span className="bg-foodapka-600 text-[8px] font-black text-white px-1.5 py-0.5 rounded-full uppercase tracking-tighter shrink-0">TOP</span>}
-                        </div>
-                        <div className="text-right shrink-0">
-                          <p className={`text-base font-black ${idx === 0 ? "text-foodapka-700 dark:text-foodapka-400" : "text-zinc-900 dark:text-white"}`}>{item.price}</p>
-                          {item.amount && <p className="text-[9px] text-zinc-500 dark:text-zinc-400 -mt-0.5">{item.amount}</p>}
-                        </div>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              </article>
-            ))}
+                          <div className="text-right shrink-0">
+                            <p className={`text-base font-black ${idx === 0 ? "text-foodapka-700 dark:text-foodapka-400" : "text-zinc-900 dark:text-white"}`}>{item.price}</p>
+                            {item.amount && <p className="text-[9px] text-zinc-500 dark:text-zinc-400 -mt-0.5">{item.amount}</p>}
+                          </div>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </article>
+              );
+            })}
           </div>
         ) : hasSearched ? (
           <EmptyState hasSearched={true} />
