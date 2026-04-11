@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import { getStoreIcon } from "@/lib/food";
 import { getStoreLogoPath } from "@/lib/storeLogos";
@@ -8,6 +9,7 @@ import { normalizeText } from "@/lib/food";
 export function StoreBrand({ shopName, small = false }: { shopName: string; small?: boolean }) {
   const logoPath = getStoreLogoPath(shopName);
   const isLidl = normalizeText(shopName).includes("lidl");
+  const isAlbert = normalizeText(shopName).includes("albert");
 
   if (logoPath) {
     return (
@@ -15,12 +17,12 @@ export function StoreBrand({ shopName, small = false }: { shopName: string; smal
         <Image
           src={logoPath}
           alt={`${shopName} logo`}
-          width={isLidl ? 100 : 80}
-          height={isLidl ? 100 : 80}
+          width={isLidl || isAlbert ? 140 : 80}
+          height={isLidl || isAlbert ? 140 : 80}
           className={`${
             small 
-              ? (isLidl ? "h-10 w-10" : "h-9 w-9") 
-              : (isLidl ? "h-16 w-16 md:h-24 md:w-24" : "h-14 w-14 md:h-20 md:w-20")
+              ? (isLidl || isAlbert ? "h-11 w-11" : "h-9 w-9") 
+              : (isLidl || isAlbert ? "h-24 w-24 md:h-32 md:w-32" : "h-14 w-14 md:h-20 md:w-20")
           } object-contain`}
         />
       </span>
@@ -37,39 +39,64 @@ export function StoreBrand({ shopName, small = false }: { shopName: string; smal
   );
 }
 
-export function SearchLoadingAnimation() {
+export function SearchLoadingAnimation({ progress }: { progress?: number }) {
+  const [currentShop, setCurrentShop] = useState(0);
+  const [fakeProgress, setFakeProgress] = useState(0);
+  const shops = ["Lidl", "Albert", "Kaufland", "Tesco", "Penny", "Billa"];
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentShop((prev) => (prev + 1) % shops.length);
+    }, 800);
+    return () => clearInterval(timer);
+  }, [shops.length]);
+
+  // "Realistic" fake progress logic if no real progress is provided
+  useEffect(() => {
+    if (progress !== undefined) return;
+
+    // Start with a jump
+    setFakeProgress(15);
+
+    const interval = setInterval(() => {
+      setFakeProgress(prev => {
+        if (prev < 40) return prev + Math.random() * 10;
+        if (prev < 85) return prev + Math.random() * 2;
+        if (prev < 98) return prev + 0.1; // Slow down at the end
+        return prev;
+      });
+    }, 400);
+
+    return () => clearInterval(interval);
+  }, [progress]);
+
+  const displayProgress = progress !== undefined ? progress : fakeProgress;
+
   return (
-    <div className="flex flex-col items-center justify-center py-12 px-4 text-center overflow-hidden">
-      <div className="relative mb-8">
-        {/* Pulsing Outer Ring */}
-        <div className="absolute inset-0 rounded-full bg-foodappka-500/20 animate-ping" />
-        
-        {/* Watchdog Icon */}
-        <div className="relative w-24 h-24 rounded-full bg-white dark:bg-foodappka-950 border-4 border-foodappka-500 flex items-center justify-center shadow-xl z-10">
-          <span className="material-symbols-outlined text-5xl text-foodappka-600 animate-bounce">pets</span>
+    <div className="flex flex-col items-center justify-center py-10 px-4 text-center overflow-hidden relative">
+      <div className="space-y-4 w-full max-w-xs mx-auto">
+        <div className="flex flex-col items-center gap-4">
+          <div className="flex items-center gap-2 text-foodappka-600 font-black px-6 py-2 bg-foodappka-50 dark:bg-foodappka-900/30 rounded-full text-sm shadow-sm border border-foodappka-100 dark:border-foodappka-800 animate-pulse">
+            <span className="material-symbols-outlined text-sm animate-spin">sync</span>
+            <span>Prohledáváme {shops[currentShop]}...</span>
+          </div>
+          <div className="space-y-1">
+            <p className="text-xs text-zinc-500 dark:text-zinc-400 font-bold leading-relaxed">
+              Hlídací pes čmuchá nejlepší akční nabídky z milionu položek...
+            </p>
+            <p className="text-[10px] text-foodappka-600 font-black tracking-widest uppercase">
+              {Math.round(displayProgress)}% HOTOVO
+            </p>
+          </div>
         </div>
 
-        {/* Flying store bubbles */}
-        <div className="absolute -top-4 -left-4 w-10 h-10 rounded-full bg-white dark:bg-zinc-800 shadow-lg border border-zinc-100 dark:border-zinc-700 flex items-center justify-center animate-bounce [animation-delay:0.2s]">
-          <span className="text-xs">🛒</span>
+        {/* Modern Progress Track */}
+        <div className="mt-6 w-full h-2 bg-zinc-100 dark:bg-zinc-800 rounded-full overflow-hidden p-0.5 border border-zinc-200/50 dark:border-zinc-700/50">
+          <div 
+            className="h-full bg-gradient-to-r from-foodappka-400 to-foodappka-600 rounded-full transition-all duration-500 ease-out" 
+            style={{ width: `${displayProgress}%` }}
+          />
         </div>
-        <div className="absolute top-0 -right-6 w-12 h-12 rounded-full bg-white dark:bg-zinc-800 shadow-lg border border-zinc-100 dark:border-zinc-700 flex items-center justify-center animate-bounce [animation-delay:0.5s]">
-          <span className="text-xs">🏷️</span>
-        </div>
-        <div className="absolute -bottom-2 -right-2 w-8 h-8 rounded-full bg-white dark:bg-zinc-800 shadow-lg border border-zinc-100 dark:border-zinc-700 flex items-center justify-center animate-bounce [animation-delay:0.8s]">
-          <span className="text-xs">🥓</span>
-        </div>
-      </div>
-
-      <h3 className="text-xl font-black text-zinc-900 dark:text-white mb-2">Hlídací pes právě čmuchá slevy...</h3>
-      <div className="flex items-center gap-2 text-zinc-500 dark:text-zinc-400 font-medium">
-        <span className="material-symbols-outlined animate-spin text-sm">progress_activity</span>
-        <p className="text-sm">Prohledáváme miliony položek z aktuálních letáků</p>
-      </div>
-
-      {/* Animated Flyer Scanning Line */}
-      <div className="mt-8 w-full max-w-[280px] h-1.5 bg-zinc-100 dark:bg-zinc-800 rounded-full overflow-hidden">
-        <div className="h-full bg-foodappka-500 w-1/3 rounded-full animate-[shimmer_1.5s_infinite_linear]" />
       </div>
     </div>
   );

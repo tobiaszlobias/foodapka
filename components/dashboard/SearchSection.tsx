@@ -6,12 +6,14 @@ import {
   cleanProductName, 
   parsePrice, 
   sortStoresByPrice, 
+  formatDiscountPercent,
+  getSavings,
   type Product, 
   type Store 
 } from "@/lib/food";
 import { normalizeText } from "@/lib/food";
 import { FOODORA_STORE_CONFIGS } from "@/data/foodoraStores";
-import { StoreBrand, EmptyState, SearchLoadingAnimation } from "./DashboardShared";
+import { StoreBrand, LoadingCards, EmptyState, SearchLoadingAnimation } from "./DashboardShared";
 
 type ProductSort = "relevance" | "cheapest" | "coverage";
 
@@ -93,14 +95,12 @@ export default function SearchSection({
           stores: p.stores.filter(s => getStoreFilter(s).key === selectedFilter)
         })).filter(p => p.stores.length > 0);
 
-    if (selectedSort === "cheapest") {
-      return [...filtered].sort((a, b) => 
-        parsePrice(sortStoresByPrice(a.stores)[0]?.price || "") - 
-        parsePrice(sortStoresByPrice(b.stores)[0]?.price || "")
-      );
-    }
-    return filtered;
-  }, [products, selectedFilter, selectedSort]);
+    // Default to cheapest sorting
+    return [...filtered].sort((a, b) => 
+      parsePrice(sortStoresByPrice(a.stores)[0]?.price || "") - 
+      parsePrice(sortStoresByPrice(b.stores)[0]?.price || "")
+    );
+  }, [products, selectedFilter]);
 
   return (
     <div className="space-y-6 md:space-y-8 w-full max-w-full overflow-x-hidden">
@@ -132,21 +132,6 @@ export default function SearchSection({
       <section ref={resultsRef} className="space-y-4 w-full">
         <div className="flex items-center justify-between gap-4 px-1 md:px-2 overflow-hidden">
           <h2 className="text-lg font-bold text-foodappka-950 dark:text-white shrink-0">Výsledky</h2>
-          <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1 min-w-0">
-            {["relevance", "cheapest"].map((s) => (
-              <button
-                key={s}
-                onClick={() => setSelectedSort(s as ProductSort)}
-                className={`whitespace-nowrap rounded-full border px-3 py-1.5 text-[11px] font-bold transition-all ${
-                  selectedSort === s
-                    ? "border-foodappka-600 bg-foodappka-600 text-white shadow-md"
-                    : "border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-zinc-600 dark:text-zinc-400"
-                }`}
-              >
-                {s === "relevance" ? "Relevance" : "Nejlevnější"}
-              </button>
-            ))}
-          </div>
         </div>
 
         {!loading && products.length > 0 && (
@@ -217,20 +202,46 @@ export default function SearchSection({
                       </a>
                     </div>
                     <ul className="grid gap-2 w-full">
-                      {sortStoresByPrice(product.stores).map((item, idx) => (
-                        <li key={idx} className={`rounded-xl border px-3 py-2.5 flex items-center justify-between gap-3 min-w-0 ${idx === 0 ? "border-foodappka-300 dark:border-foodappka-800 bg-foodappka-50 dark:bg-foodappka-900/20 shadow-sm" : "border-zinc-100 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/50"}`}>
-                          <div className="flex items-center gap-2 min-w-0 flex-1">
-                            <div className="shrink-0">
-                              <StoreBrand shopName={item.shopName} small />
+                      {sortStoresByPrice(product.stores).map((item, idx) => {
+                        const currentPrice = parsePrice(item.price);
+                        const originalPrice = item.originalPrice ? parsePrice(item.originalPrice) : null;
+                        const discountPercent = formatDiscountPercent(currentPrice, originalPrice);
+                        const savings = getSavings(currentPrice, originalPrice);
+
+                        return (
+                          <li key={idx} className={`rounded-xl border px-3 py-2.5 flex items-center justify-between gap-3 min-w-0 ${idx === 0 ? "border-foodappka-300 dark:border-foodappka-800 bg-foodappka-50 dark:bg-foodappka-900/20 shadow-sm" : "border-zinc-100 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/50"}`}>
+                            <div className="flex items-center gap-2 min-w-0 flex-1">
+                              <div className="shrink-0">
+                                <StoreBrand shopName={item.shopName} small />
+                              </div>
+                              {idx === 0 && <span className="bg-foodappka-600 text-[8px] font-black text-white px-1.5 py-0.5 rounded-full uppercase tracking-tighter shrink-0">TOP</span>}
+                              {discountPercent && (
+                                <span className="bg-red-500 text-[8px] font-black text-white px-1.5 py-0.5 rounded-full uppercase tracking-tighter shrink-0 animate-pulse">
+                                  {discountPercent}
+                                </span>
+                              )}
                             </div>
-                            {idx === 0 && <span className="bg-foodappka-600 text-[8px] font-black text-white px-1.5 py-0.5 rounded-full uppercase tracking-tighter shrink-0">TOP</span>}
-                          </div>
-                          <div className="text-right shrink-0">
-                            <p className={`text-base font-black ${idx === 0 ? "text-foodappka-700 dark:text-foodappka-400" : "text-zinc-900 dark:text-white"}`}>{item.price}</p>
-                            {item.amount && <p className="text-[9px] text-zinc-500 dark:text-zinc-400 -mt-0.5">{item.amount}</p>}
-                          </div>
-                        </li>
-                      ))}
+                            <div className="text-right shrink-0">
+                              <div className="flex flex-col items-end">
+                                {originalPrice && originalPrice > currentPrice && (
+                                  <span className="text-[10px] text-zinc-400 line-through font-bold leading-none mb-0.5">
+                                    {item.originalPrice}
+                                  </span>
+                                )}
+                                <p className={`text-base font-black leading-none ${idx === 0 ? "text-foodappka-700 dark:text-foodappka-400" : "text-zinc-900 dark:text-white"}`}>
+                                  {item.price}
+                                </p>
+                                {savings > 0 && (
+                                  <p className="text-[9px] text-red-500 font-bold mt-0.5">
+                                    Ušetříte {savings.toFixed(2).replace(".", ",")} Kč
+                                  </p>
+                                )}
+                              </div>
+                              {item.amount && <p className="text-[9px] text-zinc-500 dark:text-zinc-400 mt-0.5">{item.amount}</p>}
+                            </div>
+                          </li>
+                        );
+                      })}
                     </ul>
                   </div>
                 </article>

@@ -85,6 +85,7 @@ function parseLidlGridProduct(rawValue: string) {
         shopId: "lidl",
         shopName: "Lidl",
         price: formatPrice(currentPrice),
+        originalPrice: oldPrice ? formatPrice(oldPrice) : undefined,
         pricePerUnit: packaging,
         amount: formatDiscountPercent(currentPrice, oldPrice),
         validity: "",

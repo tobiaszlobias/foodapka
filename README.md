@@ -5,17 +5,16 @@
 ## ✨ Klíčové funkce
 
 - **🔍 Srovnávač akcí:** Vyhledejte libovolnou potravinu a okamžitě uvidíte, kde je právě nejlevnější (Lidl, Kaufland, Albert, Tesco, Penny, Billa a další).
-- **🥘 Recepty na míru:** Vyberte si jídlo, které chcete uvařit, a my vám spočítáme nákupní seznam z aktuálně zlevněných surovin.
-- **🐶 Hlídací pes:** Sledujte vývoj cen a nenechte si ujít ty nejlepší nabídky.
-- **❤️ Oblíbené:** Ukládejte si produkty a recepty, které máte rádi, pro rychlý přístup.
-- **📝 Nákupní seznamy:** Sestavte si seznam surovin a sdílejte ho s rodinou.
-- **🌓 Dark Mode:** Pohodlné používání ve dne i v noci.
+- **🥘 Chytré recepty:** Vyberte si jídlo a my vám spočítáme nákupní seznam z aktuálně zlevněných surovin. Můžete nakupovat napříč řetězci nebo zvolit strategii **"Jeden obchod"** pro maximální pohodlí.
+- **🐶 Hlídací pes:** Sledujte vývoj cen a nenechte si ujít ty nejlepší nabídky s naší novou animovanou čmuchací technologií.
+- **❤️ Oblíbené & Seznamy:** Ukládejte si produkty, recepty a hotové nákupní seznamy pro snadný přístup.
+- **🌓 Dynamický vzhled:** Moderní rozhraní s podporou Dark Modu a animovaným Aurora pozadím.
 
 ## 🛠 Technologie
 
-- **Frontend:** Next.js 16, React 19, Tailwind CSS 4
+- **Frontend:** Next.js 16, React 19, Tailwind CSS 4, Framer Motion
 - **Backend & Auth:** Supabase
-- **Data:** Custom scrapery (Cheerio) pro české maloobchodní řetězce
+- **Data:** Inkrementální vyhledávání v reálném čase z českých maloobchodních řetězců.
 
 ## 🚀 Jak začít
 
@@ -31,11 +30,11 @@
    npm run dev
    ```
 
-4. Otevřete [http://localhost:3000](http://localhost:3000) ve vašem prohlížeči.
+4. Otevřete [http://localhost:3000](http://localhost:3000).
 
 ## 📄 Dokumentace
 
-Podrobnější technické informace a pravidla pro vývoj naleznete v souboru [PROJECT_CONTEXT.md](./PROJECT_CONTEXT.md).
+Podrobnější technické informace naleznete v souboru [PROJECT_CONTEXT.md](./PROJECT_CONTEXT.md).
 
 ---
 © 2026 foodappka. Všechna práva vyhrazena.

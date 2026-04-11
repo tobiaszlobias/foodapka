@@ -25,10 +25,13 @@ function extractStoresFromDetail(
     const price = row.find("strong.discount_price_value").text().trim();
     if (!price) return;
 
+    const originalPrice = row.find(".standard_price").text().trim();
+
     stores.push({
       shopId: row.attr("data-shop") || "",
       shopName: cleanShopName(row.find(".discounts_shop_wrap").text()),
       price,
+      originalPrice: originalPrice || undefined,
       pricePerUnit: row.find(".price_per_unit").text().trim(),
       amount: row.find(".amount_percentage").text().trim(),
       validity: row.find(".discounts_validity.valid_discount").text().trim(),

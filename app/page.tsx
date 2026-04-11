@@ -28,13 +28,13 @@ export default function HomePage() {
   }, []);
 
   const stores = [
-    { name: "Albert", logo: "/albertlogo.png" },
-    { name: "Lidl", logo: "/lidllogo.png" },
-    { name: "Kaufland", logo: "/kauflandlogo.png" },
-    { name: "Billa", logo: "/billalogo.png" },
-    { name: "Tesco", logo: "/tescologo.png" },
-    { name: "Penny", logo: "/pennylogo.png" },
-    { name: "Globus", logo: "/globuslogo.png" },
+    { name: "Albert", logo: "/albertlogo.png", scale: "scale-[2.4]" },
+    { name: "Lidl", logo: "/lidllogo.png", scale: "scale-[2.2]" },
+    { name: "Kaufland", logo: "/kauflandlogo.png", scale: "scale-[2.0]" },
+    { name: "Billa", logo: "/billalogo.png", scale: "scale-[1.5]" },
+    { name: "Tesco", logo: "/tescologo.png", scale: "scale-100" },
+    { name: "Penny", logo: "/pennylogo.png", scale: "scale-[2.2]" },
+    { name: "Globus", logo: "/globuslogo.png", scale: "scale-[1.6]" },
   ];
 
   return (
@@ -55,7 +55,7 @@ export default function HomePage() {
       <AuroraBackground>
         <motion.section 
           initial={{ opacity: 0.0, y: 40 }}
-          whileInView={{ opacity: 1, y: 0 }}
+          animate={{ opacity: 1, y: 0 }}
           transition={{
             delay: 0.3,
             duration: 0.8,
@@ -107,11 +107,15 @@ export default function HomePage() {
             </div>
           </div>
         </motion.section>
-      </AuroraBackground>
 
-      <main>
-        {/* Process Section - NOW FIRST */}
-        <section className="mx-auto max-w-7xl px-4 md:px-8 py-20 md:py-32">
+        {/* Process Section - NOW PART OF AURORA FLOW */}
+        <motion.section 
+          initial={{ opacity: 0, y: 40 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.8 }}
+          className="mx-auto max-w-7xl px-4 md:px-8 py-20 md:py-32 relative z-10"
+        >
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
             <div className="relative order-2 lg:order-1">
               <div className="absolute inset-0 bg-foodappka-100/50 blur-3xl rounded-full transform -rotate-12 scale-90"></div>
@@ -130,7 +134,7 @@ export default function HomePage() {
               </h2>
               <div className="space-y-8">
                 <div className="flex gap-6">
-                  <div className="w-14 h-14 rounded-2xl bg-foodappka-50 flex items-center justify-center shrink-0 border border-foodappka-100 shadow-sm">
+                  <div className="w-14 h-14 rounded-2xl bg-white/80 backdrop-blur-md flex items-center justify-center shrink-0 border border-white shadow-sm">
                     <span className="material-symbols-outlined text-foodappka-600 text-3xl">search</span>
                   </div>
                   <div>
@@ -139,7 +143,7 @@ export default function HomePage() {
                   </div>
                 </div>
                 <div className="flex gap-6">
-                  <div className="w-14 h-14 rounded-2xl bg-foodappka-50 flex items-center justify-center shrink-0 border border-foodappka-100 shadow-sm">
+                  <div className="w-14 h-14 rounded-2xl bg-white/80 backdrop-blur-md flex items-center justify-center shrink-0 border border-white shadow-sm">
                     <span className="material-symbols-outlined text-foodappka-600 text-3xl">shopping_cart</span>
                   </div>
                   <div>
@@ -148,7 +152,7 @@ export default function HomePage() {
                   </div>
                 </div>
                 <div className="flex gap-6">
-                  <div className="w-14 h-14 rounded-2xl bg-foodappka-50 flex items-center justify-center shrink-0 border border-foodappka-100 shadow-sm">
+                  <div className="w-14 h-14 rounded-2xl bg-white/80 backdrop-blur-md flex items-center justify-center shrink-0 border border-white shadow-sm">
                     <span className="material-symbols-outlined text-foodappka-600 text-3xl">restaurant</span>
                   </div>
                   <div>
@@ -159,41 +163,72 @@ export default function HomePage() {
               </div>
             </div>
           </div>
-        </section>
+        </motion.section>
+      </AuroraBackground>
 
+      <main>
         {/* Store Leaflets Carousel - NOW SECOND */}
-        <section id="letaky" className="bg-zinc-50 py-20 border-y border-zinc-100 overflow-hidden">
-          <div className="mx-auto max-w-7xl px-4 md:px-8 mb-12 text-center">
-            <h2 className="text-3xl md:text-4xl font-black text-zinc-900 tracking-tight">Aktuální letáky v aplikaci</h2>
-            <p className="mt-3 text-zinc-500 font-medium">Každý den procházíme ty nejoblíbenější obchody</p>
+        <motion.section 
+          id="letaky" 
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 1 }}
+          className="bg-white py-24 border-y border-zinc-50 overflow-hidden"
+        >
+          <div className="mx-auto max-w-7xl px-4 md:px-8 mb-16 text-center">
+            <h2 className="text-3xl md:text-4xl font-black text-zinc-900 tracking-tight">Procházíme letáky největších řetězců</h2>
+            <p className="mt-3 text-zinc-500 font-medium text-base md:text-lg">Každý den pro vás hlídáme ty nejlepší nabídky</p>
           </div>
           
-          <div className="relative flex overflow-hidden group">
-            <div className="flex gap-8 animate-scroll whitespace-nowrap py-4 px-4">
+          <div className="relative flex overflow-hidden">
+            <div className="flex gap-24 animate-scroll whitespace-nowrap py-12 px-4">
               {/* First loop */}
               {stores.map((store, i) => (
                 <div
                   key={`${store.name}-1-${i}`}
-                  className="flex-shrink-0 w-[200px] h-[140px] flex flex-col items-center justify-center rounded-[2rem] bg-white p-6 border border-zinc-100 transition-all hover:shadow-xl hover:-translate-y-2 cursor-pointer group/card"
+                  className="flex-shrink-0 flex items-center justify-center min-w-[160px]"
                 >
-                  <Image src={store.logo} alt={`${store.name} logo`} width={140} height={140} className="h-20 w-auto object-contain transition-transform group-hover/card:scale-110" />
+                  <div className={`${store.scale} transition-all duration-500 grayscale opacity-40 hover:grayscale-0 hover:opacity-100`}>
+                    <Image 
+                      src={store.logo} 
+                      alt={`${store.name} logo`} 
+                      width={140} 
+                      height={140} 
+                      className="h-16 w-auto object-contain" 
+                    />
+                  </div>
                 </div>
               ))}
               {/* Second loop for seamless infinite scroll */}
               {stores.map((store, i) => (
                 <div
                   key={`${store.name}-2-${i}`}
-                  className="flex-shrink-0 w-[200px] h-[140px] flex flex-col items-center justify-center rounded-[2rem] bg-white p-6 border border-zinc-100 transition-all hover:shadow-xl hover:-translate-y-2 cursor-pointer group/card"
+                  className="flex-shrink-0 flex items-center justify-center min-w-[160px]"
                 >
-                  <Image src={store.logo} alt={`${store.name} logo`} width={140} height={140} className="h-20 w-auto object-contain transition-transform group-hover/card:scale-110" />
+                  <div className={`${store.scale} transition-all duration-500 grayscale opacity-40 hover:grayscale-0 hover:opacity-100`}>
+                    <Image 
+                      src={store.logo} 
+                      alt={`${store.name} logo`} 
+                      width={140} 
+                      height={140} 
+                      className="h-16 w-auto object-contain" 
+                    />
+                  </div>
                 </div>
               ))}
             </div>
           </div>
-        </section>
+        </motion.section>
 
         {/* Stats + Category Grid - NOW THIRD */}
-        <section className="mx-auto max-w-7xl px-4 md:px-8 py-20 md:py-32">
+        <motion.section 
+          initial={{ opacity: 0, y: 40 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.8 }}
+          className="mx-auto max-w-7xl px-4 md:px-8 py-20 md:py-32"
+        >
           <div className="grid gap-4 md:gap-6 grid-cols-2 md:grid-cols-6 auto-rows-[180px] md:auto-rows-[240px]">
             {/* Featured Box - Maso */}
             <div className="col-span-2 md:col-span-4 md:row-span-2 group relative overflow-hidden rounded-[2rem] bg-white shadow-xl border border-zinc-100">
@@ -247,12 +282,12 @@ export default function HomePage() {
             </div>
 
             {/* Stat 2 */}
-            <div className="col-span-2 md:col-span-2 md:row-span-1 flex flex-col justify-center items-center rounded-[2rem] bg-[#e2ff3b] p-6 text-center text-zinc-900 shadow-xl">
-              <span className="text-5xl font-black tracking-tighter">10+</span>
-              <p className="mt-1 text-sm font-bold text-zinc-600">Řetězců v kapse</p>
+            <div className="col-span-2 md:col-span-2 md:row-span-1 flex flex-col justify-center items-center rounded-[2rem] bg-foodappka-100 dark:bg-foodappka-900 p-6 text-center text-zinc-900 dark:text-white shadow-xl">
+              <span className="text-5xl font-black tracking-tighter text-foodappka-700 dark:text-foodappka-400">10+</span>
+              <p className="mt-1 text-sm font-bold opacity-80 uppercase tracking-widest">Řetězců v kapse</p>
             </div>
           </div>
-        </section>
+        </motion.section>
 
         {/* CTA Section */}
         <section className="py-20 md:py-32 bg-white text-center">

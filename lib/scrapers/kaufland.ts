@@ -254,6 +254,7 @@ export async function searchKauflandProducts(query: string) {
             shopId: "kaufland",
             shopName: "Kaufland",
             price: formattedPrice,
+            originalPrice: offer.formattedOldPrice || undefined,
             pricePerUnit: offer.formattedBasePrice || offer.basePrice || offer.unit || "",
             amount,
             validity: isDomOffer(offer)

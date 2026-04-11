@@ -4,6 +4,7 @@ export type Store = {
   shopId: string;
   shopName: string;
   price: string;
+  originalPrice?: string;
   pricePerUnit: string;
   amount: string;
   validity: string;
@@ -137,16 +138,21 @@ export function formatPrice(value: number) {
 
 export function formatDiscountPercent(
   currentPrice: number,
-  originalPrice?: number | null,
+  originalPriceValue?: number | null,
 ) {
-  if (!originalPrice || !Number.isFinite(originalPrice) || originalPrice <= 0) {
+  if (!originalPriceValue || !Number.isFinite(originalPriceValue) || originalPriceValue <= 0) {
     return "";
   }
 
-  if (currentPrice >= originalPrice) return "";
+  if (currentPrice >= originalPriceValue) return "";
 
-  const percent = Math.round(((originalPrice - currentPrice) / originalPrice) * 100);
+  const percent = Math.round(((originalPriceValue - currentPrice) / originalPriceValue) * 100);
   return percent > 0 ? `-${percent}%` : "";
+}
+
+export function getSavings(currentPrice: number, originalPriceValue?: number | null) {
+  if (!originalPriceValue || originalPriceValue <= currentPrice) return 0;
+  return originalPriceValue - currentPrice;
 }
 
 export function sortStoresByPrice(stores: Store[]) {

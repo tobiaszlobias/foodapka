@@ -274,6 +274,7 @@ function mapCandidatesToProducts(
           shopId: `foodora-${storeConfig.vendorCode}`,
           shopName: storeConfig.chainName,
           price: formatPrice(candidate.price),
+          originalPrice: candidate.originalPrice ? formatPrice(candidate.originalPrice) : undefined,
           pricePerUnit: candidate.pricePerUnit,
           amount: formatDiscountPercent(candidate.price, candidate.originalPrice),
           validity: "",

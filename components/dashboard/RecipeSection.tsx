@@ -7,6 +7,7 @@ import { RECIPE_PRESETS } from "@/lib/recipes";
 import { 
   cleanProductName, 
   parsePrice, 
+  formatDiscountPercent,
   type Product, 
   type Store 
 } from "@/lib/food";
@@ -76,16 +77,58 @@ export default function RecipeSection({
   onToggleFavorite,
 }: RecipeSectionProps) {
 
+  // SINGLE STORE LOGIC: Find which shop has the most ingredients for the lowest price
+  const effectiveResults = useMemo(() => {
+    if (shoppingMode === "cross_store") return recipeResults;
+
+    // 1. Find all unique shop names
+    const allShops = new Set<string>();
+    recipeResults.forEach(r => r.storeOptions.forEach(opt => allShops.add(opt.store.shopName)));
+
+    // 2. Score each shop
+    const shopScores = Array.from(allShops).map(shopName => {
+      let totalItems = 0;
+      let totalPrice = 0;
+      const items = recipeResults.map(res => {
+        const option = res.storeOptions.find(opt => opt.store.shopName === shopName);
+        if (option) {
+          totalItems++;
+          totalPrice += parsePrice(option.store.price);
+          return { ...res, store: option.store, product: option.product };
+        }
+        return { ...res, store: null, product: null };
+      });
+
+      return { shopName, totalItems, totalPrice, items };
+    });
+
+    // 3. Pick the "best" shop (most items, then lowest price)
+    const bestShop = shopScores.sort((a, b) => {
+      if (b.totalItems !== a.totalItems) return b.totalItems - a.totalItems;
+      return a.totalPrice - b.totalPrice;
+    })[0];
+
+    console.log("🏪 Single Store Analysis:", {
+      totalIngredients: recipeResults.length,
+      availableShops: allShops.size,
+      bestShop: bestShop?.shopName,
+      coveredItems: bestShop?.totalItems,
+      totalPrice: bestShop?.totalPrice
+    });
+
+    return bestShop?.items || recipeResults;
+  }, [recipeResults, shoppingMode]);
+
   const totalPrice = useMemo(() => {
-    return recipeResults.reduce((sum, item) => {
+    return effectiveResults.reduce((sum, item) => {
       if (checkedIngredients.includes(item.ingredient) || !item.store) return sum;
       return sum + parsePrice(item.store.price);
     }, 0);
-  }, [recipeResults, checkedIngredients]);
+  }, [effectiveResults, checkedIngredients]);
 
   return (
     <div className="space-y-8">
-      {!hideHeader && (
+      {!hideHeader && !activeRecipe && !recipeLoading && (
         <header className="px-1 md:px-2">
           <h1 className="text-2xl md:text-4xl lg:text-5xl font-extrabold tracking-tight text-foodappka-950 dark:text-white leading-tight mb-4">
             Vyberte si recept a najdeme <br className="hidden md:block" />
@@ -102,8 +145,24 @@ export default function RecipeSection({
         </header>
       )}
 
-      {/* Recipe Grid */}
-      <section className="grid gap-4 grid-cols-1 sm:grid-cols-2">
+      {/* Back button when in results mode */}
+      {(activeRecipe || recipeLoading) && (
+        <div className="px-1">
+          <button 
+            onClick={() => {
+              window.location.href = "/app?mode=recipes"; 
+            }}
+            className="flex items-center gap-2 text-zinc-500 hover:text-foodappka-600 transition-colors font-bold text-sm mb-6"
+          >
+            <span className="material-symbols-outlined text-lg">arrow_back</span>
+            Zpět na výběr receptů
+          </button>
+        </div>
+      )}
+
+      {/* Recipe Grid - Only shown when NOT searching */}
+      {!activeRecipe && !recipeLoading && (
+        <section className="grid gap-4 grid-cols-1 sm:grid-cols-2">
         {RECIPE_PRESETS.map((recipe) => {
           const isFavorite = favorites.some(f => f.id === recipe.name);
           return (
@@ -158,16 +217,29 @@ export default function RecipeSection({
         );
       })}
     </section>
+      )}
 
-      {/* Shopping List */}
-      <section ref={shoppingListRef} className="space-y-5 pt-4">
-        {recipeLoading ? <SearchLoadingAnimation /> : recipeResults.length > 0 && (
+      {/* Shopping List / Results - Shown prominently when active */}
+      <section ref={shoppingListRef} className="space-y-5">
+        {recipeLoading && effectiveResults.length === 0 ? (
+          <div className="py-10">
+            <SearchLoadingAnimation progress={(recipeResults.length / (ingredients.length || 1)) * 100} />
+          </div>
+        ) : (recipeLoading || effectiveResults.length > 0) && (
           <div className="space-y-4">
             <div className="rounded-2xl border border-foodappka-100 dark:border-zinc-800 bg-white/95 dark:bg-foodappka-950 p-4 md:p-6 shadow-sm">
               <div className="flex flex-col gap-4 border-b border-foodappka-100 dark:border-zinc-800 pb-4 sm:flex-row sm:items-start sm:justify-between">
                 <div>
                   <p className="text-[10px] font-black uppercase tracking-widest text-foodappka-700">Nákup pro</p>
-                  <h3 className="text-xl md:text-2xl font-bold text-zinc-950 dark:text-white">{activeRecipe}</h3>
+                  <div className="flex items-center gap-3">
+                    <h3 className="text-xl md:text-2xl font-bold text-zinc-950 dark:text-white">{activeRecipe}</h3>
+                    {recipeLoading && (
+                      <span className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-foodappka-50 dark:bg-foodappka-900/30 text-[10px] font-black text-foodappka-600 animate-pulse border border-foodappka-100 dark:border-foodappka-800">
+                        <span className="w-1 h-1 rounded-full bg-foodappka-500 animate-bounce"></span>
+                        ČMUCHÁM...
+                      </span>
+                    )}
+                  </div>
                 </div>
                 <div className="flex gap-2">
                   <button 
@@ -207,16 +279,28 @@ export default function RecipeSection({
               {shareMessage && <div className={`mt-4 p-3 rounded-xl text-xs font-bold border transition-all ${shareMessage.includes('✅') ? 'bg-green-50 border-green-100 text-green-800 dark:bg-green-900/20 dark:border-green-800 dark:text-green-400' : 'bg-foodappka-50 border-foodappka-100 text-foodappka-800 dark:bg-foodappka-900/20 dark:border-foodappka-800 dark:text-foodappka-300'}`}>{shareMessage}</div>}
 
               <ul className="mt-4 space-y-2">
-                {recipeResults.map((item) => {
+                {effectiveResults.map((item) => {
                   const isChecked = checkedIngredients.includes(item.ingredient);
                   return (
                     <li key={item.ingredient} className={`rounded-xl border px-3 py-3 transition-all ${isChecked ? "opacity-60 bg-zinc-50 dark:bg-zinc-900/30 grayscale" : "bg-white dark:bg-zinc-900/50"}`}>
                       <div className="flex gap-3">
                         <button onClick={() => toggleIngredient(item.ingredient)} className={`mt-0.5 w-5 h-5 shrink-0 rounded-full border flex items-center justify-center text-[10px] font-black ${isChecked ? "bg-foodappka-600 border-foodappka-600 text-white" : "border-zinc-300 dark:border-zinc-700 text-transparent"}`}>✓</button>
                         <div className="min-w-0 flex-1">
-                          <div className="flex justify-between items-center gap-2">
+                          <div className="flex justify-between items-start gap-2">
                             <p className={`text-sm font-bold truncate ${isChecked ? "line-through text-zinc-500" : "text-zinc-900 dark:text-white"}`}>{item.ingredient}</p>
-                            <p className="text-sm font-black text-foodappka-700 dark:text-foodappka-400">{item.store?.price || "—"}</p>
+                            <div className="text-right shrink-0">
+                              {item.store?.originalPrice && parsePrice(item.store.originalPrice) > parsePrice(item.store.price) && !isChecked && (
+                                <span className="text-[10px] text-zinc-400 line-through font-bold block leading-none mb-0.5">
+                                  {item.store.originalPrice}
+                                </span>
+                              )}
+                              <p className="text-sm font-black text-foodappka-700 dark:text-foodappka-400 leading-none">{item.store?.price || "—"}</p>
+                              {item.store && !isChecked && formatDiscountPercent(parsePrice(item.store.price), item.store.originalPrice ? parsePrice(item.store.originalPrice) : null) && (
+                                <span className="text-[9px] text-red-500 font-bold mt-1 bg-red-50 px-1 rounded block">
+                                  {formatDiscountPercent(parsePrice(item.store.price), item.store.originalPrice ? parsePrice(item.store.originalPrice) : null)}
+                                </span>
+                              )}
+                            </div>
                           </div>
                           {!isChecked && item.store && (
                             <div className="flex items-center gap-2 mt-1 opacity-80">
