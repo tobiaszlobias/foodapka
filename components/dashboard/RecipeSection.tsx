@@ -133,32 +133,26 @@ export default function RecipeSection({
                 </span>
               </button>
             {recipe.image && (
-              <div className="h-32 md:h-44 relative">
+              <div className="h-48 md:h-60 relative">
                 <Image 
                   src={recipe.image} 
                   alt={recipe.name} 
                   fill 
-                  className="object-cover" 
+                  className="object-cover transition-transform duration-500 group-hover:scale-105" 
                   sizes="(max-width: 768px) 100vw, 33vw"
                 />
-                <div className="absolute top-2 left-2 px-2 py-0.5 rounded-full bg-foodappka-100/90 backdrop-blur-md text-[9px] font-black text-foodappka-800 uppercase tracking-widest">
+                <div className="absolute top-3 left-3 px-3 py-1 rounded-full bg-white/90 backdrop-blur-md text-[10px] font-black text-foodappka-800 uppercase tracking-widest shadow-sm">
                   {recipe.tag}
                 </div>
               </div>
             )}
-            <div className="p-4">
-              <h3 className="text-base font-bold text-zinc-900 dark:text-white group-hover:text-foodappka-600">{recipe.name}</h3>
-              <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400 line-clamp-2">{recipe.description}</p>
-              <div className="mt-3 pt-3 border-t border-zinc-50 dark:border-zinc-800 flex items-center justify-between">
-                <div className="flex -space-x-1.5">
-                  {recipe.ingredients.slice(0, 3).map((ing, i) => (
-                    <div key={i} className="w-6 h-6 rounded-full border-2 border-white dark:border-foodappka-900 bg-foodappka-100 dark:bg-foodappka-800 flex items-center justify-center text-[9px] font-bold text-foodappka-700 dark:text-foodappka-300">
-                      {ing.charAt(0).toUpperCase()}
-                    </div>
-                  ))}
-                </div>
-                <span className="text-[11px] font-bold text-foodappka-600 dark:text-foodappka-400">Najít ceny</span>
-              </div>
+            <div className="p-5">
+              <h3 className="text-xl font-black text-zinc-900 dark:text-white leading-tight group-hover:text-foodappka-600 transition-colors">
+                {recipe.name}
+              </h3>
+              <p className="mt-2 text-sm text-zinc-500 dark:text-zinc-400 line-clamp-2 font-medium">
+                {recipe.description}
+              </p>
             </div>
           </div>
         );
