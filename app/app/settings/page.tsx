@@ -107,6 +107,18 @@ function SettingsContent() {
             favorite_categories: data.favorite_categories || [],
           });
         }
+      } else {
+        // Guest mode: load from localStorage
+        const local = localStorage.getItem("guest_settings");
+        if (local) {
+          const data = JSON.parse(local);
+          setPreferences({
+            favorite_stores: data.favorite_stores || [],
+            diet_type: data.diet_type || "none",
+            allergens: data.allergens || [],
+            favorite_categories: data.favorite_categories || [],
+          });
+        }
       }
       setLoading(false);
     };
@@ -114,20 +126,27 @@ function SettingsContent() {
   }, [supabase]);
 
   const savePreferences = useCallback(async () => {
-    if (!user) {
-      console.warn("Cannot save: No user session found.");
-      return;
-    }
-
-    setSaving(true);
-    
     const payload: any = {
-      user_id: user.id,
       favorite_stores: preferences.favorite_stores,
       diet_type: preferences.diet_type,
       allergens: preferences.allergens,
       favorite_categories: preferences.favorite_categories,
     };
+
+    if (!user) {
+      // Guest mode save
+      localStorage.setItem("guest_settings", JSON.stringify(payload));
+      setSaving(true);
+      setTimeout(() => {
+        setSaving(false);
+        setSaved(true);
+        setTimeout(() => setSaved(false), 2000);
+      }, 300);
+      return;
+    }
+
+    setSaving(true);
+    payload.user_id = user.id;
 
     try {
       const tablesToTry = ["user_preferences", "user_preference", "preferences", "profiles"];
@@ -179,13 +198,13 @@ function SettingsContent() {
 
   // Auto-save when preferences change
   useEffect(() => {
-    if (!loading && user) {
+    if (!loading) {
       const timer = setTimeout(() => {
         void savePreferences();
       }, 500); // Debounce save
       return () => clearTimeout(timer);
     }
-  }, [preferences, loading, user, savePreferences]);
+  }, [preferences, loading, savePreferences]);
 
   // Scroll to hash on load
   useEffect(() => {
@@ -236,39 +255,22 @@ function SettingsContent() {
     );
   }
 
-  if (!user) {
-    return (
-      <div className="max-w-md mx-auto text-center py-20 px-4">
-        <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-foodappka-100 dark:bg-foodappka-900/30 text-4xl">
-          🔐
-        </div>
-        <h1 className="text-2xl font-bold text-zinc-900 dark:text-white mb-3">
-          Přihlaste se
-        </h1>
-        <p className="text-zinc-600 dark:text-zinc-400 mb-6">
-          Pro nastavení preferencí se musíte nejprve přihlásit.
-        </p>
-        <a
-          href="/login"
-          className="inline-flex items-center gap-2 rounded-full bg-foodappka-500 px-6 py-3 font-semibold text-white transition hover:bg-foodappka-600"
-        >
-          <span className="material-symbols-outlined">login</span>
-          Přihlásit se
-        </a>
-      </div>
-    );
-  }
-
   return (
     <div className="space-y-6">
       <header className="mb-10 px-2 flex justify-between items-start">
         <div>
-          <h1 className="text-3xl lg:text-5xl font-extrabold tracking-tight text-foodappka-950 dark:text-white leading-tight mb-2 md:mb-4">
-            Nastavení ⚙️
+          <h1 className="text-2xl lg:text-4xl font-extrabold tracking-tight text-foodappka-950 dark:text-white leading-tight mb-2 md:mb-4">
+            Nastavení
           </h1>
           <p className="text-base md:text-lg text-zinc-600 dark:text-zinc-400">
             Upravte svoje preference pro lepší doporučení a personalizovaný zážitek.
           </p>
+          {!user && (
+            <div className="mt-3 inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-50 dark:bg-amber-900/20 border border-amber-100 dark:border-amber-800">
+              <span className="material-symbols-outlined text-sm text-amber-600">info</span>
+              <span className="text-[10px] font-bold text-amber-700 dark:text-amber-300 uppercase tracking-widest">Režim hosta - data uložena v prohlížeči</span>
+            </div>
+          )}
         </div>
         
         {/* Save Status Indicator */}
@@ -341,10 +343,10 @@ function SettingsContent() {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             {[
-              { value: "none", label: "Bez omezení", icon: "🍽️" },
-              { value: "vegetarian", label: "Vegetariánská", icon: "🥬" },
-              { value: "vegan", label: "Veganská", icon: "🌱" },
-              { value: "pescatarian", label: "Pescatariánská", icon: "🐟" },
+              { value: "none", label: "Bez omezení", icon: "restaurant" },
+              { value: "vegetarian", label: "Vegetariánská", icon: "eco" },
+              { value: "vegan", label: "Veganská", icon: "grass" },
+              { value: "pescatarian", label: "Pescatariánská", icon: "set_meal" },
             ].map((diet) => (
               <button
                 key={diet.value}
@@ -360,7 +362,7 @@ function SettingsContent() {
                     : "border-zinc-100 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-900/50 text-zinc-500 dark:text-zinc-400 hover:border-foodappka-200 dark:hover:border-foodappka-700"
                 }`}
               >
-                <span className="text-xl">{diet.icon}</span>
+                <span className="material-symbols-outlined text-xl">{diet.icon}</span>
                 {diet.label}
               </button>
             ))}

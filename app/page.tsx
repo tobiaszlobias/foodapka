@@ -28,13 +28,13 @@ export default function HomePage() {
   }, []);
 
   const stores = [
-    { name: "Albert", logo: "/albertlogo.png", scale: "scale-[2.4]" },
-    { name: "Lidl", logo: "/lidllogo.png", scale: "scale-[2.2]" },
-    { name: "Kaufland", logo: "/kauflandlogo.png", scale: "scale-[2.0]" },
-    { name: "Billa", logo: "/billalogo.png", scale: "scale-[1.5]" },
-    { name: "Tesco", logo: "/tescologo.png", scale: "scale-100" },
-    { name: "Penny", logo: "/pennylogo.png", scale: "scale-[2.2]" },
-    { name: "Globus", logo: "/globuslogo.png", scale: "scale-[1.6]" },
+    { name: "Albert", logo: "/albertlogo.png", scale: "scale-[1.6] md:scale-[2.8]" },
+    { name: "Lidl", logo: "/lidllogo.png", scale: "scale-[1.5] md:scale-[2.2]" },
+    { name: "Kaufland", logo: "/kauflandlogo.png", scale: "scale-[1.4] md:scale-[2.0]" },
+    { name: "Billa", logo: "/billalogo.png", scale: "scale-100 md:scale-[1.5]" },
+    { name: "Tesco", logo: "/tescologo.png", scale: "scale-75 md:scale-100" },
+    { name: "Penny", logo: "/pennylogo.png", scale: "scale-[1.5] md:scale-[2.2]" },
+    { name: "Globus", logo: "/globuslogo.png", scale: "scale-100 md:scale-[1.6]" },
   ];
 
   return (
@@ -64,9 +64,9 @@ export default function HomePage() {
           className="mx-auto grid max-w-7xl grid-cols-1 items-center gap-12 px-4 md:px-8 py-20 md:py-32 lg:grid-cols-2 relative z-10 w-full"
         >
           <div className="space-y-6 md:space-y-10 text-center lg:text-left">
-            <h1 className="text-4xl md:text-5xl lg:text-7xl font-black leading-[1.05] tracking-tight text-zinc-900">
+            <h1 className="text-4xl md:text-5xl lg:text-7xl font-display font-black leading-[1.05] tracking-tight text-zinc-900">
               Uvařte si zdravě <br />
-              <span className="text-foodappka-600">z nejlevnějších surovin.</span>
+              <span className="text-foodappka-500">z nejlevnějších surovin.</span>
             </h1>
             <p className="text-lg md:text-xl text-zinc-500 max-w-xl mx-auto lg:mx-0 font-medium leading-relaxed">
               Pomůžeme vám sestavit nákupní seznam z aktuálních akčních letáků. Kvalitní jídlo už nemusí být drahé.
@@ -181,38 +181,41 @@ export default function HomePage() {
             <p className="mt-3 text-zinc-500 font-medium text-base md:text-lg">Každý den pro vás hlídáme ty nejlepší nabídky</p>
           </div>
           
-          <div className="relative flex overflow-hidden">
-            <div className="flex gap-24 animate-scroll whitespace-nowrap py-12 px-4">
-              {/* First loop */}
-              {stores.map((store, i) => (
+          <div className="relative flex flex-col gap-10 md:gap-16 overflow-hidden py-8 md:py-12">
+            {/* First Row - Forward */}
+            <div className="flex w-max gap-16 md:gap-24 animate-scroll whitespace-nowrap px-4">
+              {[...stores, ...stores].map((store, i) => (
                 <div
                   key={`${store.name}-1-${i}`}
-                  className="flex-shrink-0 flex items-center justify-center min-w-[160px]"
+                  className="flex-shrink-0 flex items-center justify-center min-w-[120px] md:min-w-[160px]"
                 >
-                  <div className={`${store.scale} transition-all duration-500 grayscale opacity-40 hover:grayscale-0 hover:opacity-100`}>
+                  <div className={`${store.scale} transition-all duration-500 grayscale opacity-60 hover:grayscale-0 hover:opacity-100`}>
                     <Image 
                       src={store.logo} 
                       alt={`${store.name} logo`} 
                       width={140} 
                       height={140} 
-                      className="h-16 w-auto object-contain" 
+                      className="h-10 md:h-16 w-auto object-contain" 
                     />
                   </div>
                 </div>
               ))}
-              {/* Second loop for seamless infinite scroll */}
-              {stores.map((store, i) => (
+            </div>
+            
+            {/* Second Row - Reverse */}
+            <div className="flex w-max gap-16 md:gap-24 animate-scroll-reverse whitespace-nowrap px-4">
+              {[...[...stores].reverse(), ...[...stores].reverse()].map((store, i) => (
                 <div
                   key={`${store.name}-2-${i}`}
-                  className="flex-shrink-0 flex items-center justify-center min-w-[160px]"
+                  className="flex-shrink-0 flex items-center justify-center min-w-[120px] md:min-w-[160px]"
                 >
-                  <div className={`${store.scale} transition-all duration-500 grayscale opacity-40 hover:grayscale-0 hover:opacity-100`}>
+                  <div className={`${store.scale} transition-all duration-500 grayscale opacity-60 hover:grayscale-0 hover:opacity-100`}>
                     <Image 
                       src={store.logo} 
                       alt={`${store.name} logo`} 
                       width={140} 
                       height={140} 
-                      className="h-16 w-auto object-contain" 
+                      className="h-10 md:h-16 w-auto object-contain" 
                     />
                   </div>
                 </div>
@@ -267,7 +270,7 @@ export default function HomePage() {
             </div>
 
             {/* Mléčné výrobky */}
-            <div className="col-span-1 md:col-span-2 md:row-span-1 group relative overflow-hidden rounded-[2rem] bg-white shadow-sm border border-zinc-100">
+            <div className="col-span-1 md:col-span-3 md:row-span-1 group relative overflow-hidden rounded-[2rem] bg-white shadow-sm border border-zinc-100">
               <Image
                 src="/mlecnevyrobky.png"
                 alt="Mléčné výrobky"
@@ -282,9 +285,9 @@ export default function HomePage() {
             </div>
 
             {/* Stat 2 */}
-            <div className="col-span-2 md:col-span-2 md:row-span-1 flex flex-col justify-center items-center rounded-[2rem] bg-foodappka-100 dark:bg-foodappka-900 p-6 text-center text-zinc-900 dark:text-white shadow-xl">
-              <span className="text-5xl font-black tracking-tighter text-foodappka-700 dark:text-foodappka-400">10+</span>
-              <p className="mt-1 text-sm font-bold opacity-80 uppercase tracking-widest">Řetězců v kapse</p>
+            <div className="col-span-2 md:col-span-3 md:row-span-1 flex flex-col justify-center items-center rounded-[2rem] bg-foodappka-600 dark:bg-foodappka-900 p-6 text-center text-white shadow-xl">
+              <span className="text-5xl font-black tracking-tighter text-white dark:text-foodappka-400">10+</span>
+              <p className="mt-1 text-sm font-bold opacity-90 uppercase tracking-widest">Řetězců v kapse</p>
             </div>
           </div>
         </motion.section>

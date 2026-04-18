@@ -2,6 +2,7 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useCallback, useEffect, useRef, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import SearchSection from "@/components/dashboard/SearchSection";
 import RecipeSection from "@/components/dashboard/RecipeSection";
 import WatchdogSection from "@/components/dashboard/WatchdogSection";
@@ -94,6 +95,85 @@ function HomeContent() {
     }
   }, [handleResults]);
 
+  const generateAIRecipe = useCallback(async (prompt: string) => {
+    if (!prompt.trim()) return;
+    setHasSearched(true);
+    setRecipeLoading(true);
+    setRecipeError(null);
+    setActiveRecipe("Generuji AI Recept...");
+    setRecipeResults([]);
+    setCheckedIngredients([]);
+
+    setTimeout(() => {
+      shoppingListRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 100);
+
+    try {
+      // 1. Generate recipe via AI
+      const aiRes = await fetch("/api/generate-recipe", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prompt }),
+      });
+      const aiData = await aiRes.json();
+      if (!aiRes.ok) throw new Error(aiData.error || "Nepodařilo se vygenerovat recept.");
+
+      const recipeName = aiData.name;
+      setActiveRecipe(recipeName);
+
+      const parsedIngredients = aiData.ingredients || [];
+      setIngredients(parsedIngredients);
+
+      // 2. Search for the generated ingredients
+      const results: IngredientResult[] = parsedIngredients.map((ing: string) => ({
+        ingredient: ing, product: null, store: null, storeOptions: []
+      }));
+      setRecipeResults([...results]);
+
+      await Promise.all(
+        parsedIngredients.map(async (ing: string, index: number) => {
+          try {
+            const sRes = await fetch(`/api/search?q=${encodeURIComponent(ing)}&recipe=${encodeURIComponent(recipeName)}`);
+            const sData = await sRes.json();
+            const products: Product[] = sData.products || [];
+            
+            const storeOptions: IngredientStoreOption[] = products.flatMap(p => 
+              p.stores.map(s => ({ product: p, store: s }))
+            );
+
+            const bestStore = storeOptions.length > 0 
+              ? [...storeOptions].sort((a, b) => parsePrice(a.store.price) - parsePrice(b.store.price))[0].store
+              : null;
+            
+            const bestProduct = storeOptions.length > 0
+              ? [...storeOptions].sort((a, b) => parsePrice(a.store.price) - parsePrice(b.store.price))[0].product
+              : null;
+
+            const result: IngredientResult = { 
+              ingredient: ing, 
+              product: bestProduct, 
+              store: bestStore, 
+              storeOptions 
+            };
+            
+            setRecipeResults(prev => {
+              const next = [...prev];
+              next[index] = result;
+              return next;
+            });
+          } catch (err) {
+            console.error(`Failed to search for ingredient: ${ing}`, err);
+          }
+        })
+      );
+    } catch (err: any) {
+      setRecipeError(err.message);
+      setActiveRecipe(""); // Reset on error
+    } finally {
+      setRecipeLoading(false);
+    }
+  }, []);
+
   const runRecipeSearch = useCallback(async (recipeName: string) => {
     if (!recipeName.trim()) return;
     setHasSearched(true);
@@ -120,43 +200,51 @@ function HomeContent() {
       const parsedIngredients = data.ingredients || [];
       setIngredients(parsedIngredients);
 
-      // INCREMENTAL SEARCH: Load ingredients one by one so it feels faster
-      const tempResults: IngredientResult[] = [];
-      
-      for (const ing of parsedIngredients) {
-        try {
-          const sRes = await fetch(`/api/search?q=${encodeURIComponent(ing)}`);
-          const sData = await sRes.json();
-          const products: Product[] = sData.products || [];
-          
-          // Map all available products/stores for this ingredient
-          const storeOptions: IngredientStoreOption[] = products.flatMap(p => 
-            p.stores.map(s => ({ product: p, store: s }))
-          );
+      // PARALLEL INCREMENTAL SEARCH: Start all at once, update UI as each finishes
+      // Initialize with placeholders
+      const results: IngredientResult[] = parsedIngredients.map((ing: string) => ({
+        ingredient: ing, product: null, store: null, storeOptions: []
+      }));
+      setRecipeResults([...results]);
 
-          const bestStore = storeOptions.length > 0 
-            ? [...storeOptions].sort((a, b) => parsePrice(a.store.price) - parsePrice(b.store.price))[0].store
-            : null;
-          
-          const bestProduct = storeOptions.length > 0
-            ? [...storeOptions].sort((a, b) => parsePrice(a.store.price) - parsePrice(b.store.price))[0].product
-            : null;
+      await Promise.all(
+        parsedIngredients.map(async (ing: string, index: number) => {
+          try {
+            // Pass the recipe name to the search API for better context filtering
+            const sRes = await fetch(`/api/search?q=${encodeURIComponent(ing)}&recipe=${encodeURIComponent(recipeName)}`);
+            const sData = await sRes.json();
+            const products: Product[] = sData.products || [];
+            
+            const storeOptions: IngredientStoreOption[] = products.flatMap(p => 
+              p.stores.map(s => ({ product: p, store: s }))
+            );
 
-          const result: IngredientResult = { 
-            ingredient: ing, 
-            product: bestProduct, 
-            store: bestStore, 
-            storeOptions 
-          };
-          tempResults.push(result);
-          // Update UI after each ingredient finishes
-          setRecipeResults([...tempResults]);
-        } catch (err) {
-          console.error(`Failed to search for ingredient: ${ing}`, err);
-          tempResults.push({ ingredient: ing, product: null, store: null, storeOptions: [] });
-          setRecipeResults([...tempResults]);
-        }
-      }
+            const bestStore = storeOptions.length > 0 
+              ? [...storeOptions].sort((a, b) => parsePrice(a.store.price) - parsePrice(b.store.price))[0].store
+              : null;
+            
+            const bestProduct = storeOptions.length > 0
+              ? [...storeOptions].sort((a, b) => parsePrice(a.store.price) - parsePrice(b.store.price))[0].product
+              : null;
+
+            const result: IngredientResult = { 
+              ingredient: ing, 
+              product: bestProduct, 
+              store: bestStore, 
+              storeOptions 
+            };
+            
+            // Update the specific index in the results array
+            setRecipeResults(prev => {
+              const next = [...prev];
+              next[index] = result;
+              return next;
+            });
+          } catch (err) {
+            console.error(`Failed to search for ingredient: ${ing}`, err);
+          }
+        })
+      );
     } catch (err: any) {
       setRecipeError(err.message);
     } finally {
@@ -292,25 +380,44 @@ function HomeContent() {
       {/* Persistent Header with SearchBar - Only shown in Search and Recipes modes */}
       {(activeView === "search" || activeView === "recipes") && (
         <header className="px-1 md:px-2 w-full mb-6">
-          <h1 className="text-2xl md:text-4xl lg:text-5xl font-extrabold tracking-tight text-foodappka-950 dark:text-white leading-tight mb-4 transition-all duration-300 text-left">
-            {activeView === "search" ? (
-              <>
-                Najděte nejlevnější akční cenu <br className="hidden md:block" />
-                <span className="text-foodappka-600 dark:text-foodappka-400">dřív, než vyrazíte nakoupit</span>
-              </>
-            ) : (
-              <>
-                Vyberte si recept a najdeme <br className="hidden md:block" />
-                <span className="text-foodappka-600 dark:text-foodappka-400">nejlevnější suroviny</span>
-              </>
+          <AnimatePresence mode="wait">
+            {!hasSearched && (
+              <motion.h1 
+                key="header-text"
+                initial={{ opacity: 0, height: 0, y: -20 }}
+                animate={{ opacity: 1, height: "auto", y: 0 }}
+                exit={{ opacity: 0, height: 0, y: -20 }}
+                transition={{ duration: 0.3, ease: "easeInOut" }}
+                className="text-xl md:text-3xl lg:text-4xl font-display font-extrabold tracking-tight text-foodappka-950 dark:text-white leading-tight mb-4 text-left overflow-hidden"
+              >
+                {activeView === "search" ? (
+                  <>
+                    Najděte nejlevnější akční cenu <br className="hidden md:block" />
+                    <span className="text-foodappka-600 dark:text-foodappka-400">dřív, než vyrazíte nakoupit</span>
+                  </>
+                ) : (
+                  <>
+                    Vyberte si recept a najdeme <br className="hidden md:block" />
+                    <span className="text-foodappka-600 dark:text-foodappka-400">nejlevnější suroviny</span>
+                  </>
+                )}
+              </motion.h1>
             )}
-          </h1>
+          </AnimatePresence>
           
-          <div className="w-full">
+          <div className={`w-full transition-all duration-300 ${hasSearched ? "pt-2" : ""}`}>
             <SearchBar
               onResults={handleResults}
               onLoading={setLoading}
               onSearchStart={() => setHasSearched(true)}
+              onFocus={() => setHasSearched(true)}
+              onBlur={() => {
+                // Return header if input is empty and no results are shown
+                const input = document.getElementById("product-search") as HTMLInputElement;
+                if ((!input || !input.value) && products.length === 0 && !activeRecipe && !recipeLoading) {
+                  setHasSearched(false);
+                }
+              }}
               mode={activeView === "recipes" ? "recipes" : "search"}
               onModeChange={(newMode) => handleModeChange(newMode as AppMode)}
               initialQuery={urlQuery}
@@ -354,6 +461,7 @@ function HomeContent() {
             shoppingListRef={shoppingListRef}
             toggleIngredient={toggleIngredient}
             runRecipeSearch={runRecipeSearch}
+            generateAIRecipe={generateAIRecipe}
             saveShoppingList={saveShoppingList}
             shareShoppingList={shareShoppingList}
             setShoppingMode={setShoppingMode}
@@ -374,7 +482,7 @@ function HomeContent() {
         {activeView === "favorites" && (
           <div className="space-y-6">
             <header className="px-1 md:px-2 text-left">
-              <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight text-foodappka-950 dark:text-white mb-2">Oblíbené ❤️</h1>
+              <h1 className="text-2xl md:text-4xl font-extrabold tracking-tight text-foodappka-950 dark:text-white mb-2">Oblíbené</h1>
               <p className="text-sm md:text-lg text-zinc-600 dark:text-zinc-400">Vaše uložené recepty a produkty na jednom místě.</p>
             </header>
             
@@ -383,8 +491,10 @@ function HomeContent() {
                 {favorites.map((fav) => (
                   <article key={fav.id} className="rounded-2xl border border-foodappka-100 dark:border-zinc-800 bg-white/95 dark:bg-foodappka-950 p-4 shadow-sm flex items-center justify-between gap-4">
                     <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 rounded-xl bg-foodappka-100 dark:bg-foodappka-900/50 flex items-center justify-center text-2xl">
-                        {fav.stores ? "🧺" : "🥘"}
+                      <div className="w-12 h-12 rounded-xl bg-foodappka-100 dark:bg-foodappka-900/50 flex items-center justify-center">
+                        <span className="material-symbols-outlined text-foodappka-600">
+                          {fav.stores ? "shopping_basket" : "restaurant"}
+                        </span>
                       </div>
                       <div className="text-left">
                         <h4 className="font-bold text-zinc-900 dark:text-white">{fav.name}</h4>
@@ -428,7 +538,7 @@ function HomeContent() {
         {activeView === "notifications" && (
           <div className="space-y-6 text-left">
             <header className="px-1 md:px-2">
-              <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight text-foodappka-950 dark:text-white mb-2">Oznámení 🔔</h1>
+              <h1 className="text-2xl md:text-4xl font-extrabold tracking-tight text-foodappka-950 dark:text-white mb-2">Oznámení</h1>
               <p className="text-sm md:text-lg text-zinc-600 dark:text-zinc-400">Aktuální informace o slevách a novinkách.</p>
             </header>
             

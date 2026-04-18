@@ -113,6 +113,9 @@ const NON_FOOD_NAME_TOKENS = new Set([
   "sklenice",
   "termo",
   "tricko",
+  "vložky",
+  "plenky",
+  "ubrousky",
 ]);
 
 const RECIPE_MISMATCH_TOKENS = new Set([
@@ -125,6 +128,13 @@ const RECIPE_MISMATCH_TOKENS = new Set([
   "napoj",
   "omacka",
   "smes",
+  "nanuk",
+  "zmrzlina",
+  "dort",
+  "dezert",
+  "jogurt",
+  "pomazánka",
+  "paštika",
 ]);
 
 export function parsePrice(price: string) {
@@ -279,19 +289,19 @@ export function scoreProductMatch(name: string, query: string) {
       RECIPE_MISMATCH_TOKENS.has(token),
     );
     if (!queryHasMismatchToken && specificQueryTokens.length > 0) {
-      return 0;
+      return -50; // Heavy penalty instead of just 0 to ensure it falls below others
     }
   }
 
   const tokenCoverage = exactMatches + partialMatches;
-  const extraTokensPenalty = Math.max(0, nameTokens.length - tokenCoverage - 4);
+  const extraTokensPenalty = Math.max(0, nameTokens.length - tokenCoverage - 2); // Stricter penalty for extra words
 
   return (
-    exactMatches * 28 +
-    partialMatches * 10 +
-    matchedSpecificTokens * 18 -
-    missingSpecificTokens * 14 -
-    extraTokensPenalty * 3
+    exactMatches * 30 +
+    partialMatches * 8 +
+    matchedSpecificTokens * 20 -
+    missingSpecificTokens * 20 -
+    extraTokensPenalty * 5
   );
 }
 

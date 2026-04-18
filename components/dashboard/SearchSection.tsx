@@ -104,9 +104,9 @@ export default function SearchSection({
 
   return (
     <div className="space-y-6 md:space-y-8 w-full max-w-full overflow-x-hidden">
-      {!hideHeader && (
+      {!hideHeader && !hasSearched && (
         <header className="px-1 md:px-2 w-full">
-          <h1 className="text-2xl md:text-4xl lg:text-5xl font-extrabold tracking-tight text-foodappka-950 dark:text-white leading-tight mb-4">
+          <h1 className="text-2xl md:text-4xl lg:text-5xl font-display font-extrabold tracking-tight text-foodappka-950 dark:text-white leading-tight mb-4">
             Najděte nejlevnější akční cenu <br className="hidden md:block" />
             <span className="text-foodappka-600 dark:text-foodappka-400">dřív, než vyrazíte nakoupit</span>
           </h1>
@@ -121,11 +121,30 @@ export default function SearchSection({
                   resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
                 }, 100);
               }}
+              onFocus={() => setHasSearched(true)}
               mode="search"
               onModeChange={handleModeChange}
               initialQuery={initialQuery}
             />
           </div>
+        </header>
+      )}
+
+      {!hideHeader && hasSearched && (
+        <header className="px-1 md:px-2 w-full pt-2">
+          <SearchBar
+            onResults={handleResults}
+            onLoading={setLoading}
+            onSearchStart={() => {
+              setHasSearched(true);
+              setTimeout(() => {
+                resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+              }, 100);
+            }}
+            mode="search"
+            onModeChange={handleModeChange}
+            initialQuery={initialQuery}
+          />
         </header>
       )}
 

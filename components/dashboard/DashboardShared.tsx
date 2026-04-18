@@ -82,7 +82,7 @@ export function SearchLoadingAnimation({ progress }: { progress?: number }) {
           </div>
           <div className="space-y-1">
             <p className="text-xs text-zinc-500 dark:text-zinc-400 font-bold leading-relaxed">
-              Hlídací pes čmuchá nejlepší akční nabídky z milionu položek...
+              Analyzujeme nejlepší akční nabídky z tisíců položek...
             </p>
             <p className="text-[10px] text-foodappka-600 font-black tracking-widest uppercase">
               {Math.round(displayProgress)}% HOTOVO
@@ -152,8 +152,10 @@ export function EmptyState({ hasSearched, title, description, icon }: {
 }) {
   return (
     <div className="rounded-2xl border border-dashed border-foodappka-200 dark:border-zinc-800 bg-white/70 dark:bg-foodappka-950 px-6 py-12 text-center shadow-sm">
-      <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-full bg-foodappka-100 dark:bg-zinc-800 text-3xl">
-        {icon || (hasSearched ? "🧺" : "🥬")}
+      <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-full bg-foodappka-100 dark:bg-zinc-800">
+        <span className="material-symbols-outlined text-foodappka-500 text-3xl">
+          {icon || (hasSearched ? "search_off" : "shopping_basket")}
+        </span>
       </div>
       <h2 className="text-lg font-semibold text-foodappka-950 dark:text-white">
         {title || (hasSearched ? "Nic jsme nenašli" : "Začněte hledat")}

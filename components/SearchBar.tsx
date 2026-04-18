@@ -8,6 +8,8 @@ type SearchBarProps = {
   onResults: (products: Product[]) => void;
   onLoading: (loading: boolean) => void;
   onSearchStart?: () => void;
+  onFocus?: () => void;
+  onBlur?: () => void;
   mode: AppMode;
   onModeChange: (mode: AppMode) => void;
   initialQuery?: string;
@@ -47,6 +49,8 @@ export default function SearchBar({
   onResults,
   onLoading,
   onSearchStart,
+  onFocus,
+  onBlur,
   mode,
   onModeChange,
   initialQuery = "",
@@ -201,7 +205,11 @@ export default function SearchBar({
               setQuery(e.target.value);
               setSelectedIndex(-1);
             }}
-            onFocus={() => setShowSuggestions(true)}
+            onFocus={() => {
+              setShowSuggestions(true);
+              onFocus?.();
+            }}
+            onBlur={() => onBlur?.()}
             onKeyDown={handleKeyDown}
             placeholder="Co chcete nakoupit?"
             autoComplete="off"

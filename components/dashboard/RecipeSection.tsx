@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import Image from "next/image";
 import SearchBar from "@/components/SearchBar";
 import { RECIPE_PRESETS } from "@/lib/recipes";
@@ -40,6 +40,7 @@ type RecipeSectionProps = {
   isSaving?: boolean;
   toggleIngredient: (ing: string) => void;
   runRecipeSearch: (name: string) => void;
+  generateAIRecipe?: (prompt: string) => void;
   saveShoppingList: () => void;
   shareShoppingList: () => void;
   setShoppingMode: (mode: ShoppingMode) => void;
@@ -65,6 +66,7 @@ export default function RecipeSection({
   isSaving,
   toggleIngredient,
   runRecipeSearch,
+  generateAIRecipe,
   saveShoppingList,
   shareShoppingList,
   setShoppingMode,
@@ -76,6 +78,7 @@ export default function RecipeSection({
   favorites,
   onToggleFavorite,
 }: RecipeSectionProps) {
+  const [aiPrompt, setAiPrompt] = useState("");
 
   // SINGLE STORE LOGIC: Find which shop has the most ingredients for the lowest price
   const effectiveResults = useMemo(() => {
@@ -128,13 +131,26 @@ export default function RecipeSection({
 
   return (
     <div className="space-y-8">
-      {!hideHeader && !activeRecipe && !recipeLoading && (
+      {!hideHeader && !activeRecipe && !recipeLoading && !hasSearched && (
         <header className="px-1 md:px-2">
-          <h1 className="text-2xl md:text-4xl lg:text-5xl font-extrabold tracking-tight text-foodappka-950 dark:text-white leading-tight mb-4">
+          <h1 className="text-2xl md:text-4xl lg:text-5xl font-display font-extrabold tracking-tight text-foodappka-950 dark:text-white leading-tight mb-4">
             Vyberte si recept a najdeme <br className="hidden md:block" />
             <span className="text-foodappka-600 dark:text-foodappka-400">nejlevnější suroviny</span>
           </h1>
           
+          <SearchBar
+            onResults={handleResults}
+            onLoading={setLoading}
+            onSearchStart={() => setHasSearched(true)}
+            onFocus={() => setHasSearched(true)}
+            mode="recipes"
+            onModeChange={handleModeChange}
+          />
+        </header>
+      )}
+
+      {!hideHeader && !activeRecipe && !recipeLoading && hasSearched && (
+        <header className="px-1 md:px-2 pt-2">
           <SearchBar
             onResults={handleResults}
             onLoading={setLoading}
@@ -162,8 +178,49 @@ export default function RecipeSection({
 
       {/* Recipe Grid - Only shown when NOT searching */}
       {!activeRecipe && !recipeLoading && (
-        <section className="grid gap-4 grid-cols-1 sm:grid-cols-2">
-        {RECIPE_PRESETS.map((recipe) => {
+        <div className="space-y-6">
+          {/* AI Generator Bar */}
+          {generateAIRecipe && (
+            <section className="relative p-6 md:p-8 rounded-[2rem] bg-gradient-to-r from-foodappka-500 to-green-600 shadow-xl overflow-hidden group">
+              <div className="absolute inset-0 bg-[url('/myslenkova_mapa_hero.png')] opacity-10 bg-cover bg-center mix-blend-overlay"></div>
+              <div className="relative z-10 flex flex-col md:flex-row items-center gap-6">
+                <div className="flex-1 text-center md:text-left text-white">
+                  <h2 className="text-2xl font-black mb-2 flex items-center justify-center md:justify-start gap-2">
+                    <span className="material-symbols-outlined animate-pulse">auto_awesome</span>
+                    Vytvořte si AI recept
+                  </h2>
+                  <p className="text-sm font-medium opacity-90">Napište, na co máte chuť a my vygenerujeme recept z nejlevnějších surovin.</p>
+                </div>
+                <div className="w-full md:w-[400px]">
+                  <form 
+                    onSubmit={(e) => {
+                      e.preventDefault();
+                      generateAIRecipe(aiPrompt);
+                    }}
+                    className="relative flex items-center"
+                  >
+                    <input 
+                      type="text" 
+                      value={aiPrompt}
+                      onChange={(e) => setAiPrompt(e.target.value)}
+                      placeholder="Př. Rychlá kuřecí večeře pro 2..." 
+                      className="w-full h-12 pl-4 pr-12 rounded-full border-0 focus:ring-4 focus:ring-white/20 bg-white/95 text-zinc-900 font-medium placeholder:text-zinc-400 outline-none"
+                    />
+                    <button 
+                      type="submit"
+                      disabled={!aiPrompt.trim()}
+                      className="absolute right-1 w-10 h-10 rounded-full bg-foodappka-600 text-white flex items-center justify-center hover:bg-foodappka-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      <span className="material-symbols-outlined text-xl">send</span>
+                    </button>
+                  </form>
+                </div>
+              </div>
+            </section>
+          )}
+
+          <section className="grid gap-4 grid-cols-1 sm:grid-cols-2">
+          {RECIPE_PRESETS.map((recipe) => {
           const isFavorite = favorites.some(f => f.id === recipe.name);
           return (
             <div
@@ -217,6 +274,7 @@ export default function RecipeSection({
         );
       })}
     </section>
+        </div>
       )}
 
       {/* Shopping List / Results - Shown prominently when active */}
@@ -233,12 +291,6 @@ export default function RecipeSection({
                   <p className="text-[10px] font-black uppercase tracking-widest text-foodappka-700">Nákup pro</p>
                   <div className="flex items-center gap-3">
                     <h3 className="text-xl md:text-2xl font-bold text-zinc-950 dark:text-white">{activeRecipe}</h3>
-                    {recipeLoading && (
-                      <span className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-foodappka-50 dark:bg-foodappka-900/30 text-[10px] font-black text-foodappka-600 animate-pulse border border-foodappka-100 dark:border-foodappka-800">
-                        <span className="w-1 h-1 rounded-full bg-foodappka-500 animate-bounce"></span>
-                        ČMUCHÁM...
-                      </span>
-                    )}
                   </div>
                 </div>
                 <div className="flex gap-2">

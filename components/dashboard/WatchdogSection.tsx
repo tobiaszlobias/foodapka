@@ -9,8 +9,8 @@ export default function WatchdogSection() {
   return (
     <div className="space-y-6">
       <header className="mb-6 md:mb-10 px-1 md:px-2">
-        <h1 className="text-3xl md:text-4xl lg:text-5xl font-extrabold tracking-tight text-foodappka-950 dark:text-white leading-tight mb-2">
-          Hlídací pes 🐕
+        <h1 className="text-2xl md:text-4xl lg:text-5xl font-extrabold tracking-tight text-foodappka-950 dark:text-white leading-tight mb-2">
+          Hlídací pes
         </h1>
         <p className="text-sm md:text-lg text-zinc-600 dark:text-zinc-400">
           Upozorníme vás, když cena klesne.
@@ -18,8 +18,8 @@ export default function WatchdogSection() {
       </header>
       
       <div className="rounded-2xl border border-dashed border-foodappka-300 dark:border-foodappka-800 bg-white/90 dark:bg-foodappka-950 p-8 text-center shadow-sm">
-        <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-foodappka-100 dark:bg-zinc-800 text-3xl">
-          🔔
+        <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-foodappka-100 dark:bg-zinc-800">
+          <span className="material-symbols-outlined text-foodappka-500 text-3xl">notification_important</span>
         </div>
         <h2 className="text-lg md:text-xl font-semibold text-foodappka-950 dark:text-white mb-2">
           Zatím nemáte žádné produkty

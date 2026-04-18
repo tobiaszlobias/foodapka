@@ -56,12 +56,6 @@ export default function Sidebar() {
       </nav>
 
       <div className="mt-auto flex flex-col gap-4 border-t border-foodappka-100/50 dark:border-zinc-700 pt-6">
-        <Link
-          href="/"
-          className="bg-foodappka-500 hover:bg-foodappka-600 text-white rounded-full px-6 py-3 font-bold transition-all shadow-md text-center"
-        >
-          Zpět na úvod
-        </Link>
         <div className="flex flex-col gap-1">
           <Link
             href="/app/settings#napoveda"
