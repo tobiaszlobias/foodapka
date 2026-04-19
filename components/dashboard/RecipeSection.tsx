@@ -29,6 +29,11 @@ type IngredientResult = {
 
 type RecipeSectionProps = {
   activeRecipe: string;
+  recipeDetails?: {
+    name: string;
+    description?: string;
+    instructions?: string[];
+  } | null;
   recipeLoading: boolean;
   ingredients: string[];
   recipeResults: IngredientResult[];
@@ -55,6 +60,7 @@ type RecipeSectionProps = {
 
 export default function RecipeSection({
   activeRecipe,
+  recipeDetails,
   recipeLoading,
   ingredients,
   recipeResults,
@@ -252,6 +258,11 @@ export default function RecipeSection({
                   <div className="flex items-center gap-3">
                     <h3 className="text-xl md:text-2xl font-bold text-zinc-950 dark:text-white">{activeRecipe}</h3>
                   </div>
+                  {recipeDetails?.description && (
+                    <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400 italic">
+                      &quot;{recipeDetails.description}&quot;
+                    </p>
+                  )}
                 </div>
                 <div className="flex gap-2">
                   <button 
@@ -332,6 +343,28 @@ export default function RecipeSection({
               <p className="text-[10px] font-black uppercase tracking-widest text-foodappka-400">Celkem za nákup</p>
               <p className="text-3xl font-black mt-1">{totalPrice.toFixed(2).replace(".", ",")} Kč</p>
             </div>
+
+            {/* Preparation Steps */}
+            {recipeDetails?.instructions && recipeDetails.instructions.length > 0 && (
+              <div className="mt-8 pt-8 border-t border-zinc-100 dark:border-zinc-800 text-left">
+                <h3 className="text-xl font-bold text-zinc-900 dark:text-white mb-6 flex items-center gap-2">
+                  <span className="material-symbols-outlined text-foodappka-600">restaurant_menu</span>
+                  Postup přípravy
+                </h3>
+                <div className="space-y-4">
+                  {recipeDetails.instructions.map((step, index) => (
+                    <div key={index} className="flex gap-4">
+                      <div className="flex-shrink-0 w-8 h-8 rounded-full bg-foodappka-100 dark:bg-foodappka-900/40 text-foodappka-700 dark:text-foodappka-300 flex items-center justify-center font-black text-sm border border-foodappka-200 dark:border-foodappka-800">
+                        {index + 1}
+                      </div>
+                      <p className="text-zinc-700 dark:text-zinc-300 leading-relaxed pt-1">
+                        {step}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         )}
       </section>

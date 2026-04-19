@@ -61,8 +61,8 @@ export default function ListsSection({ user, onAddClick }: ListsSectionProps) {
     return (
       <div className="space-y-6">
         <header className="mb-6 px-1 text-left">
-          <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight text-foodappka-950 dark:text-white mb-2">
-            Seznamy 📝
+          <h1 className="text-xl md:text-3xl lg:text-4xl font-display font-extrabold tracking-tight text-foodappka-950 dark:text-white mb-2">
+            Seznamy
           </h1>
           <p className="text-sm md:text-lg text-zinc-600 dark:text-zinc-400">
             Přihlaste se pro ukládání seznamů.
@@ -72,7 +72,7 @@ export default function ListsSection({ user, onAddClick }: ListsSectionProps) {
           hasSearched={false} 
           title="Nejste přihlášeni" 
           description="Uložené seznamy uvidíte po přihlášení ke svému účtu."
-          icon="🔐"
+          icon="lock"
         />
       </div>
     );
@@ -81,8 +81,8 @@ export default function ListsSection({ user, onAddClick }: ListsSectionProps) {
   return (
     <div className="space-y-6">
       <header className="mb-6 px-1 text-left">
-        <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight text-foodappka-950 dark:text-white mb-2">
-          Moje seznamy 📝
+        <h1 className="text-xl md:text-3xl lg:text-4xl font-display font-extrabold tracking-tight text-foodappka-950 dark:text-white mb-2">
+          Moje seznamy
         </h1>
         <p className="text-sm md:text-lg text-zinc-600 dark:text-zinc-400">
           Tady najdete všechny své uložené nákupy.
@@ -153,7 +153,7 @@ export default function ListsSection({ user, onAddClick }: ListsSectionProps) {
           hasSearched={true} 
           title="Zatím žádné seznamy" 
           description="Najděte si recept, klikněte na 'Najít ceny' a pak si seznam uložte."
-          icon="📋"
+          icon="receipt_long"
         />
       )}
     </div>

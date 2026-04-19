@@ -9,7 +9,7 @@ export default function WatchdogSection() {
   return (
     <div className="space-y-6">
       <header className="mb-6 md:mb-10 px-1 md:px-2">
-        <h1 className="text-2xl md:text-4xl lg:text-5xl font-extrabold tracking-tight text-foodappka-950 dark:text-white leading-tight mb-2">
+        <h1 className="text-xl md:text-3xl lg:text-4xl font-display font-extrabold tracking-tight text-foodappka-950 dark:text-white leading-tight mb-2">
           Hlídací pes
         </h1>
         <p className="text-sm md:text-lg text-zinc-600 dark:text-zinc-400">

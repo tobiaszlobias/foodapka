@@ -23,5 +23,7 @@ export async function POST(req: NextRequest) {
   return Response.json({
     recipe: recipeMatch.name,
     ingredients: recipeMatch.ingredients,
+    description: recipeMatch.description,
+    instructions: recipeMatch.instructions,
   });
 }

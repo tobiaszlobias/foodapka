@@ -40,8 +40,67 @@
 }
 
 @layer base {
+  * {
+    -webkit-tap-highlight-color: transparent;
+  }
+
   h1, h2, h3, h4 {
     @apply font-display;
+  }
+
+  /* Prevent image dragging and text selection on UI elements */
+  img {
+    -webkit-user-drag: none;
+    user-drag: none;
+  }
+
+  button, 
+  a, 
+  [role="button"],
+  .group {
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  html {
+    color-scheme: light dark;
+  }
+
+  /* Custom ultra-thin scrollbar */
+  ::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #e4e4e7; /* zinc-200 */
+    border-radius: 20px;
+  }
+
+  :where([data-theme="dark"]) ::-webkit-scrollbar-thumb {
+    background: #27272a; /* zinc-800 */
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: #d4d4d8; /* zinc-300 */
+  }
+
+  :where([data-theme="dark"]) ::-webkit-scrollbar-thumb:hover {
+    background: #3f3f46; /* zinc-700 */
+  }
+
+  /* Firefox support */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: #e4e4e7 transparent;
+  }
+
+  :where([data-theme="dark"]) * {
+    scrollbar-color: #27272a transparent;
   }
 }
 

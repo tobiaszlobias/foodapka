@@ -3,6 +3,7 @@ export type RecipePreset = {
   tag: string;
   description: string;
   ingredients: string[];
+  instructions?: string[];
   aliases?: string[];
   image?: string;
 };
@@ -71,8 +72,15 @@ export const RECIPE_PRESETS: RecipePreset[] = [
   {
     name: "Špagety carbonara",
     tag: "Klasika",
-    description: "Oblíbená těstovinová klasika s pár základními surovinami.",
+    description: "Oblíbená těstovinová klasika s pár základními surovinami. Klíčem je kvalitní slanina a parmazán.",
     ingredients: ["špagety", "slanina", "vejce", "parmazán", "česnek"],
+    instructions: [
+      "Dejte vařit špagety do osolené vody.",
+      "Na pánvi orestujte nakrájenou slaninu s česnekem.",
+      "V misce prošlehejte vejce s nastrouhaným parmazánem.",
+      "Uvařené špagety přidejte k slanině, stáhněte z ohně a vmíchejte vaječnou směs.",
+      "Míchejte, dokud omáčka nezhoustne díky zbytkovému teplu."
+    ],
     aliases: ["carbonara", "spagety carbonara"],
     image: "/carbonara.png",
   },

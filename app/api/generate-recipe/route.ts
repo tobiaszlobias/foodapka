@@ -43,8 +43,9 @@ export async function POST(req: NextRequest) {
                 ODPOVĚZ POUZE JAKO ČISTÝ JSON v tomto formátu:
                 {
                   "name": "Název jídla",
-                  "description": "Popis",
-                  "ingredients": ["surovina 1", "surovina 2"]
+                  "description": "Zhodnocení vybraných surovin, jak se k sobě hodí a proč tento recept splňuje přání uživatele.",
+                  "ingredients": ["surovina 1", "surovina 2"],
+                  "instructions": ["Stručný krok 1", "Stručný krok 2"]
                 }
                 
                 DŮLEŽITÉ: Používej tyto názvy surovin, pokud se hodí: ${KNOWN_INGREDIENTS.slice(0, 50).join(", ")}.`

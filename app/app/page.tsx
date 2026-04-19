@@ -52,6 +52,7 @@ function HomeContent() {
   const [selectedFilter, setSelectedFilter] = useState("all");
   const [selectedSort, setSelectedSort] = useState<ProductSort>("relevance");
   const [activeRecipe, setActiveRecipe] = useState("");
+  const [recipeDetails, setRecipeDetails] = useState<any>(null);
   const [recipeLoading, setRecipeLoading] = useState(false);
   const [ingredients, setIngredients] = useState<string[]>([]);
   const [recipeResults, setRecipeResults] = useState<IngredientResult[]>([]);
@@ -137,6 +138,7 @@ function HomeContent() {
 
       const recipeName = aiData.name;
       setActiveRecipe(recipeName);
+      setRecipeDetails(aiData);
 
       const parsedIngredients = aiData.ingredients || [];
       setIngredients(parsedIngredients);
@@ -214,6 +216,7 @@ function HomeContent() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
 
+      setRecipeDetails(data);
       const parsedIngredients = data.ingredients || [];
       setIngredients(parsedIngredients);
 
@@ -347,7 +350,7 @@ function HomeContent() {
   const shareShoppingList = () => {
     const text = recipeResults.map(r => `${r.ingredient}: ${r.store?.price || '—'} (${r.store?.shopName || '—'})`).join('\n');
     navigator.clipboard.writeText(`Můj nákupní seznam z foodappky:\n\n${text}`);
-    setShareMessage("📋 Odkaz zkopírován!");
+    setShareMessage("Odkaz zkopírován!");
     setTimeout(() => setShareMessage(null), 2000);
   };
 
@@ -365,20 +368,9 @@ function HomeContent() {
 
   useEffect(() => {
     if (mode !== activeView) {
-      const isSearchOrRecipe = (m: string) => m === "search" || m === "recipes";
-      const shouldAnimate = isSearchOrRecipe(mode) && isSearchOrRecipe(activeView);
-
-      if (shouldAnimate) {
-        setIsChangingMode(true);
-        const timer = setTimeout(() => {
-          setActiveView(mode);
-          setIsChangingMode(false);
-        }, 200);
-        return () => clearTimeout(timer);
-      } else {
-        setActiveView(mode);
-        setIsChangingMode(false);
-      }
+      setActiveView(mode);
+      setIsChangingMode(false);
+      window.scrollTo({ top: 0, behavior: "instant" });
     }
   }, [mode, activeView]);
 
@@ -393,7 +385,7 @@ function HomeContent() {
   }, [urlQuery, mode, hasSearched, triggerInitialSearch, runRecipeSearch]);
 
   return (
-    <div className="max-w-5xl mx-auto px-4 md:px-6 pt-2 md:pt-4 overflow-x-hidden">
+    <div className="max-w-5xl mx-auto px-4 md:px-6 pt-2 md:pt-4">
       {/* Persistent Header with SearchBar - Only shown in Search and Recipes modes */}
       {(activeView === "search" || activeView === "recipes") && (
         <header className="px-1 md:px-2 w-full mb-6">
@@ -444,11 +436,12 @@ function HomeContent() {
         </header>
       )}
 
-      {/* Animated Content Area with Swipe Support */}
+      {/* Animated Content Area with Swipe Support (Enabled for touch only to avoid mouse interference on PC) */}
       <motion.div 
         drag="x"
         dragConstraints={{ left: 0, right: 0 }}
         dragElastic={0.05}
+        dragListener={typeof window !== "undefined" && "ontouchstart" in window}
         onDragEnd={(e, info) => {
           const threshold = 100;
           const currentIndex = viewOrder.indexOf(activeView);
@@ -486,6 +479,7 @@ function HomeContent() {
         {activeView === "recipes" && (
           <RecipeSection
             activeRecipe={activeRecipe}
+            recipeDetails={recipeDetails}
             recipeLoading={recipeLoading}
             ingredients={ingredients}
             recipeResults={recipeResults}
@@ -573,7 +567,7 @@ function HomeContent() {
         {activeView === "notifications" && (
           <div className="space-y-6 text-left">
             <header className="px-1 md:px-2">
-              <h1 className="text-2xl md:text-4xl font-extrabold tracking-tight text-foodappka-950 dark:text-white mb-2">Oznámení</h1>
+              <h1 className="text-xl md:text-3xl lg:text-4xl font-display font-extrabold tracking-tight text-foodappka-950 dark:text-white mb-2">Oznámení</h1>
               <p className="text-sm md:text-lg text-zinc-600 dark:text-zinc-400">Aktuální informace o slevách a novinkách.</p>
             </header>
             

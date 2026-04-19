@@ -52,24 +52,24 @@ export default function SignupPage() {
 
   if (success) {
     return (
-      <main className="min-h-screen flex items-center justify-center bg-[radial-gradient(circle_at_top,_rgba(110,231,183,0.18),_transparent_40%),linear-gradient(180deg,_#f5fbf5_0%,_#f8fafc_100%)] px-4">
+      <main className="min-h-screen flex items-center justify-center bg-surface dark:bg-black px-4 transition-colors duration-200">
         <div className="w-full max-w-md text-center">
-          <div className="bg-white rounded-[2rem] p-8 shadow-[0_20px_60px_-20px_rgba(16,185,129,0.25)] border border-foodappka-100">
-            <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-foodappka-100 flex items-center justify-center">
-              <span className="material-symbols-outlined text-foodappka-600 text-3xl">
+          <div className="bg-white dark:bg-zinc-900 rounded-[2rem] p-8 shadow-xl shadow-black/5 dark:shadow-none border border-zinc-100 dark:border-zinc-800">
+            <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-foodappka-100 dark:bg-foodappka-900/50 flex items-center justify-center">
+              <span className="material-symbols-outlined text-foodappka-600 dark:text-foodappka-400 text-3xl">
                 mark_email_read
               </span>
             </div>
-            <h2 className="text-xl font-bold text-zinc-900 mb-2">
+            <h2 className="text-xl font-display font-black text-zinc-900 dark:text-white mb-2">
               Ověřte svůj email
             </h2>
-            <p className="text-zinc-600 mb-6">
+            <p className="text-zinc-600 dark:text-zinc-400 mb-6 text-sm">
               Poslali jsme vám ověřovací odkaz na <strong>{email}</strong>.
               Klikněte na něj pro dokončení registrace.
             </p>
             <Link
               href="/login"
-              className="inline-block px-6 py-3 rounded-xl bg-foodappka-600 text-white font-semibold hover:bg-foodappka-700 transition"
+              className="inline-block px-8 py-3 rounded-xl bg-foodappka-600 text-white font-black hover:bg-foodappka-700 transition shadow-lg shadow-foodappka-600/20 active:scale-95"
             >
               Zpět na přihlášení
             </Link>
@@ -80,21 +80,30 @@ export default function SignupPage() {
   }
 
   return (
-    <main className="min-h-screen flex items-center justify-center bg-[radial-gradient(circle_at_top,_rgba(110,231,183,0.18),_transparent_40%),linear-gradient(180deg,_#f5fbf5_0%,_#f8fafc_100%)] px-4">
-      <div className="w-full max-w-md">
+    <main className="min-h-screen flex items-center justify-center bg-surface dark:bg-black px-4 transition-colors duration-200">
+      <div className="w-full max-w-md relative">
+        {/* Back to Home Button */}
+        <Link 
+          href="/" 
+          className="absolute -top-12 left-0 flex items-center gap-2 text-zinc-500 hover:text-foodappka-600 transition-colors font-bold text-sm"
+        >
+          <span className="material-symbols-outlined text-lg">arrow_back</span>
+          Domů
+        </Link>
+
         <div className="text-center mb-8">
-          <Link href="/" className="text-3xl font-bold text-foodappka-700">
+          <Link href="/" className="text-3xl font-display font-black text-foodappka-600 dark:text-foodappka-400">
             foodappka
           </Link>
-          <p className="mt-2 text-zinc-600">Vytvořte si účet zdarma</p>
+          <p className="mt-2 text-zinc-600 dark:text-zinc-400">Vytvořte si účet zdarma</p>
         </div>
 
         <form
           onSubmit={handleSubmit}
-          className="bg-white rounded-[2rem] p-8 shadow-[0_20px_60px_-20px_rgba(16,185,129,0.25)] border border-foodappka-100"
+          className="bg-white dark:bg-zinc-900 rounded-[2rem] p-8 shadow-xl shadow-black/5 dark:shadow-none border border-zinc-100 dark:border-zinc-800"
         >
           {error && (
-            <div className="mb-6 rounded-xl bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700">
+            <div className="mb-6 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/50 px-4 py-3 text-sm text-red-700 dark:text-red-400">
               {error}
             </div>
           )}
@@ -103,7 +112,7 @@ export default function SignupPage() {
             <div>
               <label
                 htmlFor="email"
-                className="block text-sm font-medium text-zinc-700 mb-2"
+                className="block text-sm font-bold text-zinc-700 dark:text-zinc-300 mb-2"
               >
                 Email
               </label>
@@ -113,7 +122,7 @@ export default function SignupPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="w-full h-12 rounded-xl border border-zinc-200 bg-zinc-50 px-4 text-zinc-900 outline-none transition focus:border-foodappka-500 focus:bg-white focus:ring-2 focus:ring-foodappka-500/20"
+                className="w-full h-12 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-black px-4 text-zinc-900 dark:text-white outline-none transition focus:border-foodappka-500 focus:ring-2 focus:ring-foodappka-500/20"
                 placeholder="vas@email.cz"
               />
             </div>
@@ -121,7 +130,7 @@ export default function SignupPage() {
             <div>
               <label
                 htmlFor="password"
-                className="block text-sm font-medium text-zinc-700 mb-2"
+                className="block text-sm font-bold text-zinc-700 dark:text-zinc-300 mb-2"
               >
                 Heslo
               </label>
@@ -131,7 +140,7 @@ export default function SignupPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                className="w-full h-12 rounded-xl border border-zinc-200 bg-zinc-50 px-4 text-zinc-900 outline-none transition focus:border-foodappka-500 focus:bg-white focus:ring-2 focus:ring-foodappka-500/20"
+                className="w-full h-12 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-black px-4 text-zinc-900 dark:text-white outline-none transition focus:border-foodappka-500 focus:ring-2 focus:ring-foodappka-500/20"
                 placeholder="Minimálně 6 znaků"
               />
             </div>
@@ -139,7 +148,7 @@ export default function SignupPage() {
             <div>
               <label
                 htmlFor="confirmPassword"
-                className="block text-sm font-medium text-zinc-700 mb-2"
+                className="block text-sm font-bold text-zinc-700 dark:text-zinc-300 mb-2"
               >
                 Potvrďte heslo
               </label>
@@ -149,7 +158,7 @@ export default function SignupPage() {
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 required
-                className="w-full h-12 rounded-xl border border-zinc-200 bg-zinc-50 px-4 text-zinc-900 outline-none transition focus:border-foodappka-500 focus:bg-white focus:ring-2 focus:ring-foodappka-500/20"
+                className="w-full h-12 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-black px-4 text-zinc-900 dark:text-white outline-none transition focus:border-foodappka-500 focus:ring-2 focus:ring-foodappka-500/20"
                 placeholder="Zopakujte heslo"
               />
             </div>
@@ -158,16 +167,16 @@ export default function SignupPage() {
           <button
             type="submit"
             disabled={loading}
-            className="mt-6 w-full h-12 rounded-xl bg-foodappka-600 text-white font-semibold transition hover:bg-foodappka-700 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="mt-6 w-full h-12 rounded-xl bg-foodappka-600 text-white font-black transition hover:bg-foodappka-700 shadow-lg shadow-foodappka-600/20 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? "Vytváření účtu..." : "Vytvořit účet"}
           </button>
 
-          <p className="mt-6 text-center text-sm text-zinc-600">
+          <p className="mt-6 text-center text-sm text-zinc-600 dark:text-zinc-400">
             Už máte účet?{" "}
             <Link
               href="/login"
-              className="font-semibold text-foodappka-600 hover:text-foodappka-700"
+              className="font-bold text-foodappka-600 hover:text-foodappka-700 dark:text-foodappka-400"
             >
               Přihlaste se
             </Link>
