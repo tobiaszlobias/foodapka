@@ -519,6 +519,13 @@ const INGREDIENT_CLASSES: IngredientClass[] = [
     queryAlternatives: ["eidam", "eidam plátky", "eidam blok"],
   },
   {
+    id: "lactose_free",
+    aliases: ["bezlaktózový", "bezlaktozovy", "bezlaktózová", "bezlaktozova", "bezlaktózové", "bezlaktozove", "bez laktózy", "bez laktozy"],
+    strict: true,
+    requiredGroups: [["laktoz", "bez laktoz"]],
+    preferred: ["bez laktoz"],
+  },
+  {
     id: "lactose_free_milk",
     aliases: ["bezlaktózové mléko", "bezlaktozove mleko", "mléko bez laktózy", "mleko bez laktozy"],
     families: ["dairy_cooking"],
@@ -779,13 +786,23 @@ const INGREDIENT_CLASSES: IngredientClass[] = [
     aliases: ["vepřové", "veprove", "vepřové maso", "veprove maso"],
     families: ["raw_meat"],
     strict: true,
-    requiredGroups: [["veprove"], ["maso", "plec", "koste", "kytka", "panenka"]],
-    preferred: ["plec", "koste", "kytka", "panenka"],
+    requiredGroups: [["veprove"], ["maso", "plec", "koste", "kytka", "panenka", "krkovice"]],
+    preferred: ["plec", "koste", "kytka", "panenka", "krkovice"],
     banned: ["mlete", "mix", "uzeniny", "sunka"],
-    queryAlternatives: ["vepřová plec", "vepřová kýta", "vepřová panenka"],
+    queryAlternatives: ["vepřová plec", "vepřová kýta", "vepřová panenka", "vepřová krkovice"],
   },
   {
-    id: "turkey_meat",
+    id: "minced_meat",
+    aliases: ["mleté maso", "mlete maso", "mleté", "mlete"],
+    families: ["raw_meat"],
+    strict: true,
+    requiredGroups: [["mlete"]],
+    preferred: ["hovezi", "veprove", "mix"],
+    banned: ["burger", "kuličky", "sekana"],
+    queryAlternatives: ["mleté maso hovězí", "mleté maso vepřové", "mleté maso mix"],
+  },
+  {
+    id: "banana",
     aliases: ["krůtí", "kruti", "krůtí maso", "kruti maso"],
     families: ["raw_meat"],
     strict: true,
@@ -969,3 +986,5 @@ export function getIngredientQueryAlternatives(query: string, recipe?: string) {
     ),
   ).slice(0, 4);
 }
+
+export { INGREDIENT_CLASSES };

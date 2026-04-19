@@ -90,37 +90,6 @@ const RAW_INGREDIENT_BANNED = [
   "zalevka",
 ];
 
-const RAW_MEAT_BANNED = [
-  "burger",
-  "carpaccio",
-  "gulasovka",
-  "jerky",
-  "klobasa",
-  "konzerva",
-  "kostka",
-  "mlete",
-  "parek",
-  "pastrami",
-  "pastika",
-  "ready",
-  "salam",
-  "sunka",
-  "uzeniny",
-  "vyvar",
-];
-
-const PREPARED_MEAT_BANNED = [
-  "gyros",
-  "marinovane",
-  "natrhani",
-  "ochucene",
-  "pomalu varena",
-  "pomalu varene",
-  "pyre",
-  "sous vide",
-  "trhane",
-];
-
 const STOPWORDS = new Set([
   "a",
   "bez",
@@ -181,18 +150,12 @@ function addGroup(profile: SearchProfile, group: string[]) {
   }
 }
 
-function addPreferred(profile: SearchProfile, values: string[]) {
-  profile.preferred.push(...values.map((value) => normalizePattern(value)).filter(Boolean));
-}
-
 function addBanned(profile: SearchProfile, values: string[]) {
   profile.banned.push(...values.map((value) => normalizePattern(value)).filter(Boolean));
 }
 
 function buildSearchProfile(query: string, recipe?: string) {
-  const normalizedQuery = normalizePattern(query);
   const queryTokens = tokenize(query);
-  const recipeText = normalizePattern(recipe ?? "");
 
   const profile: SearchProfile = {
     requiredGroups: [],
@@ -230,187 +193,6 @@ function buildSearchProfile(query: string, recipe?: string) {
 
   if (queryTokens.some((token) => RAW_INGREDIENT_TOKENS.has(token))) {
     addBanned(profile, RAW_INGREDIENT_BANNED);
-  }
-
-  if (normalizedQuery.includes("mleko")) {
-    profile.strict = true;
-    profile.preferUnitPrice = true;
-    addGroup(profile, ["mleko"]);
-    addBanned(profile, [
-      "aperol",
-      "cokolada",
-      "dzus",
-      "juice",
-      "kofola",
-      "krem",
-      "kubik",
-      "napoj",
-      "nutella",
-      "puding",
-      "sirup",
-      "smoothie",
-      "susenky",
-    ]);
-  }
-
-  if (normalizedQuery.includes("laktoz")) {
-    profile.strict = true;
-    addGroup(profile, ["laktoz", "bez laktoz"]);
-    addPreferred(profile, ["bez laktoz"]);
-  }
-
-  if (normalizedQuery.includes("hovezi")) {
-    profile.strict = true;
-    profile.preferUnitPrice = true;
-    profile.preferredMaxPackageKg = 1.2;
-    addGroup(profile, ["hovezi"]);
-    addGroup(profile, ["maso", "kostky", "kližka", "klizka", "plec", "zadni", "predni"]);
-    addPreferred(profile, ["kližka", "klizka", "plec", "zadni", "predni", "kostky"]);
-    addBanned(profile, [...RAW_MEAT_BANNED, "koreni"]);
-  }
-
-  if (normalizedQuery.includes("mrkev")) {
-    profile.strict = true;
-    profile.preferUnitPrice = true;
-    addGroup(profile, ["mrkev"]);
-    addBanned(profile, ["dzus", "juice", "kubik", "napoj", "sirup", "smoothie"]);
-  }
-
-  if (normalizedQuery.includes("salat")) {
-    profile.strict = true;
-    profile.preferUnitPrice = true;
-    addGroup(profile, ["salat"]);
-    addBanned(profile, ["s jogurtem", "s tunakem", "dresink", "mix", "zalevka"]);
-  }
-
-  if (normalizedQuery.includes("smetana")) {
-    profile.preferUnitPrice = true;
-    addGroup(profile, ["smetana"]);
-    addBanned(profile, ["dekor", "kapsle", "susena", "zmrzlina", "ready"]);
-
-    if (recipeText.includes("svickova") || recipeText.includes("omacka")) {
-      profile.strict = true;
-      addGroup(profile, ["na vareni", "12", "30", "31", "33"]);
-      addPreferred(profile, ["na vareni", "30", "31", "33"]);
-      addBanned(profile, ["do kavy", "kava", "10x10"]);
-    }
-  }
-
-  if (normalizedQuery.includes("tortilla")) {
-    profile.strict = true;
-    profile.preferUnitPrice = true;
-    addGroup(profile, ["tortilla", "wrap"]);
-    addGroup(profile, ["placky", "ks", "6 ks", "8 ks", "psenicne", "mexicke"]);
-    addPreferred(profile, ["wrap", "placky", "psenicne"]);
-    addBanned(profile, ["chips", "nachos", "dort", "torty", "chio", "syrove", "paprikove"]);
-  }
-
-  if (normalizedQuery.includes("kureci")) {
-    profile.preferUnitPrice = true;
-    profile.preferredMaxPackageKg = 1.2;
-    addGroup(profile, ["kureci"]);
-    addBanned(profile, [
-      "bujon",
-      "granule",
-      "kapsicka",
-      "krmivo",
-      "polevka",
-      "vyvar",
-      ...RAW_MEAT_BANNED,
-      ...PREPARED_MEAT_BANNED,
-    ]);
-  }
-
-  if (normalizedQuery.includes("prsa") || normalizedQuery.includes("prsni")) {
-    profile.strict = true;
-    profile.preferUnitPrice = true;
-    profile.preferredMaxPackageKg = 1.2;
-    addGroup(profile, ["prsa", "prsni", "rizky", "filet"]);
-    addPreferred(profile, ["cerstve", "chlazene"]);
-    addBanned(profile, ["cele kure", "ctvrtky", "stehna", "kridla", "mrazene", "ready"]);
-  }
-
-  if (normalizedQuery.includes("slanina")) {
-    profile.strict = true;
-    profile.preferUnitPrice = true;
-    profile.preferredMaxPackageKg = 0.6;
-    addGroup(profile, ["slanina", "bacon", "anglicka"]);
-    addBanned(profile, ["chips", "prichut", "tycinky", "dresink", "dip"]);
-  }
-
-  if (normalizedQuery.includes("cesnek")) {
-    profile.strict = true;
-    profile.preferUnitPrice = true;
-    addGroup(profile, ["cesnek"]);
-    addPreferred(profile, ["cerstvy", "palicka", "strouzky"]);
-    addBanned(profile, [
-      "bageta",
-      "dip",
-      "dresink",
-      "omacka",
-      "s jogurtem",
-      "suseny",
-      "zalevka",
-      "koreni",
-    ]);
-  }
-
-  if (normalizedQuery.includes("vejce")) {
-    profile.strict = true;
-    profile.preferUnitPrice = true;
-    addGroup(profile, ["vejce", "vajicka"]);
-    addPreferred(profile, ["cerstva", "6 ks", "10 ks", "12 ks", "m", "l"]);
-    addBanned(profile, [
-      "aspik",
-      "cokolada",
-      "dekorace",
-      "figurka",
-      "motivy",
-      "pomazanka",
-      "prekvapeni",
-      "rapernik",
-      "salat",
-      "sladkost",
-      "velikonocni",
-    ]);
-  }
-
-  if (normalizedQuery.includes("parmaz") || normalizedQuery.includes("parmez") || normalizedQuery.includes("grana")) {
-    profile.strict = true;
-    profile.preferUnitPrice = true;
-    addGroup(profile, ["parmazan", "parmezan", "parmesan", "grana", "padano", "gran moravia"]);
-    addPreferred(profile, ["grana padano", "gran moravia", "parmazan"]);
-    addBanned(profile, ["chips", "omacka", "pomazanka", "prichut", "strouhanka"]);
-  }
-
-  if (normalizedQuery.includes("spagety")) {
-    profile.strict = true;
-    profile.preferUnitPrice = true;
-    addGroup(profile, ["spagety"]);
-    addBanned(profile, ["hotove jidlo", "omacka", "polevka", "salat"]);
-  }
-
-  if (recipeText.includes("wrap")) {
-    if (normalizedQuery.includes("kureci")) {
-      profile.strict = true;
-      addGroup(profile, ["prsa", "prsni", "rizky", "filet"]);
-      addPreferred(profile, ["cerstve", "chlazene"]);
-      addBanned(profile, [
-        "mrazene",
-        "cele kure",
-        "ctvrtky",
-        "stehna",
-        "kridla",
-        "ready",
-        ...PREPARED_MEAT_BANNED,
-      ]);
-    }
-
-    if (normalizedQuery.includes("tortilla")) {
-      profile.strict = true;
-      addGroup(profile, ["placky", "wrap", "psenicne"]);
-      addPreferred(profile, ["wrap", "placky", "psenicne"]);
-    }
   }
 
   profile.preferred = Array.from(new Set(profile.preferred));

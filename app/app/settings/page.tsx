@@ -265,12 +265,6 @@ function SettingsContent() {
           <p className="text-base md:text-lg text-zinc-600 dark:text-zinc-400">
             Upravte svoje preference pro lepší doporučení a personalizovaný zážitek.
           </p>
-          {!user && (
-            <div className="mt-3 inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-50 dark:bg-amber-900/20 border border-amber-100 dark:border-amber-800">
-              <span className="material-symbols-outlined text-sm text-amber-600">info</span>
-              <span className="text-[10px] font-bold text-amber-700 dark:text-amber-300 uppercase tracking-widest">Režim hosta - data uložena v prohlížeči</span>
-            </div>
-          )}
         </div>
         
         {/* Save Status Indicator */}

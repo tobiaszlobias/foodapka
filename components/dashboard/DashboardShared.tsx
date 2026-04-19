@@ -55,8 +55,8 @@ export function SearchLoadingAnimation({ progress }: { progress?: number }) {
   useEffect(() => {
     if (progress !== undefined) return;
 
-    // Start with a jump
-    setFakeProgress(15);
+    // Use a small timeout or just rely on the interval to start from initial state
+    setFakeProgress(0); // Ensure it starts from 0
 
     const interval = setInterval(() => {
       setFakeProgress(prev => {

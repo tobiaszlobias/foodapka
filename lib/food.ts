@@ -116,6 +116,22 @@ const NON_FOOD_NAME_TOKENS = new Set([
   "vložky",
   "plenky",
   "ubrousky",
+  "ponožky",
+  "ponozky",
+  "pantofle",
+  "hracky",
+  "hracky",
+  "stelivo",
+  "krmivo",
+  "granule",
+  "kapsicka",
+  "sampon",
+  "mýdlo",
+  "mydlo",
+  "pánské",
+  "dámské",
+  "panske",
+  "damske",
 ]);
 
 const RECIPE_MISMATCH_TOKENS = new Set([
@@ -132,7 +148,6 @@ const RECIPE_MISMATCH_TOKENS = new Set([
   "zmrzlina",
   "dort",
   "dezert",
-  "jogurt",
   "pomazánka",
   "paštika",
 ]);

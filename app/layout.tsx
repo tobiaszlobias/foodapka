@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Manrope, Plus_Jakarta_Sans } from "next/font/google";
 import ThemeScript from "@/components/ThemeScript";
+import CookieBanner from "@/components/CookieBanner";
 import "./globals.css";
 
 const manrope = Manrope({
@@ -38,6 +39,7 @@ export default function RootLayout({
       <body className={`${manrope.variable} ${plusJakartaSans.variable} font-sans antialiased`}>
         <ThemeScript />
         {children}
+        <CookieBanner />
       </body>
     </html>
   );

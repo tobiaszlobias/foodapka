@@ -10,6 +10,7 @@ type SearchBarProps = {
   onSearchStart?: () => void;
   onFocus?: () => void;
   onBlur?: () => void;
+  onAIGenerate?: (prompt: string) => void;
   mode: AppMode;
   onModeChange: (mode: AppMode) => void;
   initialQuery?: string;
@@ -51,6 +52,7 @@ export default function SearchBar({
   onSearchStart,
   onFocus,
   onBlur,
+  onAIGenerate,
   mode,
   onModeChange,
   initialQuery = "",
@@ -93,6 +95,12 @@ export default function SearchBar({
     if (!query.trim()) return;
     setShowSuggestions(false);
     onSearchStart?.();
+
+    if (mode === "recipes" && onAIGenerate) {
+      onAIGenerate(query);
+      return;
+    }
+
     onLoading(true);
 
     try {
@@ -112,6 +120,12 @@ export default function SearchBar({
     setQuery(suggestion);
     setShowSuggestions(false);
     onSearchStart?.();
+
+    if (mode === "recipes" && onAIGenerate) {
+      onAIGenerate(suggestion);
+      return;
+    }
+
     onLoading(true);
     fetch(`/api/search?q=${encodeURIComponent(suggestion)}`)
       .then(res => {
@@ -193,8 +207,8 @@ export default function SearchBar({
         </button>
       </div>
 
-      {/* Search Input - only shown in search mode */}
-      <div className={`flex flex-1 gap-2 transition-all duration-500 ${mode === "recipes" ? "opacity-40 pointer-events-none grayscale" : "opacity-100"}`}>
+      {/* Search Input */}
+      <div className="flex flex-1 gap-2 transition-all duration-500">
         <div className="relative flex-1">
           <input
             ref={inputRef}
@@ -211,7 +225,7 @@ export default function SearchBar({
             }}
             onBlur={() => onBlur?.()}
             onKeyDown={handleKeyDown}
-            placeholder="Co chcete nakoupit?"
+            placeholder={mode === "recipes" ? "Jaký recept byste chtěli vytvořit?" : "Co chcete nakoupit?"}
             autoComplete="off"
             className="h-11 md:h-12 w-full rounded-full border border-zinc-100 dark:border-zinc-800 bg-zinc-50/50 dark:bg-black/50 px-4 md:px-5 text-sm md:text-base text-zinc-900 dark:text-white outline-none transition placeholder:text-zinc-400 focus:border-foodappka-400"
           />
@@ -240,7 +254,7 @@ export default function SearchBar({
           )}
         </div>
         <button type="submit" className="h-11 md:h-12 rounded-full bg-foodappka-500 hover:bg-foodappka-600 px-4 md:px-6 text-sm font-black text-white transition-all shadow-md active:scale-95 shrink-0">
-          Hledat
+          {mode === "recipes" ? "Vytvořit" : "Hledat"}
         </button>
       </div>
     </form>

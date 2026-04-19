@@ -1,16 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
-import OpenAI from "openai";
-
-// If the key is missing, it will throw an error or we can handle it gracefully.
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY || "", 
-});
+import { INGREDIENT_CLASSES } from "@/lib/ingredientClasses";
 
 export async function POST(req: NextRequest) {
+  console.log("🚀 API: Volání nativního Gemini API");
   try {
-    if (!process.env.OPENAI_API_KEY) {
+    const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_GENERATIVE_AI_API_KEY;
+    
+    if (!apiKey) {
       return NextResponse.json(
-        { error: "API klíč pro OpenAI není nastaven v .env.local" },
+        { error: "API klíč (GEMINI_API_KEY) není nastaven v .env.local" },
         { status: 500 }
       );
     }
@@ -25,57 +23,64 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const completion = await openai.chat.completions.create({
-      model: "gpt-4o-mini",
-      messages: [
-        {
-          role: "system",
-          content: `Jsi expertní kuchař a nákupčí. Tvojí úlohou je vzít požadavek uživatele a vymyslet pro něj ideální recept. 
-          Musíš vrátit POUZE validní JSON objekt. Žádný jiný text.
-          
-          Formát JSONu:
+    const KNOWN_INGREDIENTS = INGREDIENT_CLASSES.map(c => c.aliases[0]);
+
+    // Použijeme alias 'gemini-flash-latest', který automaticky vybere nejlepší dostupný model s kvótou
+    const baseUrl = "https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent";
+    const url = `${baseUrl}?key=${apiKey}`;
+
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        contents: [
           {
-            "name": "Název jídla",
-            "description": "Krátký lákavý popis jídla a proč se hodí k požadavku.",
-            "ingredients": [
-              "surovina 1 v základním tvaru",
-              "surovina 2 v základním tvaru"
+            parts: [
+              {
+                text: `Jsi expertní kuchař. Vymysli recept na základě požadavku: "${prompt}".
+                ODPOVĚZ POUZE JAKO ČISTÝ JSON v tomto formátu:
+                {
+                  "name": "Název jídla",
+                  "description": "Popis",
+                  "ingredients": ["surovina 1", "surovina 2"]
+                }
+                
+                DŮLEŽITÉ: Používej tyto názvy surovin, pokud se hodí: ${KNOWN_INGREDIENTS.slice(0, 50).join(", ")}.`
+              }
             ]
           }
-          
-          Pravidla pro 'ingredients':
-          1. Piš POUZE základní názvy surovin, ne množství ani jednotky (např. piš "kuřecí prsa", NIKOLIV "500g kuřecích prsou").
-          2. Piš je v 1. pádě jednotného čísla nebo běžném množném čísle (např. "rýže basmati", "rajčata", "cibule").
-          3. Vybírej běžně dostupné suroviny v českých supermarketech.
-          4. Vyhni se úplným základům jako sůl, pepř a voda, ty lidé většinou mají doma. Ostatní koření můžeš přidat.`,
-        },
-        {
-          role: "user",
-          content: prompt,
-        },
-      ],
-      response_format: { type: "json_object" },
-      temperature: 0.7,
+        ]
+      })
     });
 
-    const resultText = completion.choices[0]?.message?.content;
-    
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error?.message || `Gemini API Error: ${response.status}`);
+    }
+
+    const data = await response.json();
+    const resultText = data.candidates?.[0]?.content?.parts?.[0]?.text;
+
     if (!resultText) {
-      throw new Error("Odpověď od AI byla prázdná.");
+      throw new Error("Gemini nevrátil žádný text.");
     }
 
-    const recipeData = JSON.parse(resultText);
+    // Pro jistotu vyčistíme text od případných markdown značek
+    const cleanedJson = resultText.replace(/```json/g, "").replace(/```/g, "").trim();
+    const recipeData = JSON.parse(cleanedJson);
 
-    // Validate the parsed data
-    if (!recipeData.name || !Array.isArray(recipeData.ingredients)) {
-      throw new Error("AI nevrátila správný formát receptu.");
-    }
-
+    console.log(`✅ Recept vygenerován: ${recipeData.name}`);
     return NextResponse.json(recipeData);
+
   } catch (error: any) {
-    console.error("AI Recipe Generation Error:", error);
+    console.error("💥 Gemini API Error:", error);
     return NextResponse.json(
-      { error: error.message || "Nepodařilo se vygenerovat recept." },
+      { 
+        error: "Nepodařilo se vygenerovat recept.",
+        details: error.message
+      },
       { status: 500 }
     );
   }

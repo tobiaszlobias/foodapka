@@ -120,7 +120,7 @@ export default function HomePage() {
             <div className="relative order-2 lg:order-1">
               <div className="absolute inset-0 bg-foodappka-100/50 blur-3xl rounded-full transform -rotate-12 scale-90"></div>
               <Image 
-                src="/myslenkova mapa hero.png" 
+                src="/myslenkova_mapa_hero.png" 
                 alt="Jak funguje foodappka" 
                 width={600} 
                 height={600} 

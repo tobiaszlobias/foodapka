@@ -35,6 +35,12 @@ export default function BottomNav() {
             <Link
               key={item.id}
               href={item.href}
+              onClick={(e) => {
+                if (isActive) {
+                  // If already active, trigger a reset event instead of standard navigation
+                  window.dispatchEvent(new CustomEvent("nav-reset", { detail: { mode: item.id } }));
+                }
+              }}
               className={`flex-1 flex flex-col items-center justify-center gap-1 transition-all active:scale-90 active:bg-zinc-50 dark:active:bg-zinc-900/50 ${
                 isActive
                   ? "text-foodappka-600 dark:text-foodappka-400"

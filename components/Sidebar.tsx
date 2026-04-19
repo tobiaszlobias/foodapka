@@ -37,6 +37,11 @@ export default function Sidebar() {
             <Link
               key={item.id}
               href={item.href}
+              onClick={(e) => {
+                if (isActive) {
+                  window.dispatchEvent(new CustomEvent("nav-reset", { detail: { mode: item.id } }));
+                }
+              }}
               className={`flex items-center gap-4 px-6 py-3 rounded-full transition-all ${
                 isActive
                   ? "bg-foodappka-500 text-white shadow-lg shadow-foodappka-500/30"

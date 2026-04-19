@@ -81,6 +81,23 @@ function HomeContent() {
     router.push(url, { scroll: false });
   }, [router]);
 
+  // Handle navigation reset (clicking active tab)
+  useEffect(() => {
+    const handleReset = (e: any) => {
+      const targetMode = e.detail?.mode;
+      if (targetMode === "recipes") {
+        setActiveRecipe("");
+        setHasSearched(false);
+        setRecipeResults([]);
+      } else if (targetMode === "search") {
+        setHasSearched(false);
+        setProducts([]);
+      }
+    };
+    window.addEventListener("nav-reset", handleReset as EventListener);
+    return () => window.removeEventListener("nav-reset", handleReset as EventListener);
+  }, []);
+
   const triggerInitialSearch = useCallback(async (query: string) => {
     setLoading(true);
     setHasSearched(true);
@@ -376,7 +393,7 @@ function HomeContent() {
   }, [urlQuery, mode, hasSearched, triggerInitialSearch, runRecipeSearch]);
 
   return (
-    <div className="max-w-5xl mx-auto px-4 md:px-6 pt-2 md:pt-4">
+    <div className="max-w-5xl mx-auto px-4 md:px-6 pt-2 md:pt-4 overflow-x-hidden">
       {/* Persistent Header with SearchBar - Only shown in Search and Recipes modes */}
       {(activeView === "search" || activeView === "recipes") && (
         <header className="px-1 md:px-2 w-full mb-6">
@@ -418,6 +435,7 @@ function HomeContent() {
                   setHasSearched(false);
                 }
               }}
+              onAIGenerate={generateAIRecipe}
               mode={activeView === "recipes" ? "recipes" : "search"}
               onModeChange={(newMode) => handleModeChange(newMode as AppMode)}
               initialQuery={urlQuery}
@@ -426,8 +444,25 @@ function HomeContent() {
         </header>
       )}
 
-      {/* Animated Content Area */}
-      <div className={`transition-all duration-300 ${isChangingMode ? "opacity-0 translate-y-4 scale-[0.98]" : "opacity-100 translate-y-0 scale-100"}`}>
+      {/* Animated Content Area with Swipe Support */}
+      <motion.div 
+        drag="x"
+        dragConstraints={{ left: 0, right: 0 }}
+        dragElastic={0.05}
+        onDragEnd={(e, info) => {
+          const threshold = 100;
+          const currentIndex = viewOrder.indexOf(activeView);
+          
+          if (info.offset.x > threshold && currentIndex > 0) {
+            // Swipe Right -> Previous
+            handleModeChange(viewOrder[currentIndex - 1]);
+          } else if (info.offset.x < -threshold && currentIndex < viewOrder.length - 1) {
+            // Swipe Left -> Next
+            handleModeChange(viewOrder[currentIndex + 1]);
+          }
+        }}
+        className={`transition-all duration-300 ${isChangingMode ? "opacity-0 translate-y-4 scale-[0.98]" : "opacity-100 translate-y-0 scale-100"}`}
+      >
         {activeView === "search" && (
           <SearchSection
             products={products}
@@ -548,7 +583,7 @@ function HomeContent() {
             </div>
           </div>
         )}
-      </div>
+      </motion.div>
     </div>
   );
 }

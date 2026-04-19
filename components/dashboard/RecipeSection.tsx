@@ -78,8 +78,6 @@ export default function RecipeSection({
   favorites,
   onToggleFavorite,
 }: RecipeSectionProps) {
-  const [aiPrompt, setAiPrompt] = useState("");
-
   // SINGLE STORE LOGIC: Find which shop has the most ingredients for the lowest price
   const effectiveResults = useMemo(() => {
     if (shoppingMode === "cross_store") return recipeResults;
@@ -143,6 +141,7 @@ export default function RecipeSection({
             onLoading={setLoading}
             onSearchStart={() => setHasSearched(true)}
             onFocus={() => setHasSearched(true)}
+            onAIGenerate={generateAIRecipe}
             mode="recipes"
             onModeChange={handleModeChange}
           />
@@ -155,6 +154,7 @@ export default function RecipeSection({
             onResults={handleResults}
             onLoading={setLoading}
             onSearchStart={() => setHasSearched(true)}
+            onAIGenerate={generateAIRecipe}
             mode="recipes"
             onModeChange={handleModeChange}
           />
@@ -168,7 +168,7 @@ export default function RecipeSection({
             onClick={() => {
               window.location.href = "/app?mode=recipes"; 
             }}
-            className="flex items-center gap-2 text-zinc-500 hover:text-foodappka-600 transition-colors font-bold text-sm mb-6"
+            className="inline-flex items-center gap-2 px-5 py-2.5 bg-white dark:bg-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-700 text-zinc-600 dark:text-zinc-300 transition-all font-bold text-sm rounded-full mb-8 shadow-md border border-zinc-100 dark:border-zinc-700 active:scale-95"
           >
             <span className="material-symbols-outlined text-lg">arrow_back</span>
             Zpět na výběr receptů
@@ -179,46 +179,6 @@ export default function RecipeSection({
       {/* Recipe Grid - Only shown when NOT searching */}
       {!activeRecipe && !recipeLoading && (
         <div className="space-y-6">
-          {/* AI Generator Bar */}
-          {generateAIRecipe && (
-            <section className="relative p-6 md:p-8 rounded-[2rem] bg-gradient-to-r from-foodappka-500 to-green-600 shadow-xl overflow-hidden group">
-              <div className="absolute inset-0 bg-[url('/myslenkova_mapa_hero.png')] opacity-10 bg-cover bg-center mix-blend-overlay"></div>
-              <div className="relative z-10 flex flex-col md:flex-row items-center gap-6">
-                <div className="flex-1 text-center md:text-left text-white">
-                  <h2 className="text-2xl font-black mb-2 flex items-center justify-center md:justify-start gap-2">
-                    <span className="material-symbols-outlined animate-pulse">auto_awesome</span>
-                    Vytvořte si AI recept
-                  </h2>
-                  <p className="text-sm font-medium opacity-90">Napište, na co máte chuť a my vygenerujeme recept z nejlevnějších surovin.</p>
-                </div>
-                <div className="w-full md:w-[400px]">
-                  <form 
-                    onSubmit={(e) => {
-                      e.preventDefault();
-                      generateAIRecipe(aiPrompt);
-                    }}
-                    className="relative flex items-center"
-                  >
-                    <input 
-                      type="text" 
-                      value={aiPrompt}
-                      onChange={(e) => setAiPrompt(e.target.value)}
-                      placeholder="Př. Rychlá kuřecí večeře pro 2..." 
-                      className="w-full h-12 pl-4 pr-12 rounded-full border-0 focus:ring-4 focus:ring-white/20 bg-white/95 text-zinc-900 font-medium placeholder:text-zinc-400 outline-none"
-                    />
-                    <button 
-                      type="submit"
-                      disabled={!aiPrompt.trim()}
-                      className="absolute right-1 w-10 h-10 rounded-full bg-foodappka-600 text-white flex items-center justify-center hover:bg-foodappka-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      <span className="material-symbols-outlined text-xl">send</span>
-                    </button>
-                  </form>
-                </div>
-              </div>
-            </section>
-          )}
-
           <section className="grid gap-4 grid-cols-1 sm:grid-cols-2">
           {RECIPE_PRESETS.map((recipe) => {
           const isFavorite = favorites.some(f => f.id === recipe.name);
