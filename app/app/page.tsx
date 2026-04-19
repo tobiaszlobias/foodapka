@@ -38,6 +38,8 @@ type FavoriteItem = {
   description?: string; // present for recipes
 };
 
+const VIEW_ORDER: AppMode[] = ["search", "recipes", "watchdog", "favorites", "notifications", "lists"];
+
 function HomeContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -444,14 +446,14 @@ function HomeContent() {
         dragListener={typeof window !== "undefined" && "ontouchstart" in window}
         onDragEnd={(e, info) => {
           const threshold = 100;
-          const currentIndex = viewOrder.indexOf(activeView);
+          const currentIndex = VIEW_ORDER.indexOf(activeView);
           
           if (info.offset.x > threshold && currentIndex > 0) {
             // Swipe Right -> Previous
-            handleModeChange(viewOrder[currentIndex - 1]);
-          } else if (info.offset.x < -threshold && currentIndex < viewOrder.length - 1) {
+            handleModeChange(VIEW_ORDER[currentIndex - 1]);
+          } else if (info.offset.x < -threshold && currentIndex < VIEW_ORDER.length - 1) {
             // Swipe Left -> Next
-            handleModeChange(viewOrder[currentIndex + 1]);
+            handleModeChange(VIEW_ORDER[currentIndex + 1]);
           }
         }}
         className={`transition-all duration-300 ${isChangingMode ? "opacity-0 translate-y-4 scale-[0.98]" : "opacity-100 translate-y-0 scale-100"}`}
@@ -497,6 +499,7 @@ function HomeContent() {
             handleModeChange={handleModeChange}
             setLoading={setLoading}
             handleResults={handleResults}
+            hasSearched={hasSearched}
             setHasSearched={setHasSearched}
             isSaving={isSaving}
             hideHeader

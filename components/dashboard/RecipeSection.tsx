@@ -52,6 +52,7 @@ type RecipeSectionProps = {
   handleModeChange: (mode: any) => void;
   setLoading: (l: boolean) => void;
   handleResults: (products: Product[]) => void;
+  hasSearched: boolean;
   setHasSearched: (s: boolean) => void;
   hideHeader?: boolean;
   favorites: { id: string }[];
@@ -79,6 +80,7 @@ export default function RecipeSection({
   handleModeChange,
   setLoading,
   handleResults,
+  hasSearched,
   setHasSearched,
   hideHeader,
   favorites,
