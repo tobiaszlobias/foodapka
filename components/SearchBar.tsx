@@ -227,7 +227,7 @@ export default function SearchBar({
             onKeyDown={handleKeyDown}
             placeholder={mode === "recipes" ? "Jaký recept byste chtěli vytvořit?" : "Co chcete nakoupit?"}
             autoComplete="off"
-            className="h-11 md:h-12 w-full rounded-full border border-zinc-100 dark:border-zinc-800 bg-zinc-50/50 dark:bg-black/50 px-4 md:px-5 text-sm md:text-base text-zinc-900 dark:text-white outline-none transition placeholder:text-zinc-400 focus:border-foodappka-400"
+            className="h-11 md:h-12 w-full rounded-full border border-zinc-100 dark:border-zinc-800 bg-zinc-50/50 dark:bg-black/50 px-4 md:px-5 text-base text-zinc-900 dark:text-white outline-none transition placeholder:text-zinc-400 focus:border-foodappka-400"
           />
           
           {showSuggestions && filteredSuggestions.length > 0 && mode === "search" && (
