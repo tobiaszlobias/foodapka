@@ -97,9 +97,6 @@ export default function HomePage() {
                 >
                   <div className="relative h-32 md:h-48 w-full overflow-hidden rounded-2xl mb-3">
                     <Image src={recipe.image || ""} alt={recipe.name} fill className="object-cover transition-transform duration-500 group-hover:scale-110" />
-                    <div className="absolute top-2 left-2 bg-white/90 backdrop-blur-md px-2 py-0.5 rounded-full text-[8px] font-black text-foodappka-800 uppercase tracking-widest">
-                      {recipe.tag}
-                    </div>
                   </div>
                   <h4 className="font-bold text-sm md:text-base text-zinc-900 leading-tight group-hover:text-foodappka-700 transition-colors">{recipe.name}</h4>
                 </motion.div>
