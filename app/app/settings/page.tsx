@@ -428,43 +428,6 @@ function SettingsContent() {
             ))}
           </div>
         </section>
-
-        {/* Nápověda */}
-        <section id="napoveda" className="rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white/90 dark:bg-foodappka-950 p-6 scroll-mt-32 shadow-sm">
-          <div className="flex items-center gap-3 mb-5">
-            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-100 dark:bg-blue-900/30">
-              <span className="material-symbols-outlined text-blue-600 dark:text-blue-400 text-2xl">
-                help
-              </span>
-            </div>
-            <div>
-              <h2 className="text-lg font-bold text-zinc-900 dark:text-white">Nápověda</h2>
-              <p className="text-sm text-zinc-500 dark:text-zinc-400">
-                Jak používat Foodapku
-              </p>
-            </div>
-          </div>
-          <div className="space-y-4">
-            <div className="flex gap-4 p-4 rounded-xl bg-zinc-50 dark:bg-zinc-800/50">
-              <span className="material-symbols-outlined text-foodappka-500 text-xl mt-0.5">search</span>
-              <div>
-                <h3 className="font-semibold text-zinc-900 dark:text-white mb-1">Vyhledávání produktů</h3>
-                <p className="text-sm text-zinc-600 dark:text-zinc-400">
-                  Zadejte název produktu do vyhledávače a my vám najdeme nejlepší akční ceny ze všech obchodů.
-                </p>
-              </div>
-            </div>
-            <div className="flex gap-4 p-4 rounded-xl bg-zinc-50 dark:bg-zinc-800/50">
-              <span className="material-symbols-outlined text-foodappka-500 text-xl mt-0.5">restaurant</span>
-              <div>
-                <h3 className="font-semibold text-zinc-900 dark:text-white mb-1">Recepty</h3>
-                <p className="text-sm text-zinc-600 dark:text-zinc-400">
-                  Vyberte si recept a my automaticky vyhledáme nejlevnější ingredience. Můžete nakupovat v jednom obchodě nebo kombinovat nabídky.
-                </p>
-              </div>
-            </div>
-          </div>
-        </section>
       </div>
     </div>
   );

@@ -15,7 +15,6 @@ const NAV_ITEMS: NavItem[] = [
   { id: "recipes", label: "Recepty", icon: "restaurant", href: "/app?mode=recipes" },
   { id: "watchdog", label: "Pes", icon: "trending_down", href: "/app?mode=watchdog" },
   { id: "lists", label: "Seznamy", icon: "receipt_long", href: "/app?mode=lists" },
-  { id: "settings", label: "Nastavení", icon: "settings", href: "/app/settings" },
 ];
 
 export default function BottomNav() {
@@ -62,6 +61,15 @@ export default function BottomNav() {
             </Link>
           );
         })}
+        
+        {/* Help Button (Special case, no Link) */}
+        <button
+          onClick={() => window.dispatchEvent(new CustomEvent("open-help"))}
+          className="flex-1 flex flex-col items-center justify-center gap-1 transition-all active:scale-90 active:bg-zinc-50 dark:active:bg-zinc-900/50 text-zinc-400 dark:text-zinc-600"
+        >
+          <span className="material-symbols-outlined text-[26px]">help</span>
+          <span className="text-[9px] font-black uppercase tracking-tighter">Nápověda</span>
+        </button>
       </div>
     </nav>
   );

@@ -13,6 +13,7 @@ import {
 import { RECIPE_PRESETS } from "@/lib/recipes";
 import { getStoreLogoPath } from "@/lib/storeLogos";
 import { useEffect, useRef, useState } from "react";
+import { showToast } from "@/components/Toast";
 
 type ShoppingMode = "cross_store" | "single_store";
 
@@ -321,7 +322,7 @@ export default function RecipesPage() {
     };
 
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
-    setShareMessage("Seznam je uložený v tomto zařízení.");
+    showToast("Seznam je uložený v tomto zařízení.", "success");
   }
 
   async function shareShoppingList() {
@@ -333,7 +334,7 @@ export default function RecipesPage() {
           title: activeRecipe || "Nákupní seznam",
           text,
         });
-        setShareMessage("Seznam byl nasdílen.");
+        showToast("Seznam byl nasdílen.", "success");
         return;
       } catch {
         // Fall back to clipboard if the share sheet was closed or unsupported.
@@ -341,8 +342,12 @@ export default function RecipesPage() {
     }
 
     await navigator.clipboard.writeText(text);
-    setShareMessage("Seznam je zkopírovaný do schránky.");
+    showToast("Seznam je zkopírovaný do schránky.", "success");
   }
+
+  const toggleFavorite = (item: any) => {
+    showToast("Pro ukládání oblíbených se musíte přihlásit.", "info");
+  };
 
   async function runRecipeSearch(recipeName: string) {
     if (!recipeName.trim()) return;
@@ -371,22 +376,29 @@ export default function RecipesPage() {
 
       const parsedIngredients = Array.isArray(recipeData?.ingredients)
         ? recipeData.ingredients.filter(
-            (ingredient): ingredient is string => typeof ingredient === "string",
+            (ingredient): ingredient is string | { name: string; searchQuery?: string; banned?: string[] } => 
+              typeof ingredient === "string" || (typeof ingredient === "object" && ingredient !== null),
           )
         : [];
 
       const recipeLabel = recipeData?.recipe ?? recipeName;
       setActiveRecipe(recipeLabel);
-      setIngredients(parsedIngredients);
+      const ingredientNames = parsedIngredients.map((ing) => typeof ing === 'string' ? ing : ing.name);
+      setIngredients(ingredientNames);
 
       const ingredientResults = await Promise.all(
-        parsedIngredients.map(async (ingredient) => {
-          const searchParams = new URLSearchParams({
-            q: ingredient,
-            recipe: recipeLabel,
-            ingredients: parsedIngredients.join("|"),
-          });
-          const searchResponse = await fetch(`/api/search?${searchParams}`);
+        parsedIngredients.map(async (ing) => {
+          const ingName = typeof ing === 'string' ? ing : ing.name;
+          const searchQuery = typeof ing === 'string' ? ing : (ing.searchQuery || ing.name);
+          const bannedTerms = typeof ing === 'string' ? [] : (ing.banned || []);
+
+          const searchParams = new URLSearchParams();
+          searchParams.append("q", searchQuery);
+          searchParams.append("recipe", recipeLabel);
+          searchParams.append("ingredients", ingredientNames.join("|"));
+          bannedTerms.forEach((term: string) => searchParams.append("banned", term));
+
+          const searchResponse = await fetch(`/api/search?${searchParams.toString()}`);
           const searchData = readJsonSafely(await searchResponse.text()) as
             | { products?: Product[] }
             | null;
@@ -397,7 +409,7 @@ export default function RecipesPage() {
           const cheapestOption = storeOptions[0] ?? null;
 
           return {
-            ingredient,
+            ingredient: ingName,
             product: cheapestOption?.product ?? null,
             store: cheapestOption?.store ?? null,
             storeOptions,
@@ -425,7 +437,7 @@ export default function RecipesPage() {
   }
 
   return (
-    <main className="min-h-screen bg-surface dark:bg-black px-4 py-6 sm:px-6 lg:px-8 text-on-surface dark:text-zinc-100">
+    <main className="min-h-screen bg-transparent px-4 py-6 sm:px-6 lg:px-8 text-on-surface dark:text-zinc-100">
       <div className="mx-auto flex max-w-4xl flex-col gap-8">
         <section className="rounded-2xl border border-foodappka-100 dark:border-zinc-800 bg-white/90 dark:bg-foodappka-950 p-6 shadow-[0_20px_50px_-30px_rgba(132,204,22,0.2)]">
           <SiteHeader current="recipes" />
@@ -482,25 +494,40 @@ export default function RecipesPage() {
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
             {RECIPE_PRESETS.map((preset) => (
-              <button
+              <div
                 key={preset.name}
-                type="button"
-                onClick={() => {
-                  setRecipe(preset.name);
-                  void runRecipeSearch(preset.name);
-                }}
-                className="rounded-2xl border border-foodappka-100 dark:border-zinc-800 bg-white/90 dark:bg-foodappka-950 p-5 text-left shadow-[0_20px_50px_-30px_rgba(132,204,22,0.2)] transition hover:-translate-y-1 hover:border-foodappka-300 dark:hover:border-foodappka-600"
+                className="group relative"
               >
-                <span className="inline-flex rounded-full bg-foodappka-100 dark:bg-foodappka-900/50 px-3 py-1 text-xs font-semibold uppercase tracking-widest text-foodappka-700 dark:text-foodappka-300">
-                  {preset.tag}
-                </span>
-                <h3 className="mt-4 text-lg font-semibold text-zinc-950 dark:text-white">
-                  {preset.name}
-                </h3>
-                <p className="mt-2 text-sm leading-6 text-zinc-600 dark:text-zinc-400">
-                  {preset.description}
-                </p>
-              </button>
+                {/* Favorite Button for Recipe */}
+                <button 
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    toggleFavorite(preset);
+                  }}
+                  className="absolute top-3 right-3 z-10 flex h-10 w-10 items-center justify-center rounded-full transition-all duration-200 text-zinc-400 hover:text-red-500 bg-white/80 dark:bg-zinc-800/80 backdrop-blur-sm shadow-sm"
+                  title="Přidat do oblíbených"
+                >
+                  <span className="material-symbols-outlined text-xl">favorite</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setRecipe(preset.name);
+                    void runRecipeSearch(preset.name);
+                  }}
+                  className="w-full h-full rounded-2xl border border-foodappka-100 dark:border-zinc-800 bg-white/90 dark:bg-foodappka-950 p-5 text-left shadow-[0_20px_50px_-30px_rgba(132,204,22,0.2)] transition hover:-translate-y-1 hover:border-foodappka-300 dark:hover:border-foodappka-600"
+                >
+                  <span className="inline-flex rounded-full bg-foodappka-100 dark:bg-foodappka-900/50 px-3 py-1 text-xs font-semibold uppercase tracking-widest text-foodappka-700 dark:text-foodappka-300">
+                    {preset.tag}
+                  </span>
+                  <h3 className="mt-4 text-lg font-semibold text-zinc-950 dark:text-white">
+                    {preset.name}
+                  </h3>
+                  <p className="mt-2 text-sm leading-6 text-zinc-600 dark:text-zinc-400">
+                    {preset.description}
+                  </p>
+                </button>
+              </div>
             ))}
           </div>
         </section>
@@ -618,12 +645,25 @@ export default function RecipesPage() {
                     return (
                       <li
                         key={item.ingredient}
-                        className={`rounded-xl border px-4 py-4 transition ${
+                        className={`rounded-xl border px-4 py-4 transition relative overflow-hidden ${
                           isChecked
                             ? "border-foodappka-200 dark:border-zinc-800 bg-foodappka-50/70 dark:bg-foodappka-900/20"
                             : "border-zinc-100 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/50"
                         }`}
                       >
+                        {/* Favorite Button for Product */}
+                        {item.selectedProduct && (
+                          <button 
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              toggleFavorite(item.selectedProduct);
+                            }}
+                            className="absolute top-3 right-3 z-10 flex h-8 w-8 items-center justify-center rounded-full transition-all duration-200 text-zinc-400 hover:text-red-500 bg-white/50 dark:bg-zinc-800/50 backdrop-blur-sm shadow-sm"
+                            title="Přidat do oblíbených"
+                          >
+                            <span className="material-symbols-outlined text-lg">favorite</span>
+                          </button>
+                        )}
                         <div className="flex gap-3">
                           <button
                             type="button"

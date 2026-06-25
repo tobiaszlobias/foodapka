@@ -11,12 +11,13 @@ export async function GET(req: NextRequest) {
   }
 
   const recipe = req.nextUrl.searchParams.get("recipe")?.trim() || undefined;
+  const banned = req.nextUrl.searchParams.getAll("banned").map(b => b.trim()).filter(Boolean);
 
   try {
     const wantsDebug = req.nextUrl.searchParams.get("debug") === "1";
     if (wantsDebug) {
       const { products, debug } = await searchAllSourcesDebug(query);
-      const filteredProducts = filterProductsForQuery(products, query, { recipe });
+      const filteredProducts = filterProductsForQuery(products, query, { recipe, banned });
       return Response.json({ products: filteredProducts, count: filteredProducts.length, debug });
     }
 
@@ -25,7 +26,7 @@ export async function GET(req: NextRequest) {
       queryAlternatives.map((candidateQuery) => searchAllSources(candidateQuery)),
     );
     const products = mergeProductsByName(searchResults.flat());
-    const filteredProducts = filterProductsForQuery(products, query, { recipe });
+    const filteredProducts = filterProductsForQuery(products, query, { recipe, banned });
     return Response.json({ products: filteredProducts, count: filteredProducts.length });
   } catch (error) {
     return Response.json(

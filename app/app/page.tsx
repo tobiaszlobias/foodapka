@@ -10,6 +10,7 @@ import ListsSection from "@/components/dashboard/ListsSection";
 import SearchBar from "@/components/SearchBar";
 import { type Product, type Store, parsePrice, cleanProductName } from "@/lib/food";
 import { createClient } from "@/lib/supabase/client";
+import { showToast } from "@/components/Toast";
 import type { User } from "@supabase/supabase-js";
 
 type AppMode = "search" | "recipes" | "watchdog" | "lists" | "favorites" | "notifications";
@@ -143,18 +144,28 @@ function HomeContent() {
       setRecipeDetails(aiData);
 
       const parsedIngredients = aiData.ingredients || [];
-      setIngredients(parsedIngredients);
+      const ingredientNames = parsedIngredients.map((ing: any) => typeof ing === 'string' ? ing : ing.name);
+      setIngredients(ingredientNames);
 
       // 2. Search for the generated ingredients
-      const results: IngredientResult[] = parsedIngredients.map((ing: string) => ({
-        ingredient: ing, product: null, store: null, storeOptions: []
+      const results: IngredientResult[] = ingredientNames.map((name: string) => ({
+        ingredient: name, product: null, store: null, storeOptions: []
       }));
       setRecipeResults([...results]);
 
       await Promise.all(
-        parsedIngredients.map(async (ing: string, index: number) => {
+        parsedIngredients.map(async (ing: any, index: number) => {
           try {
-            const sRes = await fetch(`/api/search?q=${encodeURIComponent(ing)}&recipe=${encodeURIComponent(recipeName)}`);
+            const ingName = typeof ing === 'string' ? ing : ing.name;
+            const searchQuery = typeof ing === 'string' ? ing : (ing.searchQuery || ing.name);
+            const bannedTerms = typeof ing === 'string' ? [] : (ing.banned || []);
+            
+            const searchParams = new URLSearchParams();
+            searchParams.append("q", searchQuery);
+            searchParams.append("recipe", recipeName);
+            bannedTerms.forEach((term: string) => searchParams.append("banned", term));
+
+            const sRes = await fetch(`/api/search?${searchParams.toString()}`);
             const sData = await sRes.json();
             const products: Product[] = sData.products || [];
             
@@ -171,19 +182,24 @@ function HomeContent() {
               : null;
 
             const result: IngredientResult = { 
-              ingredient: ing, 
+              ingredient: ingName, 
               product: bestProduct, 
               store: bestStore, 
               storeOptions 
             };
             
             setRecipeResults(prev => {
-              const next = [...prev];
+              // Ensure we have a correctly sized array to update
+              const next = prev.length >= ingredientNames.length 
+                ? [...prev] 
+                : ingredientNames.map((name: string) => ({
+                    ingredient: name, product: null, store: null, storeOptions: []
+                  }));
               next[index] = result;
               return next;
             });
           } catch (err) {
-            console.error(`Failed to search for ingredient: ${ing}`, err);
+            console.error(`Failed to search for ingredient: ${typeof ing === 'string' ? ing : ing.name}`, err);
           }
         })
       );
@@ -220,20 +236,30 @@ function HomeContent() {
 
       setRecipeDetails(data);
       const parsedIngredients = data.ingredients || [];
-      setIngredients(parsedIngredients);
+      const ingredientNames = parsedIngredients.map((ing: any) => typeof ing === 'string' ? ing : ing.name);
+      setIngredients(ingredientNames);
 
       // PARALLEL INCREMENTAL SEARCH: Start all at once, update UI as each finishes
       // Initialize with placeholders
-      const results: IngredientResult[] = parsedIngredients.map((ing: string) => ({
-        ingredient: ing, product: null, store: null, storeOptions: []
+      const results: IngredientResult[] = ingredientNames.map((name: string) => ({
+        ingredient: name, product: null, store: null, storeOptions: []
       }));
       setRecipeResults([...results]);
 
       await Promise.all(
-        parsedIngredients.map(async (ing: string, index: number) => {
+        parsedIngredients.map(async (ing: any, index: number) => {
           try {
+            const ingName = typeof ing === 'string' ? ing : ing.name;
+            const searchQuery = typeof ing === 'string' ? ing : (ing.searchQuery || ing.name);
+            const bannedTerms = typeof ing === 'string' ? [] : (ing.banned || []);
+
             // Pass the recipe name to the search API for better context filtering
-            const sRes = await fetch(`/api/search?q=${encodeURIComponent(ing)}&recipe=${encodeURIComponent(recipeName)}`);
+            const searchParams = new URLSearchParams();
+            searchParams.append("q", searchQuery);
+            searchParams.append("recipe", recipeName);
+            bannedTerms.forEach((term: string) => searchParams.append("banned", term));
+
+            const sRes = await fetch(`/api/search?${searchParams.toString()}`);
             const sData = await sRes.json();
             const products: Product[] = sData.products || [];
             
@@ -250,7 +276,7 @@ function HomeContent() {
               : null;
 
             const result: IngredientResult = { 
-              ingredient: ing, 
+              ingredient: ingName, 
               product: bestProduct, 
               store: bestStore, 
               storeOptions 
@@ -258,12 +284,17 @@ function HomeContent() {
             
             // Update the specific index in the results array
             setRecipeResults(prev => {
-              const next = [...prev];
+              // Ensure we have a correctly sized array to update
+              const next = prev.length >= ingredientNames.length 
+                ? [...prev] 
+                : ingredientNames.map((name: string) => ({
+                    ingredient: name, product: null, store: null, storeOptions: []
+                  }));
               next[index] = result;
               return next;
             });
           } catch (err) {
-            console.error(`Failed to search for ingredient: ${ing}`, err);
+            console.error(`Failed to search for ingredient: ${typeof ing === 'string' ? ing : ing.name}`, err);
           }
         })
       );
@@ -276,8 +307,7 @@ function HomeContent() {
 
   const toggleFavorite = useCallback((item: any) => {
     if (!user) {
-      setShareMessage("Pro ukládání oblíbených se musíte přihlásit.");
-      setTimeout(() => setShareMessage(null), 3000);
+      showToast("Pro ukládání oblíbených se musíte přihlásit.", "info");
       return;
     }
     
@@ -312,8 +342,7 @@ function HomeContent() {
 
   const saveShoppingList = async () => {
     if (!user) {
-      setShareMessage("Pro uložení se musíte přihlásit.");
-      setTimeout(() => setShareMessage(null), 3000);
+      showToast("Pro uložení se musíte přihlásit.", "info");
       return;
     }
 
@@ -322,7 +351,7 @@ function HomeContent() {
     setIsSaving(true);
     
     const totalPrice = recipeResults.reduce((sum, item) => {
-      if (checkedIngredients.includes(item.ingredient) || !item.store) return sum;
+      if (!item || checkedIngredients.includes(item.ingredient) || !item.store) return sum;
       return sum + parsePrice(item.store.price);
     }, 0);
 
@@ -340,11 +369,9 @@ function HomeContent() {
     });
 
     if (!error) {
-      setShareMessage("✅ Seznam uložen!");
-      setTimeout(() => setShareMessage(null), 2000);
+      showToast("✅ Seznam uložen!", "success");
     } else {
-      setShareMessage("❌ Nepodařilo se uložit.");
-      setTimeout(() => setShareMessage(null), 2000);
+      showToast("❌ Nepodařilo se uložit.", "error");
     }
     setIsSaving(false);
   };
@@ -352,8 +379,7 @@ function HomeContent() {
   const shareShoppingList = () => {
     const text = recipeResults.map(r => `${r.ingredient}: ${r.store?.price || '—'} (${r.store?.shopName || '—'})`).join('\n');
     navigator.clipboard.writeText(`Můj nákupní seznam z foodappky:\n\n${text}`);
-    setShareMessage("Odkaz zkopírován!");
-    setTimeout(() => setShareMessage(null), 2000);
+    showToast("Odkaz zkopírován!", "success");
   };
 
   // 3. EFFECTS (Placed after functions to ensure they are initialized)

@@ -231,16 +231,16 @@ export function scoreProductMatch(name: string, query: string) {
   const normalizedQuery = normalizeSearchText(query);
 
   if (!normalizedQuery) return 0;
-  if (normalizedName === normalizedQuery) return 240;
-  if (normalizedName.startsWith(normalizedQuery)) return 210;
-  if (normalizedName.includes(normalizedQuery)) return 180;
+  if (normalizedName === normalizedQuery) return 500; // Perfect match
+  if (normalizedName.startsWith(normalizedQuery)) return 300;
+  if (normalizedName.includes(normalizedQuery)) return 200;
 
   const nameTokens = tokenizeSearchText(normalizedName);
   const queryTokens = tokenizeSearchText(normalizedQuery);
   if (queryTokens.length === 0) return 0;
 
   if (nameTokens.some((token) => NON_FOOD_NAME_TOKENS.has(token))) {
-    return 0;
+    return -100; // Hard fail for non-food
   }
 
   let exactMatches = 0;
@@ -253,6 +253,8 @@ export function scoreProductMatch(name: string, query: string) {
       !IGNORE_QUERY_TOKENS.has(token) && !GENERIC_QUERY_TOKENS.has(token),
   );
 
+  const ADJECTIVE_SUFFIXES = ["vy", "va", "ve", "vi", "vych", "vemu", "vemu", "ovi", "ovo", "ova"];
+
   queryTokens.forEach((queryToken) => {
     const hasExactMatch = nameTokens.some((nameToken) => nameToken === queryToken);
     if (hasExactMatch) {
@@ -263,15 +265,22 @@ export function scoreProductMatch(name: string, query: string) {
       return;
     }
 
-    const hasPartialMatch = nameTokens.some(
+    const hasForwardPartial = nameTokens.some((nameToken) => {
+      if (!nameToken.startsWith(queryToken)) return false;
+      const suffix = nameToken.slice(queryToken.length);
+      // Block adjectival suffixes: "maslo" should not match "maslovy"
+      if (suffix.length > 0 && ADJECTIVE_SUFFIXES.some((s) => suffix === s || suffix.startsWith(s))) return false;
+      return true;
+    });
+
+    const hasBackwardPartial = nameTokens.some(
       (nameToken) =>
-        nameToken.startsWith(queryToken) ||
         queryToken.startsWith(nameToken) ||
         (queryToken.length >= 5 && nameToken.includes(queryToken)) ||
         (nameToken.length >= 5 && queryToken.includes(nameToken)),
     );
 
-    if (hasPartialMatch) {
+    if (hasForwardPartial || hasBackwardPartial) {
       partialMatches += 1;
       if (specificQueryTokens.includes(queryToken)) {
         matchedSpecificTokens += 1;
@@ -284,39 +293,39 @@ export function scoreProductMatch(name: string, query: string) {
     }
   });
 
-  if (specificQueryTokens.length > 0 && matchedSpecificTokens === 0) {
-    return 0;
-  }
-
-  if (queryTokens.length > 1 && exactMatches + partialMatches < 2) {
-    return 0;
-  }
-
-  if (missingSpecificTokens > 0 && matchedSpecificTokens < specificQueryTokens.length) {
-    if (matchedSpecificTokens === 0) return 0;
-    if (queryTokens.length >= 2 && matchedSpecificTokens < Math.ceil(specificQueryTokens.length / 2)) {
-      return 0;
-    }
-  }
-
+  // CRITICAL: If searching for a specific ingredient and we find a known "mismatch" token (like croissant for butter)
+  // we need to kill the score unless the query explicitly asked for it.
   if (nameTokens.some((token) => RECIPE_MISMATCH_TOKENS.has(token))) {
     const queryHasMismatchToken = queryTokens.some((token) =>
       RECIPE_MISMATCH_TOKENS.has(token),
     );
     if (!queryHasMismatchToken && specificQueryTokens.length > 0) {
-      return -50; // Heavy penalty instead of just 0 to ensure it falls below others
+      return -200; 
     }
   }
 
+  if (specificQueryTokens.length > 0 && matchedSpecificTokens === 0) {
+    return 0;
+  }
+
+  if (queryTokens.length > 1 && exactMatches + partialMatches < 1) {
+    return 0;
+  }
+
   const tokenCoverage = exactMatches + partialMatches;
-  const extraTokensPenalty = Math.max(0, nameTokens.length - tokenCoverage - 2); // Stricter penalty for extra words
+  const extraTokensPenalty = Math.max(0, nameTokens.length - tokenCoverage);
+
+  // Bonus if the product name starts with one of the query tokens (e.g. "Máslo XY" when searching "máslo")
+  const firstNameToken = nameTokens[0] ?? "";
+  const positionBonus = specificQueryTokens.some((t) => firstNameToken === t) ? 60 : 0;
 
   return (
-    exactMatches * 30 +
-    partialMatches * 8 +
-    matchedSpecificTokens * 20 -
-    missingSpecificTokens * 20 -
-    extraTokensPenalty * 5
+    exactMatches * 50 +
+    partialMatches * 10 +
+    matchedSpecificTokens * 40 +
+    positionBonus -
+    missingSpecificTokens * 50 -
+    extraTokensPenalty * 15
   );
 }
 

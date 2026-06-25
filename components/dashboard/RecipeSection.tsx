@@ -92,21 +92,28 @@ export default function RecipeSection({
 
     // 1. Find all unique shop names
     const allShops = new Set<string>();
-    recipeResults.forEach(r => r.storeOptions.forEach(opt => allShops.add(opt.store.shopName)));
+    recipeResults.forEach(r => {
+      if (r?.storeOptions) {
+        r.storeOptions.forEach(opt => {
+          if (opt?.store?.shopName) allShops.add(opt.store.shopName);
+        });
+      }
+    });
 
     // 2. Score each shop
     const shopScores = Array.from(allShops).map(shopName => {
       let totalItems = 0;
       let totalPrice = 0;
       const items = recipeResults.map(res => {
-        const option = res.storeOptions.find(opt => opt.store.shopName === shopName);
+        if (!res) return null;
+        const option = res.storeOptions?.find(opt => opt?.store?.shopName === shopName);
         if (option) {
           totalItems++;
           totalPrice += parsePrice(option.store.price);
           return { ...res, store: option.store, product: option.product };
         }
         return { ...res, store: null, product: null };
-      });
+      }).filter((x): x is NonNullable<typeof x> => x !== null);
 
       return { shopName, totalItems, totalPrice, items };
     });
@@ -129,8 +136,8 @@ export default function RecipeSection({
   }, [recipeResults, shoppingMode]);
 
   const totalPrice = useMemo(() => {
-    return effectiveResults.reduce((sum, item) => {
-      if (checkedIngredients.includes(item.ingredient) || !item.store) return sum;
+    return (effectiveResults || []).reduce((sum, item) => {
+      if (!item || !item.ingredient || checkedIngredients.includes(item.ingredient) || !item.store) return sum;
       return sum + parsePrice(item.store.price);
     }, 0);
   }, [effectiveResults, checkedIngredients]);
@@ -313,24 +320,42 @@ export default function RecipeSection({
                         <div className="min-w-0 flex-1">
                           <div className="flex justify-between items-start gap-2">
                             <p className={`text-sm font-bold truncate ${isChecked ? "line-through text-zinc-500" : "text-zinc-900 dark:text-white"}`}>{item.ingredient}</p>
-                            <div className="text-right shrink-0">
+                            <div className="text-right shrink-0 flex flex-col items-end">
+                              <p className="text-sm font-black text-foodappka-700 dark:text-foodappka-400 leading-none mb-0.5">{item.store?.price || "—"}</p>
                               {item.store?.originalPrice && parsePrice(item.store.originalPrice) > parsePrice(item.store.price) && !isChecked && (
                                 <span className="text-[10px] text-zinc-400 line-through font-bold block leading-none mb-0.5">
                                   {item.store.originalPrice}
                                 </span>
                               )}
-                              <p className="text-sm font-black text-foodappka-700 dark:text-foodappka-400 leading-none">{item.store?.price || "—"}</p>
-                              {item.store && !isChecked && formatDiscountPercent(parsePrice(item.store.price), item.store.originalPrice ? parsePrice(item.store.originalPrice) : null) && (
-                                <span className="text-[9px] text-red-500 font-bold mt-1 bg-red-50 px-1 rounded block">
-                                  {formatDiscountPercent(parsePrice(item.store.price), item.store.originalPrice ? parsePrice(item.store.originalPrice) : null)}
-                                </span>
+                              {item.store && !isChecked && parsePrice(item.store.originalPrice || "") > parsePrice(item.store.price) && (
+                                <div className="mt-1 flex flex-col items-end gap-0.5">
+                                  <span className="text-[9px] text-red-500 font-bold bg-red-50 px-1.5 py-0.5 rounded leading-none block w-fit">
+                                    {formatDiscountPercent(parsePrice(item.store.price), parsePrice(item.store.originalPrice || ""))}
+                                  </span>
+                                  <span className="text-[9px] text-red-600 font-bold leading-none whitespace-nowrap">
+                                    Ušetříte {(parsePrice(item.store.originalPrice || "") - parsePrice(item.store.price)).toFixed(2).replace(".", ",")} Kč
+                                  </span>
+                                </div>
                               )}
                             </div>
                           </div>
                           {!isChecked && item.store && (
                             <div className="flex items-center gap-2 mt-1 opacity-80">
                               <StoreBrand shopName={item.store.shopName} small />
-                              <span className="text-[10px] text-zinc-500 dark:text-zinc-400 truncate">{cleanProductName(item.product?.name || "")}</span>
+                              <div className="flex items-center gap-1 min-w-0">
+                                <span className="text-[10px] text-zinc-500 dark:text-zinc-400 truncate">{cleanProductName(item.product?.name || "")}</span>
+                                {item.product?.url && (
+                                  <a 
+                                    href={item.product.url} 
+                                    target="_blank" 
+                                    rel="noreferrer"
+                                    className="text-zinc-400 hover:text-foodappka-600 transition-colors"
+                                    title="Otevřít zdroj"
+                                  >
+                                    <span className="material-symbols-outlined text-[12px]">open_in_new</span>
+                                  </a>
+                                )}
+                              </div>
                             </div>
                           )}
                         </div>

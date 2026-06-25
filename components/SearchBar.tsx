@@ -187,7 +187,10 @@ export default function SearchBar({
         
         <button 
           type="button" 
-          onClick={() => onModeChange("search")} 
+          onMouseDown={(e) => {
+            e.preventDefault(); // Prevent input from losing focus if that's preferred, but more importantly catch the event before blur
+            onModeChange("search");
+          }} 
           className={`relative z-10 flex items-center gap-2 rounded-full px-3 md:px-4 py-2 text-xs md:text-sm font-bold transition-colors duration-300 ${
             mode === "search" ? "text-foodappka-700 dark:text-foodappka-400" : "text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300"
           }`}
@@ -197,7 +200,10 @@ export default function SearchBar({
         </button>
         <button 
           type="button" 
-          onClick={() => onModeChange("recipes")} 
+          onMouseDown={(e) => {
+            e.preventDefault();
+            onModeChange("recipes");
+          }} 
           className={`relative z-10 flex items-center gap-2 rounded-full px-3 md:px-4 py-2 text-xs md:text-sm font-bold transition-colors duration-300 ${
             mode === "recipes" ? "text-foodappka-700 dark:text-foodappka-400" : "text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300"
           }`}

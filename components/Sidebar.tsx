@@ -17,7 +17,6 @@ const NAV_ITEMS: NavItem[] = [
   { id: "favorites", label: "Oblíbené", icon: "favorite", href: "/app?mode=favorites" },
   { id: "notifications", label: "Oznámení", icon: "notifications", href: "/app?mode=notifications" },
   { id: "lists", label: "Nákupní seznamy", icon: "receipt_long", href: "/app?mode=lists" },
-  { id: "settings", label: "Nastavení", icon: "settings", href: "/app/settings" },
 ];
 
 export default function Sidebar() {
@@ -63,12 +62,23 @@ export default function Sidebar() {
       <div className="mt-auto flex flex-col gap-4 border-t border-foodappka-100/50 dark:border-zinc-700 pt-6">
         <div className="flex flex-col gap-1">
           <Link
-            href="/app/settings#napoveda"
-            className="flex items-center gap-4 text-zinc-500 dark:text-zinc-400 px-6 py-2 text-sm hover:text-foodappka-600 dark:hover:text-foodappka-400 transition-colors"
+            href="/app/settings"
+            className={`flex items-center gap-4 px-6 py-2 text-sm transition-colors w-full text-left ${
+              pathname.includes("/settings") 
+                ? "text-foodappka-600 dark:text-foodappka-400 font-bold" 
+                : "text-zinc-500 dark:text-zinc-400 hover:text-foodappka-600 dark:hover:text-foodappka-400"
+            }`}
+          >
+            <span className="material-symbols-outlined text-lg">settings</span>
+            <span>Nastavení</span>
+          </Link>
+          <button
+            onClick={() => window.dispatchEvent(new CustomEvent("open-help"))}
+            className="flex items-center gap-4 text-zinc-500 dark:text-zinc-400 px-6 py-2 text-sm hover:text-foodappka-600 dark:hover:text-foodappka-400 transition-colors w-full text-left"
           >
             <span className="material-symbols-outlined text-lg">help</span>
             <span>Nápověda</span>
-          </Link>
+          </button>
         </div>
       </div>
     </aside>

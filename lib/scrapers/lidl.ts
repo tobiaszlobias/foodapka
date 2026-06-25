@@ -12,7 +12,6 @@ import {
   fetchHtmlWithNodeHttps,
   isBlockedHtml,
 } from "@/lib/scrapers/shared";
-import { normalizeText } from "@/lib/food";
 
 const LIDL_ORIGIN = "https://www.lidl.cz";
 
@@ -33,28 +32,7 @@ type LidlGridProductData = {
   };
 };
 
-const LIDL_SEARCH_PATH = "/q/search";
-
-function buildLidlQueryVariants(query: string) {
-  const normalized = normalizeText(query);
-  const variants = [
-    query,
-    `trvanlive ${query}`,
-    `cerstve ${query}`,
-    `${query} 1 l`,
-  ];
-
-  if (normalized.includes("mleko")) {
-    variants.push(
-      "trvanlive mleko",
-      "mleko polotucne",
-      "mleko plnotucne",
-      "trvanlive mleko polotucne",
-    );
-  }
-
-  return Array.from(new Set(variants.map((value) => value.trim()).filter(Boolean)));
-}
+const LIDL_WEEKLY_OFFERS_PATH = "/c/ceny-v-klidu/a10088117";
 
 function parseLidlGridProduct(rawValue: string) {
   const decoded = decodeHtmlEntities(rawValue);
@@ -99,51 +77,33 @@ function parseLidlGridProduct(rawValue: string) {
 }
 
 export async function searchLidlProducts(query: string) {
+  const { html, statusCode } = await fetchHtmlWithNodeHttps(
+    `${LIDL_ORIGIN}${LIDL_WEEKLY_OFFERS_PATH}`,
+    {
+      Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+      "Accept-Language": "cs-CZ,cs;q=0.9,en;q=0.8",
+      Cookie: "i18n_redirected=cs_CZ",
+      Referer: `${LIDL_ORIGIN}/`,
+    },
+  );
+
+  if (statusCode >= 400 || isBlockedHtml(html)) {
+    throw new Error(`Lidl blocked: HTTP ${statusCode}`);
+  }
+
+  const $ = cheerio.load(html);
   const products = new Map<string, Product>();
-  let lastError: Error | null = null;
 
-  for (const variant of buildLidlQueryVariants(query)) {
-    try {
-      const { html, statusCode } = await fetchHtmlWithNodeHttps(
-        `${LIDL_ORIGIN}${LIDL_SEARCH_PATH}?q=${encodeURIComponent(variant)}`,
-        {
-          Cookie: "i18n_redirected=cs_CZ",
-          Referer: `${LIDL_ORIGIN}/`,
-        },
-      );
+  $("[data-grid-data]").each((_, element) => {
+    const rawValue = $(element).attr("data-grid-data");
+    if (!rawValue) return;
 
-      if (
-        statusCode >= 300 ||
-        isBlockedHtml(html) ||
-        html.includes("url=https://www.lidl.cz/c/ceny-v-klidu/")
-      ) {
-        continue;
-      }
+    const product = parseLidlGridProduct(rawValue);
+    if (!product) return;
+    if (scoreProductMatch(product.name, query) <= 0) return;
 
-      const $ = cheerio.load(html);
-
-      $("[data-grid-data], [data-grid-data] [data-grid-data]").each((_, element) => {
-        const rawValue = $(element).attr("data-grid-data");
-        if (!rawValue) return;
-
-        const product = parseLidlGridProduct(rawValue);
-        if (!product) return;
-        if (scoreProductMatch(product.name, query) <= 0) return;
-
-        products.set(product.url || product.name, product);
-      });
-
-      if (products.size > 0) {
-        break;
-      }
-    } catch (error) {
-      lastError = error instanceof Error ? error : new Error(String(error));
-    }
-  }
-
-  if (products.size === 0 && lastError) {
-    throw lastError;
-  }
+    products.set(product.url || product.name, product);
+  });
 
   return Array.from(products.values())
     .sort((a, b) => {

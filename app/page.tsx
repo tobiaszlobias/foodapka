@@ -27,6 +27,15 @@ export default function HomePage() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  // Redirect to app if user has been there before (unless they explicitly navigated back)
+  useEffect(() => {
+    const hasVisited = document.cookie.includes("has_visited_app=true");
+    const explicitlyLeft = sessionStorage.getItem("left_app") === "true";
+    if (hasVisited && !explicitlyLeft) {
+      router.replace("/app");
+    }
+  }, [router]);
+
   const stores = [
     { name: "Albert", logo: "/albertlogo.png", scale: "scale-[1.6] md:scale-[2.8]" },
     { name: "Lidl", logo: "/lidllogo.png", scale: "scale-[1.5] md:scale-[2.2]" },

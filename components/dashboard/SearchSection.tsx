@@ -231,7 +231,13 @@ export default function SearchSection({
                           <li key={idx} className={`rounded-xl border px-3 py-2.5 flex items-center justify-between gap-3 min-w-0 ${idx === 0 ? "border-foodappka-300 dark:border-foodappka-800 bg-foodappka-50 dark:bg-foodappka-900/20 shadow-sm" : "border-zinc-100 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/50"}`}>
                             <div className="flex items-center gap-2 min-w-0 flex-1">
                               <div className="shrink-0">
-                                <StoreBrand shopName={item.shopName} small />
+                                {item.leafletUrl ? (
+                                  <a href={item.leafletUrl} target="_blank" rel="noreferrer" title="Zobrazit zdroj">
+                                    <StoreBrand shopName={item.shopName} small />
+                                  </a>
+                                ) : (
+                                  <StoreBrand shopName={item.shopName} small />
+                                )}
                               </div>
                               {idx === 0 && <span className="bg-foodappka-600 text-[8px] font-black text-white px-1.5 py-0.5 rounded-full uppercase tracking-tighter shrink-0">TOP</span>}
                               {discountPercent && (
@@ -242,16 +248,16 @@ export default function SearchSection({
                             </div>
                             <div className="text-right shrink-0">
                               <div className="flex flex-col items-end">
-                                {originalPrice && originalPrice > currentPrice && (
-                                  <span className="text-[10px] text-zinc-400 line-through font-bold leading-none mb-0.5">
-                                    {item.originalPrice}
-                                  </span>
-                                )}
                                 <p className={`text-base font-black leading-none ${idx === 0 ? "text-foodappka-700 dark:text-foodappka-400" : "text-zinc-900 dark:text-white"}`}>
                                   {item.price}
                                 </p>
+                                {originalPrice && originalPrice > currentPrice && (
+                                  <span className="text-[10px] text-zinc-400 line-through font-bold leading-none mt-0.5 mb-0.5">
+                                    {item.originalPrice}
+                                  </span>
+                                )}
                                 {savings > 0 && (
-                                  <p className="text-[9px] text-red-500 font-bold mt-0.5">
+                                  <p className="text-[9px] text-red-600 font-bold mt-0.5">
                                     Ušetříte {savings.toFixed(2).replace(".", ",")} Kč
                                   </p>
                                 )}

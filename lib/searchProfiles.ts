@@ -66,17 +66,22 @@ const RAW_INGREDIENT_TOKENS = new Set([
 ]);
 
 const RAW_INGREDIENT_BANNED = [
+  "bageta",
+  "buchta",
   "chips",
+  "croissant",
   "dip",
   "dresink",
   "dzus",
   "hotove jidlo",
   "instantni",
   "juice",
+  "kolac",
   "koreni",
   "napoj",
   "ochucene",
   "omacka",
+  "pecivo",
   "polevka",
   "prichut",
   "protein",
@@ -87,6 +92,8 @@ const RAW_INGREDIENT_BANNED = [
   "smoothie",
   "smes",
   "stava",
+  "susenka",
+  "susenky",
   "zalevka",
 ];
 
@@ -154,7 +161,7 @@ function addBanned(profile: SearchProfile, values: string[]) {
   profile.banned.push(...values.map((value) => normalizePattern(value)).filter(Boolean));
 }
 
-function buildSearchProfile(query: string, recipe?: string) {
+function buildSearchProfile(query: string, options?: { recipe?: string; banned?: string[] }) {
   const queryTokens = tokenize(query);
 
   const profile: SearchProfile = {
@@ -166,10 +173,15 @@ function buildSearchProfile(query: string, recipe?: string) {
     preferredMaxPackageKg: undefined,
   };
 
-  const resolvedClassConfig = resolveIngredientRuleConfig(query, recipe);
+  const resolvedClassConfig = resolveIngredientRuleConfig(query, options?.recipe);
   profile.requiredGroups.push(...(resolvedClassConfig.requiredGroups ?? []));
   profile.preferred.push(...(resolvedClassConfig.preferred ?? []));
   profile.banned.push(...(resolvedClassConfig.banned ?? []));
+  
+  if (options?.banned && Array.isArray(options.banned)) {
+    profile.banned.push(...options.banned.map(b => normalizePattern(b)));
+  }
+
   profile.strict = profile.strict || Boolean(resolvedClassConfig.strict);
   profile.preferUnitPrice =
     profile.preferUnitPrice || Boolean(resolvedClassConfig.preferUnitPrice);
@@ -253,8 +265,8 @@ function parseComparableUnitPrice(value: string) {
   return Number.POSITIVE_INFINITY;
 }
 
-function scoreProductWithProfile(product: Product, query: string, recipe?: string) {
-  const profile = buildSearchProfile(query, recipe);
+function scoreProductWithProfile(product: Product, query: string, options?: { recipe?: string; banned?: string[] }) {
+  const profile = buildSearchProfile(query, options);
   const normalizedName = normalizePattern(product.name);
   const nameTokens = tokenize(product.name);
   const baseScore = scoreProductMatch(product.name, query);
@@ -310,13 +322,13 @@ function scoreProductWithProfile(product: Product, query: string, recipe?: strin
 export function filterProductsForQuery(
   products: Product[],
   query: string,
-  options?: { recipe?: string },
+  options?: { recipe?: string; banned?: string[] },
 ) {
-  const profile = buildSearchProfile(query, options?.recipe);
+  const profile = buildSearchProfile(query, options);
   const scored = products
     .map((product) => ({
       product,
-      score: scoreProductWithProfile(product, query, options?.recipe),
+      score: scoreProductWithProfile(product, query, options),
     }))
     .filter((entry) => Number.isFinite(entry.score))
     .sort((left, right) => {

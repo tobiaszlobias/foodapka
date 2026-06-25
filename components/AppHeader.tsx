@@ -42,13 +42,24 @@ export default function AppHeader() {
     <nav className="fixed top-0 w-full z-50 h-16 bg-foodappka-50/80 dark:bg-foodappka-950/90 backdrop-blur-xl border-b border-foodappka-100 dark:border-foodappka-900/50">
       <div className="flex justify-between items-center px-4 md:px-8 py-2 max-w-[1800px] mx-auto h-full">
         <div className="flex items-center gap-4 md:gap-8">
-          <Link href="/" className="text-xl md:text-2xl font-asset tracking-tight text-foodappka-700 dark:text-foodappka-400">
+          <Link
+            href="/"
+            onClick={() => sessionStorage.setItem("left_app", "true")}
+            className="text-xl md:text-2xl font-asset tracking-tight text-foodappka-700 dark:text-foodappka-400"
+          >
             foodappka
           </Link>
         </div>
         
         <div className="flex items-center gap-2 md:gap-4">
           <div className="hidden sm:flex items-center gap-2 md:gap-4">
+            <button 
+              onClick={() => window.dispatchEvent(new CustomEvent("open-help"))}
+              className="flex h-10 w-10 items-center justify-center hover:bg-foodappka-100/50 dark:hover:bg-foodappka-800/50 rounded-full transition-all active:scale-95 duration-200"
+              title="Nápověda"
+            >
+              <span className="material-symbols-outlined text-foodappka-600 dark:text-foodappka-400">help</span>
+            </button>
             <Link 
               href="/app?mode=notifications"
               className="flex h-10 w-10 items-center justify-center hover:bg-foodappka-100/50 dark:hover:bg-foodappka-800/50 rounded-full transition-all active:scale-95 duration-200"

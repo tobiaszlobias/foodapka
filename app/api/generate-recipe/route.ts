@@ -25,36 +25,50 @@ export async function POST(req: NextRequest) {
 
     const KNOWN_INGREDIENTS = INGREDIENT_CLASSES.map(c => c.aliases[0]);
 
-    // Použijeme alias 'gemini-flash-latest', který automaticky vybere nejlepší dostupný model s kvótou
-    const baseUrl = "https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent";
+    // Použijeme gemini-flash-lite-latest, který je v tomto prostředí dostupný a funkční
+    const baseUrl = "https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-lite-latest:generateContent";
     const url = `${baseUrl}?key=${apiKey}`;
 
-    const response = await fetch(url, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        contents: [
-          {
-            parts: [
-              {
-                text: `Jsi expertní kuchař. Vymysli recept na základě požadavku: "${prompt}".
-                ODPOVĚZ POUZE JAKO ČISTÝ JSON v tomto formátu:
+    let response;
+    try {
+      response = await fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          contents: [
+            {
+              parts: [
                 {
-                  "name": "Název jídla",
-                  "description": "Zhodnocení vybraných surovin, jak se k sobě hodí a proč tento recept splňuje přání uživatele.",
-                  "ingredients": ["surovina 1", "surovina 2"],
-                  "instructions": ["Stručný krok 1", "Stručný krok 2"]
+                  text: `Jsi expertní kuchař. Vymysli recept na základě požadavku: "${prompt}".
+                  ODPOVĚZ POUZE JAKO ČISTÝ JSON v tomto formátu:
+                  {
+                    "name": "Název jídla",
+                    "description": "Zhodnocení vybraných surovin, jak se k sobě hodí a proč tento recept splňuje přání uživatele.",
+                    "ingredients": [
+                      {
+                        "name": "přesný název suroviny (např. máslo)",
+                        "searchQuery": "ideální klíčové slovo pro vyhledávač v supermarketu (např. máslo 250g)",
+                        "banned": ["seznam", "slov", "která", "nechceme", "ve", "výsledcích", "např", "croissant", "pomazánka"]
+                      }
+                    ],
+                    "instructions": ["Stručný krok 1", "Stručný krok 2"]
+                  }
+                  
+                  DŮLEŽITÉ: 
+                  1. U 'banned' slov buď kreativní a vypiš vše, co by mohl vyhledávač v supermarketu splést (např. pro 'máslo' zakaž 'croissant', 'pomazánka', 'sušenky', 'listové těsto').
+                  2. Používej tyto názvy surovin, pokud se hodí: ${KNOWN_INGREDIENTS.slice(0, 50).join(", ")}.`
                 }
-                
-                DŮLEŽITÉ: Používej tyto názvy surovin, pokud se hodí: ${KNOWN_INGREDIENTS.slice(0, 50).join(", ")}.`
-              }
-            ]
-          }
-        ]
-      })
-    });
+              ]
+            }
+          ]
+        })
+      });
+    } catch (fetchError: any) {
+      console.error("❌ Fetch failed directly:", fetchError);
+      throw new Error(`Fetch failed: ${fetchError.message} (cause: ${fetchError.cause})`);
+    }
 
     if (!response.ok) {
       const errorData = await response.json();

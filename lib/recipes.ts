@@ -1,8 +1,14 @@
+export type RecipeIngredient = {
+  name: string;
+  searchQuery?: string;
+  banned?: string[];
+};
+
 export type RecipePreset = {
   name: string;
   tag: string;
   description: string;
-  ingredients: string[];
+  ingredients: (string | RecipeIngredient)[];
   instructions?: string[];
   aliases?: string[];
   image?: string;
@@ -14,7 +20,13 @@ export const RECIPE_PRESETS: RecipePreset[] = [
     tag: "Krabičkové",
     description:
       "Jednoduchý meal prep na více dní s kuřecím masem, rýží a zeleninou.",
-    ingredients: ["kuřecí prsa", "rýže", "brokolice", "mrkev", "paprika"],
+    ingredients: [
+      { name: "kuřecí prsa", searchQuery: "kuřecí prsa čerstvá", banned: ["mražené", "polotovar", "šunka"] },
+      { name: "rýže", searchQuery: "rýže 1kg", banned: ["kaše", "chlebíčky", "mléčná"] },
+      "brokolice",
+      "mrkev",
+      "paprika"
+    ],
     aliases: ["krabickove kure", "meal prep", "kuře s rýží", "kure s ryzi"],
     image: "/krabickove kure.png",
   },
@@ -24,8 +36,8 @@ export const RECIPE_PRESETS: RecipePreset[] = [
     description:
       "Rychlá slaná varianta do ruky vhodná na oběd i večerní hlad.",
     ingredients: [
-      "tortilla",
-      "kuřecí prsa",
+      { name: "tortilla", searchQuery: "tortilla placky", banned: ["chips", "chipsy", "nachos"] },
+      { name: "kuřecí prsa", searchQuery: "kuřecí prsa", banned: ["mražené", "šunka"] },
       "ledový salát",
       "rajčata",
       "eidam",
@@ -38,7 +50,13 @@ export const RECIPE_PRESETS: RecipePreset[] = [
     tag: "Fit snídaně",
     description:
       "Levná a sytá snídaně z vloček, jogurtu nebo mléka a ovoce.",
-    ingredients: ["ovesné vločky", "řecký jogurt", "banán", "jahody", "med"],
+    ingredients: [
+      { name: "ovesné vločky", searchQuery: "ovesné vločky", banned: ["kaše", "tyčinka", "sušenky"] },
+      { name: "řecký jogurt", searchQuery: "řecký jogurt bílý", banned: ["ochucený", "nápoj", "sladký"] },
+      "banán",
+      "jahody",
+      "med"
+    ],
     aliases: ["overnight oats", "ovesna kase", "fit snidane"],
     image: "/overnight oats.png",
   },
@@ -47,7 +65,13 @@ export const RECIPE_PRESETS: RecipePreset[] = [
     tag: "Snack",
     description:
       "Něco k televizi nebo pro návštěvu bez složité přípravy.",
-    ingredients: ["cizrna", "tahini", "česnek", "olivový olej", "pita chléb"],
+    ingredients: [
+      { name: "cizrna", searchQuery: "cizrna konzerva", banned: ["mouka", "křupky"] },
+      { name: "tahini", searchQuery: "tahini pasta", banned: ["dresink", "omáčka"] },
+      "česnek",
+      "olivový olej",
+      { name: "pita chléb", searchQuery: "pita chléb", banned: ["chips", "nachos"] }
+    ],
     aliases: ["hummus", "snack", "neco na zub"],
     image: "/humus.png",
   },
@@ -56,7 +80,13 @@ export const RECIPE_PRESETS: RecipePreset[] = [
     tag: "Lehká večeře",
     description:
       "Studená varianta do krabičky s těstovinami, zeleninou a sýrem.",
-    ingredients: ["těstoviny", "mozzarella", "rajčata", "okurka", "rukola"],
+    ingredients: [
+      { name: "těstoviny", searchQuery: "těstoviny penne", banned: ["hotové", "polévka"] },
+      { name: "mozzarella", searchQuery: "mozzarella 125g", banned: ["strouhaná", "pizza", "tyčinky"] },
+      "rajčata",
+      "okurka",
+      "rukola"
+    ],
     aliases: ["testovinovy salat", "salat s mozzarellou"],
     image: "/hero-food.png",
   },
@@ -65,7 +95,13 @@ export const RECIPE_PRESETS: RecipePreset[] = [
     tag: "Sladké",
     description:
       "Rychlá sladká klasika z pár surovin, vhodná na snídani i svačinu.",
-    ingredients: ["banán", "vejce", "ovesné vločky", "mléko", "skořice"],
+    ingredients: [
+      "banán",
+      "vejce",
+      { name: "ovesné vločky", searchQuery: "ovesné vločky jemné", banned: ["sušenky"] },
+      "mléko",
+      "skořice"
+    ],
     aliases: ["livance", "bananove livance", "sladke"],
     image: "/livance.png",
   },
@@ -73,7 +109,13 @@ export const RECIPE_PRESETS: RecipePreset[] = [
     name: "Špagety carbonara",
     tag: "Klasika",
     description: "Oblíbená těstovinová klasika s pár základními surovinami. Klíčem je kvalitní slanina a parmazán.",
-    ingredients: ["špagety", "slanina", "vejce", "parmazán", "česnek"],
+    ingredients: [
+      { name: "špagety", searchQuery: "špagety semolinové", banned: ["hotové jídlo"] },
+      { name: "slanina", searchQuery: "anglická slanina", banned: ["chips", "křupky"] },
+      "vejce",
+      { name: "parmazán", searchQuery: "parmazán blok", banned: ["omáčka", "chips", "strouhaný"] },
+      "česnek"
+    ],
     instructions: [
       "Dejte vařit špagety do osolené vody.",
       "Na pánvi orestujte nakrájenou slaninu s česnekem.",
@@ -90,11 +132,11 @@ export const RECIPE_PRESETS: RecipePreset[] = [
     description:
       "Tradiční české jídlo s hovězím masem, kořenovou zeleninou a smetanou.",
     ingredients: [
-      "hovězí maso",
+      { name: "hovězí maso", searchQuery: "hovězí zadní", banned: ["mleté", "mix", "kostky"] },
       "mrkev",
-      "celer",
-      "petržel",
-      "smetana",
+      { name: "celer", searchQuery: "celer bulva", banned: ["řapíkatý", "stonky"] },
+      { name: "petržel", searchQuery: "petržel kořen", banned: ["nať", "sušená"] },
+      { name: "smetana", searchQuery: "smetana 30%", banned: ["do kávy", "rostlinná"] },
     ],
     aliases: ["svickova"],
     image: "/svickova.png",
