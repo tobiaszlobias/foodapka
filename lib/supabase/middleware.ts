@@ -36,11 +36,23 @@ export async function updateSession(request: NextRequest) {
 
   const url = request.nextUrl.clone();
 
+  // Chráněná část — nepřihlášený user → login
+  if (!user && url.pathname.startsWith("/app")) {
+    url.pathname = "/login";
+    return NextResponse.redirect(url);
+  }
+
+  // Přihlášený user na auth stránkách → app
+  if (user && (url.pathname === "/login" || url.pathname === "/signup")) {
+    url.pathname = "/app";
+    return NextResponse.redirect(url);
+  }
+
   // Pokud uživatel vstoupí do aplikace, poznačíme si to do cookies (na 1 rok)
-  if (url.pathname.startsWith("/app")) {
+  if (user && url.pathname.startsWith("/app")) {
     supabaseResponse.cookies.set("has_visited_app", "true", {
       path: "/",
-      maxAge: 60 * 60 * 24 * 365, // 1 rok
+      maxAge: 60 * 60 * 24 * 365,
       httpOnly: false,
       sameSite: "lax",
     });
