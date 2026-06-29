@@ -107,8 +107,9 @@ export async function searchKauflandProducts(query: string): Promise<Product[]> 
         ? formatPrice(oldPriceNum)
         : undefined;
 
-    const validity =
-      offer.dateFrom && offer.dateTo ? `${offer.dateFrom}–${offer.dateTo}` : "";
+    const validity = offer.dateTo
+      ? `do ${new Date(offer.dateTo).toLocaleDateString("cs-CZ", { day: "numeric", month: "numeric" })}`
+      : "";
 
     products.push({
       name,

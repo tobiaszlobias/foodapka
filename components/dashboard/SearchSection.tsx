@@ -305,6 +305,11 @@ export default function SearchSection({
                           ušetříš {bestSavings.toFixed(0)} Kč
                         </span>
                       )}
+                      {bestStore?.validity && (
+                        <span className="text-[9px] text-zinc-400 dark:text-zinc-500 mt-0.5">
+                          {bestStore.validity}
+                        </span>
+                      )}
                     </div>
 
                     {/* Oblíbené */}
@@ -342,9 +347,12 @@ export default function SearchSection({
                                 <StoreBrand shopName={item.shopName} small />
                               )}
                             </div>
-                            <div className="flex-1 min-w-0">
+                            <div className="flex-1 min-w-0 flex flex-col">
                               {item.pricePerUnit ? (
                                 <span className="text-[10px] text-zinc-400">{item.pricePerUnit}</span>
+                              ) : null}
+                              {item.validity ? (
+                                <span className="text-[9px] text-zinc-400 dark:text-zinc-500">{item.validity}</span>
                               ) : null}
                             </div>
                             <div className="text-right flex items-center gap-1.5">
