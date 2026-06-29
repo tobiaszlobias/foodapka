@@ -11,7 +11,11 @@ import { absoluteUrl, fetchHtml } from "@/lib/scrapers/shared";
 const KUPI_ORIGIN = "https://www.kupi.cz";
 
 function cleanShopName(value: string) {
-  return value.replace(/\s*\d+\s+nejbližší(ch)?\s+poboče?k?[ay]?/gi, "").trim();
+  return value
+    .replace(/\s*\d+\s+nejbližší(ch)?\s+poboče?k?[ay]?/gi, "")
+    .replace(/www\.[a-z0-9.-]+\.[a-z]{2,}/gi, "")
+    .replace(/\s+/g, " ")
+    .trim();
 }
 
 function extractStoresFromDetail(
