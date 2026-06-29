@@ -96,11 +96,12 @@ export default function SearchSection({
         })).filter(p => p.stores.length > 0);
 
     return [...filtered].sort((a, b) => {
+      if (selectedSort === "relevance") return 0; // API už řadí podle relevance
       const priceA = parsePrice(sortStoresByPrice(a.stores)[0]?.price || "");
       const priceB = parsePrice(sortStoresByPrice(b.stores)[0]?.price || "");
       if (selectedSort === "cheapest") return priceA - priceB;
       if (selectedSort === "coverage") return priceB - priceA;
-      return priceA - priceB;
+      return 0;
     });
   }, [products, selectedFilter, selectedSort]);
 
@@ -223,6 +224,7 @@ export default function SearchSection({
             {/* Řazení */}
             <div className="flex gap-4 border-b border-zinc-100 dark:border-zinc-800">
               {([
+                { key: "relevance", label: "Relevance" },
                 { key: "cheapest", label: "Nejlevnější" },
                 { key: "coverage", label: "Nejdražší" },
               ] as const).map((opt) => (

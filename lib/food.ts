@@ -324,14 +324,13 @@ export function scoreProductMatch(name: string, query: string) {
     }
   });
 
-  // CRITICAL: If searching for a specific ingredient and we find a known "mismatch" token (like croissant for butter)
-  // we need to kill the score unless the query explicitly asked for it.
+  // Penalizace za "hotové výrobky" když hledáš surovinu — nevyhazovat, jen sunout dolů
   if (nameTokens.some((token) => RECIPE_MISMATCH_TOKENS.has(token))) {
     const queryHasMismatchToken = queryTokens.some((token) =>
       RECIPE_MISMATCH_TOKENS.has(token),
     );
     if (!queryHasMismatchToken && specificQueryTokens.length > 0) {
-      return -200; 
+      return -50;
     }
   }
 
