@@ -1,25 +1,21 @@
-import { load } from "cheerio";
 import {
-  formatDiscountPercent,
   formatPrice,
   normalizeText,
   scoreProductMatch,
   type Product,
 } from "@/lib/food";
-import { absoluteUrl, fetchHtml } from "@/lib/scrapers/shared";
+import { absoluteUrl } from "@/lib/scrapers/shared";
 
 const KAUFLAND_ORIGIN = "https://prodejny.kaufland.cz";
+const LEAFLET_URL = `${KAUFLAND_ORIGIN}/nabidka/prehled.html?kloffer-week=current`;
+const GOOGLEBOT_UA = "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)";
 
 type KauflandOffer = {
   title?: string;
   subtitle?: string;
-  detailTitle?: string;
-  detailDescription?: string;
   price?: number;
   formattedPrice?: string;
   formattedOldPrice?: string;
-  formattedBasePrice?: string;
-  basePrice?: string;
   discount?: number;
   unit?: string;
   dateFrom?: string;
@@ -30,162 +26,25 @@ type KauflandOffer = {
 type KauflandSsrPayload = {
   component?: string;
   props?: {
-    offerData?:
-      | KauflandOffer[]
-      | {
-          cycles?: {
-            categories?: {
-              offers?: KauflandOffer[];
-            }[];
-          }[];
-        };
+    offerData?: {
+      cycles?: {
+        categories?: {
+          offers?: KauflandOffer[];
+        }[];
+      }[];
+    };
   };
 };
 
-type KauflandDomOffer = KauflandOffer & {
-  href?: string;
-  validity?: string;
-};
+let leafletCache: { offers: KauflandOffer[]; fetchedAt: number } | null = null;
+const CACHE_TTL_MS = 15 * 60 * 1000; // 15 minut
 
-function isDomOffer(offer: KauflandOffer | KauflandDomOffer): offer is KauflandDomOffer {
-  return "href" in offer || "validity" in offer;
-}
-
-function extractSsrPayload(html: string) {
-  const matches = html.matchAll(
-    /window\.SSR\[[^\]]+\]\s*=\s*(\{"component":"Offer(?:Search|Template)"[\s\S]*?\})<\/script>/g,
-  );
-
-  for (const match of matches) {
-    const payload = match[1];
-    if (!payload) continue;
-
-    try {
-      return JSON.parse(payload) as KauflandSsrPayload;
-    } catch {
-      continue;
-    }
+async function fetchLeafletOffers(): Promise<KauflandOffer[]> {
+  if (leafletCache && Date.now() - leafletCache.fetchedAt < CACHE_TTL_MS) {
+    return leafletCache.offers;
   }
 
-  return null;
-}
-
-function flattenOffers(payload: KauflandSsrPayload | null) {
-  if (!payload?.props?.offerData) return [];
-
-  if (Array.isArray(payload.props.offerData)) {
-    return payload.props.offerData;
-  }
-
-  return (payload.props.offerData.cycles ?? []).flatMap((cycle) =>
-    (cycle.categories ?? []).flatMap((category) => category.offers ?? []),
-  );
-}
-
-function parseNumericPrice(value: string) {
-  const match = value.replace(/\s+/g, "").replace(",", ".").match(/\d+(?:\.\d+)?/);
-  return match ? Number(match[0]) : null;
-}
-
-function extractPageValidity($: ReturnType<typeof load>) {
-  const headline = $(".a-icon-tile-headline__subheadline h3").first().text().trim();
-  return headline.replace(/\s+/g, " ").trim();
-}
-
-function parseDomOffers(html: string) {
-  const $ = load(html);
-  const validity = extractPageValidity($);
-
-  return $(".k-product-tile")
-    .toArray()
-    .map<KauflandDomOffer | null>((element) => {
-      const tile = $(element);
-      const title = tile.find(".k-product-tile__title").first().text().trim();
-      const subtitle = tile.find(".k-product-tile__subtitle").first().text().trim();
-      const unit = tile.find(".k-product-tile__unit-price").first().text().trim();
-      const basePrice = tile.find(".k-product-tile__base-price").first().text().trim();
-      const rawPrice = tile.find(".k-price-tag__price").first().text().trim();
-      const href = tile.attr("href")?.trim() || "";
-      const price = parseNumericPrice(rawPrice);
-
-      if (!title || !subtitle || !rawPrice || price === null) {
-        return null;
-      }
-
-      return {
-        title,
-        subtitle,
-        unit,
-        basePrice,
-        formattedBasePrice: basePrice,
-        price,
-        formattedPrice: formatPrice(price),
-        href,
-        validity,
-      };
-    })
-    .filter((offer): offer is KauflandDomOffer => Boolean(offer));
-}
-
-function buildOfferName(offer: KauflandOffer) {
-  return [offer.title, offer.subtitle].filter(Boolean).join(" ").replace(/\s+/g, " ").trim();
-}
-
-function buildOfferUrl(query: string, offer: KauflandOffer) {
-  if (offer.klNr) {
-    return absoluteUrl(
-      KAUFLAND_ORIGIN,
-      `/nabidka/prehled.html?kloffer-articleID=${offer.klNr}`,
-    );
-  }
-
-  return absoluteUrl(
-    KAUFLAND_ORIGIN,
-    `/vyhledat.html?q=${encodeURIComponent(query)}`,
-  );
-}
-
-function buildOfferUrlFromValue(query: string, value?: string) {
-  if (!value) {
-    return absoluteUrl(
-      KAUFLAND_ORIGIN,
-      `/vyhledat.html?q=${encodeURIComponent(query)}`,
-    );
-  }
-
-  return absoluteUrl(KAUFLAND_ORIGIN, value);
-}
-
-function buildCategoryFallbackUrl(query: string) {
-  const slug = normalizeText(query).replace(/\s+/g, "-");
-  return absoluteUrl(
-    KAUFLAND_ORIGIN,
-    `/nabidka/aktualni-tyden/${slug}-v-akci.html`,
-  );
-}
-
-function hasRelevantTokenMatch(text: string, query: string) {
-  const queryTokens = normalizeText(query).split(" ").filter(Boolean);
-  const textTokens = normalizeText(text).split(" ").filter(Boolean);
-
-  if (queryTokens.length === 0 || textTokens.length === 0) return false;
-
-  return queryTokens.every((queryToken) =>
-    textTokens.some((textToken) => {
-      if (textToken === queryToken) return true;
-
-      const lengthDelta = Math.abs(textToken.length - queryToken.length);
-      if (lengthDelta > 2) return false;
-
-      return textToken.startsWith(queryToken) || queryToken.startsWith(textToken);
-    }),
-  );
-}
-
-const GOOGLEBOT_UA = "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)";
-
-async function fetchKauflandHtml(url: string) {
-  const response = await fetch(url, {
+  const response = await fetch(LEAFLET_URL, {
     headers: {
       "User-Agent": GOOGLEBOT_UA,
       "Accept": "text/html,application/xhtml+xml",
@@ -195,38 +54,61 @@ async function fetchKauflandHtml(url: string) {
   });
 
   if (!response.ok) {
-    throw new Error(`Kaufland HTTP ${response.status} for ${url}`);
+    throw new Error(`Kaufland leták HTTP ${response.status}`);
   }
 
-  return response.text();
+  const html = await response.text();
+
+  const match = html.match(
+    /window\.SSR\[[^\]]+\]\s*=\s*(\{"component":"OfferTemplate"[\s\S]*?)\s*<\/script>/,
+  );
+  if (!match) throw new Error("Kaufland: SSR payload nenalezen");
+
+  const payload = JSON.parse(match[1]) as KauflandSsrPayload;
+  const offers = (payload.props?.offerData?.cycles ?? []).flatMap((cycle) =>
+    (cycle.categories ?? []).flatMap((cat) => cat.offers ?? []),
+  );
+
+  leafletCache = { offers, fetchedAt: Date.now() };
+  return offers;
+}
+
+function buildOfferName(offer: KauflandOffer) {
+  return [offer.title, offer.subtitle].filter(Boolean).join(" ").replace(/\s+/g, " ").trim();
+}
+
+function buildOfferUrl(offer: KauflandOffer, query: string) {
+  if (offer.klNr) {
+    return absoluteUrl(KAUFLAND_ORIGIN, `/nabidka/prehled.html?kloffer-articleID=${offer.klNr}`);
+  }
+  return absoluteUrl(KAUFLAND_ORIGIN, `/nabidka/prehled.html?kloffer-week=current&q=${encodeURIComponent(query)}`);
 }
 
 export async function searchKauflandProducts(query: string): Promise<Product[]> {
-  const searchUrl = absoluteUrl(KAUFLAND_ORIGIN, `/vyhledat.html?q=${encodeURIComponent(query)}`);
-  const html = await fetchKauflandHtml(searchUrl);
-
-  const ssrPayload = extractSsrPayload(html);
-  const ssrOffers = flattenOffers(ssrPayload);
-
-  const domOffers = ssrOffers.length === 0 ? parseDomOffers(html) : [];
-  const allOffers: (KauflandOffer | KauflandDomOffer)[] = ssrOffers.length > 0 ? ssrOffers : domOffers;
-
+  const offers = await fetchLeafletOffers();
   const products: Product[] = [];
 
-  for (const offer of allOffers) {
+  for (const offer of offers) {
     const name = buildOfferName(offer);
     if (!name) continue;
-    if (scoreProductMatch(name, query) <= 0) continue;
     if (typeof offer.price !== "number" || !Number.isFinite(offer.price)) continue;
 
-    const url = isDomOffer(offer)
-      ? buildOfferUrlFromValue(query, offer.href)
-      : buildOfferUrl(query, offer);
+    const score = scoreProductMatch(name, query);
+    if (score <= 0) continue;
 
-    const oldPrice =
-      typeof offer.formattedOldPrice === "string" && offer.formattedOldPrice
-        ? offer.price / (1 - (offer.discount ?? 0) / 100)
-        : null;
+    const url = buildOfferUrl(offer, query);
+
+    // formattedOldPrice je string "89,90" — parsujeme ho
+    const oldPriceNum = offer.formattedOldPrice
+      ? Number(offer.formattedOldPrice.replace(",", ".").replace(/\s/g, ""))
+      : null;
+    const originalPrice =
+      oldPriceNum && Number.isFinite(oldPriceNum) && oldPriceNum > offer.price
+        ? formatPrice(oldPriceNum)
+        : undefined;
+
+    const validity =
+      offer.dateFrom && offer.dateTo ? `${offer.dateFrom}–${offer.dateTo}` : "";
 
     products.push({
       name,
@@ -236,10 +118,10 @@ export async function searchKauflandProducts(query: string): Promise<Product[]> 
           shopId: "kaufland",
           shopName: "Kaufland",
           price: formatPrice(offer.price),
-          originalPrice: oldPrice && Number.isFinite(oldPrice) ? formatPrice(oldPrice) : undefined,
-          pricePerUnit: offer.formattedBasePrice ?? offer.basePrice ?? "",
+          originalPrice,
+          pricePerUnit: offer.unit ?? "",
           amount: offer.discount ? `-${offer.discount}%` : "",
-          validity: isDomOffer(offer) ? (offer.validity ?? "") : (offer.dateFrom && offer.dateTo ? `${offer.dateFrom}–${offer.dateTo}` : ""),
+          validity,
           leafletUrl: url,
           source: "kaufland" as const,
           sourceLabel: "Kaufland",
@@ -250,6 +132,10 @@ export async function searchKauflandProducts(query: string): Promise<Product[]> 
   }
 
   return products
-    .sort((a, b) => scoreProductMatch(b.name, query) - scoreProductMatch(a.name, query))
+    .sort((a, b) => {
+      const normA = normalizeText(a.name);
+      const normB = normalizeText(b.name);
+      return scoreProductMatch(normB, query) - scoreProductMatch(normA, query);
+    })
     .slice(0, 15);
 }
