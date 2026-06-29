@@ -47,5 +47,9 @@ export function getStoreLogoPath(shopName: string) {
     return "/coop_logo_transparent.png";
   }
 
+  if (normalizedShopName.includes("ratio")) {
+    return "/ratio_logo.png";
+  }
+
   return null;
 }
