@@ -42,7 +42,7 @@ export default function HomePage() {
     { name: "Kaufland", logo: "/kauflandlogo.png", scale: "scale-[1.4] md:scale-[2.0]" },
     { name: "Billa", logo: "/billalogo.png", scale: "scale-100 md:scale-[1.5]" },
     { name: "Tesco", logo: "/tescologo.png", scale: "scale-75 md:scale-100" },
-    { name: "Penny", logo: "/pennylogo.png", scale: "scale-[1.5] md:scale-[2.2]" },
+    { name: "Penny", logo: "/pennylogo.png", scale: "scale-90 md:scale-[1.3]" },
     { name: "Globus", logo: "/globuslogo.png", scale: "scale-100 md:scale-[1.6]" },
   ];
 
@@ -208,9 +208,9 @@ export default function HomePage() {
               ))}
             </div>
             
-            {/* Second Row - Reverse */}
+            {/* Second Row - Reverse, shifted by 2 */}
             <div className="flex w-max gap-16 md:gap-24 animate-scroll-reverse whitespace-nowrap px-4">
-              {[...[...stores].reverse(), ...[...stores].reverse()].map((store, i) => (
+              {(() => { const s = [...stores].reverse(); const shifted = [...s.slice(2), ...s.slice(0, 2)]; return [...shifted, ...shifted]; })().map((store, i) => (
                 <div
                   key={`${store.name}-2-${i}`}
                   className="flex-shrink-0 flex items-center justify-center min-w-[120px] md:min-w-[160px]"
