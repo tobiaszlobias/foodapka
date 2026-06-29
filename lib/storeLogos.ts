@@ -63,5 +63,9 @@ export function getStoreLogoPath(shopName: string) {
     return "/tamdafoods_logo.png";
   }
 
+  if (normalizedShopName.includes("kosik")) {
+    return "/kosikcz_logo.png";
+  }
+
   return null;
 }
