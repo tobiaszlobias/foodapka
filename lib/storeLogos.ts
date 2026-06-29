@@ -51,5 +51,13 @@ export function getStoreLogoPath(shopName: string) {
     return "/ratio_logo.png";
   }
 
+  if (normalizedShopName.includes("bene")) {
+    return "/benenapoje_logo.png";
+  }
+
+  if (normalizedShopName.includes("cba")) {
+    return "/cba_logo.png";
+  }
+
   return null;
 }
