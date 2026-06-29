@@ -37,19 +37,18 @@ type SearchSectionProps = {
 
 const BASE_SOURCE_FILTERS = [
   { key: "all", label: "Vše" },
-  { key: "source:kaufland", label: "Kaufland" },
-  { key: "source:lidl", label: "Lidl.cz" },
-  ...FOODORA_STORE_CONFIGS.map((store) => ({
-    key: `foodora:${normalizeText(store.chainName)}`,
-    label: `${store.chainName}`,
-  })),
 ];
 
 function getStoreFilter(store: Store) {
-  if (store.source === "foodora") return { key: `foodora:${normalizeText(store.shopName)}`, label: store.shopName };
-  if (store.source === "kaufland") return { key: "source:kaufland", label: "Kaufland.cz" };
-  if (store.source === "lidl") return { key: "source:lidl", label: "Lidl.cz" };
-  return { key: `kupi:${normalizeText(store.shopName)}`, label: store.shopName };
+  const n = normalizeText(store.shopName);
+  // Sluč varianty stejného řetězce do jednoho filtru
+  if (n.includes("albert")) return { key: "chain:albert", label: "Albert" };
+  if (n.includes("globus")) return { key: "chain:globus", label: "Globus" };
+  if (n.includes("billa")) return { key: "chain:billa", label: "Billa" };
+  if (n.includes("tesco")) return { key: "chain:tesco", label: "Tesco" };
+  if (store.source === "kaufland") return { key: "chain:kaufland", label: "Kaufland" };
+  if (store.source === "lidl") return { key: "chain:lidl", label: "Lidl" };
+  return { key: `chain:${n}`, label: store.shopName };
 }
 
 export default function SearchSection({
@@ -159,7 +158,7 @@ export default function SearchSection({
         {!loading && products.length > 0 && (
           <div className="space-y-3 px-1 md:px-2">
             {/* Filtry obchodů */}
-            <div className="flex gap-2 overflow-x-auto no-scrollbar pb-0.5">
+            <div className="flex gap-2 overflow-x-auto no-scrollbar pb-2 pt-1 px-1">
               {availableFilters.map((filter) => {
                 const count = products.filter(p =>
                   filter.key === "all"
