@@ -173,9 +173,7 @@ export default function SearchSection({
                     <button
                       key="all"
                       onClick={() => setSelectedFilter("all")}
-                      className={`shrink-0 flex flex-col items-center gap-1 transition-opacity ${
-                        isActive ? "opacity-100" : "opacity-40 hover:opacity-70"
-                      }`}
+                      className="shrink-0 flex flex-col items-center gap-1"
                     >
                       <div className={`w-11 h-11 rounded-2xl flex items-center justify-center text-sm font-black transition-colors ${
                         isActive
@@ -196,9 +194,7 @@ export default function SearchSection({
                     key={filter.key}
                     onClick={() => setSelectedFilter(filter.key)}
                     title={`${filter.label} (${count})`}
-                    className={`shrink-0 flex flex-col items-center gap-1 transition-opacity ${
-                      isActive ? "opacity-100" : "opacity-40 hover:opacity-70"
-                    }`}
+                    className="shrink-0 flex flex-col items-center gap-1"
                   >
                     <div className={`w-11 h-11 rounded-2xl flex items-center justify-center overflow-hidden transition-all ${
                       isActive
