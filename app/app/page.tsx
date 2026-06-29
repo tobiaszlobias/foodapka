@@ -53,7 +53,7 @@ function HomeContent() {
   const [loading, setLoading] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
   const [selectedFilter, setSelectedFilter] = useState("all");
-  const [selectedSort, setSelectedSort] = useState<ProductSort>("relevance");
+  const [selectedSort, setSelectedSort] = useState<ProductSort>("cheapest");
   const [activeRecipe, setActiveRecipe] = useState("");
   const [recipeDetails, setRecipeDetails] = useState<any>(null);
   const [recipeLoading, setRecipeLoading] = useState(false);
@@ -77,7 +77,7 @@ function HomeContent() {
   const handleResults = useCallback((nextProducts: Product[]) => {
     setProducts(nextProducts);
     setSelectedFilter("all");
-    setSelectedSort("relevance");
+    setSelectedSort("cheapest");
   }, []);
 
   const handleModeChange = useCallback((newMode: AppMode) => {

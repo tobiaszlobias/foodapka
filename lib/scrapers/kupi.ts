@@ -79,7 +79,7 @@ export async function searchKupiProducts(query: string) {
   });
 
   const detailResults = await Promise.allSettled(
-    Array.from(productUrls).slice(0, 6).map((url) => fetchKupiProduct(url)),
+    Array.from(productUrls).slice(0, 12).map((url) => fetchKupiProduct(url)),
   );
 
   return detailResults.reduce<Product[]>((accumulator, result) => {

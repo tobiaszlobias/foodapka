@@ -88,19 +88,21 @@ export default function SearchSection({
   }, [products]);
 
   const filteredAndSortedProducts = useMemo(() => {
-    const filtered = selectedFilter === "all" 
-      ? products 
+    const filtered = selectedFilter === "all"
+      ? products
       : products.map(p => ({
           ...p,
           stores: p.stores.filter(s => getStoreFilter(s).key === selectedFilter)
         })).filter(p => p.stores.length > 0);
 
-    // Default to cheapest sorting
-    return [...filtered].sort((a, b) => 
-      parsePrice(sortStoresByPrice(a.stores)[0]?.price || "") - 
-      parsePrice(sortStoresByPrice(b.stores)[0]?.price || "")
-    );
-  }, [products, selectedFilter]);
+    return [...filtered].sort((a, b) => {
+      const priceA = parsePrice(sortStoresByPrice(a.stores)[0]?.price || "");
+      const priceB = parsePrice(sortStoresByPrice(b.stores)[0]?.price || "");
+      if (selectedSort === "cheapest") return priceA - priceB;
+      if (selectedSort === "coverage") return priceB - priceA;
+      return priceA - priceB;
+    });
+  }, [products, selectedFilter, selectedSort]);
 
   return (
     <div className="space-y-6 md:space-y-8 w-full max-w-full overflow-x-hidden">
@@ -176,6 +178,31 @@ export default function SearchSection({
                 </button>
               );
             })}
+          </div>
+        )}
+
+        {!loading && products.length > 0 && (
+          <div className="flex items-center gap-2 px-1 md:px-2">
+            <span className="text-[11px] text-zinc-400 dark:text-zinc-500 shrink-0">Řadit:</span>
+            {([
+              { key: "cheapest", label: "Nejlevnější" },
+              { key: "coverage", label: "Nejdražší" },
+            ] as const).map((opt) => (
+              <button
+                key={opt.key}
+                onClick={() => setSelectedSort(opt.key)}
+                className={`inline-flex items-center gap-1 rounded-full border px-3 py-1.5 text-[11px] font-bold transition-all whitespace-nowrap ${
+                  selectedSort === opt.key
+                    ? "border-zinc-800 bg-zinc-800 dark:border-white dark:bg-white text-white dark:text-zinc-900"
+                    : "border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-500 dark:text-zinc-400"
+                }`}
+              >
+                <span className="material-symbols-outlined text-[13px]">
+                  {opt.key === "cheapest" ? "arrow_upward" : "arrow_downward"}
+                </span>
+                {opt.label}
+              </button>
+            ))}
           </div>
         )}
 

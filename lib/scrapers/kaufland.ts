@@ -182,7 +182,74 @@ function hasRelevantTokenMatch(text: string, query: string) {
   );
 }
 
-// prodejny.kaufland.cz is blocked by Cloudflare from server IPs
-export async function searchKauflandProducts(_query: string): Promise<Product[]> {
-  return [];
+const GOOGLEBOT_UA = "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)";
+
+async function fetchKauflandHtml(url: string) {
+  const response = await fetch(url, {
+    headers: {
+      "User-Agent": GOOGLEBOT_UA,
+      "Accept": "text/html,application/xhtml+xml",
+      "Accept-Language": "cs-CZ,cs;q=0.9",
+    },
+    cache: "no-store",
+  });
+
+  if (!response.ok) {
+    throw new Error(`Kaufland HTTP ${response.status} for ${url}`);
+  }
+
+  return response.text();
+}
+
+export async function searchKauflandProducts(query: string): Promise<Product[]> {
+  const searchUrl = absoluteUrl(KAUFLAND_ORIGIN, `/vyhledat.html?q=${encodeURIComponent(query)}`);
+  const html = await fetchKauflandHtml(searchUrl);
+
+  const ssrPayload = extractSsrPayload(html);
+  const ssrOffers = flattenOffers(ssrPayload);
+
+  const domOffers = ssrOffers.length === 0 ? parseDomOffers(html) : [];
+  const allOffers: (KauflandOffer | KauflandDomOffer)[] = ssrOffers.length > 0 ? ssrOffers : domOffers;
+
+  const products: Product[] = [];
+
+  for (const offer of allOffers) {
+    const name = buildOfferName(offer);
+    if (!name) continue;
+    if (scoreProductMatch(name, query) <= 0) continue;
+    if (typeof offer.price !== "number" || !Number.isFinite(offer.price)) continue;
+
+    const url = isDomOffer(offer)
+      ? buildOfferUrlFromValue(query, offer.href)
+      : buildOfferUrl(query, offer);
+
+    const oldPrice =
+      typeof offer.formattedOldPrice === "string" && offer.formattedOldPrice
+        ? offer.price / (1 - (offer.discount ?? 0) / 100)
+        : null;
+
+    products.push({
+      name,
+      url,
+      stores: [
+        {
+          shopId: "kaufland",
+          shopName: "Kaufland",
+          price: formatPrice(offer.price),
+          originalPrice: oldPrice && Number.isFinite(oldPrice) ? formatPrice(oldPrice) : undefined,
+          pricePerUnit: offer.formattedBasePrice ?? offer.basePrice ?? "",
+          amount: offer.discount ? `-${offer.discount}%` : "",
+          validity: isDomOffer(offer) ? (offer.validity ?? "") : (offer.dateFrom && offer.dateTo ? `${offer.dateFrom}–${offer.dateTo}` : ""),
+          leafletUrl: url,
+          source: "kaufland" as const,
+          sourceLabel: "Kaufland",
+          isSale: (offer.discount ?? 0) > 0,
+        },
+      ],
+    });
+  }
+
+  return products
+    .sort((a, b) => scoreProductMatch(b.name, query) - scoreProductMatch(a.name, query))
+    .slice(0, 15);
 }

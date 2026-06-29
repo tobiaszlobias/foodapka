@@ -921,11 +921,18 @@ function matchesAlias(normalizedQuery: string, alias: string) {
   const normalizedAlias = normalizePattern(alias);
   if (!normalizedAlias) return false;
 
-  return (
-    normalizedQuery === normalizedAlias ||
-    normalizedQuery.includes(normalizedAlias) ||
-    normalizedAlias.includes(normalizedQuery)
-  );
+  if (normalizedQuery === normalizedAlias) return true;
+  if (normalizedQuery.includes(normalizedAlias)) return true;
+
+  // Allow alias to contain query only if query covers most of the alias
+  // (prevents "jogurt" from matching "recky jogurt" alias)
+  if (normalizedAlias.includes(normalizedQuery)) {
+    const queryTokens = normalizedQuery.split(" ").filter(Boolean);
+    const aliasTokens = normalizedAlias.split(" ").filter(Boolean);
+    return queryTokens.length >= aliasTokens.length;
+  }
+
+  return false;
 }
 
 export function resolveIngredientRuleConfig(query: string, recipe?: string): IngredientRuleConfig {

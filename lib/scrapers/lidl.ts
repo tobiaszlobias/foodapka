@@ -6,46 +6,68 @@ import {
   scoreProductMatch,
   type Product,
 } from "@/lib/food";
-import {
-  absoluteUrl,
-  decodeHtmlEntities,
-  fetchHtmlWithNodeHttps,
-  isBlockedHtml,
-} from "@/lib/scrapers/shared";
+import { absoluteUrl } from "@/lib/scrapers/shared";
 
 const LIDL_ORIGIN = "https://www.lidl.cz";
+const GOOGLEBOT_UA = "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)";
 
-type LidlGridProductData = {
-  canonicalPath?: string;
-  canonicalUrl?: string;
+type LidlPrice = {
+  price?: number;
+  oldPrice?: number;
+  discount?: {
+    percentageDiscount?: number;
+    showDiscount?: boolean;
+  };
+  basePrice?: {
+    text?: string;
+  };
+};
+
+type LidlGridProduct = {
   fullTitle?: string;
+  canonicalUrl?: string;
+  canonicalPath?: string;
+  price?: LidlPrice;
   keyfacts?: {
     fullTitle?: string;
     title?: string;
   };
-  price?: {
-    price?: number;
-    oldPrice?: number;
-    packaging?: {
-      text?: string;
-    };
-  };
 };
 
-const LIDL_WEEKLY_OFFERS_PATH = "/c/ceny-v-klidu/a10088117";
+async function fetchLidlSearch(query: string): Promise<string> {
+  const url = `${LIDL_ORIGIN}/search?query=${encodeURIComponent(query)}`;
+  const response = await fetch(url, {
+    headers: {
+      "User-Agent": GOOGLEBOT_UA,
+      "Accept": "text/html",
+      "Accept-Language": "cs-CZ,cs;q=0.9",
+    },
+    cache: "no-store",
+  });
 
-function parseLidlGridProduct(rawValue: string) {
-  const decoded = decodeHtmlEntities(rawValue);
-  let data: LidlGridProductData;
+  if (!response.ok) {
+    throw new Error(`Lidl search HTTP ${response.status}`);
+  }
+
+  return response.text();
+}
+
+function parseLidlGridProduct(rawValue: string): Product | null {
+  let data: LidlGridProduct;
 
   try {
-    data = JSON.parse(decoded) as LidlGridProductData;
+    data = JSON.parse(rawValue) as LidlGridProduct;
   } catch {
     return null;
   }
 
-  const name = data.fullTitle ?? data.keyfacts?.fullTitle ?? data.keyfacts?.title ?? "";
+  const name =
+    data.fullTitle ??
+    data.keyfacts?.fullTitle ??
+    data.keyfacts?.title ??
+    "";
   const currentPrice = data.price?.price;
+
   if (!name || typeof currentPrice !== "number") return null;
 
   const url = absoluteUrl(LIDL_ORIGIN, data.canonicalUrl ?? data.canonicalPath ?? "");
@@ -53,7 +75,7 @@ function parseLidlGridProduct(rawValue: string) {
     typeof data.price?.oldPrice === "number" && data.price.oldPrice > currentPrice
       ? data.price.oldPrice
       : null;
-  const packaging = data.price?.packaging?.text ?? "";
+  const pricePerUnit = data.price?.basePrice?.text ?? "";
 
   return {
     name,
@@ -64,7 +86,7 @@ function parseLidlGridProduct(rawValue: string) {
         shopName: "Lidl",
         price: formatPrice(currentPrice),
         originalPrice: oldPrice ? formatPrice(oldPrice) : undefined,
-        pricePerUnit: packaging,
+        pricePerUnit,
         amount: formatDiscountPercent(currentPrice, oldPrice),
         validity: "",
         leafletUrl: url,
@@ -73,24 +95,11 @@ function parseLidlGridProduct(rawValue: string) {
         isSale: oldPrice !== null,
       },
     ],
-  } satisfies Product;
+  };
 }
 
-export async function searchLidlProducts(query: string) {
-  const { html, statusCode } = await fetchHtmlWithNodeHttps(
-    `${LIDL_ORIGIN}${LIDL_WEEKLY_OFFERS_PATH}`,
-    {
-      Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-      "Accept-Language": "cs-CZ,cs;q=0.9,en;q=0.8",
-      Cookie: "i18n_redirected=cs_CZ",
-      Referer: `${LIDL_ORIGIN}/`,
-    },
-  );
-
-  if (statusCode >= 400 || isBlockedHtml(html)) {
-    throw new Error(`Lidl blocked: HTTP ${statusCode}`);
-  }
-
+export async function searchLidlProducts(query: string): Promise<Product[]> {
+  const html = await fetchLidlSearch(query);
   const $ = cheerio.load(html);
   const products = new Map<string, Product>();
 
@@ -111,5 +120,5 @@ export async function searchLidlProducts(query: string) {
       if (scoreDelta !== 0) return scoreDelta;
       return parsePrice(a.stores[0]!.price) - parsePrice(b.stores[0]!.price);
     })
-    .slice(0, 12);
+    .slice(0, 15);
 }

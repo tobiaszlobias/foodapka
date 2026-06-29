@@ -252,7 +252,7 @@ function dedupeFoodoraCandidates(candidates: FoodoraCandidate[], query: string) 
       if (scoreDelta !== 0) return scoreDelta;
       return left.price - right.price;
     })
-    .slice(0, 10);
+    .slice(0, 20);
 }
 
 function mapCandidatesToProducts(
@@ -325,7 +325,7 @@ async function fetchFoodoraProducts(query: string, storeConfig: FoodoraStoreConf
         config: null,
         globalEntityId: FOODORA_GLOBAL_ENTITY_ID,
         languageCode: FOODORA_LANGUAGE_CODE,
-        limit: 24,
+        limit: 40,
         locale: FOODORA_LOCALE,
         offset: 0,
         query,
