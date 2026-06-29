@@ -156,9 +156,9 @@ export default function SearchSection({
         </div>
 
         {!loading && products.length > 0 && (
-          <div className="flex items-center gap-3 px-1 md:px-2">
-            {/* Filtry obchodů — scrollovatelné */}
-            <div className="flex gap-1.5 overflow-x-auto no-scrollbar flex-1 min-w-0">
+          <div className="space-y-3 px-1 md:px-2">
+            {/* Filtry obchodů */}
+            <div className="flex gap-2 overflow-x-auto no-scrollbar pb-0.5">
               {availableFilters.map((filter) => {
                 const count = products.filter(p =>
                   filter.key === "all"
@@ -173,13 +173,20 @@ export default function SearchSection({
                     <button
                       key="all"
                       onClick={() => setSelectedFilter("all")}
-                      className={`shrink-0 rounded-full border px-3 py-1 text-[11px] font-bold transition-all whitespace-nowrap ${
-                        isActive
-                          ? "border-zinc-800 dark:border-white bg-zinc-800 dark:bg-white text-white dark:text-zinc-900"
-                          : "border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-500 dark:text-zinc-400"
+                      className={`shrink-0 flex flex-col items-center gap-1 transition-opacity ${
+                        isActive ? "opacity-100" : "opacity-40 hover:opacity-70"
                       }`}
                     >
-                      Vše · {products.length}
+                      <div className={`w-11 h-11 rounded-2xl flex items-center justify-center text-sm font-black transition-colors ${
+                        isActive
+                          ? "bg-zinc-800 dark:bg-white text-white dark:text-zinc-900"
+                          : "bg-zinc-100 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400"
+                      }`}>
+                        Vše
+                      </div>
+                      <span className={`text-[9px] font-bold tabular-nums ${isActive ? "text-zinc-800 dark:text-white" : "text-zinc-400"}`}>
+                        {count}
+                      </span>
                     </button>
                   );
                 }
@@ -188,37 +195,42 @@ export default function SearchSection({
                   <button
                     key={filter.key}
                     onClick={() => setSelectedFilter(filter.key)}
-                    title={filter.label}
-                    className={`shrink-0 rounded-full border p-1 transition-all ${
-                      isActive
-                        ? "border-foodappka-500 ring-2 ring-foodappka-400/40"
-                        : "border-zinc-200 dark:border-zinc-700 opacity-60 hover:opacity-100"
+                    title={`${filter.label} (${count})`}
+                    className={`shrink-0 flex flex-col items-center gap-1 transition-opacity ${
+                      isActive ? "opacity-100" : "opacity-40 hover:opacity-70"
                     }`}
                   >
-                    <StoreBrand shopName={filter.label} small />
+                    <div className={`w-11 h-11 rounded-2xl flex items-center justify-center overflow-hidden transition-all ${
+                      isActive
+                        ? "ring-2 ring-foodappka-500 ring-offset-1 dark:ring-offset-zinc-900"
+                        : ""
+                    } bg-white dark:bg-zinc-800`}>
+                      <StoreBrand shopName={filter.label} small />
+                    </div>
+                    <span className={`text-[9px] font-bold tabular-nums ${isActive ? "text-foodappka-600 dark:text-foodappka-400" : "text-zinc-400"}`}>
+                      {count}
+                    </span>
                   </button>
                 );
               })}
             </div>
 
-            {/* Řazení — vpravo, kompaktní */}
-            <div className="shrink-0 flex rounded-full border border-zinc-200 dark:border-zinc-700 overflow-hidden bg-white dark:bg-zinc-900">
+            {/* Řazení */}
+            <div className="flex gap-4 border-b border-zinc-100 dark:border-zinc-800">
               {([
-                { key: "cheapest", icon: "arrow_upward", title: "Nejlevnější" },
-                { key: "coverage", icon: "arrow_downward", title: "Nejdražší" },
+                { key: "cheapest", label: "Nejlevnější" },
+                { key: "coverage", label: "Nejdražší" },
               ] as const).map((opt) => (
                 <button
                   key={opt.key}
                   onClick={() => setSelectedSort(opt.key)}
-                  title={opt.title}
-                  className={`flex items-center gap-1 px-2.5 py-1.5 text-[10px] font-bold transition-all ${
+                  className={`pb-2 text-xs font-bold transition-all border-b-2 -mb-px ${
                     selectedSort === opt.key
-                      ? "bg-zinc-800 dark:bg-white text-white dark:text-zinc-900"
-                      : "text-zinc-400 dark:text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300"
+                      ? "border-foodappka-500 text-foodappka-600 dark:text-foodappka-400"
+                      : "border-transparent text-zinc-400 dark:text-zinc-500 hover:text-zinc-600 dark:hover:text-zinc-300"
                   }`}
                 >
-                  <span className="material-symbols-outlined text-[13px]">{opt.icon}</span>
-                  <span className="hidden sm:inline">{opt.title}</span>
+                  {opt.label}
                 </button>
               ))}
             </div>
