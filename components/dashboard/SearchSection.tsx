@@ -156,53 +156,72 @@ export default function SearchSection({
         </div>
 
         {!loading && products.length > 0 && (
-          <div className="flex gap-2 overflow-x-auto no-scrollbar pb-2 px-1 md:px-2">
-            {availableFilters.map((filter) => {
-              const count = products.filter(p => p.stores.some(s => getStoreFilter(s).key === filter.key || filter.key === "all")).length;
-              if (filter.key !== "all" && count === 0) return null;
+          <div className="flex items-center gap-3 px-1 md:px-2">
+            {/* Filtry obchodů — scrollovatelné */}
+            <div className="flex gap-1.5 overflow-x-auto no-scrollbar flex-1 min-w-0">
+              {availableFilters.map((filter) => {
+                const count = products.filter(p =>
+                  filter.key === "all"
+                    ? true
+                    : p.stores.some(s => getStoreFilter(s).key === filter.key)
+                ).length;
+                if (filter.key !== "all" && count === 0) return null;
+                const isActive = selectedFilter === filter.key;
 
-              return (
+                if (filter.key === "all") {
+                  return (
+                    <button
+                      key="all"
+                      onClick={() => setSelectedFilter("all")}
+                      className={`shrink-0 rounded-full border px-3 py-1 text-[11px] font-bold transition-all whitespace-nowrap ${
+                        isActive
+                          ? "border-zinc-800 dark:border-white bg-zinc-800 dark:bg-white text-white dark:text-zinc-900"
+                          : "border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-500 dark:text-zinc-400"
+                      }`}
+                    >
+                      Vše · {products.length}
+                    </button>
+                  );
+                }
+
+                return (
+                  <button
+                    key={filter.key}
+                    onClick={() => setSelectedFilter(filter.key)}
+                    title={filter.label}
+                    className={`shrink-0 rounded-full border p-1 transition-all ${
+                      isActive
+                        ? "border-foodappka-500 ring-2 ring-foodappka-400/40"
+                        : "border-zinc-200 dark:border-zinc-700 opacity-60 hover:opacity-100"
+                    }`}
+                  >
+                    <StoreBrand shopName={filter.label} small />
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Řazení — vpravo, kompaktní */}
+            <div className="shrink-0 flex rounded-full border border-zinc-200 dark:border-zinc-700 overflow-hidden bg-white dark:bg-zinc-900">
+              {([
+                { key: "cheapest", icon: "arrow_upward", title: "Nejlevnější" },
+                { key: "coverage", icon: "arrow_downward", title: "Nejdražší" },
+              ] as const).map((opt) => (
                 <button
-                  key={filter.key}
-                  onClick={() => setSelectedFilter(filter.key)}
-                  className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-[11px] font-bold transition-all whitespace-nowrap ${
-                    selectedFilter === filter.key
-                      ? "border-foodappka-600 bg-foodappka-600 text-white shadow-md"
-                      : "border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-zinc-600 dark:text-zinc-400"
+                  key={opt.key}
+                  onClick={() => setSelectedSort(opt.key)}
+                  title={opt.title}
+                  className={`flex items-center gap-1 px-2.5 py-1.5 text-[10px] font-bold transition-all ${
+                    selectedSort === opt.key
+                      ? "bg-zinc-800 dark:bg-white text-white dark:text-zinc-900"
+                      : "text-zinc-400 dark:text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300"
                   }`}
                 >
-                  <span>{filter.label}</span>
-                  <span className={`rounded-full px-1.5 py-0.5 text-[9px] ${selectedFilter === filter.key ? "bg-white/20 text-white" : "bg-foodappka-100 dark:bg-foodappka-900/50 text-foodappka-700 dark:text-foodappka-300"}`}>
-                    {filter.key === "all" ? products.length : count}
-                  </span>
+                  <span className="material-symbols-outlined text-[13px]">{opt.icon}</span>
+                  <span className="hidden sm:inline">{opt.title}</span>
                 </button>
-              );
-            })}
-          </div>
-        )}
-
-        {!loading && products.length > 0 && (
-          <div className="flex items-center gap-2 px-1 md:px-2">
-            <span className="text-[11px] text-zinc-400 dark:text-zinc-500 shrink-0">Řadit:</span>
-            {([
-              { key: "cheapest", label: "Nejlevnější" },
-              { key: "coverage", label: "Nejdražší" },
-            ] as const).map((opt) => (
-              <button
-                key={opt.key}
-                onClick={() => setSelectedSort(opt.key)}
-                className={`inline-flex items-center gap-1 rounded-full border px-3 py-1.5 text-[11px] font-bold transition-all whitespace-nowrap ${
-                  selectedSort === opt.key
-                    ? "border-zinc-800 bg-zinc-800 dark:border-white dark:bg-white text-white dark:text-zinc-900"
-                    : "border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-500 dark:text-zinc-400"
-                }`}
-              >
-                <span className="material-symbols-outlined text-[13px]">
-                  {opt.key === "cheapest" ? "arrow_upward" : "arrow_downward"}
-                </span>
-                {opt.label}
-              </button>
-            ))}
+              ))}
+            </div>
           </div>
         )}
 
