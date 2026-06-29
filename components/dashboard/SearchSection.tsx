@@ -254,8 +254,11 @@ export default function SearchSection({
                         const discountPercent = formatDiscountPercent(currentPrice, originalPrice);
                         const savings = getSavings(currentPrice, originalPrice);
 
+                        const isSale = originalPrice !== null && originalPrice > currentPrice;
+
                         return (
-                          <li key={idx} className={`rounded-xl border px-3 py-2.5 flex items-center justify-between gap-3 min-w-0 ${idx === 0 ? "border-foodappka-300 dark:border-foodappka-800 bg-foodappka-50 dark:bg-foodappka-900/20 shadow-sm" : "border-zinc-100 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/50"}`}>
+                          <li key={idx} className={`rounded-xl border px-3 py-3 flex items-center justify-between gap-3 min-w-0 ${idx === 0 ? "border-foodappka-300 dark:border-foodappka-800 bg-foodappka-50 dark:bg-foodappka-900/20 shadow-sm" : "border-zinc-100 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/50"}`}>
+                            {/* Levá strana — obchod + badges */}
                             <div className="flex items-center gap-2 min-w-0 flex-1">
                               <div className="shrink-0">
                                 {item.leafletUrl ? (
@@ -266,30 +269,43 @@ export default function SearchSection({
                                   <StoreBrand shopName={item.shopName} small />
                                 )}
                               </div>
-                              {idx === 0 && <span className="bg-foodappka-600 text-[8px] font-black text-white px-1.5 py-0.5 rounded-full uppercase tracking-tighter shrink-0">TOP</span>}
-                              {discountPercent && (
-                                <span className="bg-red-500 text-[8px] font-black text-white px-1.5 py-0.5 rounded-full uppercase tracking-tighter shrink-0 animate-pulse">
-                                  {discountPercent}
-                                </span>
-                              )}
-                            </div>
-                            <div className="text-right shrink-0">
-                              <div className="flex flex-col items-end">
-                                <p className={`text-base font-black leading-none ${idx === 0 ? "text-foodappka-700 dark:text-foodappka-400" : "text-zinc-900 dark:text-white"}`}>
-                                  {item.price}
-                                </p>
-                                {originalPrice && originalPrice > currentPrice && (
-                                  <span className="text-[10px] text-zinc-400 line-through font-bold leading-none mt-0.5 mb-0.5">
-                                    {item.originalPrice}
+                              <div className="flex flex-col gap-0.5">
+                                {idx === 0 && (
+                                  <span className="bg-foodappka-600 text-[8px] font-black text-white px-1.5 py-0.5 rounded-full uppercase tracking-tighter w-fit">
+                                    NEJLEPŠÍ
                                   </span>
                                 )}
-                                {savings > 0 && (
-                                  <p className="text-[9px] text-red-600 font-bold mt-0.5">
-                                    Ušetříte {savings.toFixed(2).replace(".", ",")} Kč
-                                  </p>
-                                )}
+                                {item.pricePerUnit ? (
+                                  <span className="text-[10px] text-zinc-400 dark:text-zinc-500">{item.pricePerUnit}</span>
+                                ) : null}
                               </div>
-                              {item.amount && <p className="text-[9px] text-zinc-500 dark:text-zinc-400 mt-0.5">{item.amount}</p>}
+                            </div>
+
+                            {/* Pravá strana — ceny */}
+                            <div className="text-right shrink-0 flex flex-col items-end gap-0.5">
+                              {/* Aktuální cena */}
+                              <p className={`text-lg font-black leading-none ${idx === 0 ? "text-foodappka-700 dark:text-foodappka-400" : "text-zinc-900 dark:text-white"}`}>
+                                {item.price}
+                              </p>
+
+                              {/* Původní cena + ušetříš */}
+                              {isSale && (
+                                <div className="flex items-center gap-1.5">
+                                  <span className="text-[11px] text-zinc-400 line-through font-medium">
+                                    {item.originalPrice}
+                                  </span>
+                                  {discountPercent && (
+                                    <span className="bg-red-500 text-[9px] font-black text-white px-1.5 py-0.5 rounded-full">
+                                      {discountPercent}
+                                    </span>
+                                  )}
+                                </div>
+                              )}
+                              {savings > 0 && (
+                                <p className="text-[10px] text-red-500 dark:text-red-400 font-bold">
+                                  ušetříš {savings.toFixed(0)} Kč
+                                </p>
+                              )}
                             </div>
                           </li>
                         );
