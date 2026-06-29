@@ -35,7 +35,7 @@ type LidlGridProduct = {
 };
 
 async function fetchLidlSearch(query: string): Promise<string> {
-  const url = `${LIDL_ORIGIN}/search?query=${encodeURIComponent(query)}`;
+  const url = `${LIDL_ORIGIN}/q/search?q=${encodeURIComponent(query)}`;
   const response = await fetch(url, {
     headers: {
       "User-Agent": GOOGLEBOT_UA,
