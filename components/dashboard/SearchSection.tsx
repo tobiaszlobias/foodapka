@@ -207,111 +207,128 @@ export default function SearchSection({
         )}
 
         {loading ? <SearchLoadingAnimation /> : filteredAndSortedProducts.length > 0 ? (
-          <div className="grid gap-3 md:gap-4 w-full">
+          <div className="grid gap-2 w-full">
             {filteredAndSortedProducts.map((product) => {
               const isFavorite = favorites.some(f => f.id === product.url);
-              return (
-                <article key={product.url} className="group relative rounded-2xl border border-foodappka-100 dark:border-zinc-800 bg-white/90 dark:bg-foodappka-950 p-4 shadow-sm w-full min-w-0 overflow-hidden">
-                  {/* Favorite Button */}
-                  <button 
-                    onClick={(e) => {
-                      e.preventDefault();
-                      onToggleFavorite(product);
-                    }}
-                    className={`absolute top-3 right-3 z-10 flex h-10 w-10 items-center justify-center rounded-full transition-all duration-200 ${
-                      isFavorite 
-                        ? "text-red-500 bg-red-50 dark:bg-red-900/20" 
-                        : "text-zinc-300 hover:text-red-400 hover:bg-red-50/50 dark:hover:bg-red-900/10"
-                    }`}
-                    title={isFavorite ? "Odebrat z oblíbených" : "Přidat do oblíbených"}
-                  >
-                    <span 
-                      className="material-symbols-outlined text-xl"
-                      style={isFavorite ? { fontVariationSettings: "'FILL' 1" } : undefined}
-                    >
-                      favorite
-                    </span>
-                  </button>
+              const sortedStores = sortStoresByPrice(product.stores);
+              const bestStore = sortedStores[0];
+              const bestPrice = bestStore ? parsePrice(bestStore.price) : 0;
+              const bestOriginal = bestStore?.originalPrice ? parsePrice(bestStore.originalPrice) : null;
+              const bestSavings = getSavings(bestPrice, bestOriginal);
+              const bestDiscount = formatDiscountPercent(bestPrice, bestOriginal);
+              const isBestSale = bestOriginal !== null && bestOriginal > bestPrice;
 
-                  <div className="flex flex-col gap-4">
-                    <div className="flex items-start justify-between gap-4 pr-10">
-                      <div className="min-w-0 flex-1">
-                        <h3 className="text-base md:text-lg font-bold text-zinc-950 dark:text-white leading-tight truncate">
-                          {cleanProductName(product.name)}
-                        </h3>
-                        <p className="text-[11px] text-zinc-500 dark:text-zinc-400 mt-0.5">
-                          V {product.stores.length} {product.stores.length === 1 ? "obchodě" : "obchodech"}
-                        </p>
-                      </div>
-                      <a href={product.url} target="_blank" rel="noreferrer" className="shrink-0 rounded-full border border-foodappka-200 dark:border-zinc-800 bg-foodappka-50 dark:bg-zinc-900 px-3 py-1.5 text-xs font-bold text-foodappka-800 dark:text-foodappka-300">
-                        Detail
-                      </a>
+              return (
+                <article key={product.url} className="rounded-2xl border border-zinc-100 dark:border-zinc-800 bg-white dark:bg-zinc-900 overflow-hidden w-full">
+                  {/* Hlavní řádek */}
+                  <div className="flex items-center gap-3 px-4 py-3">
+                    {/* Logo nejlepšího obchodu */}
+                    <div className="shrink-0">
+                      {bestStore?.leafletUrl ? (
+                        <a href={bestStore.leafletUrl} target="_blank" rel="noreferrer">
+                          <StoreBrand shopName={bestStore?.shopName ?? ""} small />
+                        </a>
+                      ) : (
+                        <StoreBrand shopName={bestStore?.shopName ?? ""} small />
+                      )}
                     </div>
-                    <ul className="grid gap-2 w-full">
-                      {sortStoresByPrice(product.stores).map((item, idx) => {
+
+                    {/* Název */}
+                    <div className="min-w-0 flex-1">
+                      <h3 className="text-sm font-semibold text-zinc-800 dark:text-zinc-100 leading-tight line-clamp-2">
+                        {cleanProductName(product.name)}
+                      </h3>
+                      {product.stores.length > 1 && (
+                        <p className="text-[10px] text-zinc-400 mt-0.5">
+                          +{product.stores.length - 1} {product.stores.length - 1 === 1 ? "obchod" : "obchody"}
+                        </p>
+                      )}
+                    </div>
+
+                    {/* Ceny vpravo */}
+                    <div className="shrink-0 text-right flex flex-col items-end">
+                      <div className="flex items-baseline gap-1.5">
+                        {isBestSale && bestDiscount && (
+                          <span className="bg-red-500 text-[9px] font-black text-white px-1.5 py-0.5 rounded-full leading-none">
+                            {bestDiscount}
+                          </span>
+                        )}
+                        <span className="text-xl font-black text-zinc-900 dark:text-white leading-none">
+                          {bestStore?.price}
+                        </span>
+                      </div>
+                      {isBestSale && (
+                        <span className="text-[11px] text-zinc-400 line-through mt-0.5">
+                          {bestStore?.originalPrice}
+                        </span>
+                      )}
+                      {bestSavings > 0 && (
+                        <span className="text-[10px] text-green-600 dark:text-green-400 font-bold mt-0.5">
+                          ušetříš {bestSavings.toFixed(0)} Kč
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Oblíbené */}
+                    <button
+                      onClick={(e) => { e.preventDefault(); onToggleFavorite(product); }}
+                      className={`shrink-0 flex h-8 w-8 items-center justify-center rounded-full transition-colors ${
+                        isFavorite
+                          ? "text-red-500"
+                          : "text-zinc-300 hover:text-red-400"
+                      }`}
+                    >
+                      <span className="material-symbols-outlined text-[18px]" style={isFavorite ? { fontVariationSettings: "'FILL' 1" } : undefined}>
+                        favorite
+                      </span>
+                    </button>
+                  </div>
+
+                  {/* Ostatní obchody — jen pokud jich je víc */}
+                  {sortedStores.length > 1 && (
+                    <div className="border-t border-zinc-100 dark:border-zinc-800 divide-y divide-zinc-100 dark:divide-zinc-800">
+                      {sortedStores.slice(1).map((item, idx) => {
                         const currentPrice = parsePrice(item.price);
                         const originalPrice = item.originalPrice ? parsePrice(item.originalPrice) : null;
-                        const discountPercent = formatDiscountPercent(currentPrice, originalPrice);
-                        const savings = getSavings(currentPrice, originalPrice);
-
                         const isSale = originalPrice !== null && originalPrice > currentPrice;
+                        const discount = formatDiscountPercent(currentPrice, originalPrice);
 
                         return (
-                          <li key={idx} className={`rounded-xl border px-3 py-3 flex items-center justify-between gap-3 min-w-0 ${idx === 0 ? "border-foodappka-300 dark:border-foodappka-800 bg-foodappka-50 dark:bg-foodappka-900/20 shadow-sm" : "border-zinc-100 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/50"}`}>
-                            {/* Levá strana — obchod + badges */}
-                            <div className="flex items-center gap-2 min-w-0 flex-1">
-                              <div className="shrink-0">
-                                {item.leafletUrl ? (
-                                  <a href={item.leafletUrl} target="_blank" rel="noreferrer" title="Zobrazit zdroj">
-                                    <StoreBrand shopName={item.shopName} small />
-                                  </a>
-                                ) : (
+                          <div key={idx} className="flex items-center gap-3 px-4 py-2">
+                            <div className="shrink-0">
+                              {item.leafletUrl ? (
+                                <a href={item.leafletUrl} target="_blank" rel="noreferrer">
                                   <StoreBrand shopName={item.shopName} small />
-                                )}
-                              </div>
-                              <div className="flex flex-col gap-0.5">
-                                {idx === 0 && (
-                                  <span className="bg-foodappka-600 text-[8px] font-black text-white px-1.5 py-0.5 rounded-full uppercase tracking-tighter w-fit">
-                                    NEJLEPŠÍ
-                                  </span>
-                                )}
-                                {item.pricePerUnit ? (
-                                  <span className="text-[10px] text-zinc-400 dark:text-zinc-500">{item.pricePerUnit}</span>
-                                ) : null}
-                              </div>
+                                </a>
+                              ) : (
+                                <StoreBrand shopName={item.shopName} small />
+                              )}
                             </div>
-
-                            {/* Pravá strana — ceny */}
-                            <div className="text-right shrink-0 flex flex-col items-end gap-0.5">
-                              {/* Aktuální cena */}
-                              <p className={`text-lg font-black leading-none ${idx === 0 ? "text-foodappka-700 dark:text-foodappka-400" : "text-zinc-900 dark:text-white"}`}>
+                            <div className="flex-1 min-w-0">
+                              {item.pricePerUnit ? (
+                                <span className="text-[10px] text-zinc-400">{item.pricePerUnit}</span>
+                              ) : null}
+                            </div>
+                            <div className="text-right flex items-center gap-1.5">
+                              {isSale && discount && (
+                                <span className="bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 text-[9px] font-bold px-1.5 py-0.5 rounded-full">
+                                  {discount}
+                                </span>
+                              )}
+                              <span className="text-sm font-bold text-zinc-700 dark:text-zinc-200">
                                 {item.price}
-                              </p>
-
-                              {/* Původní cena + ušetříš */}
+                              </span>
                               {isSale && (
-                                <div className="flex items-center gap-1.5">
-                                  <span className="text-[11px] text-zinc-400 line-through font-medium">
-                                    {item.originalPrice}
-                                  </span>
-                                  {discountPercent && (
-                                    <span className="bg-red-500 text-[9px] font-black text-white px-1.5 py-0.5 rounded-full">
-                                      {discountPercent}
-                                    </span>
-                                  )}
-                                </div>
-                              )}
-                              {savings > 0 && (
-                                <p className="text-[10px] text-red-500 dark:text-red-400 font-bold">
-                                  ušetříš {savings.toFixed(0)} Kč
-                                </p>
+                                <span className="text-[10px] text-zinc-400 line-through">
+                                  {item.originalPrice}
+                                </span>
                               )}
                             </div>
-                          </li>
+                          </div>
                         );
                       })}
-                    </ul>
-                  </div>
+                    </div>
+                  )}
                 </article>
               );
             })}
