@@ -1,0 +1,15 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "foodapka",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev"],
+      "port": 3001,
+      "env": {
+        "NODE_OPTIONS": "--max-http-header-size=65536"
+      },
+      "cwd": "/Users/tobias/Developer/foodapka"
+    }
+  ]
+}
