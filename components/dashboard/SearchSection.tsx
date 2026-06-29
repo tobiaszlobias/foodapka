@@ -305,6 +305,11 @@ export default function SearchSection({
                           ušetříš {bestSavings.toFixed(0)} Kč
                         </span>
                       )}
+                      {bestStore?.shopName === "Lidl" && (
+                        <span className="text-[9px] text-zinc-400 dark:text-zinc-500 mt-0.5">
+                          cena dle pobočky
+                        </span>
+                      )}
                     </div>
 
                     {/* Oblíbené */}
