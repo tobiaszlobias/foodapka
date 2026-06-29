@@ -59,5 +59,9 @@ export function getStoreLogoPath(shopName: string) {
     return "/cba_logo.png";
   }
 
+  if (normalizedShopName.includes("tamda")) {
+    return "/tamdafoods_logo.png";
+  }
+
   return null;
 }
