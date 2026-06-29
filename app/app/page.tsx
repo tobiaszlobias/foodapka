@@ -7,6 +7,7 @@ import SearchSection from "@/components/dashboard/SearchSection";
 import RecipeSection from "@/components/dashboard/RecipeSection";
 import WatchdogSection from "@/components/dashboard/WatchdogSection";
 import ListsSection from "@/components/dashboard/ListsSection";
+import LoginWall from "@/components/LoginWall";
 import SearchBar from "@/components/SearchBar";
 import { type Product, type Store, parsePrice, cleanProductName } from "@/lib/food";
 import { createClient } from "@/lib/supabase/client";
@@ -48,6 +49,7 @@ function HomeContent() {
 
   // 1. STATE DECLARATIONS
   const [user, setUser] = useState<User | null>(null);
+  const [authLoaded, setAuthLoaded] = useState(false);
   const [favorites, setFavorites] = useState<FavoriteItem[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(false);
@@ -387,6 +389,7 @@ function HomeContent() {
   useEffect(() => {
     supabase.auth.getUser().then(({ data: { user } }) => {
       setUser(user);
+      setAuthLoaded(true);
       if (user) {
         const saved = JSON.parse(localStorage.getItem(`favs_${user.id}`) || "[]");
         setFavorites(saved);
@@ -534,10 +537,40 @@ function HomeContent() {
           />
         )}
 
-        {activeView === "watchdog" && <WatchdogSection />}
-        {activeView === "lists" && <ListsSection user={user} onAddClick={() => handleModeChange("recipes")} />}
-        
+        {activeView === "watchdog" && (
+          user ? (
+            <WatchdogSection />
+          ) : authLoaded ? (
+            <LoginWall
+              icon="visibility"
+              title="Hlídač cen je jen pro přihlášené"
+              description="Přihlaste se, abychom mohli hlídat ceny vašich oblíbených produktů a upozornit vás na slevy."
+            />
+          ) : null
+        )}
+
+        {activeView === "lists" && (
+          user ? (
+            <ListsSection user={user} onAddClick={() => handleModeChange("recipes")} />
+          ) : authLoaded ? (
+            <LoginWall
+              icon="list_alt"
+              title="Nákupní seznamy jsou jen pro přihlášené"
+              description="Přihlaste se, abyste si mohli ukládat nákupní seznamy a mít je dostupné na všech zařízeních."
+            />
+          ) : null
+        )}
+
         {activeView === "favorites" && (
+          !user ? (
+            authLoaded ? (
+            <LoginWall
+              icon="favorite"
+              title="Oblíbené jsou jen pro přihlášené"
+              description="Přihlaste se, abyste si mohli ukládat oblíbené recepty a produkty na jedno místo."
+            />
+            ) : null
+          ) : (
           <div className="space-y-6">
             <header className="px-1 md:px-2 text-left">
               <h1 className="text-2xl md:text-4xl font-extrabold tracking-tight text-foodappka-950 dark:text-white mb-2">Oblíbené</h1>
@@ -591,20 +624,31 @@ function HomeContent() {
               </div>
             )}
           </div>
+          )
         )}
 
         {activeView === "notifications" && (
+          !user ? (
+            authLoaded ? (
+            <LoginWall
+              icon="notifications"
+              title="Oznámení jsou jen pro přihlášené"
+              description="Přihlaste se, abyste dostávali upozornění na akce a cenové změny u vašich produktů."
+            />
+            ) : null
+          ) : (
           <div className="space-y-6 text-left">
             <header className="px-1 md:px-2">
               <h1 className="text-xl md:text-3xl lg:text-4xl font-display font-extrabold tracking-tight text-foodappka-950 dark:text-white mb-2">Oznámení</h1>
               <p className="text-sm md:text-lg text-zinc-600 dark:text-zinc-400">Aktuální informace o slevách a novinkách.</p>
             </header>
-            
+
             <div className="py-20 text-center rounded-2xl border border-dashed border-zinc-200 dark:border-zinc-800">
               <span className="material-symbols-outlined text-5xl text-zinc-300 mb-4 block">notifications_off</span>
               <p className="text-zinc-500 font-medium">Zatím nemáte žádná nová oznámení.</p>
             </div>
           </div>
+          )
         )}
       </motion.div>
     </div>
