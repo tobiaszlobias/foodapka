@@ -52,7 +52,7 @@ function HomeContent() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
-  const [selectedFilter, setSelectedFilter] = useState("all");
+  const [selectedFilter, setSelectedFilter] = useState<string[]>(["all"]);
   const [selectedSort, setSelectedSort] = useState<ProductSort>("cheapest");
   const [activeRecipe, setActiveRecipe] = useState("");
   const [recipeDetails, setRecipeDetails] = useState<any>(null);
@@ -76,7 +76,7 @@ function HomeContent() {
   
   const handleResults = useCallback((nextProducts: Product[]) => {
     setProducts(nextProducts);
-    setSelectedFilter("all");
+    setSelectedFilter(["all"]);
     setSelectedSort("cheapest");
   }, []);
 

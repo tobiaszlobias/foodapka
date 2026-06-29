@@ -21,8 +21,8 @@ type SearchSectionProps = {
   products: Product[];
   loading: boolean;
   hasSearched: boolean;
-  selectedFilter: string;
-  setSelectedFilter: (filter: string) => void;
+  selectedFilter: string[];
+  setSelectedFilter: (filter: string[]) => void;
   selectedSort: ProductSort;
   setSelectedSort: (sort: ProductSort) => void;
   handleResults: (products: Product[]) => void;
@@ -88,11 +88,11 @@ export default function SearchSection({
   }, [products]);
 
   const filteredAndSortedProducts = useMemo(() => {
-    const filtered = selectedFilter === "all"
+    const filtered = selectedFilter.includes("all")
       ? products
       : products.map(p => ({
           ...p,
-          stores: p.stores.filter(s => getStoreFilter(s).key === selectedFilter)
+          stores: p.stores.filter(s => selectedFilter.includes(getStoreFilter(s).key))
         })).filter(p => p.stores.length > 0);
 
     return [...filtered].sort((a, b) => {
@@ -166,13 +166,13 @@ export default function SearchSection({
                     : p.stores.some(s => getStoreFilter(s).key === filter.key)
                 ).length;
                 if (filter.key !== "all" && count === 0) return null;
-                const isActive = selectedFilter === filter.key;
+                const isActive = selectedFilter.includes(filter.key);
 
                 if (filter.key === "all") {
                   return (
                     <button
                       key="all"
-                      onClick={() => setSelectedFilter("all")}
+                      onClick={() => setSelectedFilter(["all"])}
                       className="shrink-0 flex flex-col items-center gap-1"
                     >
                       <div className={`w-11 h-11 rounded-2xl flex items-center justify-center text-sm font-black transition-colors ${
@@ -192,15 +192,24 @@ export default function SearchSection({
                 return (
                   <button
                     key={filter.key}
-                    onClick={() => setSelectedFilter(filter.key)}
+                    onClick={() => {
+                      if (isActive) {
+                        // Odebrat — pokud zůstane prázdno, dát "all"
+                        const next = selectedFilter.filter(k => k !== filter.key);
+                        setSelectedFilter(next.length === 0 ? ["all"] : next);
+                      } else {
+                        // Přidat, odebrat "all"
+                        setSelectedFilter([...selectedFilter.filter(k => k !== "all"), filter.key]);
+                      }
+                    }}
                     title={`${filter.label} (${count})`}
                     className="shrink-0 flex flex-col items-center gap-1"
                   >
-                    <div className={`w-11 h-11 rounded-2xl flex items-center justify-center overflow-hidden transition-all ${
+                    <div className={`w-11 h-11 rounded-2xl flex items-center justify-center bg-white dark:bg-zinc-800 transition-all ${
                       isActive
-                        ? "ring-2 ring-foodappka-500 ring-offset-1 dark:ring-offset-zinc-900"
+                        ? "ring-2 ring-foodappka-500 ring-offset-2 dark:ring-offset-zinc-900"
                         : ""
-                    } bg-white dark:bg-zinc-800`}>
+                    }`}>
                       <StoreBrand shopName={filter.label} small />
                     </div>
                     <span className={`text-[9px] font-bold tabular-nums ${isActive ? "text-foodappka-600 dark:text-foodappka-400" : "text-zinc-400"}`}>
