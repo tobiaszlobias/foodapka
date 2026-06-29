@@ -148,8 +148,39 @@ const RECIPE_MISMATCH_TOKENS = new Set([
   "zmrzlina",
   "dort",
   "dezert",
-  "pomazánka",
-  "paštika",
+  "pomazanka",
+  "pastika",
+  // Hotová jídla / polotovary — nevhodné když hledáš surovinu
+  "polevka",
+  "polevkovy",
+  "instantni",
+  "vyvar",
+  "bujón",
+  "bujon",
+  "hotove",
+  "hotovy",
+  "pripraven",
+  "mikrovlnna",
+  "konzervovany",
+  "mrazene",
+  "pyre",
+  "nugety",
+  "nuget",
+  "stroganoff",
+  "gulasova",
+  "sekaná",
+  "sekana",
+  "karbanátek",
+  "karbanek",
+  "parizak",
+  "salám",
+  "salam",
+  "párky",
+  "parky",
+  "klobasa",
+  "sunka",
+  "uzeny",
+  "uzená",
 ]);
 
 export function parsePrice(price: string) {
@@ -317,7 +348,7 @@ export function scoreProductMatch(name: string, query: string) {
 
   // Bonus if the product name starts with one of the query tokens (e.g. "Máslo XY" when searching "máslo")
   const firstNameToken = nameTokens[0] ?? "";
-  const positionBonus = specificQueryTokens.some((t) => firstNameToken === t) ? 60 : 0;
+  const positionBonus = specificQueryTokens.some((t) => firstNameToken === t) ? 100 : 0;
 
   return (
     exactMatches * 50 +
@@ -325,7 +356,7 @@ export function scoreProductMatch(name: string, query: string) {
     matchedSpecificTokens * 40 +
     positionBonus -
     missingSpecificTokens * 50 -
-    extraTokensPenalty * 15
+    extraTokensPenalty * 30
   );
 }
 
