@@ -43,5 +43,9 @@ export function getStoreLogoPath(shopName: string) {
     return "/hruskalogo.png";
   }
 
+  if (normalizedShopName.includes("coop")) {
+    return "/coop_logo_transparent.png";
+  }
+
   return null;
 }
