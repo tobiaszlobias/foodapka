@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useRef } from "react";
+import Image from "next/image";
 import SearchBar from "@/components/SearchBar";
 import { 
   cleanProductName, 
@@ -268,9 +269,20 @@ export default function SearchSection({
                 <article key={product.url} className="rounded-2xl border border-zinc-100 dark:border-zinc-800 bg-white dark:bg-zinc-900 overflow-hidden w-full">
                   {/* Hlavní řádek */}
                   <div className="flex items-center gap-3 px-4 py-3">
-                    {/* Logo nejlepšího obchodu */}
+                    {/* Obrázek produktu nebo logo obchodu */}
                     <div className="shrink-0">
-                      {bestStore?.leafletUrl ? (
+                      {product.image ? (
+                        <div className="w-12 h-12 rounded-xl overflow-hidden bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center">
+                          <Image
+                            src={product.image}
+                            alt={product.name}
+                            width={48}
+                            height={48}
+                            className="w-full h-full object-contain"
+                            unoptimized
+                          />
+                        </div>
+                      ) : bestStore?.leafletUrl ? (
                         <a href={bestStore.leafletUrl} target="_blank" rel="noreferrer">
                           <StoreBrand shopName={bestStore?.shopName ?? ""} small />
                         </a>

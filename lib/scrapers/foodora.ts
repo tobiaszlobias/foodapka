@@ -185,6 +185,7 @@ type FoodoraCandidate = {
   price: number;
   originalPrice: number | null;
   pricePerUnit: string;
+  image?: string;
 };
 
 function buildSearchUrl(searchUrl: string, query: string) {
@@ -229,7 +230,8 @@ function mapFoodoraItemToCandidate(item: FoodoraSearchItem) {
         ? payload.originalPrice
         : null,
     pricePerUnit: formatFoodoraUnitPrice(payload.attributes),
-  } satisfies FoodoraCandidate;
+    image: payload.urls?.find(u => u.startsWith("http") && !u.includes("no_img")) ?? undefined,
+  } as FoodoraCandidate;
 }
 
 function dedupeFoodoraCandidates(candidates: FoodoraCandidate[], query: string) {
@@ -269,6 +271,7 @@ function mapCandidatesToProducts(
     return {
       name: candidate.name,
       url: productUrl,
+      image: candidate.image,
       stores: [
         {
           shopId: `foodora-${storeConfig.vendorCode}`,

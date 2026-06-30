@@ -19,6 +19,7 @@ export type Product = {
   name: string;
   url: string;
   stores: Store[];
+  image?: string;
 };
 
 export const STORE_META: Record<string, string> = {
@@ -375,9 +376,8 @@ export function mergeProductsByName(products: Product[]) {
     }
 
     existing.stores = dedupeStores([...existing.stores, ...product.stores]);
-    if (product.url && !existing.url) {
-      existing.url = product.url;
-    }
+    if (product.url && !existing.url) existing.url = product.url;
+    if (product.image && !existing.image) existing.image = product.image;
   });
 
   return Array.from(productMap.values());

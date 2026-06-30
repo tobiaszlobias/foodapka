@@ -75,15 +75,28 @@ export async function searchKupiProducts(query: string) {
   );
   const $ = cheerio.load(html);
 
-  const productUrls = new Set<string>();
+  const productUrlsWithImages = new Map<string, string | undefined>();
   $('a[href*="/sleva/"]').each((_, element) => {
     const href = $(element).attr("href");
     if (!href) return;
-    productUrls.add(absoluteUrl(KUPI_ORIGIN, href));
+    const url = absoluteUrl(KUPI_ORIGIN, href);
+    const imgEl = $(element).find("img");
+    const img = imgEl.attr("data-src") || imgEl.attr("src");
+    const validImg = img && !img.includes("no_img") && img.startsWith("http") ? img : undefined;
+    // Zachovej existující obrázek pokud ho nový nemá
+    if (!productUrlsWithImages.has(url)) {
+      productUrlsWithImages.set(url, validImg);
+    } else if (validImg && !productUrlsWithImages.get(url)) {
+      productUrlsWithImages.set(url, validImg);
+    }
   });
 
   const detailResults = await Promise.allSettled(
-    Array.from(productUrls).slice(0, 12).map((url) => fetchKupiProduct(url)),
+    Array.from(productUrlsWithImages.entries()).slice(0, 12).map(async ([url, image]) => {
+      const product = await fetchKupiProduct(url);
+      if (!product) return null;
+      return { ...product, image };
+    }),
   );
 
   return detailResults.reduce<Product[]>((accumulator, result) => {

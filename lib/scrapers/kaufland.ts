@@ -21,6 +21,7 @@ type KauflandOffer = {
   dateFrom?: string;
   dateTo?: string;
   klNr?: string;
+  listImage?: string;
 };
 
 type KauflandSsrPayload = {
@@ -114,6 +115,7 @@ export async function searchKauflandProducts(query: string): Promise<Product[]> 
     products.push({
       name,
       url,
+      image: offer.listImage,
       stores: [
         {
           shopId: "kaufland",
