@@ -45,7 +45,7 @@ export default function HomePage() {
     { name: "Kaufland", logo: "/kauflandlogo.png", scale: "scale-[1.4] md:scale-[2.0]" },
     { name: "Billa", logo: "/billalogo.png", scale: "scale-100 md:scale-[1.5]" },
     { name: "Tesco", logo: "/tescologo.png", scale: "scale-75 md:scale-100" },
-    { name: "Penny", logo: "/pennylogo.png", scale: "scale-90 md:scale-[1.3]" },
+    { name: "Penny", logo: "/pennylogo.png", scale: "scale-75 md:scale-100" },
     { name: "Globus", logo: "/globuslogo.png", scale: "scale-100 md:scale-[1.6]" },
     { name: "Hruška", logo: "/hruskalogo.png", scale: "scale-100 md:scale-[1.5]" },
     { name: "Košík", logo: "/kosikcz_logo.png", scale: "scale-90 md:scale-[1.3]" },
