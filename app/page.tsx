@@ -55,7 +55,7 @@ export default function HomePage() {
     { name: "TAMDA Foods", logo: "/tamdafoods_logo.png", scale: "scale-100 md:scale-[1.5]" },
     { name: "Bene Nápoje", logo: "/benenapoje_logo.png", scale: "scale-90 md:scale-[1.3]" },
     { name: "CBA", logo: "/cba_logo.png", scale: "scale-90 md:scale-[1.3]" },
-    { name: "Ratio", logo: "/ratio_logo.png", scale: "scale-90 md:scale-[1.3]" },
+    { name: "Ratio", logo: "/ratio_logo.png", scale: "scale-75 md:scale-100" },
   ];
 
   return (
@@ -238,74 +238,6 @@ export default function HomePage() {
                   </div>
                 </div>
               ))}
-            </div>
-          </div>
-        </motion.section>
-
-        {/* Stats + Category Grid - NOW THIRD */}
-        <motion.section 
-          initial={{ opacity: 0, y: 40 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.8 }}
-          className="mx-auto max-w-7xl px-4 md:px-8 py-20 md:py-32"
-        >
-          <div className="grid gap-4 md:gap-6 grid-cols-2 md:grid-cols-6 auto-rows-[180px] md:auto-rows-[240px]">
-            {/* Featured Box - Maso */}
-            <div className="col-span-2 md:col-span-4 md:row-span-2 group relative overflow-hidden rounded-[2rem] bg-white shadow-xl border border-zinc-100">
-              <Image
-                src="/maso.png"
-                alt="Čerstvé maso"
-                fill
-                className="object-cover transition-transform duration-700 group-hover:scale-105"
-                sizes="(max-width: 768px) 100vw, 66vw"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent"></div>
-              <div className="absolute bottom-6 md:bottom-10 left-6 md:left-10 right-6 md:right-10 text-white">
-                <p className="text-3xl md:text-5xl font-black leading-tight tracking-tighter drop-shadow-md">Čerstvé maso za zlomek ceny</p>
-              </div>
-              </div>
-
-            {/* Stat 1 */}
-            <div className="col-span-2 md:col-span-2 md:row-span-1 flex flex-col justify-center items-center rounded-[2rem] bg-foodappka-500 p-6 text-center text-white shadow-lg shadow-foodappka-500/20">
-              <span className="text-4xl md:text-5xl font-black tracking-tighter leading-none">250 tis.</span>
-              <p className="mt-2 text-xs md:text-sm font-bold opacity-90 leading-tight">Cen srovnáno denně</p>
-            </div>
-
-            {/* Ovoce a zelenina */}
-            <div className="col-span-1 md:col-span-2 md:row-span-1 group relative overflow-hidden rounded-[2rem] bg-white shadow-sm border border-zinc-100">
-              <Image
-                src="/zeleninaovoce.png"
-                alt="Ovoce a zelenina"
-                fill
-                className="object-cover transition-transform duration-500 group-hover:scale-105"
-                sizes="33vw"
-              />
-              <div className="absolute inset-0 bg-black/10 group-hover:bg-black/20 transition-colors"></div>
-              <div className="absolute inset-0 flex items-center justify-center p-4">
-                <div className="bg-black/20 backdrop-blur-sm px-4 py-2 rounded-2xl text-white font-black text-lg md:text-xl tracking-tighter text-center">Ovoce & Zelenina</div>
-              </div>
-            </div>
-
-            {/* Mléčné výrobky */}
-            <div className="col-span-1 md:col-span-3 md:row-span-1 group relative overflow-hidden rounded-[2rem] bg-white shadow-sm border border-zinc-100">
-              <Image
-                src="/mlecnevyrobky.png"
-                alt="Mléčné výrobky"
-                fill
-                className="object-cover transition-transform duration-500 group-hover:scale-105"
-                sizes="33vw"
-              />
-              <div className="absolute inset-0 bg-black/10 group-hover:bg-black/20 transition-colors"></div>
-              <div className="absolute inset-0 flex items-center justify-center p-4">
-                <div className="bg-black/20 backdrop-blur-sm px-4 py-2 rounded-2xl text-white font-black text-lg md:text-xl tracking-tighter text-center leading-none">Mléčné výrobky</div>
-              </div>
-            </div>
-
-            {/* Stat 2 */}
-            <div className="col-span-2 md:col-span-3 md:row-span-1 flex flex-col justify-center items-center rounded-[2rem] bg-foodappka-600 dark:bg-foodappka-900 p-6 text-center text-white shadow-xl">
-              <span className="text-5xl font-black tracking-tighter text-white dark:text-foodappka-400">10+</span>
-              <p className="mt-1 text-sm font-bold opacity-90 uppercase tracking-widest">Řetězců v kapse</p>
             </div>
           </div>
         </motion.section>
