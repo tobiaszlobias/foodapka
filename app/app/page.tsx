@@ -307,34 +307,40 @@ function HomeContent() {
     }
   }, []);
 
-  const toggleFavorite = useCallback((item: any) => {
+  const toggleFavorite = useCallback(async (item: any) => {
     if (!user) {
       showToast("Pro ukládání oblíbených se musíte přihlásit.", "info");
       return;
     }
-    
-    setFavorites(prev => {
-      const itemId = item.url || item.name;
-      const isFav = prev.find(f => f.id === itemId);
-      let next;
-      if (isFav) {
-        next = prev.filter(f => f.id !== itemId);
-      } else {
-        const newItem: FavoriteItem = {
-          id: itemId,
-          name: item.name,
-          addedAt: new Date().toISOString(),
-          url: item.url,
-          stores: item.stores,
-          image: item.image,
-          description: item.description
-        };
-        next = [...prev, newItem];
-      }
-      localStorage.setItem(`favs_${user.id}`, JSON.stringify(next));
-      return next;
-    });
-  }, [user]);
+
+    const itemId = item.url || item.name;
+    const isFav = favorites.find(f => f.id === itemId);
+
+    if (isFav) {
+      setFavorites(prev => prev.filter(f => f.id !== itemId));
+      await supabase.from("favorites").delete().eq("user_id", user.id).eq("item_id", itemId);
+    } else {
+      const newItem: FavoriteItem = {
+        id: itemId,
+        name: item.name,
+        addedAt: new Date().toISOString(),
+        url: item.url,
+        stores: item.stores,
+        image: item.image,
+        description: item.description,
+      };
+      setFavorites(prev => [...prev, newItem]);
+      await supabase.from("favorites").upsert({
+        user_id: user.id,
+        item_id: itemId,
+        name: item.name,
+        url: item.url ?? null,
+        stores: item.stores ?? null,
+        image: item.image ?? null,
+        description: item.description ?? null,
+      });
+    }
+  }, [user, favorites, supabase]);
 
   const toggleIngredient = useCallback((ingredient: string) => {
     setCheckedIngredients((curr) =>
@@ -359,7 +365,7 @@ function HomeContent() {
 
     const { error } = await supabase.from("shopping_lists").insert({
       user_id: user.id,
-      recipe_name: activeRecipe || "Nákupní seznam",
+      name: activeRecipe || "Nákupní seznam",
       items: recipeResults.map(r => ({
         ingredient: r.ingredient,
         product_name: r.product?.name,
@@ -367,7 +373,6 @@ function HomeContent() {
         shop_name: r.store?.shopName,
         is_checked: checkedIngredients.includes(r.ingredient)
       })),
-      total_price: totalPrice
     });
 
     if (!error) {
@@ -387,12 +392,26 @@ function HomeContent() {
   // 3. EFFECTS (Placed after functions to ensure they are initialized)
   
   useEffect(() => {
-    supabase.auth.getUser().then(({ data: { user } }) => {
+    supabase.auth.getUser().then(async ({ data: { user } }) => {
       setUser(user);
       setAuthLoaded(true);
       if (user) {
-        const saved = JSON.parse(localStorage.getItem(`favs_${user.id}`) || "[]");
-        setFavorites(saved);
+        const { data } = await supabase
+          .from("favorites")
+          .select("*")
+          .eq("user_id", user.id)
+          .order("added_at", { ascending: false });
+        if (data) {
+          setFavorites(data.map(row => ({
+            id: row.item_id,
+            name: row.name,
+            addedAt: row.added_at,
+            url: row.url,
+            stores: row.stores,
+            image: row.image,
+            description: row.description,
+          })));
+        }
       }
     });
   }, [supabase]);
