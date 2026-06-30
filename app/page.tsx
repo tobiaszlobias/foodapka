@@ -47,6 +47,15 @@ export default function HomePage() {
     { name: "Tesco", logo: "/tescologo.png", scale: "scale-75 md:scale-100" },
     { name: "Penny", logo: "/pennylogo.png", scale: "scale-90 md:scale-[1.3]" },
     { name: "Globus", logo: "/globuslogo.png", scale: "scale-100 md:scale-[1.6]" },
+    { name: "Hruška", logo: "/hruskalogo.png", scale: "scale-100 md:scale-[1.5]" },
+    { name: "Košík", logo: "/kosikcz_logo.png", scale: "scale-90 md:scale-[1.3]" },
+    { name: "Coop", logo: "/coop_logo_transparent.png", scale: "scale-100 md:scale-[1.5]" },
+    { name: "FLOP TOP", logo: "/logo-flop-top-web.png", scale: "scale-90 md:scale-[1.3]" },
+    { name: "JIP", logo: "/jiplogo.png", scale: "scale-90 md:scale-[1.3]" },
+    { name: "TAMDA Foods", logo: "/tamdafoods_logo.png", scale: "scale-100 md:scale-[1.5]" },
+    { name: "Bene Nápoje", logo: "/benenapoje_logo.png", scale: "scale-90 md:scale-[1.3]" },
+    { name: "CBA", logo: "/cba_logo.png", scale: "scale-90 md:scale-[1.3]" },
+    { name: "Ratio", logo: "/ratio_logo.png", scale: "scale-90 md:scale-[1.3]" },
   ];
 
   return (
@@ -186,8 +195,8 @@ export default function HomePage() {
           className="bg-white py-24 border-y border-zinc-50 overflow-hidden"
         >
           <div className="mx-auto max-w-7xl px-4 md:px-8 mb-16 text-center">
-            <h2 className="text-3xl md:text-4xl font-black text-zinc-900 tracking-tight">Procházíme letáky největších řetězců</h2>
-            <p className="mt-3 text-zinc-500 font-medium text-base md:text-lg">Každý den pro vás hlídáme ty nejlepší nabídky</p>
+            <h2 className="text-3xl md:text-4xl font-black text-zinc-900 tracking-tight">Procházíme letáky nejznámějších obchodů za vás</h2>
+            <p className="mt-3 text-zinc-500 font-medium text-base md:text-lg">a hledáme za vás ty nejlevnější ceny</p>
           </div>
           
           <div className="relative flex flex-col gap-10 md:gap-16 overflow-hidden py-8 md:py-12">
