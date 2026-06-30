@@ -27,13 +27,16 @@ export default function HomePage() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Redirect to app if user has been there before (unless they explicitly navigated back)
+  // Redirect to app only if user is actually logged in
   useEffect(() => {
-    const hasVisited = document.cookie.includes("has_visited_app=true");
     const explicitlyLeft = sessionStorage.getItem("left_app") === "true";
-    if (hasVisited && !explicitlyLeft) {
-      router.replace("/app");
-    }
+    if (explicitlyLeft) return;
+
+    import("@/lib/supabase/client").then(({ createClient }) => {
+      createClient().auth.getUser().then(({ data: { user } }) => {
+        if (user) router.replace("/app");
+      });
+    });
   }, [router]);
 
   const stores = [
