@@ -199,7 +199,7 @@ export default function HomePage() {
             <p className="mt-3 text-zinc-500 font-medium text-base md:text-lg">a hledáme za vás ty nejlevnější ceny</p>
           </div>
           
-          <div className="relative flex flex-col gap-10 md:gap-16 overflow-hidden py-8 md:py-12">
+          <div className="relative flex flex-col gap-16 md:gap-24 overflow-hidden py-8 md:py-12">
             {/* First Row - Forward */}
             <div className="flex w-max gap-16 md:gap-24 animate-scroll whitespace-nowrap px-4">
               {[...stores, ...stores].map((store, i) => (
