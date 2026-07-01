@@ -1,15 +1,13 @@
-import * as cheerio from "cheerio";
 import {
   formatDiscountPercent,
-  formatPrice,
   parsePrice,
   scoreProductMatch,
   type Product,
 } from "@/lib/food";
-import { absoluteUrl } from "@/lib/scrapers/shared";
 
 const LIDL_ORIGIN = "https://www.lidl.cz";
-const GOOGLEBOT_UA = "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)";
+const BINGBOT_UA = "Mozilla/5.0 (compatible; bingbot/2.0; +http://www.bing.com/bingbot.htm)";
+const FOOD_CATEGORY = "Potraviny a nápoje";
 
 type LidlPrice = {
   price?: number;
@@ -21,73 +19,77 @@ type LidlPrice = {
   basePrice?: {
     text?: string;
   };
+  currencySymbol?: string;
 };
 
-type LidlGridProduct = {
+type LidlGridboxData = {
   fullTitle?: string;
   canonicalUrl?: string;
   canonicalPath?: string;
+  category?: string;
+  image?: string;
   price?: LidlPrice;
-  keyfacts?: {
-    fullTitle?: string;
-    title?: string;
+};
+
+type LidlItem = {
+  gridbox?: {
+    data?: LidlGridboxData;
   };
 };
 
-async function fetchLidlSearch(query: string): Promise<string> {
-  const url = `${LIDL_ORIGIN}/q/search?q=${encodeURIComponent(query)}`;
-  const response = await fetch(url, {
-    headers: {
-      "User-Agent": GOOGLEBOT_UA,
-      "Accept": "text/html",
-      "Accept-Language": "cs-CZ,cs;q=0.9",
-    },
-    cache: "no-store",
-  });
+type LidlSearchResponse = {
+  type?: string;
+  numFound?: number;
+  items?: LidlItem[];
+};
 
-  if (!response.ok) {
-    throw new Error(`Lidl search HTTP ${response.status}`);
-  }
-
-  return response.text();
+function formatLidlPrice(value: number): string {
+  return `${value.toFixed(2).replace(".", ",")} Kč`;
 }
 
-function parseLidlGridProduct(rawValue: string): Product | null {
-  let data: LidlGridProduct;
+function parseLidlItem(item: LidlItem, query: string): Product | null {
+  const data = item.gridbox?.data;
+  if (!data) return null;
 
-  try {
-    data = JSON.parse(rawValue) as LidlGridProduct;
-  } catch {
-    return null;
-  }
+  const name = data.fullTitle ?? "";
+  if (!name) return null;
 
-  const name =
-    data.fullTitle ??
-    data.keyfacts?.fullTitle ??
-    data.keyfacts?.title ??
-    "";
   const currentPrice = data.price?.price;
+  if (typeof currentPrice !== "number" || !Number.isFinite(currentPrice)) return null;
 
-  if (!name || typeof currentPrice !== "number") return null;
+  if (scoreProductMatch(name, query) <= 0) return null;
 
-  const url = absoluteUrl(LIDL_ORIGIN, data.canonicalUrl ?? data.canonicalPath ?? "");
+  const canonicalPath = data.canonicalUrl ?? data.canonicalPath ?? "";
+  const url = canonicalPath.startsWith("http")
+    ? canonicalPath
+    : `${LIDL_ORIGIN}${canonicalPath}`;
+
   const oldPrice =
-    typeof data.price?.oldPrice === "number" && data.price.oldPrice > currentPrice
+    typeof data.price?.oldPrice === "number" &&
+    data.price.oldPrice > 0 &&
+    data.price.oldPrice > currentPrice
       ? data.price.oldPrice
       : null;
+
   const pricePerUnit = data.price?.basePrice?.text ?? "";
+  const discountPct = data.price?.discount?.percentageDiscount;
+  const amount =
+    discountPct && discountPct > 0
+      ? `-${discountPct}%`
+      : formatDiscountPercent(currentPrice, oldPrice);
 
   return {
     name,
     url,
+    image: data.image || undefined,
     stores: [
       {
         shopId: "lidl",
         shopName: "Lidl",
-        price: formatPrice(currentPrice),
-        originalPrice: oldPrice ? formatPrice(oldPrice) : undefined,
+        price: formatLidlPrice(currentPrice),
+        originalPrice: oldPrice ? formatLidlPrice(oldPrice) : undefined,
         pricePerUnit,
-        amount: formatDiscountPercent(currentPrice, oldPrice),
+        amount,
         validity: "",
         leafletUrl: url,
         source: "lidl" as const,
@@ -99,22 +101,39 @@ function parseLidlGridProduct(rawValue: string): Product | null {
 }
 
 export async function searchLidlProducts(query: string): Promise<Product[]> {
-  const html = await fetchLidlSearch(query);
-  const $ = cheerio.load(html);
-  const products = new Map<string, Product>();
+  const url = new URL(`${LIDL_ORIGIN}/q/api/search`);
+  url.searchParams.set("assortment", "CZ");
+  url.searchParams.set("locale", "cs_CZ");
+  url.searchParams.set("version", "v2.0.0");
+  url.searchParams.set("q", query);
+  url.searchParams.set("fetchsize", "100");
+  url.searchParams.set("category", FOOD_CATEGORY);
 
-  $("[data-grid-data]").each((_, element) => {
-    const rawValue = $(element).attr("data-grid-data");
-    if (!rawValue) return;
-
-    const product = parseLidlGridProduct(rawValue);
-    if (!product) return;
-    if (scoreProductMatch(product.name, query) <= 0) return;
-
-    products.set(product.url || product.name, product);
+  const response = await fetch(url.toString(), {
+    headers: {
+      "User-Agent": BINGBOT_UA,
+      "Accept-Language": "cs-CZ,cs;q=0.9",
+    },
+    cache: "no-store",
   });
 
-  return Array.from(products.values())
+  if (!response.ok) {
+    throw new Error(`Lidl API HTTP ${response.status}`);
+  }
+
+  const data = (await response.json()) as LidlSearchResponse;
+
+  if (data.type === "redirect" || !data.items?.length) {
+    return [];
+  }
+
+  const products: Product[] = [];
+  for (const item of data.items) {
+    const product = parseLidlItem(item, query);
+    if (product) products.push(product);
+  }
+
+  return products
     .sort((a, b) => {
       const scoreDelta = scoreProductMatch(b.name, query) - scoreProductMatch(a.name, query);
       if (scoreDelta !== 0) return scoreDelta;

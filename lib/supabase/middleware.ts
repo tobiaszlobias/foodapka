@@ -36,13 +36,8 @@ export async function updateSession(request: NextRequest) {
 
   const url = request.nextUrl.clone();
 
-  // Chráněná část — nepřihlášený user → login
-  if (!user && url.pathname.startsWith("/app")) {
-    url.pathname = "/login";
-    return NextResponse.redirect(url);
-  }
-
-  // Přihlášený user na auth stránkách → app
+  // /app je veřejné — přihlášení se vyžaduje až pro konkrétní funkce uvnitř.
+  // Přihlášený user na auth stránkách → rovnou do app
   if (user && (url.pathname === "/login" || url.pathname === "/signup")) {
     url.pathname = "/app";
     return NextResponse.redirect(url);
