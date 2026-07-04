@@ -770,13 +770,13 @@ const INGREDIENT_CLASSES: IngredientClass[] = [
   },
   {
     id: "parmesan",
-    aliases: ["parmazán", "parmazan", "grana padano", "parmezan", "parmesan", "gran moravia"],
+    aliases: ["parmazán", "parmazan", "grana padano", "parmezan", "parmezán", "parmesan", "gran moravia", "parmigiano", "parmigiano reggiano"],
     families: ["cheese"],
     strict: true,
-    requiredGroups: [["parmazan", "parmezan", "parmesan", "grana", "padano", "gran moravia"]],
+    requiredGroups: [["parmazan", "parmezan", "parmesan", "parmigiano", "reggiano", "grana", "padano", "gran moravia"]],
     preferred: ["grana padano", "gran moravia", "parmazan"],
     banned: ["chips", "omacka", "pomazanka", "prichut", "strouhanka"],
-    queryAlternatives: ["parmazán", "grana padano", "gran moravia"],
+    queryAlternatives: ["parmigiano", "grana padano", "gran moravia"],
   },
   {
     id: "salmon",

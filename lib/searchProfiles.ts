@@ -9,6 +9,8 @@ import { resolveIngredientRuleConfig } from "@/lib/ingredientClasses";
 
 type SearchProfile = {
   requiredGroups: string[][];
+  /** Skupiny zděděné z třídy ingredience — fungují i jako synonyma pro substituci */
+  classGroups: string[][];
   preferred: string[];
   banned: string[];
   strict: boolean;
@@ -166,6 +168,7 @@ function buildSearchProfile(query: string, options?: { recipe?: string; banned?:
 
   const profile: SearchProfile = {
     requiredGroups: [],
+    classGroups: [],
     preferred: [],
     banned: [],
     strict: false,
@@ -175,6 +178,7 @@ function buildSearchProfile(query: string, options?: { recipe?: string; banned?:
 
   const resolvedClassConfig = resolveIngredientRuleConfig(query, options?.recipe);
   profile.requiredGroups.push(...(resolvedClassConfig.requiredGroups ?? []));
+  profile.classGroups = resolvedClassConfig.requiredGroups ?? [];
   profile.preferred.push(...(resolvedClassConfig.preferred ?? []));
   profile.banned.push(...(resolvedClassConfig.banned ?? []));
   
@@ -209,6 +213,13 @@ function buildSearchProfile(query: string, options?: { recipe?: string; banned?:
 
   profile.preferred = Array.from(new Set(profile.preferred));
   profile.banned = Array.from(new Set(profile.banned));
+
+  // Explicitní dotaz má přednost: pokud uživatel hledá výraz, který třída zakazuje
+  // (např. "hovězí carpaccio" vs. ban "carpaccio" u syrového masa), zákaz se ruší
+  const normalizedQuery = normalizePattern(query);
+  profile.banned = profile.banned.filter(
+    (pattern) => !matchesPattern(normalizedQuery, queryTokens, pattern),
+  );
   profile.requiredGroups = profile.requiredGroups.filter(
     (group, index, groups) =>
       groups.findIndex((candidate) => candidate.join("|") === group.join("|")) === index,
@@ -269,9 +280,7 @@ function scoreProductWithProfile(product: Product, query: string, options?: { re
   const profile = buildSearchProfile(query, options);
   const normalizedName = normalizePattern(product.name);
   const nameTokens = tokenize(product.name);
-  const baseScore = scoreProductMatch(product.name, query);
-
-  if (baseScore <= 0) return Number.NEGATIVE_INFINITY;
+  const rawBaseScore = scoreProductMatch(product.name, query);
 
   if (profile.banned.some((pattern) => matchesPattern(normalizedName, nameTokens, pattern))) {
     return Number.NEGATIVE_INFINITY;
@@ -281,13 +290,35 @@ function scoreProductWithProfile(product: Product, query: string, options?: { re
     matchesGroup(normalizedName, nameTokens, group),
   ).length;
 
-  if (profile.requiredGroups.length > 0 && matchedGroups === 0) {
-    return Number.NEGATIVE_INFINITY;
+  // Substituce: název neodpovídá textu dotazu (skóre 0, ne hard-fail), ale produkt
+  // splňuje všechny synonymní skupiny třídy ingredience — např. dotaz "parmazán"
+  // a produkt "Parmigiano Reggiano". Řadí se pod přímé shody.
+  const matchedClassGroups = profile.classGroups.filter((group) =>
+    matchesGroup(normalizedName, nameTokens, group),
+  ).length;
+  const isSubstitute =
+    rawBaseScore === 0 &&
+    profile.classGroups.length > 0 &&
+    matchedClassGroups === profile.classGroups.length;
+
+  if (rawBaseScore <= 0 && !isSubstitute) return Number.NEGATIVE_INFINITY;
+
+  // Silná frázová shoda: název obsahuje celý dotaz — class pravidla (required/strict)
+  // nesmí takový produkt vyřadit (např. "hovězí carpaccio" vs. třída syrového hovězího)
+  const normalizedQuery = normalizePattern(query);
+  const phraseMatch = normalizedQuery.length > 0 && normalizedName.includes(normalizedQuery);
+
+  if (!isSubstitute && !phraseMatch) {
+    if (profile.requiredGroups.length > 0 && matchedGroups === 0) {
+      return Number.NEGATIVE_INFINITY;
+    }
+
+    if (profile.strict && matchedGroups < profile.requiredGroups.length) {
+      return Number.NEGATIVE_INFINITY;
+    }
   }
 
-  if (profile.strict && matchedGroups < profile.requiredGroups.length) {
-    return Number.NEGATIVE_INFINITY;
-  }
+  const baseScore = isSubstitute ? 100 : rawBaseScore;
 
   const matchedPreferred = profile.preferred.filter((pattern) =>
     matchesPattern(normalizedName, nameTokens, pattern),
