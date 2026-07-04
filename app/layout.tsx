@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Manrope, Plus_Jakarta_Sans } from "next/font/google";
 import ThemeScript from "@/components/ThemeScript";
 import CookieBanner from "@/components/CookieBanner";
@@ -23,6 +23,13 @@ const plusJakartaSans = Plus_Jakarta_Sans({
 export const metadata: Metadata = {
   title: "foodappka",
   description: "Porovnání akčních cen potravin a recepty s chytrým nákupem",
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  // viewport-fit=cover je nutné, aby env(safe-area-inset-*) vracelo reálné hodnoty na iPhonech
+  viewportFit: "cover",
 };
 
 export default function RootLayout({

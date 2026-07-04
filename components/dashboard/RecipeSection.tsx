@@ -100,16 +100,19 @@ export default function RecipeSection({
       }
     });
 
-    // 2. Score each shop
+    // 2. Score each shop — vyřazené (odškrtnuté) položky se do výběru obchodu nepočítají
     const shopScores = Array.from(allShops).map(shopName => {
       let totalItems = 0;
       let totalPrice = 0;
       const items = recipeResults.map(res => {
         if (!res) return null;
+        const isExcluded = checkedIngredients.includes(res.ingredient);
         const option = res.storeOptions?.find(opt => opt?.store?.shopName === shopName);
         if (option) {
-          totalItems++;
-          totalPrice += parsePrice(option.store.price);
+          if (!isExcluded) {
+            totalItems++;
+            totalPrice += parsePrice(option.store.price);
+          }
           return { ...res, store: option.store, product: option.product };
         }
         return { ...res, store: null, product: null };
@@ -133,7 +136,7 @@ export default function RecipeSection({
     });
 
     return bestShop?.items || recipeResults;
-  }, [recipeResults, shoppingMode]);
+  }, [recipeResults, shoppingMode, checkedIngredients]);
 
   const totalPrice = useMemo(() => {
     return (effectiveResults || []).reduce((sum, item) => {
@@ -264,8 +267,13 @@ export default function RecipeSection({
               <div className="flex flex-col gap-4 border-b border-foodappka-100 dark:border-zinc-800 pb-4 sm:flex-row sm:items-start sm:justify-between">
                 <div>
                   <p className="text-[10px] font-black uppercase tracking-widest text-foodappka-700">Nákup pro</p>
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-3 flex-wrap">
                     <h3 className="text-xl md:text-2xl font-bold text-zinc-950 dark:text-white">{activeRecipe}</h3>
+                    {totalPrice > 0 && (
+                      <span className="shrink-0 rounded-full bg-foodappka-100 dark:bg-foodappka-900/50 px-3 py-1 text-sm font-black text-foodappka-800 dark:text-foodappka-300">
+                        {totalPrice.toFixed(2).replace(".", ",")} Kč
+                      </span>
+                    )}
                   </div>
                   {recipeDetails?.description && (
                     <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400 italic">
