@@ -151,6 +151,19 @@ function normalize(value: string) {
     .trim();
 }
 
+export function recipeSlug(name: string) {
+  return name
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
+export function findRecipeBySlug(slug: string) {
+  return RECIPE_PRESETS.find((recipe) => recipeSlug(recipe.name) === slug);
+}
+
 export function findRecipeByName(query: string) {
   const normalized = normalize(query);
 
