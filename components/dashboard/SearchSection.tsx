@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useRef } from "react";
+import { useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import SearchBar from "@/components/SearchBar";
 import { 
@@ -37,22 +37,110 @@ type SearchSectionProps = {
   onToggleFavorite: (item: any) => void;
 };
 
-async function watchProduct(product: Product, store: Store) {
-  try {
-    const res = await fetch("/api/watchdog", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ product, store }),
-    });
-    if (res.status === 401) {
-      showToast("Pro hlídání cen se musíte přihlásit.", "info");
+async function createWatch(query: string, targetPrice: number) {
+  const res = await fetch("/api/watchdog", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ query, targetPrice }),
+  });
+  if (res.status === 401) {
+    showToast("Pro hlídání cen se musíte přihlásit.", "info");
+    return false;
+  }
+  if (!res.ok) {
+    showToast("Nepodařilo se nastavit hlídání ceny.", "error");
+    return false;
+  }
+  showToast("🐶 Hlídáme! Dáme vám vědět na Telegramu, až cena klesne.", "success");
+  return true;
+}
+
+type WatchDialogProps = {
+  defaultQuery: string;
+  defaultPrice: number;
+  onClose: () => void;
+};
+
+function WatchDialog({ defaultQuery, defaultPrice, onClose }: WatchDialogProps) {
+  const [query, setQuery] = useState(defaultQuery);
+  const [targetPrice, setTargetPrice] = useState(String(Math.floor(defaultPrice)));
+  const [saving, setSaving] = useState(false);
+
+  const handleSave = async () => {
+    const priceNum = Number(targetPrice.replace(",", "."));
+    if (!query.trim() || !Number.isFinite(priceNum) || priceNum <= 0) {
+      showToast("Zadejte platný dotaz a cenu.", "error");
       return;
     }
-    if (!res.ok) throw new Error();
-    showToast("🐶 Cenu teď hlídáme! Dáme vám vědět, až klesne.", "success");
-  } catch {
-    showToast("Nepodařilo se nastavit hlídání ceny.", "error");
-  }
+    setSaving(true);
+    const ok = await createWatch(query.trim(), priceNum);
+    setSaving(false);
+    if (ok) onClose();
+  };
+
+  return (
+    <div
+      className="fixed inset-0 z-[200] flex items-end sm:items-center justify-center bg-black/50 backdrop-blur-sm p-0 sm:p-4"
+      onClick={onClose}
+    >
+      <div
+        className="w-full sm:max-w-sm rounded-t-[2rem] sm:rounded-[2rem] bg-white dark:bg-zinc-900 p-6 shadow-2xl"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-center justify-between mb-5">
+          <h3 className="text-lg font-black text-zinc-900 dark:text-white flex items-center gap-2">
+            <span className="material-symbols-outlined text-foodappka-600">trending_down</span>
+            Hlídat cenu
+          </h3>
+          <button
+            onClick={onClose}
+            className="flex h-9 w-9 items-center justify-center rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-500 hover:text-zinc-900 dark:hover:text-white transition-colors"
+          >
+            <span className="material-symbols-outlined text-lg">close</span>
+          </button>
+        </div>
+
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-bold text-zinc-700 dark:text-zinc-300 mb-2">Co hlídat</label>
+            <input
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="např. trvanlivé mléko"
+              className="w-full h-12 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-black px-4 text-zinc-900 dark:text-white outline-none transition focus:border-foodappka-500 focus:ring-2 focus:ring-foodappka-500/20"
+            />
+            <p className="mt-1.5 text-xs text-zinc-500 dark:text-zinc-400">
+              Klidně upravte na obecnější pojem — budeme hlídat nejlevnější nabídku napříč obchody.
+            </p>
+          </div>
+
+          <div>
+            <label className="block text-sm font-bold text-zinc-700 dark:text-zinc-300 mb-2">
+              Upozornit, když cena klesne pod
+            </label>
+            <div className="relative">
+              <input
+                value={targetPrice}
+                onChange={(e) => setTargetPrice(e.target.value)}
+                inputMode="decimal"
+                placeholder="20"
+                className="w-full h-12 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-black px-4 pr-12 text-zinc-900 dark:text-white outline-none transition focus:border-foodappka-500 focus:ring-2 focus:ring-foodappka-500/20"
+              />
+              <span className="absolute right-4 top-1/2 -translate-y-1/2 text-sm font-bold text-zinc-400">Kč</span>
+            </div>
+          </div>
+
+          <button
+            onClick={handleSave}
+            disabled={saving}
+            className="w-full h-12 rounded-full bg-foodappka-600 text-white font-black transition hover:bg-foodappka-700 shadow-lg shadow-foodappka-600/20 active:scale-95 disabled:opacity-50"
+          >
+            {saving ? "Ukládám…" : "Zapnout hlídání"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
 }
 
 const BASE_SOURCE_FILTERS = [
@@ -98,6 +186,7 @@ export default function SearchSection({
   onToggleFavorite,
 }: SearchSectionProps) {
   const resultsRef = useRef<HTMLDivElement>(null);
+  const [watchDialog, setWatchDialog] = useState<{ query: string; price: number } | null>(null);
   
   const availableFilters = useMemo(() => {
     const filters = [...BASE_SOURCE_FILTERS];
@@ -353,7 +442,10 @@ export default function SearchSection({
 
                     {/* Hlídat cenu */}
                     <button
-                      onClick={(e) => { e.preventDefault(); watchProduct(product, bestStore); }}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        setWatchDialog({ query: cleanProductName(product.name), price: bestPrice });
+                      }}
                       title="Hlídat cenu"
                       className="shrink-0 flex h-8 w-8 items-center justify-center rounded-full text-zinc-300 hover:text-foodappka-500 transition-colors"
                     >
@@ -433,6 +525,14 @@ export default function SearchSection({
           <EmptyState hasSearched={false} />
         )}
       </section>
+
+      {watchDialog && (
+        <WatchDialog
+          defaultQuery={watchDialog.query}
+          defaultPrice={watchDialog.price}
+          onClose={() => setWatchDialog(null)}
+        />
+      )}
     </div>
   );
 }

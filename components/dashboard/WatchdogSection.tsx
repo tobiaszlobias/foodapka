@@ -6,10 +6,9 @@ import { showToast } from "@/components/Toast";
 
 type WatchedProduct = {
   id: string;
-  product_name: string;
-  shop_name: string;
-  last_known_price: number;
-  initial_price: number;
+  query: string;
+  target_price: number;
+  last_notified_price: number | null;
   created_at: string;
 };
 
@@ -169,7 +168,7 @@ export default function WatchdogSection() {
       ) : (
         <div className="space-y-3">
           {items!.map((item) => {
-            const dropped = item.last_known_price < item.initial_price;
+            const triggered = item.last_notified_price !== null;
             return (
               <div
                 key={item.id}
@@ -180,20 +179,18 @@ export default function WatchdogSection() {
                     <span className="material-symbols-outlined text-foodappka-600 text-xl">trending_down</span>
                   </div>
                   <div className="min-w-0">
-                    <p className="text-sm font-bold text-zinc-900 dark:text-white truncate">{item.product_name}</p>
-                    <p className="text-[11px] text-zinc-500">{item.shop_name}</p>
+                    <p className="text-sm font-bold text-zinc-900 dark:text-white truncate">{item.query}</p>
+                    <p className="text-[11px] text-zinc-500">
+                      {triggered ? `Naposledy nalezeno za ${item.last_notified_price!.toFixed(2).replace(".", ",")} Kč` : "Zatím pod cílovkou nic"}
+                    </p>
                   </div>
                 </div>
                 <div className="flex items-center gap-3 shrink-0">
                   <div className="text-right">
-                    <p className={`text-sm font-black ${dropped ? "text-green-600" : "text-foodappka-700 dark:text-foodappka-400"}`}>
-                      {item.last_known_price.toFixed(2).replace(".", ",")} Kč
+                    <p className="text-[9px] font-black uppercase tracking-widest text-zinc-400">Pod</p>
+                    <p className={`text-sm font-black ${triggered ? "text-green-600" : "text-foodappka-700 dark:text-foodappka-400"}`}>
+                      {Number(item.target_price).toFixed(2).replace(".", ",")} Kč
                     </p>
-                    {dropped && (
-                      <p className="text-[10px] text-zinc-400 line-through">
-                        {item.initial_price.toFixed(2).replace(".", ",")} Kč
-                      </p>
-                    )}
                   </div>
                   <button
                     onClick={() => removeItem(item.id)}

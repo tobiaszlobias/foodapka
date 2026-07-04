@@ -2,10 +2,12 @@ import { NextRequest } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { sendTelegramMessage } from "@/lib/telegram";
 import { searchAllSources } from "@/lib/scrapers";
-import { parsePrice } from "@/lib/food";
+import { parsePrice, sortStoresByPrice } from "@/lib/food";
 
-// Denní cron (viz vercel.json) — projde všechny hlídané produkty, ověří aktuální
-// cenu ve stejném obchodě a při poklesu pošle Telegram notifikaci.
+// Denní cron (viz vercel.json) — pro každé hlídání (dotaz + cílová cena) prohledá
+// všechny obchody a pokud nejlevnější nalezená cena klesla pod cílovku, pošle
+// Telegram notifikaci s konkrétním produktem a obchodem. Nenotifikuje opakovaně
+// za stejnou cenu (last_notified_price).
 export async function GET(req: NextRequest) {
   const authHeader = req.headers.get("authorization");
   if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
@@ -22,32 +24,38 @@ export async function GET(req: NextRequest) {
     return Response.json({ checked: 0, notified: 0 });
   }
 
-  // Cache výsledků hledání podle dotazu — víc uživatelů může hlídat stejný produkt
+  // Cache výsledků hledání podle dotazu — víc uživatelů může hlídat stejný dotaz
   const searchCache = new Map<string, Awaited<ReturnType<typeof searchAllSources>>>();
-
   let notified = 0;
 
   for (const item of watched) {
     try {
-      const query: string = item.query || item.product_name;
+      const query: string = item.query;
       let products = searchCache.get(query);
       if (!products) {
         products = await searchAllSources(query);
         searchCache.set(query, products);
       }
 
-      const match = products.find(
-        (p) => p.url === item.product_url || p.name === item.product_name,
-      );
-      const store = match?.stores.find((s) => s.shopName === item.shop_name) ?? match?.stores[0];
-      if (!store) continue;
+      // Najdi nejlevnější nabídku napříč všemi produkty a obchody pro tento dotaz
+      let best: { price: number; productName: string; shopName: string } | null = null;
+      for (const product of products) {
+        const cheapestStore = sortStoresByPrice(product.stores)[0];
+        if (!cheapestStore) continue;
+        const price = parsePrice(cheapestStore.price);
+        if (!Number.isFinite(price)) continue;
+        if (!best || price < best.price) {
+          best = { price, productName: product.name, shopName: cheapestStore.shopName };
+        }
+      }
 
-      const newPrice = parsePrice(store.price);
-      if (!Number.isFinite(newPrice)) continue;
+      if (!best) continue;
 
-      const previousPrice = Number(item.last_known_price);
+      const targetPrice = Number(item.target_price);
+      const alreadyNotifiedAtOrBelow =
+        item.last_notified_price !== null && best.price >= Number(item.last_notified_price);
 
-      if (newPrice < previousPrice) {
+      if (best.price <= targetPrice && !alreadyNotifiedAtOrBelow) {
         const { data: link } = await supabase
           .from("telegram_links")
           .select("chat_id")
@@ -55,19 +63,22 @@ export async function GET(req: NextRequest) {
           .maybeSingle();
 
         if (link?.chat_id) {
-          const savings = (previousPrice - newPrice).toFixed(2).replace(".", ",");
           await sendTelegramMessage(
             link.chat_id,
-            `🐶 <b>Cena klesla!</b>\n\n${item.product_name}\n${item.shop_name}: <b>${store.price}</b> (dřív ${previousPrice.toFixed(2).replace(".", ",")} Kč)\nUšetříte ${savings} Kč.`,
+            `🐶 <b>Cena klesla pod vaši hranici!</b>\n\n„${item.query}“\n${best.productName}\n${best.shopName}: <b>${best.price.toFixed(2).replace(".", ",")} Kč</b>\n(hlídáno pod ${targetPrice.toFixed(2).replace(".", ",")} Kč)`,
           );
           notified += 1;
-        }
-      }
 
-      if (newPrice !== previousPrice) {
+          await supabase
+            .from("watched_products")
+            .update({ last_notified_price: best.price })
+            .eq("id", item.id);
+        }
+      } else if (best.price > targetPrice && item.last_notified_price !== null) {
+        // Cena zase vzrostla nad cílovku — reset, aby příští pokles pod cílovku znovu notifikoval
         await supabase
           .from("watched_products")
-          .update({ last_known_price: newPrice })
+          .update({ last_notified_price: null })
           .eq("id", item.id);
       }
     } catch (err) {
