@@ -8,12 +8,13 @@ type NavItem = {
   label: string;
   icon: string;
   href: string;
+  premium?: boolean;
 };
 
 const NAV_ITEMS: NavItem[] = [
   { id: "search", label: "Vyhledávání", icon: "search", href: "/app" },
   { id: "recipes", label: "Recepty", icon: "restaurant", href: "/app?mode=recipes" },
-  { id: "watchdog", label: "Hlídací pes", icon: "trending_down", href: "/app?mode=watchdog" },
+  { id: "watchdog", label: "Hlídací pes", icon: "trending_down", href: "/app?mode=watchdog", premium: true },
   { id: "favorites", label: "Oblíbené", icon: "favorite", href: "/app?mode=favorites" },
   { id: "notifications", label: "Oznámení", icon: "notifications", href: "/app?mode=notifications" },
   { id: "lists", label: "Nákupní seznamy", icon: "receipt_long", href: "/app?mode=lists" },
@@ -54,6 +55,16 @@ export default function Sidebar() {
                 {item.icon}
               </span>
               <span className="font-medium">{item.label}</span>
+              {item.premium && (
+                <span className={`ml-auto inline-flex items-center gap-0.5 rounded-full px-2 py-0.5 text-[9px] font-black uppercase tracking-widest ${
+                  isActive
+                    ? "bg-white/20 text-white"
+                    : "bg-gradient-to-r from-amber-300 to-amber-400 text-amber-950"
+                }`}>
+                  <span className="material-symbols-outlined text-[10px]">workspace_premium</span>
+                  Premium
+                </span>
+              )}
             </Link>
           );
         })}

@@ -8,12 +8,13 @@ type NavItem = {
   label: string;
   icon: string;
   href: string;
+  premium?: boolean;
 };
 
 const NAV_ITEMS: NavItem[] = [
   { id: "search", label: "Hledat", icon: "search", href: "/app" },
   { id: "recipes", label: "Recepty", icon: "restaurant", href: "/app?mode=recipes" },
-  { id: "watchdog", label: "Pes", icon: "trending_down", href: "/app?mode=watchdog" },
+  { id: "watchdog", label: "Pes", icon: "trending_down", href: "/app?mode=watchdog", premium: true },
   { id: "lists", label: "Seznamy", icon: "receipt_long", href: "/app?mode=lists" },
 ];
 
@@ -46,11 +47,18 @@ export default function BottomNav() {
                   : "text-zinc-400 dark:text-zinc-600"
               }`}
             >
-              <span 
-                className="material-symbols-outlined text-[26px]"
-                style={isActive ? { fontVariationSettings: "'FILL' 1" } : undefined}
-              >
-                {item.icon}
+              <span className="relative">
+                <span
+                  className="material-symbols-outlined text-[26px]"
+                  style={isActive ? { fontVariationSettings: "'FILL' 1" } : undefined}
+                >
+                  {item.icon}
+                </span>
+                {item.premium && (
+                  <span className="absolute -top-1 -right-2 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-gradient-to-br from-amber-300 to-amber-500 shadow-sm">
+                    <span className="material-symbols-outlined text-[9px] text-amber-950">lock</span>
+                  </span>
+                )}
               </span>
               <span className="text-[9px] font-black uppercase tracking-tighter">
                 {item.label}

@@ -556,17 +556,8 @@ function HomeContent() {
           />
         )}
 
-        {activeView === "watchdog" && (
-          user ? (
-            <WatchdogSection />
-          ) : authLoaded ? (
-            <LoginWall
-              icon="visibility"
-              title="Hlídač cen je jen pro přihlášené"
-              description="Přihlaste se, abychom mohli hlídat ceny vašich oblíbených produktů a upozornit vás na slevy."
-            />
-          ) : null
-        )}
+        {/* Watchdog je premium teaser — zobrazuje se všem (láká z basic módu) */}
+        {activeView === "watchdog" && <WatchdogSection />}
 
         {activeView === "lists" && (
           user ? (
