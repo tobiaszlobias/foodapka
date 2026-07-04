@@ -15,6 +15,7 @@ import {
 import { normalizeText } from "@/lib/food";
 import { FOODORA_STORE_CONFIGS } from "@/data/foodoraStores";
 import { StoreBrand, LoadingCards, EmptyState, SearchLoadingAnimation } from "./DashboardShared";
+import { showToast } from "@/components/Toast";
 
 type ProductSort = "relevance" | "cheapest" | "coverage";
 
@@ -35,6 +36,24 @@ type SearchSectionProps = {
   favorites: { id: string }[];
   onToggleFavorite: (item: any) => void;
 };
+
+async function watchProduct(product: Product, store: Store) {
+  try {
+    const res = await fetch("/api/watchdog", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ product, store }),
+    });
+    if (res.status === 401) {
+      showToast("Pro hlídání cen se musíte přihlásit.", "info");
+      return;
+    }
+    if (!res.ok) throw new Error();
+    showToast("🐶 Cenu teď hlídáme! Dáme vám vědět, až klesne.", "success");
+  } catch {
+    showToast("Nepodařilo se nastavit hlídání ceny.", "error");
+  }
+}
 
 const BASE_SOURCE_FILTERS = [
   { key: "all", label: "Vše" },
@@ -331,6 +350,15 @@ export default function SearchSection({
                         </span>
                       )}
                     </div>
+
+                    {/* Hlídat cenu */}
+                    <button
+                      onClick={(e) => { e.preventDefault(); watchProduct(product, bestStore); }}
+                      title="Hlídat cenu"
+                      className="shrink-0 flex h-8 w-8 items-center justify-center rounded-full text-zinc-300 hover:text-foodappka-500 transition-colors"
+                    >
+                      <span className="material-symbols-outlined text-[18px]">trending_down</span>
+                    </button>
 
                     {/* Oblíbené */}
                     <button

@@ -545,8 +545,17 @@ function HomeContent() {
           />
         )}
 
-        {/* Watchdog je premium teaser — zobrazuje se všem (láká z basic módu) */}
-        {activeView === "watchdog" && <WatchdogSection />}
+        {activeView === "watchdog" && (
+          user ? (
+            <WatchdogSection />
+          ) : authLoaded ? (
+            <LoginWall
+              icon="trending_down"
+              title="Hlídač cen je jen pro přihlášené"
+              description="Přihlaste se, abychom mohli hlídat ceny vašich oblíbených produktů a upozornit vás na slevy."
+            />
+          ) : null
+        )}
 
         {activeView === "lists" && (
           user ? (
