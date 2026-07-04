@@ -1,8 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 import { showToast } from "@/components/Toast";
+import { INGREDIENT_PRESETS } from "@/lib/ingredientPresets";
 
 type WatchedProduct = {
   id: string;
@@ -12,12 +12,162 @@ type WatchedProduct = {
   created_at: string;
 };
 
+type AddWatchDialogProps = {
+  onClose: () => void;
+  onCreated: (item: WatchedProduct) => void;
+};
+
+function AddWatchDialog({ onClose, onCreated }: AddWatchDialogProps) {
+  const [selectedPresetId, setSelectedPresetId] = useState<string | null>(null);
+  const [customQuery, setCustomQuery] = useState("");
+  const [targetPrice, setTargetPrice] = useState("");
+  const [saving, setSaving] = useState(false);
+
+  const selectedPreset = INGREDIENT_PRESETS.find((p) => p.id === selectedPresetId);
+  const activeQuery = selectedPreset ? selectedPreset.label : customQuery;
+
+  const normalizedSearch = customQuery.trim().toLowerCase();
+  const filteredPresets = normalizedSearch
+    ? INGREDIENT_PRESETS.filter((p) => p.label.toLowerCase().includes(normalizedSearch))
+    : INGREDIENT_PRESETS;
+
+  const handleSave = async () => {
+    const query = selectedPreset ? selectedPreset.query : customQuery.trim();
+    const priceNum = Number(targetPrice.replace(",", "."));
+
+    if (!query) {
+      showToast("Vyberte surovinu nebo napište vlastní dotaz.", "error");
+      return;
+    }
+    if (!Number.isFinite(priceNum) || priceNum <= 0) {
+      showToast("Zadejte platnou cílovou cenu.", "error");
+      return;
+    }
+
+    setSaving(true);
+    try {
+      const res = await fetch("/api/watchdog", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ query, targetPrice: priceNum }),
+      });
+      if (res.status === 401) {
+        showToast("Pro hlídání cen se musíte přihlásit.", "info");
+        return;
+      }
+      if (!res.ok) throw new Error();
+      const data = await res.json();
+      showToast("🐶 Hlídáme! Dáme vám vědět na Telegramu, až cena klesne.", "success");
+      onCreated(data.item);
+      onClose();
+    } catch {
+      showToast("Nepodařilo se nastavit hlídání ceny.", "error");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div
+      className="fixed inset-0 z-[200] flex items-end sm:items-center justify-center bg-black/50 backdrop-blur-sm p-0 sm:p-4"
+      onClick={onClose}
+    >
+      <div
+        className="w-full sm:max-w-md max-h-[90vh] overflow-y-auto rounded-t-[2rem] sm:rounded-[2rem] bg-white dark:bg-zinc-900 p-6 shadow-2xl"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-center justify-between mb-5">
+          <h3 className="text-lg font-black text-zinc-900 dark:text-white flex items-center gap-2">
+            <span className="material-symbols-outlined text-foodappka-600">trending_down</span>
+            Přidat hlídání
+          </h3>
+          <button
+            onClick={onClose}
+            className="flex h-9 w-9 items-center justify-center rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-500 hover:text-zinc-900 dark:hover:text-white transition-colors"
+          >
+            <span className="material-symbols-outlined text-lg">close</span>
+          </button>
+        </div>
+
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-bold text-zinc-700 dark:text-zinc-300 mb-2">Co chcete hlídat?</label>
+            <div className="relative mb-3">
+              <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400 text-lg">
+                search
+              </span>
+              <input
+                value={customQuery}
+                onChange={(e) => {
+                  setCustomQuery(e.target.value);
+                  setSelectedPresetId(null);
+                }}
+                placeholder="Hledat surovinu nebo napsat vlastní…"
+                className="w-full h-12 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-black pl-11 pr-4 text-zinc-900 dark:text-white outline-none transition focus:border-foodappka-500 focus:ring-2 focus:ring-foodappka-500/20"
+              />
+            </div>
+            <div className="grid grid-cols-3 gap-2 max-h-56 overflow-y-auto">
+              {filteredPresets.map((preset) => (
+                <button
+                  key={preset.id}
+                  onClick={() => {
+                    setSelectedPresetId(preset.id);
+                    setCustomQuery("");
+                  }}
+                  className={`flex flex-col items-center gap-1 rounded-xl border-2 py-3 px-1 transition-all ${
+                    selectedPresetId === preset.id
+                      ? "border-foodappka-500 bg-foodappka-50 dark:bg-foodappka-900/30 text-foodappka-700 dark:text-foodappka-300"
+                      : "border-zinc-100 dark:border-zinc-800 text-zinc-500 dark:text-zinc-400 hover:border-foodappka-200"
+                  }`}
+                >
+                  <span className="material-symbols-outlined text-xl">{preset.icon}</span>
+                  <span className="text-[11px] font-bold text-center leading-tight">{preset.label}</span>
+                </button>
+              ))}
+              {filteredPresets.length === 0 && (
+                <p className="col-span-3 py-3 text-center text-xs text-zinc-400">
+                  Žádný preset — použijeme přesně to, co jste napsali.
+                </p>
+              )}
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-bold text-zinc-700 dark:text-zinc-300 mb-2">
+              Upozornit, když cena klesne pod
+              {activeQuery && <span className="font-normal text-zinc-500"> ({activeQuery})</span>}
+            </label>
+            <div className="relative">
+              <input
+                value={targetPrice}
+                onChange={(e) => setTargetPrice(e.target.value)}
+                inputMode="decimal"
+                placeholder="20"
+                className="w-full h-12 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-black px-4 pr-12 text-zinc-900 dark:text-white outline-none transition focus:border-foodappka-500 focus:ring-2 focus:ring-foodappka-500/20"
+              />
+              <span className="absolute right-4 top-1/2 -translate-y-1/2 text-sm font-bold text-zinc-400">Kč</span>
+            </div>
+          </div>
+
+          <button
+            onClick={handleSave}
+            disabled={saving}
+            className="w-full h-12 rounded-full bg-foodappka-600 text-white font-black transition hover:bg-foodappka-700 shadow-lg shadow-foodappka-600/20 active:scale-95 disabled:opacity-50"
+          >
+            {saving ? "Ukládám…" : "Zapnout hlídání"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function WatchdogSection() {
-  const router = useRouter();
   const [items, setItems] = useState<WatchedProduct[] | null>(null);
   const [telegramLinked, setTelegramLinked] = useState(false);
   const [linking, setLinking] = useState(false);
   const [deepLink, setDeepLink] = useState<string | null>(null);
+  const [showAddDialog, setShowAddDialog] = useState(false);
 
   const loadItems = useCallback(async () => {
     try {
@@ -85,13 +235,22 @@ export default function WatchdogSection() {
 
   return (
     <div className="space-y-6">
-      <header className="mb-6 md:mb-10 px-1 md:px-2">
-        <h1 className="text-xl md:text-3xl lg:text-4xl font-display font-extrabold tracking-tight text-foodappka-950 dark:text-white leading-tight mb-2">
-          Hlídací pes
-        </h1>
-        <p className="text-sm md:text-lg text-zinc-600 dark:text-zinc-400">
-          Upozorníme vás na Telegramu, když cena klesne.
-        </p>
+      <header className="mb-6 md:mb-10 px-1 md:px-2 flex items-start justify-between gap-4 flex-wrap">
+        <div>
+          <h1 className="text-xl md:text-3xl lg:text-4xl font-display font-extrabold tracking-tight text-foodappka-950 dark:text-white leading-tight mb-2">
+            Hlídací pes
+          </h1>
+          <p className="text-sm md:text-lg text-zinc-600 dark:text-zinc-400">
+            Upozorníme vás na Telegramu, když cena klesne.
+          </p>
+        </div>
+        <button
+          onClick={() => setShowAddDialog(true)}
+          className="inline-flex items-center gap-2 rounded-full bg-foodappka-600 px-5 py-2.5 text-sm font-bold text-white shadow-lg shadow-foodappka-600/20 hover:bg-foodappka-700 transition-all active:scale-95"
+        >
+          <span className="material-symbols-outlined text-lg">add</span>
+          Přidat hlídání
+        </button>
       </header>
 
       {/* Propojení Telegramu */}
@@ -152,23 +311,24 @@ export default function WatchdogSection() {
             <span className="material-symbols-outlined text-foodappka-500 text-3xl">notification_important</span>
           </div>
           <h2 className="text-lg md:text-xl font-semibold text-foodappka-950 dark:text-white mb-2">
-            Zatím nemáte žádné produkty
+            Zatím nic nehlídáte
           </h2>
           <p className="text-sm text-zinc-600 dark:text-zinc-400 mb-6 max-w-xs mx-auto">
-            Vyhledejte produkt a klikněte na ikonu hlídacího psa u ceny.
+            Vyberte surovinu a nastavte cílovou cenu, na kterou vás upozorníme.
           </p>
           <button
-            onClick={() => router.push("/app")}
+            onClick={() => setShowAddDialog(true)}
             className="inline-flex items-center gap-2 rounded-full bg-foodappka-500 px-6 py-2.5 font-semibold text-white transition hover:bg-foodappka-600 text-sm"
           >
-            <span className="material-symbols-outlined text-lg">search</span>
-            Vyhledat produkty
+            <span className="material-symbols-outlined text-lg">add</span>
+            Přidat hlídání
           </button>
         </div>
       ) : (
         <div className="space-y-3">
           {items!.map((item) => {
             const triggered = item.last_notified_price !== null;
+            const matchedPreset = INGREDIENT_PRESETS.find((p) => p.query === item.query);
             return (
               <div
                 key={item.id}
@@ -176,10 +336,14 @@ export default function WatchdogSection() {
               >
                 <div className="flex items-center gap-3 min-w-0">
                   <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-foodappka-100 dark:bg-zinc-800">
-                    <span className="material-symbols-outlined text-foodappka-600 text-xl">trending_down</span>
+                    <span className="material-symbols-outlined text-foodappka-600 text-xl">
+                      {matchedPreset?.icon ?? "trending_down"}
+                    </span>
                   </div>
                   <div className="min-w-0">
-                    <p className="text-sm font-bold text-zinc-900 dark:text-white truncate">{item.query}</p>
+                    <p className="text-sm font-bold text-zinc-900 dark:text-white truncate">
+                      {matchedPreset?.label ?? item.query}
+                    </p>
                     <p className="text-[11px] text-zinc-500">
                       {triggered ? `Naposledy nalezeno za ${item.last_notified_price!.toFixed(2).replace(".", ",")} Kč` : "Zatím pod cílovkou nic"}
                     </p>
@@ -203,6 +367,13 @@ export default function WatchdogSection() {
             );
           })}
         </div>
+      )}
+
+      {showAddDialog && (
+        <AddWatchDialog
+          onClose={() => setShowAddDialog(false)}
+          onCreated={(item) => setItems((prev) => [item, ...(prev ?? [])])}
+        />
       )}
     </div>
   );

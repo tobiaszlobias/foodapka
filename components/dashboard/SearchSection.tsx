@@ -16,6 +16,7 @@ import { normalizeText } from "@/lib/food";
 import { FOODORA_STORE_CONFIGS } from "@/data/foodoraStores";
 import { StoreBrand, LoadingCards, EmptyState, SearchLoadingAnimation } from "./DashboardShared";
 import { showToast } from "@/components/Toast";
+import { matchIngredientPreset } from "@/lib/ingredientPresets";
 
 type ProductSort = "relevance" | "cheapest" | "coverage";
 
@@ -365,6 +366,7 @@ export default function SearchSection({
           <div className="grid gap-2 w-full">
             {filteredAndSortedProducts.map((product) => {
               const isFavorite = favorites.some(f => f.id === product.url);
+              const matchedPreset = matchIngredientPreset(product.name);
               const sortedStores = sortStoresByPrice(product.stores);
               const bestStore = sortedStores[0];
               const bestPrice = bestStore ? parsePrice(bestStore.price) : 0;
@@ -404,11 +406,18 @@ export default function SearchSection({
                       <h3 className="text-sm font-semibold text-zinc-800 dark:text-zinc-100 leading-tight line-clamp-2">
                         {cleanProductName(product.name)}
                       </h3>
-                      {product.stores.length > 1 && (
-                        <p className="text-[10px] text-zinc-400 mt-0.5">
-                          +{product.stores.length - 1} {product.stores.length - 1 === 1 ? "obchod" : "obchody"}
-                        </p>
-                      )}
+                      <div className="flex items-center gap-1.5 mt-0.5 flex-wrap">
+                        {matchedPreset && (
+                          <span className="text-[10px] font-bold text-foodappka-600 dark:text-foodappka-400">
+                            #{matchedPreset.label.toLowerCase()}
+                          </span>
+                        )}
+                        {product.stores.length > 1 && (
+                          <p className="text-[10px] text-zinc-400">
+                            +{product.stores.length - 1} {product.stores.length - 1 === 1 ? "obchod" : "obchody"}
+                          </p>
+                        )}
+                      </div>
                     </div>
 
                     {/* Ceny vpravo */}
