@@ -9,7 +9,7 @@ import WatchdogSection from "@/components/dashboard/WatchdogSection";
 import ListsSection from "@/components/dashboard/ListsSection";
 import LoginWall from "@/components/LoginWall";
 import SearchBar from "@/components/SearchBar";
-import { type Product, type Store, parsePrice, cleanProductName } from "@/lib/food";
+import { type Product, type Store, parsePrice, cleanProductName, normalizeText } from "@/lib/food";
 import { createClient } from "@/lib/supabase/client";
 import { showToast } from "@/components/Toast";
 import type { User } from "@supabase/supabase-js";
@@ -51,6 +51,8 @@ function HomeContent() {
   const [user, setUser] = useState<User | null>(null);
   const [authLoaded, setAuthLoaded] = useState(false);
   const [favorites, setFavorites] = useState<FavoriteItem[]>([]);
+  // Oblíbené obchody z nastavení — předvyplní se jako filtry u výsledků vyhledávání
+  const favoriteStoresRef = useRef<string[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
@@ -78,7 +80,16 @@ function HomeContent() {
   
   const handleResults = useCallback((nextProducts: Product[]) => {
     setProducts(nextProducts);
-    setSelectedFilter(["all"]);
+    // Oblíbené obchody se rovnou aktivují jako filtry (pokud jsou ve výsledcích zastoupené)
+    const preferredKeys = favoriteStoresRef.current.map(s => `chain:${normalizeText(s)}`);
+    const presentKeys = new Set<string>();
+    nextProducts.forEach(p => p.stores.forEach(s => {
+      presentKeys.add(`chain:${normalizeText(s.shopName)}`);
+      if (s.source === "kaufland") presentKeys.add("chain:kaufland");
+      if (s.source === "lidl") presentKeys.add("chain:lidl");
+    }));
+    const activeKeys = preferredKeys.filter(k => presentKeys.has(k));
+    setSelectedFilter(activeKeys.length > 0 ? activeKeys : ["all"]);
     setSelectedSort("relevance");
   }, []);
 
@@ -395,6 +406,25 @@ function HomeContent() {
     supabase.auth.getUser().then(async ({ data: { user } }) => {
       setUser(user);
       setAuthLoaded(true);
+
+      // Načtení oblíbených obchodů (stejná fallback logika jako v nastavení)
+      if (user) {
+        const { data: prefs } = await supabase
+          .from("user_preferences")
+          .select("favorite_stores")
+          .eq("user_id", user.id)
+          .single();
+        if (prefs?.favorite_stores) {
+          favoriteStoresRef.current = prefs.favorite_stores;
+        } else {
+          const local = localStorage.getItem(`settings_fallback_${user.id}`);
+          if (local) favoriteStoresRef.current = JSON.parse(local).favorite_stores || [];
+        }
+      } else {
+        const local = localStorage.getItem("guest_settings");
+        if (local) favoriteStoresRef.current = JSON.parse(local).favorite_stores || [];
+      }
+
       if (user) {
         const { data } = await supabase
           .from("favorites")
