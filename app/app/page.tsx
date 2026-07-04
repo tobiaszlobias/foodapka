@@ -129,6 +129,64 @@ function HomeContent() {
     }
   }, [handleResults]);
 
+  // Sdílená logika: paralelně vyhledá všechny ingredience receptu a průběžně plní výsledky
+  const searchRecipeIngredients = useCallback(async (recipeName: string, parsedIngredients: any[]) => {
+    const ingredientNames = parsedIngredients.map((ing: any) => typeof ing === 'string' ? ing : ing.name);
+    setIngredients(ingredientNames);
+
+    const results: IngredientResult[] = ingredientNames.map((name: string) => ({
+      ingredient: name, product: null, store: null, storeOptions: []
+    }));
+    setRecipeResults([...results]);
+
+    await Promise.all(
+      parsedIngredients.map(async (ing: any, index: number) => {
+        try {
+          const ingName = typeof ing === 'string' ? ing : ing.name;
+          const searchQuery = typeof ing === 'string' ? ing : (ing.searchQuery || ing.name);
+          const bannedTerms = typeof ing === 'string' ? [] : (ing.banned || []);
+
+          const searchParams = new URLSearchParams();
+          searchParams.append("q", searchQuery);
+          searchParams.append("recipe", recipeName);
+          bannedTerms.forEach((term: string) => searchParams.append("banned", term));
+
+          const sRes = await fetch(`/api/search?${searchParams.toString()}`);
+          const sData = await sRes.json();
+          const products: Product[] = sData.products || [];
+
+          const storeOptions: IngredientStoreOption[] = products.flatMap(p =>
+            p.stores.map(s => ({ product: p, store: s }))
+          );
+
+          const cheapest = storeOptions.length > 0
+            ? [...storeOptions].sort((a, b) => parsePrice(a.store.price) - parsePrice(b.store.price))[0]
+            : null;
+
+          const result: IngredientResult = {
+            ingredient: ingName,
+            product: cheapest?.product ?? null,
+            store: cheapest?.store ?? null,
+            storeOptions
+          };
+
+          setRecipeResults(prev => {
+            // Ensure we have a correctly sized array to update
+            const next = prev.length >= ingredientNames.length
+              ? [...prev]
+              : ingredientNames.map((name: string) => ({
+                  ingredient: name, product: null, store: null, storeOptions: []
+                }));
+            next[index] = result;
+            return next;
+          });
+        } catch (err) {
+          console.error(`Failed to search for ingredient: ${typeof ing === 'string' ? ing : ing.name}`, err);
+        }
+      })
+    );
+  }, []);
+
   const generateAIRecipe = useCallback(async (prompt: string) => {
     if (!prompt.trim()) return;
     setHasSearched(true);
@@ -143,7 +201,6 @@ function HomeContent() {
     }, 100);
 
     try {
-      // 1. Generate recipe via AI
       const aiRes = await fetch("/api/generate-recipe", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -152,77 +209,16 @@ function HomeContent() {
       const aiData = await aiRes.json();
       if (!aiRes.ok) throw new Error(aiData.error || "Nepodařilo se vygenerovat recept.");
 
-      const recipeName = aiData.name;
-      setActiveRecipe(recipeName);
+      setActiveRecipe(aiData.name);
       setRecipeDetails(aiData);
-
-      const parsedIngredients = aiData.ingredients || [];
-      const ingredientNames = parsedIngredients.map((ing: any) => typeof ing === 'string' ? ing : ing.name);
-      setIngredients(ingredientNames);
-
-      // 2. Search for the generated ingredients
-      const results: IngredientResult[] = ingredientNames.map((name: string) => ({
-        ingredient: name, product: null, store: null, storeOptions: []
-      }));
-      setRecipeResults([...results]);
-
-      await Promise.all(
-        parsedIngredients.map(async (ing: any, index: number) => {
-          try {
-            const ingName = typeof ing === 'string' ? ing : ing.name;
-            const searchQuery = typeof ing === 'string' ? ing : (ing.searchQuery || ing.name);
-            const bannedTerms = typeof ing === 'string' ? [] : (ing.banned || []);
-            
-            const searchParams = new URLSearchParams();
-            searchParams.append("q", searchQuery);
-            searchParams.append("recipe", recipeName);
-            bannedTerms.forEach((term: string) => searchParams.append("banned", term));
-
-            const sRes = await fetch(`/api/search?${searchParams.toString()}`);
-            const sData = await sRes.json();
-            const products: Product[] = sData.products || [];
-            
-            const storeOptions: IngredientStoreOption[] = products.flatMap(p => 
-              p.stores.map(s => ({ product: p, store: s }))
-            );
-
-            const bestStore = storeOptions.length > 0 
-              ? [...storeOptions].sort((a, b) => parsePrice(a.store.price) - parsePrice(b.store.price))[0].store
-              : null;
-            
-            const bestProduct = storeOptions.length > 0
-              ? [...storeOptions].sort((a, b) => parsePrice(a.store.price) - parsePrice(b.store.price))[0].product
-              : null;
-
-            const result: IngredientResult = { 
-              ingredient: ingName, 
-              product: bestProduct, 
-              store: bestStore, 
-              storeOptions 
-            };
-            
-            setRecipeResults(prev => {
-              // Ensure we have a correctly sized array to update
-              const next = prev.length >= ingredientNames.length 
-                ? [...prev] 
-                : ingredientNames.map((name: string) => ({
-                    ingredient: name, product: null, store: null, storeOptions: []
-                  }));
-              next[index] = result;
-              return next;
-            });
-          } catch (err) {
-            console.error(`Failed to search for ingredient: ${typeof ing === 'string' ? ing : ing.name}`, err);
-          }
-        })
-      );
+      await searchRecipeIngredients(aiData.name, aiData.ingredients || []);
     } catch (err: any) {
       setRecipeError(err.message);
       setActiveRecipe(""); // Reset on error
     } finally {
       setRecipeLoading(false);
     }
-  }, []);
+  }, [searchRecipeIngredients]);
 
   const runRecipeSearch = useCallback(async (recipeName: string) => {
     if (!recipeName.trim()) return;
@@ -248,75 +244,37 @@ function HomeContent() {
       if (!res.ok) throw new Error(data.error);
 
       setRecipeDetails(data);
-      const parsedIngredients = data.ingredients || [];
-      const ingredientNames = parsedIngredients.map((ing: any) => typeof ing === 'string' ? ing : ing.name);
-      setIngredients(ingredientNames);
-
-      // PARALLEL INCREMENTAL SEARCH: Start all at once, update UI as each finishes
-      // Initialize with placeholders
-      const results: IngredientResult[] = ingredientNames.map((name: string) => ({
-        ingredient: name, product: null, store: null, storeOptions: []
-      }));
-      setRecipeResults([...results]);
-
-      await Promise.all(
-        parsedIngredients.map(async (ing: any, index: number) => {
-          try {
-            const ingName = typeof ing === 'string' ? ing : ing.name;
-            const searchQuery = typeof ing === 'string' ? ing : (ing.searchQuery || ing.name);
-            const bannedTerms = typeof ing === 'string' ? [] : (ing.banned || []);
-
-            // Pass the recipe name to the search API for better context filtering
-            const searchParams = new URLSearchParams();
-            searchParams.append("q", searchQuery);
-            searchParams.append("recipe", recipeName);
-            bannedTerms.forEach((term: string) => searchParams.append("banned", term));
-
-            const sRes = await fetch(`/api/search?${searchParams.toString()}`);
-            const sData = await sRes.json();
-            const products: Product[] = sData.products || [];
-            
-            const storeOptions: IngredientStoreOption[] = products.flatMap(p => 
-              p.stores.map(s => ({ product: p, store: s }))
-            );
-
-            const bestStore = storeOptions.length > 0 
-              ? [...storeOptions].sort((a, b) => parsePrice(a.store.price) - parsePrice(b.store.price))[0].store
-              : null;
-            
-            const bestProduct = storeOptions.length > 0
-              ? [...storeOptions].sort((a, b) => parsePrice(a.store.price) - parsePrice(b.store.price))[0].product
-              : null;
-
-            const result: IngredientResult = { 
-              ingredient: ingName, 
-              product: bestProduct, 
-              store: bestStore, 
-              storeOptions 
-            };
-            
-            // Update the specific index in the results array
-            setRecipeResults(prev => {
-              // Ensure we have a correctly sized array to update
-              const next = prev.length >= ingredientNames.length 
-                ? [...prev] 
-                : ingredientNames.map((name: string) => ({
-                    ingredient: name, product: null, store: null, storeOptions: []
-                  }));
-              next[index] = result;
-              return next;
-            });
-          } catch (err) {
-            console.error(`Failed to search for ingredient: ${typeof ing === 'string' ? ing : ing.name}`, err);
-          }
-        })
-      );
+      await searchRecipeIngredients(recipeName, data.ingredients || []);
     } catch (err: any) {
       setRecipeError(err.message);
     } finally {
       setRecipeLoading(false);
     }
-  }, []);
+  }, [searchRecipeIngredients]);
+
+  // Vlastní (ručně vytvořený) recept — bez API lookupu, rovnou hledá ingredience
+  const runCustomRecipeSearch = useCallback(async (recipe: { name: string; description?: string; ingredients: string[]; instructions?: string[] }) => {
+    if (!recipe.name.trim() || recipe.ingredients.length === 0) return;
+    setHasSearched(true);
+    setRecipeLoading(true);
+    setRecipeError(null);
+    setActiveRecipe(recipe.name);
+    setRecipeResults([]);
+    setCheckedIngredients([]);
+    setRecipeDetails({ name: recipe.name, description: recipe.description, instructions: recipe.instructions });
+
+    setTimeout(() => {
+      shoppingListRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 100);
+
+    try {
+      await searchRecipeIngredients(recipe.name, recipe.ingredients);
+    } catch (err: any) {
+      setRecipeError(err.message);
+    } finally {
+      setRecipeLoading(false);
+    }
+  }, [searchRecipeIngredients]);
 
   const toggleFavorite = useCallback(async (item: any) => {
     if (!user) {
@@ -570,6 +528,7 @@ function HomeContent() {
             shoppingListRef={shoppingListRef}
             toggleIngredient={toggleIngredient}
             runRecipeSearch={runRecipeSearch}
+            runCustomRecipeSearch={runCustomRecipeSearch}
             generateAIRecipe={generateAIRecipe}
             saveShoppingList={saveShoppingList}
             shareShoppingList={shareShoppingList}

@@ -1,9 +1,10 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import SearchBar from "@/components/SearchBar";
 import { RECIPE_PRESETS } from "@/lib/recipes";
+import { showToast } from "@/components/Toast";
 import { 
   cleanProductName, 
   parsePrice, 
@@ -27,6 +28,26 @@ type IngredientResult = {
   storeOptions: IngredientStoreOption[];
 };
 
+type CustomRecipe = {
+  name: string;
+  tag: string;
+  description?: string;
+  ingredients: string[];
+  instructions?: string[];
+  createdAt: string;
+};
+
+const CUSTOM_RECIPES_KEY = "foodappka-custom-recipes";
+
+function loadCustomRecipes(): CustomRecipe[] {
+  if (typeof window === "undefined") return [];
+  try {
+    return JSON.parse(localStorage.getItem(CUSTOM_RECIPES_KEY) || "[]");
+  } catch {
+    return [];
+  }
+}
+
 type RecipeSectionProps = {
   activeRecipe: string;
   recipeDetails?: {
@@ -45,6 +66,7 @@ type RecipeSectionProps = {
   isSaving?: boolean;
   toggleIngredient: (ing: string) => void;
   runRecipeSearch: (name: string) => void;
+  runCustomRecipeSearch?: (recipe: { name: string; description?: string; ingredients: string[]; instructions?: string[] }) => void;
   generateAIRecipe?: (prompt: string) => void;
   saveShoppingList: () => void;
   shareShoppingList: () => void;
@@ -73,6 +95,7 @@ export default function RecipeSection({
   isSaving,
   toggleIngredient,
   runRecipeSearch,
+  runCustomRecipeSearch,
   generateAIRecipe,
   saveShoppingList,
   shareShoppingList,
@@ -86,6 +109,73 @@ export default function RecipeSection({
   favorites,
   onToggleFavorite,
 }: RecipeSectionProps) {
+  // Vlastní recepty + kategorie
+  const [customRecipes, setCustomRecipes] = useState<CustomRecipe[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState<string>("all");
+  const [showCreateForm, setShowCreateForm] = useState(false);
+  const [formName, setFormName] = useState("");
+  const [formTag, setFormTag] = useState("Vlastní");
+  const [formDescription, setFormDescription] = useState("");
+  const [formIngredients, setFormIngredients] = useState<string[]>(["", "", ""]);
+  const [formInstructions, setFormInstructions] = useState("");
+
+  useEffect(() => {
+    setCustomRecipes(loadCustomRecipes());
+  }, []);
+
+  const categories = useMemo(() => {
+    const tags = new Set<string>();
+    RECIPE_PRESETS.forEach(r => tags.add(r.tag));
+    customRecipes.forEach(r => tags.add(r.tag));
+    return ["all", ...Array.from(tags)];
+  }, [customRecipes]);
+
+  const visiblePresets = useMemo(
+    () => selectedCategory === "all" ? RECIPE_PRESETS : RECIPE_PRESETS.filter(r => r.tag === selectedCategory),
+    [selectedCategory]
+  );
+  const visibleCustom = useMemo(
+    () => selectedCategory === "all" ? customRecipes : customRecipes.filter(r => r.tag === selectedCategory),
+    [customRecipes, selectedCategory]
+  );
+
+  const saveCustomRecipe = () => {
+    const name = formName.trim();
+    const ingredients = formIngredients.map(i => i.trim()).filter(Boolean);
+    if (!name) {
+      showToast("Zadejte název receptu.", "error");
+      return;
+    }
+    if (ingredients.length === 0) {
+      showToast("Přidejte alespoň jednu ingredienci.", "error");
+      return;
+    }
+    const recipe: CustomRecipe = {
+      name,
+      tag: formTag.trim() || "Vlastní",
+      description: formDescription.trim() || undefined,
+      ingredients,
+      instructions: formInstructions.trim() ? formInstructions.split("\n").map(l => l.trim()).filter(Boolean) : undefined,
+      createdAt: new Date().toISOString(),
+    };
+    const next = [recipe, ...customRecipes.filter(r => r.name !== recipe.name)];
+    setCustomRecipes(next);
+    localStorage.setItem(CUSTOM_RECIPES_KEY, JSON.stringify(next));
+    setShowCreateForm(false);
+    setFormName("");
+    setFormDescription("");
+    setFormIngredients(["", "", ""]);
+    setFormInstructions("");
+    showToast("✅ Recept uložen!", "success");
+    runCustomRecipeSearch?.(recipe);
+  };
+
+  const deleteCustomRecipe = (name: string) => {
+    const next = customRecipes.filter(r => r.name !== name);
+    setCustomRecipes(next);
+    localStorage.setItem(CUSTOM_RECIPES_KEY, JSON.stringify(next));
+  };
+
   // SINGLE STORE LOGIC: Find which shop has the most ingredients for the lowest price
   const effectiveResults = useMemo(() => {
     if (shoppingMode === "cross_store") return recipeResults;
@@ -197,8 +287,69 @@ export default function RecipeSection({
       {/* Recipe Grid - Only shown when NOT searching */}
       {!activeRecipe && !recipeLoading && (
         <div className="space-y-6">
+          {/* Kategorie */}
+          <div className="flex gap-2 overflow-x-auto no-scrollbar px-1">
+            {categories.map((cat) => (
+              <button
+                key={cat}
+                onClick={() => setSelectedCategory(cat)}
+                className={`shrink-0 rounded-full px-4 py-2 text-xs font-bold transition-all ${
+                  selectedCategory === cat
+                    ? "bg-foodappka-600 text-white shadow-md"
+                    : "bg-white dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 border border-zinc-100 dark:border-zinc-700 hover:border-foodappka-300"
+                }`}
+              >
+                {cat === "all" ? "Vše" : `#${cat}`}
+              </button>
+            ))}
+          </div>
+
           <section className="grid gap-4 grid-cols-1 sm:grid-cols-2">
-          {RECIPE_PRESETS.map((recipe) => {
+          {/* Karta: vytvořit vlastní recept */}
+          <button
+            onClick={() => setShowCreateForm(true)}
+            className="group flex flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed border-foodappka-300 dark:border-foodappka-800 bg-foodappka-50/50 dark:bg-foodappka-950/50 p-8 min-h-[180px] transition-all hover:border-foodappka-500 hover:bg-foodappka-50 dark:hover:bg-foodappka-900/30 active:scale-[0.98] cursor-pointer"
+          >
+            <div className="flex h-14 w-14 items-center justify-center rounded-full bg-foodappka-100 dark:bg-foodappka-900/50 transition-transform group-hover:scale-110">
+              <span className="material-symbols-outlined text-foodappka-600 text-3xl">add</span>
+            </div>
+            <div className="text-center">
+              <p className="font-black text-foodappka-800 dark:text-foodappka-300">Vytvořit vlastní recept</p>
+              <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">Sestavte si recept od začátku — bez AI</p>
+            </div>
+          </button>
+
+          {/* Vlastní recepty */}
+          {visibleCustom.map((recipe) => (
+            <div
+              key={`custom-${recipe.name}`}
+              onClick={() => runCustomRecipeSearch?.(recipe)}
+              className="group relative rounded-2xl bg-white dark:bg-foodappka-950 border border-zinc-100 dark:border-zinc-800 overflow-hidden shadow-sm transition-all active:scale-[0.98] cursor-pointer p-5"
+            >
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  deleteCustomRecipe(recipe.name);
+                }}
+                className="absolute top-3 right-3 z-10 flex h-9 w-9 items-center justify-center rounded-full bg-white/80 dark:bg-zinc-800/80 backdrop-blur text-zinc-400 hover:text-red-500 transition-all shadow-sm"
+                title="Smazat recept"
+              >
+                <span className="material-symbols-outlined text-lg">delete</span>
+              </button>
+              <div className="mb-3 inline-flex items-center gap-1 px-3 py-1 rounded-full bg-foodappka-100 dark:bg-foodappka-900/50 text-[10px] font-black text-foodappka-800 dark:text-foodappka-300 uppercase tracking-widest">
+                <span className="material-symbols-outlined text-[12px]">edit_note</span>
+                #{recipe.tag}
+              </div>
+              <h3 className="text-xl font-black text-zinc-900 dark:text-white leading-tight group-hover:text-foodappka-600 transition-colors">
+                {recipe.name}
+              </h3>
+              <p className="mt-2 text-sm text-zinc-500 dark:text-zinc-400 line-clamp-2 font-medium">
+                {recipe.description || `${recipe.ingredients.length} ingrediencí`}
+              </p>
+            </div>
+          ))}
+
+          {visiblePresets.map((recipe) => {
           const isFavorite = favorites.some(f => f.id === recipe.name);
           return (
             <div
@@ -236,7 +387,7 @@ export default function RecipeSection({
                   sizes="(max-width: 768px) 100vw, 33vw"
                 />
                 <div className="absolute top-3 left-3 px-3 py-1 rounded-full bg-white/90 backdrop-blur-md text-[10px] font-black text-foodappka-800 uppercase tracking-widest shadow-sm">
-                  {recipe.tag}
+                  #{recipe.tag}
                 </div>
               </div>
             )}
@@ -403,6 +554,118 @@ export default function RecipeSection({
           </div>
         )}
       </section>
+
+      {/* Modal: vytvoření vlastního receptu */}
+      {showCreateForm && (
+        <div
+          className="fixed inset-0 z-[200] flex items-end sm:items-center justify-center bg-black/50 backdrop-blur-sm p-0 sm:p-4"
+          onClick={() => setShowCreateForm(false)}
+        >
+          <div
+            className="w-full sm:max-w-lg max-h-[90vh] overflow-y-auto rounded-t-[2rem] sm:rounded-[2rem] bg-white dark:bg-zinc-900 p-6 md:p-8 shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-xl font-black text-zinc-900 dark:text-white">Nový recept</h3>
+              <button
+                onClick={() => setShowCreateForm(false)}
+                className="flex h-9 w-9 items-center justify-center rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-500 hover:text-zinc-900 dark:hover:text-white transition-colors"
+              >
+                <span className="material-symbols-outlined text-lg">close</span>
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-bold text-zinc-700 dark:text-zinc-300 mb-2">Název receptu *</label>
+                <input
+                  value={formName}
+                  onChange={(e) => setFormName(e.target.value)}
+                  placeholder="např. Babiččin guláš"
+                  className="w-full h-12 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-black px-4 text-zinc-900 dark:text-white outline-none transition focus:border-foodappka-500 focus:ring-2 focus:ring-foodappka-500/20"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-bold text-zinc-700 dark:text-zinc-300 mb-2">Kategorie</label>
+                <input
+                  value={formTag}
+                  onChange={(e) => setFormTag(e.target.value)}
+                  placeholder="např. Česká klasika"
+                  list="recipe-categories"
+                  className="w-full h-12 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-black px-4 text-zinc-900 dark:text-white outline-none transition focus:border-foodappka-500 focus:ring-2 focus:ring-foodappka-500/20"
+                />
+                <datalist id="recipe-categories">
+                  {categories.filter(c => c !== "all").map(c => <option key={c} value={c} />)}
+                </datalist>
+              </div>
+
+              <div>
+                <label className="block text-sm font-bold text-zinc-700 dark:text-zinc-300 mb-2">Popis</label>
+                <input
+                  value={formDescription}
+                  onChange={(e) => setFormDescription(e.target.value)}
+                  placeholder="Krátký popis receptu (nepovinné)"
+                  className="w-full h-12 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-black px-4 text-zinc-900 dark:text-white outline-none transition focus:border-foodappka-500 focus:ring-2 focus:ring-foodappka-500/20"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-bold text-zinc-700 dark:text-zinc-300 mb-2">Ingredience *</label>
+                <div className="space-y-2">
+                  {formIngredients.map((ing, i) => (
+                    <div key={i} className="flex gap-2">
+                      <input
+                        value={ing}
+                        onChange={(e) => {
+                          const next = [...formIngredients];
+                          next[i] = e.target.value;
+                          setFormIngredients(next);
+                        }}
+                        placeholder={`Ingredience ${i + 1}`}
+                        className="flex-1 h-11 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-black px-4 text-sm text-zinc-900 dark:text-white outline-none transition focus:border-foodappka-500 focus:ring-2 focus:ring-foodappka-500/20"
+                      />
+                      {formIngredients.length > 1 && (
+                        <button
+                          onClick={() => setFormIngredients(formIngredients.filter((_, j) => j !== i))}
+                          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-zinc-100 dark:bg-zinc-800 text-zinc-400 hover:text-red-500 transition-colors"
+                        >
+                          <span className="material-symbols-outlined text-lg">remove</span>
+                        </button>
+                      )}
+                    </div>
+                  ))}
+                </div>
+                <button
+                  onClick={() => setFormIngredients([...formIngredients, ""])}
+                  className="mt-2 inline-flex items-center gap-1 text-sm font-bold text-foodappka-600 hover:text-foodappka-700 transition-colors"
+                >
+                  <span className="material-symbols-outlined text-lg">add</span>
+                  Přidat ingredienci
+                </button>
+              </div>
+
+              <div>
+                <label className="block text-sm font-bold text-zinc-700 dark:text-zinc-300 mb-2">Postup (každý krok na nový řádek)</label>
+                <textarea
+                  value={formInstructions}
+                  onChange={(e) => setFormInstructions(e.target.value)}
+                  placeholder={"Orestujte cibuli.\nPřidejte maso a osmahněte.\n…"}
+                  rows={4}
+                  className="w-full rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-black px-4 py-3 text-sm text-zinc-900 dark:text-white outline-none transition focus:border-foodappka-500 focus:ring-2 focus:ring-foodappka-500/20 resize-none"
+                />
+              </div>
+
+              <button
+                onClick={saveCustomRecipe}
+                className="w-full h-12 rounded-full bg-foodappka-600 text-white font-black transition hover:bg-foodappka-700 shadow-lg shadow-foodappka-600/20 active:scale-95"
+              >
+                Uložit a najít ceny
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
