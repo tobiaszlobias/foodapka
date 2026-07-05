@@ -442,7 +442,7 @@ export default function SearchSection({
                           key={idx}
                           className={`flex items-center gap-3 px-4 py-3 ${isCheapest ? "bg-foodappka-50/60 dark:bg-foodappka-900/10" : ""}`}
                         >
-                          <div className="shrink-0 w-9 h-9 flex items-center justify-center">
+                          <div className="shrink-0 w-14 flex items-center justify-center">
                             {item.leafletUrl ? (
                               <a href={item.leafletUrl} target="_blank" rel="noreferrer">
                                 <StoreBrand shopName={item.shopName} small />

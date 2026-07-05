@@ -23,7 +23,7 @@ export function StoreBrand({ shopName, small = false, badge = false }: { shopNam
             badge
               ? "h-5 w-5"
               : small
-              ? (isLidl || isAlbert ? "h-11 w-11" : "h-9 w-9")
+              ? (isLidl || isAlbert ? "h-14 w-14" : "h-9 w-9")
               : (isLidl || isAlbert ? "h-24 w-24 md:h-32 md:w-32" : "h-14 w-14 md:h-20 md:w-20")
           } object-contain`}
         />

@@ -29,6 +29,13 @@ function extractStoresFromDetail(
     const price = row.find("strong.discount_price_value").text().trim();
     if (!price) return;
 
+    // Kupi.cz zobrazuje i budoucí akce (ještě neplatí, začínají později) —
+    // ty mají div.discounts_validity BEZ třídy valid_discount. Bez tohohle
+    // filtru appka nabízela jako "nejlevnější" cenu, která ještě neplatí.
+    const validityEl = row.find(".discounts_validity");
+    const isCurrentlyValid = validityEl.length === 0 || validityEl.hasClass("valid_discount");
+    if (!isCurrentlyValid) return;
+
     const originalPrice = row.find(".standard_price").text().trim();
     const packageSize = row.find(".discount_amount").text().trim().replace(/^\/\s*/, "");
     const discountPercent = row.find(".discount_percentage").text().trim();
