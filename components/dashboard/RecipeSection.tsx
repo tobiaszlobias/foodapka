@@ -40,12 +40,40 @@ type CustomRecipe = {
 
 const CUSTOM_RECIPES_KEY = "foodappka-custom-recipes";
 
-function loadCustomRecipes(): CustomRecipe[] {
+function loadLocalCustomRecipes(): CustomRecipe[] {
   if (typeof window === "undefined") return [];
   try {
     return JSON.parse(localStorage.getItem(CUSTOM_RECIPES_KEY) || "[]");
   } catch {
     return [];
+  }
+}
+
+function saveLocalCustomRecipes(recipes: CustomRecipe[]) {
+  localStorage.setItem(CUSTOM_RECIPES_KEY, JSON.stringify(recipes));
+}
+
+// Přihlášený uživatel: recepty v Supabase (dostupné na všech zařízeních).
+// Nepřihlášený: localStorage fallback — stejný vzor jako u oblíbených.
+async function loadCustomRecipes(): Promise<{ recipes: CustomRecipe[]; usingCloud: boolean }> {
+  try {
+    const res = await fetch("/api/custom-recipes");
+    if (res.status === 401) {
+      return { recipes: loadLocalCustomRecipes(), usingCloud: false };
+    }
+    if (!res.ok) throw new Error();
+    const data = await res.json();
+    const recipes: CustomRecipe[] = (data.items ?? []).map((row: any) => ({
+      name: row.name,
+      tag: row.tag,
+      description: row.description ?? undefined,
+      ingredients: row.ingredients,
+      instructions: row.instructions ?? undefined,
+      createdAt: row.created_at,
+    }));
+    return { recipes, usingCloud: true };
+  } catch {
+    return { recipes: loadLocalCustomRecipes(), usingCloud: false };
   }
 }
 
@@ -112,11 +140,15 @@ export default function RecipeSection({
 }: RecipeSectionProps) {
   // Vlastní recepty + kategorie
   const [customRecipes, setCustomRecipes] = useState<CustomRecipe[]>([]);
+  const [usingCloudRecipes, setUsingCloudRecipes] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [showCreateForm, setShowCreateForm] = useState(false);
 
   useEffect(() => {
-    setCustomRecipes(loadCustomRecipes());
+    loadCustomRecipes().then(({ recipes, usingCloud }) => {
+      setCustomRecipes(recipes);
+      setUsingCloudRecipes(usingCloud);
+    });
   }, []);
 
   const categories = useMemo(() => {
@@ -135,19 +167,39 @@ export default function RecipeSection({
     [customRecipes, selectedCategory]
   );
 
-  const saveCustomRecipe = (recipe: CustomRecipe) => {
+  const saveCustomRecipe = async (recipe: CustomRecipe) => {
     const next = [recipe, ...customRecipes.filter(r => r.name !== recipe.name)];
     setCustomRecipes(next);
-    localStorage.setItem(CUSTOM_RECIPES_KEY, JSON.stringify(next));
     setShowCreateForm(false);
+
+    if (usingCloudRecipes) {
+      try {
+        const res = await fetch("/api/custom-recipes", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(recipe),
+        });
+        if (!res.ok) throw new Error();
+      } catch {
+        showToast("Recept se nepodařilo uložit na server, zůstává jen lokálně.", "error");
+      }
+    } else {
+      saveLocalCustomRecipes(next);
+    }
+
     showToast("✅ Recept uložen!", "success");
     runCustomRecipeSearch?.(recipe);
   };
 
-  const deleteCustomRecipe = (name: string) => {
+  const deleteCustomRecipe = async (name: string) => {
     const next = customRecipes.filter(r => r.name !== name);
     setCustomRecipes(next);
-    localStorage.setItem(CUSTOM_RECIPES_KEY, JSON.stringify(next));
+
+    if (usingCloudRecipes) {
+      await fetch(`/api/custom-recipes?name=${encodeURIComponent(name)}`, { method: "DELETE" });
+    } else {
+      saveLocalCustomRecipes(next);
+    }
   };
 
   // SINGLE STORE LOGIC: Find which shop has the most ingredients for the lowest price
