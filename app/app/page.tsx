@@ -14,7 +14,7 @@ import { createClient } from "@/lib/supabase/client";
 import { showToast } from "@/components/Toast";
 import type { User } from "@supabase/supabase-js";
 
-type AppMode = "search" | "recipes" | "watchdog" | "lists" | "favorites" | "notifications";
+type AppMode = "search" | "recipes" | "watchdog" | "lists" | "notifications";
 type ShoppingMode = "cross_store" | "single_store";
 type ProductSort = "relevance" | "cheapest" | "coverage";
 
@@ -30,17 +30,16 @@ type IngredientResult = {
   storeOptions: IngredientStoreOption[];
 };
 
+// Oblíbené jsou teď jen recepty — vlastní i preset (viz RecipeSection #Oblíbené filtr)
 type FavoriteItem = {
   id: string;
   name: string;
   addedAt: string;
-  url?: string; // present for products
-  stores?: Store[]; // present for products
-  image?: string; // present for recipes
-  description?: string; // present for recipes
+  image?: string;
+  description?: string;
 };
 
-const VIEW_ORDER: AppMode[] = ["search", "recipes", "watchdog", "favorites", "notifications", "lists"];
+const VIEW_ORDER: AppMode[] = ["search", "recipes", "watchdog", "notifications", "lists"];
 
 function HomeContent() {
   const router = useRouter();
@@ -278,11 +277,11 @@ function HomeContent() {
 
   const toggleFavorite = useCallback(async (item: any) => {
     if (!user) {
-      showToast("Pro ukládání oblíbených se musíte přihlásit.", "info");
+      showToast("Pro ukládání oblíbených receptů se musíte přihlásit.", "info");
       return;
     }
 
-    const itemId = item.url || item.name;
+    const itemId = item.name;
     const isFav = favorites.find(f => f.id === itemId);
 
     if (isFav) {
@@ -293,8 +292,6 @@ function HomeContent() {
         id: itemId,
         name: item.name,
         addedAt: new Date().toISOString(),
-        url: item.url,
-        stores: item.stores,
         image: item.image,
         description: item.description,
       };
@@ -303,8 +300,6 @@ function HomeContent() {
         user_id: user.id,
         item_id: itemId,
         name: item.name,
-        url: item.url ?? null,
-        stores: item.stores ?? null,
         image: item.image ?? null,
         description: item.description ?? null,
       });
@@ -390,15 +385,18 @@ function HomeContent() {
           .eq("user_id", user.id)
           .order("added_at", { ascending: false });
         if (data) {
-          setFavorites(data.map(row => ({
-            id: row.item_id,
-            name: row.name,
-            addedAt: row.added_at,
-            url: row.url,
-            stores: row.stores,
-            image: row.image,
-            description: row.description,
-          })));
+          // Staré oblíbené produkty (mají stores) se už nezobrazují — oblíbené jsou teď jen recepty
+          setFavorites(
+            data
+              .filter(row => !row.stores)
+              .map(row => ({
+                id: row.item_id,
+                name: row.name,
+                addedAt: row.added_at,
+                image: row.image,
+                description: row.description,
+              })),
+          );
         }
       }
     });
@@ -509,8 +507,6 @@ function HomeContent() {
             handleModeChange={handleModeChange}
             initialQuery={urlQuery}
             hideHeader
-            favorites={favorites}
-            onToggleFavorite={toggleFavorite}
           />
         )}
 
@@ -567,72 +563,6 @@ function HomeContent() {
               description="Přihlaste se, abyste si mohli ukládat nákupní seznamy a mít je dostupné na všech zařízeních."
             />
           ) : null
-        )}
-
-        {activeView === "favorites" && (
-          !user ? (
-            authLoaded ? (
-            <LoginWall
-              icon="favorite"
-              title="Oblíbené jsou jen pro přihlášené"
-              description="Přihlaste se, abyste si mohli ukládat oblíbené recepty a produkty na jedno místo."
-            />
-            ) : null
-          ) : (
-          <div className="space-y-6">
-            <header className="px-1 md:px-2 text-left">
-              <h1 className="text-2xl md:text-4xl font-extrabold tracking-tight text-foodappka-950 dark:text-white mb-2">Oblíbené</h1>
-              <p className="text-sm md:text-lg text-zinc-600 dark:text-zinc-400">Vaše uložené recepty a produkty na jednom místě.</p>
-            </header>
-            
-            {favorites.length > 0 ? (
-              <div className="grid gap-4">
-                {favorites.map((fav) => (
-                  <article key={fav.id} className="rounded-2xl border border-foodappka-100 dark:border-zinc-800 bg-white/95 dark:bg-foodappka-950 p-4 shadow-sm flex items-center justify-between gap-4">
-                    <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 rounded-xl bg-foodappka-100 dark:bg-foodappka-900/50 flex items-center justify-center">
-                        <span className="material-symbols-outlined text-foodappka-600">
-                          {fav.stores ? "shopping_basket" : "restaurant"}
-                        </span>
-                      </div>
-                      <div className="text-left">
-                        <h4 className="font-bold text-zinc-900 dark:text-white">{fav.name}</h4>
-                        <p className="text-xs text-zinc-500 dark:text-zinc-400">Přidáno {new Date(fav.addedAt).toLocaleDateString()}</p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <button 
-                        onClick={() => toggleFavorite(fav)}
-                        className="flex h-10 w-10 items-center justify-center rounded-full hover:bg-red-50 dark:hover:bg-red-900/20 text-red-500 transition-colors"
-                      >
-                        <span className="material-symbols-outlined text-xl" style={{ fontVariationSettings: "'FILL' 1" }}>favorite</span>
-                      </button>
-                      <button 
-                        onClick={() => {
-                          if (fav.stores) {
-                            handleResults([fav as any]);
-                            handleModeChange("search");
-                          } else {
-                            runRecipeSearch(fav.name);
-                            handleModeChange("recipes");
-                          }
-                        }}
-                        className="px-4 py-2 rounded-full bg-foodappka-500 text-white text-xs font-bold hover:bg-foodappka-600 transition-all"
-                      >
-                        Ukázat
-                      </button>
-                    </div>
-                  </article>
-                ))}
-              </div>
-            ) : (
-              <div className="py-20 text-center rounded-2xl border border-dashed border-zinc-200 dark:border-zinc-800">
-                <span className="material-symbols-outlined text-5xl text-zinc-300 mb-4 block">favorite</span>
-                <p className="text-zinc-500 font-medium">Zatím nemáte žádné oblíbené položky.</p>
-              </div>
-            )}
-          </div>
-          )
         )}
 
         {activeView === "notifications" && (

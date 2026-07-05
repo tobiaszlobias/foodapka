@@ -14,7 +14,6 @@ const NAV_ITEMS: NavItem[] = [
   { id: "search", label: "Vyhledávání", icon: "search", href: "/app" },
   { id: "recipes", label: "Recepty", icon: "restaurant", href: "/app?mode=recipes" },
   { id: "watchdog", label: "Hlídací pes", icon: "trending_down", href: "/app?mode=watchdog" },
-  { id: "favorites", label: "Oblíbené", icon: "favorite", href: "/app?mode=favorites" },
   { id: "notifications", label: "Oznámení", icon: "notifications", href: "/app?mode=notifications" },
   { id: "lists", label: "Nákupní seznamy", icon: "receipt_long", href: "/app?mode=lists" },
 ];
@@ -72,13 +71,6 @@ export default function Sidebar() {
             <span className="material-symbols-outlined text-lg">settings</span>
             <span>Nastavení</span>
           </Link>
-          <button
-            onClick={() => window.dispatchEvent(new CustomEvent("open-help"))}
-            className="flex items-center gap-4 text-zinc-500 dark:text-zinc-400 px-6 py-2 text-sm hover:text-foodappka-600 dark:hover:text-foodappka-400 transition-colors w-full text-left"
-          >
-            <span className="material-symbols-outlined text-lg">help</span>
-            <span>Nápověda</span>
-          </button>
         </div>
       </div>
     </aside>

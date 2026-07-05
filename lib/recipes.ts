@@ -128,7 +128,7 @@ export const RECIPE_PRESETS: RecipePreset[] = [
   },
   {
     name: "Svíčková",
-    tag: "Česká klasika",
+    tag: "Klasika",
     description:
       "Tradiční české jídlo s hovězím masem, kořenovou zeleninou a smetanou.",
     ingredients: [

@@ -36,8 +36,6 @@ type SearchSectionProps = {
   handleModeChange: (mode: any) => void;
   initialQuery?: string;
   hideHeader?: boolean;
-  favorites: { id: string }[];
-  onToggleFavorite: (item: any) => void;
 };
 
 async function createWatch(query: string, targetPrice: number) {
@@ -187,8 +185,6 @@ export default function SearchSection({
   handleModeChange,
   initialQuery,
   hideHeader,
-  favorites,
-  onToggleFavorite,
 }: SearchSectionProps) {
   const resultsRef = useRef<HTMLDivElement>(null);
   const [watchDialog, setWatchDialog] = useState<{ query: string; price: number } | null>(null);
@@ -369,7 +365,6 @@ export default function SearchSection({
         {loading ? <SearchLoadingAnimation /> : filteredAndSortedProducts.length > 0 ? (
           <div className="grid gap-2 w-full">
             {filteredAndSortedProducts.map((product) => {
-              const isFavorite = favorites.some(f => f.id === product.url);
               const matchedPreset = matchIngredientPreset(product.name);
               const sortedStores = sortStoresByPrice(product.stores);
               const bestStore = sortedStores[0];
@@ -478,23 +473,9 @@ export default function SearchSection({
                         setWatchDialog({ query: cleanProductName(product.name), price: bestPrice });
                       }}
                       title="Hlídat cenu"
-                      className="shrink-0 flex h-8 w-8 items-center justify-center rounded-full text-zinc-300 hover:text-foodappka-500 transition-colors"
+                      className="shrink-0 flex h-9 w-9 items-center justify-center rounded-full text-zinc-300 hover:text-foodappka-500 hover:bg-foodappka-50 dark:hover:bg-foodappka-900/30 transition-colors"
                     >
-                      <span className="material-symbols-outlined text-[18px]">trending_down</span>
-                    </button>
-
-                    {/* Oblíbené */}
-                    <button
-                      onClick={(e) => { e.preventDefault(); onToggleFavorite(product); }}
-                      className={`shrink-0 flex h-8 w-8 items-center justify-center rounded-full transition-colors ${
-                        isFavorite
-                          ? "text-red-500"
-                          : "text-zinc-300 hover:text-red-400"
-                      }`}
-                    >
-                      <span className="material-symbols-outlined text-[18px]" style={isFavorite ? { fontVariationSettings: "'FILL' 1" } : undefined}>
-                        favorite
-                      </span>
+                      <span className="material-symbols-outlined text-[20px]">trending_down</span>
                     </button>
                   </div>
 

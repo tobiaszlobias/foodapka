@@ -2,7 +2,6 @@ import type { Metadata, Viewport } from "next";
 import { Manrope, Plus_Jakarta_Sans } from "next/font/google";
 import ThemeScript from "@/components/ThemeScript";
 import CookieBanner from "@/components/CookieBanner";
-import HelpModal from "@/components/HelpModal";
 import Toast from "@/components/Toast";
 import "./globals.css";
 
@@ -49,7 +48,6 @@ export default function RootLayout({
         <ThemeScript />
         {children}
         <CookieBanner />
-        <HelpModal />
         <Toast />
       </body>
     </html>

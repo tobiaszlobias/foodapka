@@ -46,7 +46,6 @@ const FOOD_CATEGORIES = [
   "Lehká večeře",
   "Sladké",
   "Klasika",
-  "Česká klasika",
 ];
 
 function SettingsContent() {

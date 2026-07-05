@@ -157,17 +157,19 @@ export default function RecipeSection({
     const tags = new Set<string>();
     RECIPE_PRESETS.forEach(r => tags.add(r.tag));
     customRecipes.forEach(r => tags.add(r.tag));
-    return ["all", ...Array.from(tags)];
+    return ["all", "favorites", ...Array.from(tags)];
   }, [customRecipes]);
 
-  const visiblePresets = useMemo(
-    () => selectedCategory === "all" ? RECIPE_PRESETS : RECIPE_PRESETS.filter(r => r.tag === selectedCategory),
-    [selectedCategory]
-  );
-  const visibleCustom = useMemo(
-    () => selectedCategory === "all" ? customRecipes : customRecipes.filter(r => r.tag === selectedCategory),
-    [customRecipes, selectedCategory]
-  );
+  const visiblePresets = useMemo(() => {
+    if (selectedCategory === "favorites") {
+      return RECIPE_PRESETS.filter(r => favorites.some(f => f.id === r.name));
+    }
+    return selectedCategory === "all" ? RECIPE_PRESETS : RECIPE_PRESETS.filter(r => r.tag === selectedCategory);
+  }, [selectedCategory, favorites]);
+  const visibleCustom = useMemo(() => {
+    if (selectedCategory === "favorites") return [];
+    return selectedCategory === "all" ? customRecipes : customRecipes.filter(r => r.tag === selectedCategory);
+  }, [customRecipes, selectedCategory]);
 
   const saveCustomRecipe = async (recipe: CustomRecipe) => {
     const next = [recipe, ...customRecipes.filter(r => r.name !== recipe.name)];
@@ -321,13 +323,21 @@ export default function RecipeSection({
               <button
                 key={cat}
                 onClick={() => setSelectedCategory(cat)}
-                className={`shrink-0 rounded-full px-4 py-2 text-xs font-bold transition-all ${
+                className={`shrink-0 inline-flex items-center gap-1 rounded-full px-4 py-2 text-xs font-bold transition-all ${
                   selectedCategory === cat
                     ? "bg-foodappka-600 text-white shadow-md"
                     : "bg-white dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 border border-zinc-100 dark:border-zinc-700 hover:border-foodappka-300"
                 }`}
               >
-                {cat === "all" ? "Vše" : `#${cat}`}
+                {cat === "favorites" && (
+                  <span
+                    className="material-symbols-outlined text-sm"
+                    style={selectedCategory === cat ? { fontVariationSettings: "'FILL' 1" } : undefined}
+                  >
+                    favorite
+                  </span>
+                )}
+                {cat === "all" ? "Vše" : cat === "favorites" ? "Oblíbené" : `#${cat}`}
               </button>
             ))}
           </div>
@@ -431,6 +441,14 @@ export default function RecipeSection({
         );
       })}
     </section>
+
+          {selectedCategory === "favorites" && visiblePresets.length === 0 && (
+            <div className="py-16 text-center rounded-2xl border border-dashed border-zinc-200 dark:border-zinc-800">
+              <span className="material-symbols-outlined text-5xl text-zinc-300 mb-4 block">favorite</span>
+              <p className="text-zinc-500 font-medium">Zatím nemáte žádné oblíbené recepty.</p>
+              <p className="text-sm text-zinc-400 mt-1">Klikněte na srdíčko u receptu, který se vám líbí.</p>
+            </div>
+          )}
         </div>
       )}
 
