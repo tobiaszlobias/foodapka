@@ -384,16 +384,28 @@ export default function SearchSection({
                     {/* Obrázek produktu nebo logo obchodu */}
                     <div className="shrink-0">
                       {product.image ? (
-                        <div className="w-12 h-12 rounded-xl overflow-hidden bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center">
-                          <Image
-                            src={product.image}
-                            alt={product.name}
-                            width={48}
-                            height={48}
-                            className="w-full h-full object-contain"
-                            unoptimized
-                          />
-                        </div>
+                        <a
+                          href={bestStore?.leafletUrl || undefined}
+                          target={bestStore?.leafletUrl ? "_blank" : undefined}
+                          rel={bestStore?.leafletUrl ? "noreferrer" : undefined}
+                          onClick={(e) => { if (!bestStore?.leafletUrl) e.preventDefault(); }}
+                          className="relative block w-12 h-12"
+                        >
+                          <div className="w-12 h-12 rounded-xl overflow-hidden bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center">
+                            <Image
+                              src={product.image}
+                              alt={product.name}
+                              width={48}
+                              height={48}
+                              className="w-full h-full object-contain"
+                              unoptimized
+                            />
+                          </div>
+                          {/* Logo obchodu — vždy viditelné, i když má produkt fotku */}
+                          <div className="absolute -bottom-1.5 -right-1.5 flex h-6 w-6 items-center justify-center rounded-full bg-white dark:bg-zinc-900 shadow-md ring-2 ring-white dark:ring-zinc-900">
+                            <StoreBrand shopName={bestStore?.shopName ?? ""} badge />
+                          </div>
+                        </a>
                       ) : bestStore?.leafletUrl ? (
                         <a href={bestStore.leafletUrl} target="_blank" rel="noreferrer">
                           <StoreBrand shopName={bestStore?.shopName ?? ""} small />

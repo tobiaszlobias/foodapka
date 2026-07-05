@@ -524,18 +524,25 @@ export default function RecipeSection({
                           ✓
                         </button>
 
-                        {/* Obrázek produktu nebo logo obchodu */}
+                        {/* Obrázek produktu (s logem obchodu v rohu) nebo jen logo obchodu */}
                         <div className="shrink-0">
                           {item.product?.image ? (
-                            <div className="w-12 h-12 rounded-xl overflow-hidden bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center">
-                              <Image
-                                src={item.product.image}
-                                alt={item.product.name}
-                                width={48}
-                                height={48}
-                                className="w-full h-full object-contain"
-                                unoptimized
-                              />
+                            <div className="relative w-12 h-12">
+                              <div className="w-12 h-12 rounded-xl overflow-hidden bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center">
+                                <Image
+                                  src={item.product.image}
+                                  alt={item.product.name}
+                                  width={48}
+                                  height={48}
+                                  className="w-full h-full object-contain"
+                                  unoptimized
+                                />
+                              </div>
+                              {item.store && (
+                                <div className="absolute -bottom-1.5 -right-1.5 flex h-6 w-6 items-center justify-center rounded-full bg-white dark:bg-zinc-900 shadow-md ring-2 ring-white dark:ring-zinc-900">
+                                  <StoreBrand shopName={item.store.shopName} badge />
+                                </div>
+                              )}
                             </div>
                           ) : item.store ? (
                             <StoreBrand shopName={item.store.shopName} small />

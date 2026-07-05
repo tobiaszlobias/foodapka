@@ -6,7 +6,7 @@ import { getStoreIcon } from "@/lib/food";
 import { getStoreLogoPath } from "@/lib/storeLogos";
 import { normalizeText } from "@/lib/food";
 
-export function StoreBrand({ shopName, small = false }: { shopName: string; small?: boolean }) {
+export function StoreBrand({ shopName, small = false, badge = false }: { shopName: string; small?: boolean; badge?: boolean }) {
   const logoPath = getStoreLogoPath(shopName);
   const isLidl = normalizeText(shopName).includes("lidl");
   const isAlbert = normalizeText(shopName).includes("albert");
@@ -20,13 +20,19 @@ export function StoreBrand({ shopName, small = false }: { shopName: string; smal
           width={isLidl || isAlbert ? 140 : 80}
           height={isLidl || isAlbert ? 140 : 80}
           className={`${
-            small 
-              ? (isLidl || isAlbert ? "h-11 w-11" : "h-9 w-9") 
+            badge
+              ? "h-5 w-5"
+              : small
+              ? (isLidl || isAlbert ? "h-11 w-11" : "h-9 w-9")
               : (isLidl || isAlbert ? "h-24 w-24 md:h-32 md:w-32" : "h-14 w-14 md:h-20 md:w-20")
           } object-contain`}
         />
       </span>
     );
+  }
+
+  if (badge) {
+    return <span className="text-xs leading-none">{getStoreIcon(shopName)}</span>;
   }
 
   return (
