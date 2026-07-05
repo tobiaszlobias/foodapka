@@ -626,7 +626,8 @@ export default function RecipeSection({
                           ✓
                         </button>
 
-                        {/* Obrázek produktu (s logem obchodu v rohu) nebo jen logo obchodu */}
+                        {/* Obrázek produktu (s logem obchodu v rohu), nebo jednotný
+                            rámeček s logem/ikonou obchodu, když fotka chybí. */}
                         <div className="shrink-0">
                           {item.product?.image ? (
                             <div className="relative w-12 h-12">
@@ -647,7 +648,9 @@ export default function RecipeSection({
                               )}
                             </div>
                           ) : item.store ? (
-                            <StoreBrand shopName={item.store.shopName} small />
+                            <div className="w-12 h-12 rounded-xl bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center">
+                              <StoreBrand shopName={item.store.shopName} compact />
+                            </div>
                           ) : (
                             <div className="w-12 h-12 rounded-xl bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center">
                               <span className="material-symbols-outlined text-zinc-300 text-xl">help</span>

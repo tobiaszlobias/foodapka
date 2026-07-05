@@ -121,7 +121,7 @@ export function LeafletViewer({ leafletUrl, shopName, onClose }: { leafletUrl: s
   );
 }
 
-export function StoreBrand({ shopName, small = false, badge = false }: { shopName: string; small?: boolean; badge?: boolean }) {
+export function StoreBrand({ shopName, small = false, badge = false, compact = false }: { shopName: string; small?: boolean; badge?: boolean; compact?: boolean }) {
   const logoPath = getStoreLogoPath(shopName);
   const isLidl = normalizeText(shopName).includes("lidl");
   const isAlbert = normalizeText(shopName).includes("albert");
@@ -137,6 +137,8 @@ export function StoreBrand({ shopName, small = false, badge = false }: { shopNam
           className={`${
             badge
               ? "h-5 w-5"
+              : compact
+              ? "h-8 w-8"
               : small
               ? (isLidl || isAlbert ? "h-14 w-14" : "h-9 w-9")
               : (isLidl || isAlbert ? "h-24 w-24 md:h-32 md:w-32" : "h-14 w-14 md:h-20 md:w-20")
@@ -148,6 +150,10 @@ export function StoreBrand({ shopName, small = false, badge = false }: { shopNam
 
   if (badge) {
     return <span className="text-xs leading-none">{getStoreIcon(shopName)}</span>;
+  }
+
+  if (compact) {
+    return <span className="text-xl leading-none">{getStoreIcon(shopName)}</span>;
   }
 
   return (
