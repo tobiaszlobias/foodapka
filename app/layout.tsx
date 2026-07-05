@@ -3,6 +3,7 @@ import { Manrope, Plus_Jakarta_Sans } from "next/font/google";
 import ThemeScript from "@/components/ThemeScript";
 import CookieBanner from "@/components/CookieBanner";
 import Toast from "@/components/Toast";
+import KeyboardScrollFix from "@/components/KeyboardScrollFix";
 import "./globals.css";
 
 const manrope = Manrope({
@@ -46,6 +47,7 @@ export default function RootLayout({
       </head>
       <body className={`${manrope.variable} ${plusJakartaSans.variable} font-sans antialiased`}>
         <ThemeScript />
+        <KeyboardScrollFix />
         {children}
         <CookieBanner />
         <Toast />
