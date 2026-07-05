@@ -52,16 +52,6 @@ export default function AppHeader() {
         </div>
         
         <div className="flex items-center gap-2 md:gap-4">
-          <div className="hidden sm:flex items-center gap-2 md:gap-4">
-            <Link
-              href="/app?mode=notifications"
-              className="flex h-10 w-10 items-center justify-center hover:bg-foodappka-100/50 dark:hover:bg-foodappka-800/50 rounded-full transition-all active:scale-95 duration-200"
-              title="Oznámení"
-            >
-              <span className="material-symbols-outlined text-foodappka-600 dark:text-foodappka-400">notifications</span>
-            </Link>
-          </div>
-          
           <ThemeToggle />
           
           {!loading && (

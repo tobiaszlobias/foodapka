@@ -14,7 +14,6 @@ const NAV_ITEMS: NavItem[] = [
   { id: "search", label: "Vyhledávání", icon: "search", href: "/app" },
   { id: "recipes", label: "Recepty", icon: "restaurant", href: "/app?mode=recipes" },
   { id: "watchdog", label: "Hlídací pes", icon: "trending_down", href: "/app?mode=watchdog" },
-  { id: "notifications", label: "Oznámení", icon: "notifications", href: "/app?mode=notifications" },
   { id: "lists", label: "Nákupní seznamy", icon: "receipt_long", href: "/app?mode=lists" },
 ];
 

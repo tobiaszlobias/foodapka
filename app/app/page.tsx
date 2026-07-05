@@ -14,7 +14,7 @@ import { createClient } from "@/lib/supabase/client";
 import { showToast } from "@/components/Toast";
 import type { User } from "@supabase/supabase-js";
 
-type AppMode = "search" | "recipes" | "watchdog" | "lists" | "notifications";
+type AppMode = "search" | "recipes" | "watchdog" | "lists";
 type ShoppingMode = "cross_store" | "single_store";
 type ProductSort = "relevance" | "cheapest" | "coverage";
 
@@ -39,7 +39,7 @@ type FavoriteItem = {
   description?: string;
 };
 
-const VIEW_ORDER: AppMode[] = ["search", "recipes", "watchdog", "notifications", "lists"];
+const VIEW_ORDER: AppMode[] = ["search", "recipes", "watchdog", "lists"];
 
 function HomeContent() {
   const router = useRouter();
@@ -565,29 +565,6 @@ function HomeContent() {
           ) : null
         )}
 
-        {activeView === "notifications" && (
-          !user ? (
-            authLoaded ? (
-            <LoginWall
-              icon="notifications"
-              title="Oznámení jsou jen pro přihlášené"
-              description="Přihlaste se, abyste dostávali upozornění na akce a cenové změny u vašich produktů."
-            />
-            ) : null
-          ) : (
-          <div className="space-y-6 text-left">
-            <header className="px-1 md:px-2">
-              <h1 className="text-xl md:text-3xl lg:text-4xl font-display font-extrabold tracking-tight text-foodappka-950 dark:text-white mb-2">Oznámení</h1>
-              <p className="text-sm md:text-lg text-zinc-600 dark:text-zinc-400">Aktuální informace o slevách a novinkách.</p>
-            </header>
-
-            <div className="py-20 text-center rounded-2xl border border-dashed border-zinc-200 dark:border-zinc-800">
-              <span className="material-symbols-outlined text-5xl text-zinc-300 mb-4 block">notifications_off</span>
-              <p className="text-zinc-500 font-medium">Zatím nemáte žádná nová oznámení.</p>
-            </div>
-          </div>
-          )
-        )}
       </motion.div>
     </div>
   );
