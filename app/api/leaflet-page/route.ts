@@ -50,16 +50,21 @@ export async function GET(req: NextRequest) {
       return Response.json({ error: "Obrázek letáku nenalezen." }, { status: 404 });
     }
 
-    const imageRes = await fetch(imageUrl, { headers: SCRAPER_HEADERS, cache: "no-store" });
-    if (!imageRes.ok) {
+    // Stránky letáku jsou statické (neměnící se) obrázky — appka je smí cachovat
+    // dlouhodobě jak na serveru (fetch cache), tak v prohlížeči uživatele.
+    const imageRes = await fetch(imageUrl, {
+      headers: SCRAPER_HEADERS,
+      next: { revalidate: 86400 },
+    });
+    if (!imageRes.ok || !imageRes.body) {
       return Response.json({ error: "Nepodařilo se načíst obrázek letáku." }, { status: 502 });
     }
 
-    const imageBuffer = await imageRes.arrayBuffer();
-    return new Response(imageBuffer, {
+    // Streamuje přímo klientovi místo čekání na stažení celého obrázku na serveru.
+    return new Response(imageRes.body, {
       headers: {
         "Content-Type": imageRes.headers.get("content-type") || "image/jpeg",
-        "Cache-Control": "public, max-age=3600",
+        "Cache-Control": "public, max-age=86400, immutable",
       },
     });
   } catch (error) {

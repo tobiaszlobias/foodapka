@@ -35,7 +35,18 @@ export function LeafletViewer({ leafletUrl, shopName, onClose }: { leafletUrl: s
 
   const activeSourceUrl = pages && pages.length > 0 ? pages[pageIndex] : leafletUrl;
   const totalPages = pages && pages.length > 0 ? pages.length : 1;
-  const proxiedSrc = `/api/leaflet-page?url=${encodeURIComponent(activeSourceUrl)}`;
+  const proxiedSrc = (url: string) => `/api/leaflet-page?url=${encodeURIComponent(url)}`;
+
+  // Předehřeje sousední stránky v prohlížečové cache, aby listování bylo okamžité.
+  useEffect(() => {
+    if (!pages || pages.length === 0) return;
+    [pageIndex - 1, pageIndex + 1].forEach((neighborIndex) => {
+      const neighborUrl = pages[neighborIndex];
+      if (!neighborUrl) return;
+      const preloadImg = new window.Image();
+      preloadImg.src = proxiedSrc(neighborUrl);
+    });
+  }, [pages, pageIndex]);
 
   function goToPage(nextIndex: number) {
     if (nextIndex < 0 || nextIndex >= totalPages) return;
@@ -48,7 +59,7 @@ export function LeafletViewer({ leafletUrl, shopName, onClose }: { leafletUrl: s
       className="fixed inset-0 z-[200] flex items-center justify-center bg-black/70 backdrop-blur-sm p-4"
       onClick={onClose}
     >
-      <div className="relative w-full max-w-lg max-h-[90vh] flex flex-col" onClick={(e) => e.stopPropagation()}>
+      <div className="relative w-full max-w-md h-[90vh] flex flex-col" onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between mb-3 px-1">
           <h3 className="text-sm font-bold text-white">
             Leták — {shopName}
@@ -65,15 +76,15 @@ export function LeafletViewer({ leafletUrl, shopName, onClose }: { leafletUrl: s
             <span className="material-symbols-outlined text-lg">close</span>
           </button>
         </div>
-        <div className="relative flex-1 overflow-y-auto rounded-2xl bg-white dark:bg-zinc-900 flex items-center justify-center min-h-[300px]">
+        <div className="relative flex-1 min-h-0 rounded-2xl bg-white dark:bg-zinc-900 flex items-center justify-center">
           {status === "error" ? (
             <p className="p-8 text-center text-sm text-zinc-500">Leták se nepodařilo načíst.</p>
           ) : (
             <img
               key={activeSourceUrl}
-              src={proxiedSrc}
+              src={proxiedSrc(activeSourceUrl)}
               alt={`Leták ${shopName}, strana ${pageIndex + 1}`}
-              className="w-full h-auto object-contain"
+              className="max-w-full max-h-full w-auto h-auto object-contain rounded-2xl"
               onLoad={() => setStatus("ready")}
               onError={() => setStatus("error")}
             />

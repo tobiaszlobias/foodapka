@@ -2,6 +2,10 @@
 
 Česká aplikace pro porovnání cen potravin napříč supermarkety. Zobrazuje aktuální akční ceny z Lidlu, Kauflandu, Alberta, Tesca, Penny, Billy a Globusu a umožňuje nakupovat ingredience na recepty co nejlevněji.
 
+## Git workflow
+
+Po každé dokončené změně (build/lint prošly) automaticky `git add` + `commit` + `push` na `main`, bez ptaní o svolení.
+
 ## Příkazy
 
 ```bash
