@@ -1,8 +1,10 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { showToast } from "@/components/Toast";
 import { INGREDIENT_PRESETS } from "@/lib/ingredientPresets";
+import { useBodyScrollLock } from "@/lib/useBodyScrollLock";
 
 type WatchedProduct = {
   id: string;
@@ -18,6 +20,7 @@ type AddWatchDialogProps = {
 };
 
 function AddWatchDialog({ onClose, onCreated }: AddWatchDialogProps) {
+  useBodyScrollLock();
   const [selectedPresetId, setSelectedPresetId] = useState<string | null>(null);
   const [customQuery, setCustomQuery] = useState("");
   const [targetPrice, setTargetPrice] = useState("");
@@ -67,13 +70,13 @@ function AddWatchDialog({ onClose, onCreated }: AddWatchDialogProps) {
     }
   };
 
-  return (
+  return createPortal(
     <div
       className="fixed inset-0 z-[200] flex items-end sm:items-center justify-center bg-black/50 backdrop-blur-sm p-0 sm:p-4"
       onClick={onClose}
     >
       <div
-        className="w-full sm:max-w-md max-h-[90vh] overflow-y-auto rounded-t-[2rem] sm:rounded-[2rem] bg-white dark:bg-zinc-900 p-6 shadow-2xl"
+        className="w-full sm:max-w-md max-h-[90vh] overflow-y-auto overscroll-contain rounded-t-[2rem] sm:rounded-[2rem] bg-white dark:bg-zinc-900 p-6 pb-safe shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between mb-5">
@@ -158,7 +161,8 @@ function AddWatchDialog({ onClose, onCreated }: AddWatchDialogProps) {
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }
 

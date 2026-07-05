@@ -3,6 +3,7 @@
 import { useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import Image from "next/image";
+import { useBodyScrollLock } from "@/lib/useBodyScrollLock";
 import SearchBar from "@/components/SearchBar";
 import { 
   cleanProductName, 
@@ -64,6 +65,7 @@ type WatchDialogProps = {
 };
 
 function WatchDialog({ defaultQuery, defaultPrice, onClose }: WatchDialogProps) {
+  useBodyScrollLock();
   const [query, setQuery] = useState(defaultQuery);
   const [targetPrice, setTargetPrice] = useState(String(Math.floor(defaultPrice)));
   const [saving, setSaving] = useState(false);

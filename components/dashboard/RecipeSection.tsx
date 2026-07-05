@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import Image from "next/image";
+import { useBodyScrollLock } from "@/lib/useBodyScrollLock";
 import SearchBar from "@/components/SearchBar";
 import { RECIPE_PRESETS } from "@/lib/recipes";
 import { showToast } from "@/components/Toast";
@@ -669,6 +670,7 @@ type CreateRecipeDialogProps = {
 };
 
 function CreateRecipeDialog({ existingCategories, onClose, onSave }: CreateRecipeDialogProps) {
+  useBodyScrollLock();
   const categoryOptions = useMemo(
     () => Array.from(new Set(["Vlastní", ...existingCategories])),
     [existingCategories],
