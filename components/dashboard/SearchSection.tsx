@@ -444,13 +444,9 @@ export default function SearchSection({
                           className={`flex items-center gap-3 px-4 py-3 ${isCheapest ? "bg-foodappka-50/60 dark:bg-foodappka-900/10" : ""}`}
                         >
                           <div className="shrink-0 w-14 flex items-center justify-center">
-                            {item.leafletUrl ? (
-                              <button onClick={() => setLeafletDialog({ url: item.leafletUrl, shopName: item.shopName })}>
-                                <StoreBrand shopName={item.shopName} small />
-                              </button>
-                            ) : (
+                            <button onClick={() => setLeafletDialog({ url: item.leafletUrl, shopName: item.shopName })}>
                               <StoreBrand shopName={item.shopName} small />
-                            )}
+                            </button>
                           </div>
                           <div className="flex-1 min-w-0 flex flex-col">
                             <div className="flex items-center gap-1.5 flex-wrap">
@@ -472,15 +468,13 @@ export default function SearchSection({
                             {item.note && (
                               <span className="text-[9px] text-amber-600 dark:text-amber-500">{item.note}</span>
                             )}
-                            {item.leafletUrl && (
-                              <button
-                                onClick={() => setLeafletDialog({ url: item.leafletUrl, shopName: item.shopName })}
-                                className="mt-0.5 inline-flex items-center gap-0.5 text-[10px] font-bold text-foodappka-600 hover:text-foodappka-700 transition-colors w-fit"
-                              >
-                                <span className="material-symbols-outlined text-[12px]">menu_book</span>
-                                Leták
-                              </button>
-                            )}
+                            <button
+                              onClick={() => setLeafletDialog({ url: item.leafletUrl, shopName: item.shopName })}
+                              className="mt-0.5 inline-flex items-center gap-0.5 text-[10px] font-bold text-foodappka-600 hover:text-foodappka-700 transition-colors w-fit"
+                            >
+                              <span className="material-symbols-outlined text-[12px]">menu_book</span>
+                              Leták
+                            </button>
                           </div>
                           <div className="text-right shrink-0 flex flex-col items-end">
                             <div className="flex items-baseline gap-1.5">

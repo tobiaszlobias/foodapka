@@ -1,4 +1,4 @@
-export type PriceSource = "kupi" | "kaufland" | "foodora" | "lidl";
+export type PriceSource = "kupi" | "kaufland" | "foodora" | "lidl" | "globus";
 
 export type Store = {
   shopId: string;

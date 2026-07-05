@@ -19,26 +19,31 @@ export async function GET(req: NextRequest) {
   }
 
   // Jen povolené zdrojové domény — appka nesmí sloužit jako obecný proxy
-  const ALLOWED_HOSTS = ["www.kupi.cz", "kupi.cz"];
+  const ALLOWED_HOSTS = ["www.kupi.cz", "kupi.cz", "app.mojeletaky.cz"];
   if (!ALLOWED_HOSTS.includes(parsedUrl.hostname)) {
     return Response.json({ error: "Nepovolená doména." }, { status: 400 });
   }
 
   try {
-    const { html } = await fetchHtml(pageUrl);
-    const pageParam = parsedUrl.searchParams.get("page");
+    // app.mojeletaky.cz URL už je přímý odkaz na obrázek stránky letáku —
+    // není potřeba nic parsovat, jde rovnou přeposlat.
+    let imageUrl: string | undefined = parsedUrl.hostname === "app.mojeletaky.cz" ? pageUrl : undefined;
 
-    // Hledá obrázek stránky letáku ve vysokém rozlišení odpovídající číslu stránky
-    const imageMatches = Array.from(
-      html.matchAll(/https:\/\/img\.kupi\.cz\/letaky\/\d+\/thumbs\/[^"'\s]+_1500\.jpg/g),
-    ).map((m) => m[0]);
-
-    let imageUrl: string | undefined;
-    if (pageParam) {
-      imageUrl = imageMatches.find((url) => url.includes(`-${pageParam}_1500.jpg`));
-    }
     if (!imageUrl) {
-      imageUrl = imageMatches[0];
+      const { html } = await fetchHtml(pageUrl);
+      const pageParam = parsedUrl.searchParams.get("page");
+
+      // Hledá obrázek stránky letáku ve vysokém rozlišení odpovídající číslu stránky
+      const imageMatches = Array.from(
+        html.matchAll(/https:\/\/img\.kupi\.cz\/letaky\/\d+\/thumbs\/[^"'\s]+_1500\.jpg/g),
+      ).map((m) => m[0]);
+
+      if (pageParam) {
+        imageUrl = imageMatches.find((url) => url.includes(`-${pageParam}_1500.jpg`));
+      }
+      if (!imageUrl) {
+        imageUrl = imageMatches[0];
+      }
     }
 
     if (!imageUrl) {

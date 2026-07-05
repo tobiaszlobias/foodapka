@@ -585,29 +585,16 @@ export default function RecipeSection({
                                 {item.store.packageSize && (
                                   <span className="shrink-0 text-[10px] text-zinc-400">{item.store.packageSize}</span>
                                 )}
-                                {item.store.leafletUrl ? (
-                                  <button
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      setLeafletDialog({ url: item.store!.leafletUrl, shopName: item.store!.shopName });
-                                    }}
-                                    className="shrink-0 inline-flex items-center gap-0.5 text-[10px] font-bold text-foodappka-600 hover:text-foodappka-700 transition-colors whitespace-nowrap"
-                                  >
-                                    <span className="material-symbols-outlined text-[11px]">menu_book</span>
-                                    Leták
-                                  </button>
-                                ) : item.product?.url ? (
-                                  <a
-                                    href={item.product.url}
-                                    target="_blank"
-                                    rel="noreferrer"
-                                    onClick={(e) => e.stopPropagation()}
-                                    className="shrink-0 inline-flex items-center gap-0.5 text-[10px] font-bold text-foodappka-600 hover:text-foodappka-700 transition-colors whitespace-nowrap"
-                                  >
-                                    <span className="material-symbols-outlined text-[11px]">open_in_new</span>
-                                    Zdroj
-                                  </a>
-                                ) : null}
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setLeafletDialog({ url: item.store!.leafletUrl, shopName: item.store!.shopName });
+                                  }}
+                                  className="shrink-0 inline-flex items-center gap-0.5 text-[10px] font-bold text-foodappka-600 hover:text-foodappka-700 transition-colors whitespace-nowrap"
+                                >
+                                  <span className="material-symbols-outlined text-[11px]">menu_book</span>
+                                  Leták
+                                </button>
                               </div>
                               {item.store.loyaltyCardLabel && (
                                 <p className="inline-flex items-center gap-0.5 text-[9px] font-bold text-red-600 dark:text-red-400 mt-0.5 w-fit">

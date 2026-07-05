@@ -293,7 +293,9 @@ function mapCandidatesToProducts(
           packageSize: candidate.packageSize,
           discountPercent: formatDiscountPercent(candidate.price, candidate.originalPrice) || undefined,
           validity: "",
-          leafletUrl: resultUrl,
+          // Foodora nemá PDF leták (živý e-shop feed) — leafletUrl schválně
+          // prázdné, appka zobrazí odkaz na produkt/vyhledávání na Foodora místo letáku
+          leafletUrl: "",
           source: "foodora" as const,
           sourceLabel: "Foodora",
           isSale:

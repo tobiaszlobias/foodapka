@@ -6,6 +6,7 @@ import {
   type Product,
 } from "@/lib/food";
 import { searchFoodoraProducts } from "@/lib/scrapers/foodora";
+import { searchGlobusProducts } from "@/lib/scrapers/globus";
 import { searchKauflandProducts } from "@/lib/scrapers/kaufland";
 import { searchKupiProducts } from "@/lib/scrapers/kupi";
 import { searchLidlProducts } from "@/lib/scrapers/lidl";
@@ -15,6 +16,7 @@ type SourceSearchDebug = {
   kaufland: { ok: boolean; count: number; error?: string };
   foodora: { ok: boolean; count: number; error?: string };
   lidl: { ok: boolean; count: number; error?: string };
+  globus: { ok: boolean; count: number; error?: string };
 };
 
 function sortProducts(products: Product[], query: string) {
@@ -35,6 +37,7 @@ export async function searchAllSources(query: string) {
     searchKauflandProducts(query),
     searchFoodoraProducts(query),
     searchLidlProducts(query),
+    searchGlobusProducts(query),
   ]);
 
   const products = sourceResults.reduce<Product[]>((accumulator, result) => {
@@ -65,9 +68,10 @@ export async function searchAllSourcesDebug(
     searchKauflandProducts(query),
     searchFoodoraProducts(query),
     searchLidlProducts(query),
+    searchGlobusProducts(query),
   ]);
 
-  const [kupi, kaufland, foodora, lidl] = sourceResults;
+  const [kupi, kaufland, foodora, lidl, globus] = sourceResults;
 
   const products = sourceResults.reduce<Product[]>((accumulator, result) => {
     if (result.status === "fulfilled") {
@@ -125,6 +129,17 @@ export async function searchAllSourcesDebug(
                 lidl.reason instanceof Error
                   ? lidl.reason.message
                   : String(lidl.reason),
+            },
+      globus:
+        globus.status === "fulfilled"
+          ? { ok: true, count: globus.value.length }
+          : {
+              ok: false,
+              count: 0,
+              error:
+                globus.reason instanceof Error
+                  ? globus.reason.message
+                  : String(globus.reason),
             },
     },
   };

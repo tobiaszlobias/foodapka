@@ -8,12 +8,40 @@ import { getStoreLogoPath } from "@/lib/storeLogos";
 import { normalizeText } from "@/lib/food";
 import { useBodyScrollLock } from "@/lib/useBodyScrollLock";
 
-/** Zobrazí stránku letáku jako obrázek na vlastní stránce appky — žádný
- * odkaz/branding zdrojového webu, obrázek jde přes /api/leaflet-page proxy. */
+/** Zobrazí celý leták (všechny stránky) jako obrázky na vlastní stránce appky —
+ * žádný odkaz/branding zdrojového webu, obrázky jdou přes /api/leaflet-page proxy.
+ * Seznam stránek se načte z mojeletaky.cz (/api/leaflet-pages); pokud pro daný
+ * obchod není dostupný, spadne zpět na jedinou stránku z leafletUrl (Kupi.cz). */
 export function LeafletViewer({ leafletUrl, shopName, onClose }: { leafletUrl: string; shopName: string; onClose: () => void }) {
   useBodyScrollLock();
   const [status, setStatus] = useState<"loading" | "error" | "ready">("loading");
-  const proxiedSrc = `/api/leaflet-page?url=${encodeURIComponent(leafletUrl)}`;
+  const [pages, setPages] = useState<string[] | null>(null);
+  const [pageIndex, setPageIndex] = useState(0);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch(`/api/leaflet-pages?shop=${encodeURIComponent(shopName)}`)
+      .then((res) => (res.ok ? res.json() : { pages: [] }))
+      .then((data: { pages?: string[] }) => {
+        if (!cancelled) setPages(data.pages && data.pages.length > 0 ? data.pages : []);
+      })
+      .catch(() => {
+        if (!cancelled) setPages([]);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [shopName]);
+
+  const activeSourceUrl = pages && pages.length > 0 ? pages[pageIndex] : leafletUrl;
+  const totalPages = pages && pages.length > 0 ? pages.length : 1;
+  const proxiedSrc = `/api/leaflet-page?url=${encodeURIComponent(activeSourceUrl)}`;
+
+  function goToPage(nextIndex: number) {
+    if (nextIndex < 0 || nextIndex >= totalPages) return;
+    setStatus("loading");
+    setPageIndex(nextIndex);
+  }
 
   return createPortal(
     <div
@@ -22,7 +50,14 @@ export function LeafletViewer({ leafletUrl, shopName, onClose }: { leafletUrl: s
     >
       <div className="relative w-full max-w-lg max-h-[90vh] flex flex-col" onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between mb-3 px-1">
-          <h3 className="text-sm font-bold text-white">Leták — {shopName}</h3>
+          <h3 className="text-sm font-bold text-white">
+            Leták — {shopName}
+            {totalPages > 1 && (
+              <span className="ml-2 font-normal text-white/60">
+                {pageIndex + 1} / {totalPages}
+              </span>
+            )}
+          </h3>
           <button
             onClick={onClose}
             className="flex h-9 w-9 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors"
@@ -30,13 +65,14 @@ export function LeafletViewer({ leafletUrl, shopName, onClose }: { leafletUrl: s
             <span className="material-symbols-outlined text-lg">close</span>
           </button>
         </div>
-        <div className="flex-1 overflow-y-auto rounded-2xl bg-white dark:bg-zinc-900 flex items-center justify-center min-h-[300px]">
+        <div className="relative flex-1 overflow-y-auto rounded-2xl bg-white dark:bg-zinc-900 flex items-center justify-center min-h-[300px]">
           {status === "error" ? (
             <p className="p-8 text-center text-sm text-zinc-500">Leták se nepodařilo načíst.</p>
           ) : (
             <img
+              key={activeSourceUrl}
               src={proxiedSrc}
-              alt={`Leták ${shopName}`}
+              alt={`Leták ${shopName}, strana ${pageIndex + 1}`}
               className="w-full h-auto object-contain"
               onLoad={() => setStatus("ready")}
               onError={() => setStatus("error")}
@@ -44,6 +80,24 @@ export function LeafletViewer({ leafletUrl, shopName, onClose }: { leafletUrl: s
           )}
           {status === "loading" && (
             <span className="material-symbols-outlined animate-spin text-zinc-300 text-3xl absolute">progress_activity</span>
+          )}
+          {totalPages > 1 && (
+            <>
+              <button
+                onClick={() => goToPage(pageIndex - 1)}
+                disabled={pageIndex === 0}
+                className="absolute left-2 top-1/2 -translate-y-1/2 flex h-9 w-9 items-center justify-center rounded-full bg-black/40 text-white disabled:opacity-30 hover:bg-black/60 transition-colors"
+              >
+                <span className="material-symbols-outlined text-lg">chevron_left</span>
+              </button>
+              <button
+                onClick={() => goToPage(pageIndex + 1)}
+                disabled={pageIndex === totalPages - 1}
+                className="absolute right-2 top-1/2 -translate-y-1/2 flex h-9 w-9 items-center justify-center rounded-full bg-black/40 text-white disabled:opacity-30 hover:bg-black/60 transition-colors"
+              >
+                <span className="material-symbols-outlined text-lg">chevron_right</span>
+              </button>
+            </>
           )}
         </div>
       </div>
