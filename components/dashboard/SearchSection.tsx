@@ -465,6 +465,17 @@ export default function SearchSection({
                             {item.note && (
                               <span className="text-[9px] text-amber-600 dark:text-amber-500">{item.note}</span>
                             )}
+                            {item.leafletUrl && (
+                              <a
+                                href={item.leafletUrl}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="mt-0.5 inline-flex items-center gap-0.5 text-[10px] font-bold text-foodappka-600 hover:text-foodappka-700 transition-colors w-fit"
+                              >
+                                <span className="material-symbols-outlined text-[12px]">menu_book</span>
+                                Leták
+                              </a>
+                            )}
                           </div>
                           <div className="text-right shrink-0 flex flex-col items-end">
                             <div className="flex items-baseline gap-1.5">
