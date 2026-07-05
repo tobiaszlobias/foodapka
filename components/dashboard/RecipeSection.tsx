@@ -146,6 +146,8 @@ export default function RecipeSection({
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [leafletDialog, setLeafletDialog] = useState<{ url: string; shopName: string } | null>(null);
+  const [selectedStore, setSelectedStore] = useState<string | null>(null);
+  const [storePickerOpen, setStorePickerOpen] = useState(false);
 
   useEffect(() => {
     loadCustomRecipes().then(({ recipes, usingCloud }) => {
@@ -153,6 +155,10 @@ export default function RecipeSection({
       setUsingCloudRecipes(usingCloud);
     });
   }, []);
+
+  useEffect(() => {
+    setSelectedStore(null);
+  }, [activeRecipe]);
 
   const categories = useMemo(() => {
     const tags = new Set<string>();
@@ -207,11 +213,11 @@ export default function RecipeSection({
     }
   };
 
-  // SINGLE STORE LOGIC: Find which shop has the most ingredients for the lowest price
-  const effectiveResults = useMemo(() => {
-    if (shoppingMode === "cross_store") return recipeResults;
+  // SINGLE STORE LOGIC: skóre pro každý obchod (počet pokrytých ingrediencí + cena),
+  // použité jak pro automatický výběr nejlepšího, tak pro ruční výběr z dropdownu.
+  const shopScores = useMemo(() => {
+    if (shoppingMode === "cross_store") return [];
 
-    // 1. Find all unique shop names
     const allShops = new Set<string>();
     recipeResults.forEach(r => {
       if (r?.storeOptions) {
@@ -221,8 +227,8 @@ export default function RecipeSection({
       }
     });
 
-    // 2. Score each shop — vyřazené (odškrtnuté) položky se do výběru obchodu nepočítají
-    const shopScores = Array.from(allShops).map(shopName => {
+    // vyřazené (odškrtnuté) položky se do výběru obchodu nepočítají
+    const scores = Array.from(allShops).map(shopName => {
       let totalItems = 0;
       let totalPrice = 0;
       const items = recipeResults.map(res => {
@@ -242,22 +248,22 @@ export default function RecipeSection({
       return { shopName, totalItems, totalPrice, items };
     });
 
-    // 3. Pick the "best" shop (most items, then lowest price)
-    const bestShop = shopScores.sort((a, b) => {
+    return scores.sort((a, b) => {
       if (b.totalItems !== a.totalItems) return b.totalItems - a.totalItems;
       return a.totalPrice - b.totalPrice;
-    })[0];
-
-    console.log("🏪 Single Store Analysis:", {
-      totalIngredients: recipeResults.length,
-      availableShops: allShops.size,
-      bestShop: bestShop?.shopName,
-      coveredItems: bestShop?.totalItems,
-      totalPrice: bestShop?.totalPrice
     });
-
-    return bestShop?.items || recipeResults;
   }, [recipeResults, shoppingMode, checkedIngredients]);
+
+  const effectiveResults = useMemo(() => {
+    if (shoppingMode === "cross_store") return recipeResults;
+    if (shopScores.length === 0) return recipeResults;
+
+    const chosen = selectedStore
+      ? shopScores.find(s => s.shopName === selectedStore) ?? shopScores[0]
+      : shopScores[0];
+
+    return chosen.items;
+  }, [recipeResults, shoppingMode, shopScores, selectedStore]);
 
   const totalPrice = useMemo(() => {
     return (effectiveResults || []).reduce((sum, item) => {
@@ -507,11 +513,57 @@ export default function RecipeSection({
                 </div>
               </div>
 
-              <div className="mt-4 flex items-center gap-2">
+              <div className="mt-4 flex items-center gap-2 relative">
                 <div className="inline-flex rounded-full bg-foodappka-50 dark:bg-zinc-900 p-1">
-                  <button onClick={() => setShoppingMode("cross_store")} className={`px-4 py-1.5 rounded-full text-[11px] font-bold transition-all ${shoppingMode === "cross_store" ? "bg-foodappka-600 text-white shadow-sm" : "text-foodappka-800 dark:text-foodappka-400"}`}>Všude</button>
-                  <button onClick={() => setShoppingMode("single_store")} className={`px-4 py-1.5 rounded-full text-[11px] font-bold transition-all ${shoppingMode === "single_store" ? "bg-foodappka-600 text-white shadow-sm" : "text-foodappka-800 dark:text-foodappka-400"}`}>Jeden obchod</button>
+                  <button
+                    onClick={() => {
+                      setShoppingMode("cross_store");
+                      setStorePickerOpen(false);
+                    }}
+                    className={`px-4 py-1.5 rounded-full text-[11px] font-bold transition-all ${shoppingMode === "cross_store" ? "bg-foodappka-600 text-white shadow-sm" : "text-foodappka-800 dark:text-foodappka-400"}`}
+                  >
+                    Všude
+                  </button>
+                  <button
+                    onClick={() => {
+                      if (shoppingMode === "single_store") {
+                        setStorePickerOpen(o => !o);
+                      } else {
+                        setShoppingMode("single_store");
+                      }
+                    }}
+                    className={`flex items-center gap-1 px-4 py-1.5 rounded-full text-[11px] font-bold transition-all ${shoppingMode === "single_store" ? "bg-foodappka-600 text-white shadow-sm" : "text-foodappka-800 dark:text-foodappka-400"}`}
+                  >
+                    {shoppingMode === "single_store" ? (selectedStore ?? shopScores[0]?.shopName ?? "Jeden obchod") : "Jeden obchod"}
+                    {shoppingMode === "single_store" && shopScores.length > 1 && (
+                      <span className="material-symbols-outlined text-[14px]">expand_more</span>
+                    )}
+                  </button>
                 </div>
+
+                {storePickerOpen && shoppingMode === "single_store" && (
+                  <>
+                    <div className="fixed inset-0 z-10" onClick={() => setStorePickerOpen(false)} />
+                    <div className="absolute top-full left-0 mt-1 z-20 min-w-[200px] rounded-2xl bg-white dark:bg-zinc-900 shadow-lg border border-zinc-100 dark:border-zinc-800 overflow-hidden">
+                      {shopScores.map((shop, idx) => (
+                        <button
+                          key={shop.shopName}
+                          onClick={() => {
+                            setSelectedStore(shop.shopName);
+                            setStorePickerOpen(false);
+                          }}
+                          className={`w-full flex items-center justify-between gap-3 px-4 py-2.5 text-left text-xs hover:bg-foodappka-50 dark:hover:bg-zinc-800 transition-colors ${(selectedStore ?? shopScores[0]?.shopName) === shop.shopName ? "bg-foodappka-50 dark:bg-zinc-800 font-bold" : ""}`}
+                        >
+                          <span className="flex items-center gap-1.5">
+                            {shop.shopName}
+                            {idx === 0 && <span className="text-[9px] text-foodappka-600 font-bold uppercase">doporučeno</span>}
+                          </span>
+                          <span className="text-zinc-400 shrink-0">{shop.totalItems}/{recipeResults.length}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </>
+                )}
               </div>
 
               {shareMessage && <div className={`mt-4 p-3 rounded-xl text-xs font-bold border transition-all ${shareMessage.includes('✅') ? 'bg-green-50 border-green-100 text-green-800 dark:bg-green-900/20 dark:border-green-800 dark:text-green-400' : 'bg-foodappka-50 border-foodappka-100 text-foodappka-800 dark:bg-foodappka-900/20 dark:border-foodappka-800 dark:text-foodappka-300'}`}>{shareMessage}</div>}
@@ -585,16 +637,20 @@ export default function RecipeSection({
                                 {item.store.packageSize && (
                                   <span className="shrink-0 text-[10px] text-zinc-400">{item.store.packageSize}</span>
                                 )}
-                                <button
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    setLeafletDialog({ url: item.store!.leafletUrl, shopName: item.store!.shopName });
-                                  }}
-                                  className="shrink-0 inline-flex items-center gap-0.5 text-[10px] font-bold text-foodappka-600 hover:text-foodappka-700 transition-colors whitespace-nowrap"
-                                >
-                                  <span className="material-symbols-outlined text-[11px]">menu_book</span>
-                                  Leták
-                                </button>
+                                {/* Foodora je živý e-shop feed — u položek bez skutečné slevy
+                                    (běžná katalogová cena) žádný odpovídající leták neexistuje. */}
+                                {(item.store.source !== "foodora" || item.store.isSale) && (
+                                  <button
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setLeafletDialog({ url: item.store!.leafletUrl, shopName: item.store!.shopName });
+                                    }}
+                                    className="shrink-0 inline-flex items-center gap-0.5 text-[10px] font-bold text-foodappka-600 hover:text-foodappka-700 transition-colors whitespace-nowrap"
+                                  >
+                                    <span className="material-symbols-outlined text-[11px]">menu_book</span>
+                                    Leták
+                                  </button>
+                                )}
                               </div>
                               {item.store.loyaltyCardLabel && (
                                 <p className="inline-flex items-center gap-0.5 text-[9px] font-bold text-red-600 dark:text-red-400 mt-0.5 w-fit">
