@@ -1,16 +1,17 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import SearchBar from "@/components/SearchBar";
 import { RECIPE_PRESETS } from "@/lib/recipes";
 import { showToast } from "@/components/Toast";
-import { 
-  cleanProductName, 
-  parsePrice, 
+import {
+  cleanProductName,
+  parsePrice,
   formatDiscountPercent,
-  type Product, 
-  type Store 
+  getSavings,
+  type Product,
+  type Store
 } from "@/lib/food";
 import { StoreBrand, RecipeSkeleton, SearchLoadingAnimation } from "./DashboardShared";
 
@@ -113,11 +114,6 @@ export default function RecipeSection({
   const [customRecipes, setCustomRecipes] = useState<CustomRecipe[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [showCreateForm, setShowCreateForm] = useState(false);
-  const [formName, setFormName] = useState("");
-  const [formTag, setFormTag] = useState("Vlastní");
-  const [formDescription, setFormDescription] = useState("");
-  const [formIngredients, setFormIngredients] = useState<string[]>(["", "", ""]);
-  const [formInstructions, setFormInstructions] = useState("");
 
   useEffect(() => {
     setCustomRecipes(loadCustomRecipes());
@@ -139,33 +135,11 @@ export default function RecipeSection({
     [customRecipes, selectedCategory]
   );
 
-  const saveCustomRecipe = () => {
-    const name = formName.trim();
-    const ingredients = formIngredients.map(i => i.trim()).filter(Boolean);
-    if (!name) {
-      showToast("Zadejte název receptu.", "error");
-      return;
-    }
-    if (ingredients.length === 0) {
-      showToast("Přidejte alespoň jednu ingredienci.", "error");
-      return;
-    }
-    const recipe: CustomRecipe = {
-      name,
-      tag: formTag.trim() || "Vlastní",
-      description: formDescription.trim() || undefined,
-      ingredients,
-      instructions: formInstructions.trim() ? formInstructions.split("\n").map(l => l.trim()).filter(Boolean) : undefined,
-      createdAt: new Date().toISOString(),
-    };
+  const saveCustomRecipe = (recipe: CustomRecipe) => {
     const next = [recipe, ...customRecipes.filter(r => r.name !== recipe.name)];
     setCustomRecipes(next);
     localStorage.setItem(CUSTOM_RECIPES_KEY, JSON.stringify(next));
     setShowCreateForm(false);
-    setFormName("");
-    setFormDescription("");
-    setFormIngredients(["", "", ""]);
-    setFormInstructions("");
     showToast("✅ Recept uložen!", "success");
     runCustomRecipeSearch?.(recipe);
   };
@@ -472,50 +446,103 @@ export default function RecipeSection({
               <ul className="mt-4 space-y-2">
                 {effectiveResults.map((item) => {
                   const isChecked = checkedIngredients.includes(item.ingredient);
+                  const price = item.store ? parsePrice(item.store.price) : null;
+                  const originalPrice = item.store?.originalPrice ? parsePrice(item.store.originalPrice) : null;
+                  const isSale = price !== null && originalPrice !== null && originalPrice > price;
+                  const discount = isSale ? formatDiscountPercent(price!, originalPrice) : "";
+                  const savings = isSale ? getSavings(price!, originalPrice) : 0;
+
                   return (
-                    <li key={item.ingredient} className={`rounded-xl border px-3 py-3 transition-all ${isChecked ? "opacity-60 bg-zinc-50 dark:bg-zinc-900/30 grayscale" : "bg-white dark:bg-zinc-900/50"}`}>
-                      <div className="flex gap-3">
-                        <button onClick={() => toggleIngredient(item.ingredient)} className={`mt-0.5 w-5 h-5 shrink-0 rounded-full border flex items-center justify-center text-[10px] font-black ${isChecked ? "bg-foodappka-600 border-foodappka-600 text-white" : "border-zinc-300 dark:border-zinc-700 text-transparent"}`}>✓</button>
+                    <li
+                      key={item.ingredient}
+                      className={`rounded-2xl border overflow-hidden transition-all ${
+                        isChecked
+                          ? "opacity-60 grayscale border-zinc-100 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/30"
+                          : "border-zinc-100 dark:border-zinc-800 bg-white dark:bg-zinc-900"
+                      }`}
+                    >
+                      <div className="flex items-center gap-3 px-4 py-3">
+                        <button
+                          onClick={() => toggleIngredient(item.ingredient)}
+                          className={`shrink-0 w-5 h-5 rounded-full border flex items-center justify-center text-[10px] font-black transition-colors ${
+                            isChecked ? "bg-foodappka-600 border-foodappka-600 text-white" : "border-zinc-300 dark:border-zinc-700 text-transparent"
+                          }`}
+                        >
+                          ✓
+                        </button>
+
+                        {/* Obrázek produktu nebo logo obchodu */}
+                        <div className="shrink-0">
+                          {item.product?.image ? (
+                            <div className="w-12 h-12 rounded-xl overflow-hidden bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center">
+                              <Image
+                                src={item.product.image}
+                                alt={item.product.name}
+                                width={48}
+                                height={48}
+                                className="w-full h-full object-contain"
+                                unoptimized
+                              />
+                            </div>
+                          ) : item.store ? (
+                            <StoreBrand shopName={item.store.shopName} small />
+                          ) : (
+                            <div className="w-12 h-12 rounded-xl bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center">
+                              <span className="material-symbols-outlined text-zinc-300 text-xl">help</span>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Název + hashtag/zdroj */}
                         <div className="min-w-0 flex-1">
-                          <div className="flex justify-between items-start gap-2">
-                            <p className={`text-sm font-bold truncate ${isChecked ? "line-through text-zinc-500" : "text-zinc-900 dark:text-white"}`}>{item.ingredient}</p>
-                            <div className="text-right shrink-0 flex flex-col items-end">
-                              <p className="text-sm font-black text-foodappka-700 dark:text-foodappka-400 leading-none mb-0.5">{item.store?.price || "—"}</p>
-                              {item.store?.originalPrice && parsePrice(item.store.originalPrice) > parsePrice(item.store.price) && !isChecked && (
-                                <span className="text-[10px] text-zinc-400 line-through font-bold block leading-none mb-0.5">
-                                  {item.store.originalPrice}
-                                </span>
-                              )}
-                              {item.store && !isChecked && parsePrice(item.store.originalPrice || "") > parsePrice(item.store.price) && (
-                                <div className="mt-1 flex flex-col items-end gap-0.5">
-                                  <span className="text-[9px] text-red-500 font-bold bg-red-50 px-1.5 py-0.5 rounded leading-none block w-fit">
-                                    {formatDiscountPercent(parsePrice(item.store.price), parsePrice(item.store.originalPrice || ""))}
-                                  </span>
-                                  <span className="text-[9px] text-red-600 font-bold leading-none whitespace-nowrap">
-                                    Ušetříte {(parsePrice(item.store.originalPrice || "") - parsePrice(item.store.price)).toFixed(2).replace(".", ",")} Kč
-                                  </span>
-                                </div>
-                              )}
-                            </div>
-                          </div>
+                          <h3 className={`text-sm font-semibold leading-tight truncate ${isChecked ? "line-through text-zinc-500" : "text-zinc-800 dark:text-zinc-100"}`}>
+                            {item.ingredient}
+                          </h3>
                           {!isChecked && item.store && (
-                            <div className="flex items-center gap-2 mt-1 opacity-80">
-                              <StoreBrand shopName={item.store.shopName} small />
-                              <div className="flex items-center gap-1 min-w-0">
-                                <span className="text-[10px] text-zinc-500 dark:text-zinc-400 truncate">{cleanProductName(item.product?.name || "")}</span>
-                                {item.product?.url && (
-                                  <a 
-                                    href={item.product.url} 
-                                    target="_blank" 
-                                    rel="noreferrer"
-                                    className="text-zinc-400 hover:text-foodappka-600 transition-colors"
-                                    title="Otevřít zdroj"
-                                  >
-                                    <span className="material-symbols-outlined text-[12px]">open_in_new</span>
-                                  </a>
-                                )}
-                              </div>
+                            <div className="flex items-center gap-1.5 mt-0.5 min-w-0">
+                              <span className="text-[10px] text-zinc-400 truncate">{cleanProductName(item.product?.name || "")}</span>
+                              {(item.store.leafletUrl || item.product?.url) && (
+                                <a
+                                  href={item.store.leafletUrl || item.product?.url}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                  onClick={(e) => e.stopPropagation()}
+                                  className="shrink-0 inline-flex items-center gap-0.5 text-[10px] font-bold text-foodappka-600 hover:text-foodappka-700 transition-colors whitespace-nowrap"
+                                >
+                                  <span className="material-symbols-outlined text-[11px]">
+                                    {item.store.leafletUrl ? "menu_book" : "open_in_new"}
+                                  </span>
+                                  {item.store.leafletUrl ? "Leták" : "Zdroj"}
+                                </a>
+                              )}
                             </div>
+                          )}
+                          {!item.store && (
+                            <p className="text-[10px] text-zinc-400 mt-0.5">Nenalezeno</p>
+                          )}
+                        </div>
+
+                        {/* Cena vpravo */}
+                        <div className="shrink-0 text-right flex flex-col items-end">
+                          <div className="flex items-baseline gap-1.5">
+                            {isSale && discount && (
+                              <span className="bg-red-500 text-[9px] font-black text-white px-1.5 py-0.5 rounded-full leading-none">
+                                {discount}
+                              </span>
+                            )}
+                            <span className="text-base font-black text-zinc-900 dark:text-white leading-none">
+                              {item.store?.price || "—"}
+                            </span>
+                          </div>
+                          {isSale && (
+                            <span className="text-[10px] text-zinc-400 line-through mt-0.5">
+                              {item.store?.originalPrice}
+                            </span>
+                          )}
+                          {savings > 0 && (
+                            <span className="text-[9px] text-green-600 dark:text-green-400 font-bold mt-0.5">
+                              ušetříš {savings.toFixed(0)} Kč
+                            </span>
                           )}
                         </div>
                       </div>
@@ -557,115 +584,227 @@ export default function RecipeSection({
 
       {/* Modal: vytvoření vlastního receptu */}
       {showCreateForm && (
-        <div
-          className="fixed inset-0 z-[200] flex items-end sm:items-center justify-center bg-black/50 backdrop-blur-sm p-0 sm:p-4"
-          onClick={() => setShowCreateForm(false)}
-        >
-          <div
-            className="w-full sm:max-w-lg max-h-[90vh] overflow-y-auto rounded-t-[2rem] sm:rounded-[2rem] bg-white dark:bg-zinc-900 p-6 md:p-8 shadow-2xl"
-            onClick={(e) => e.stopPropagation()}
+        <CreateRecipeDialog
+          existingCategories={categories.filter(c => c !== "all")}
+          onClose={() => setShowCreateForm(false)}
+          onSave={saveCustomRecipe}
+        />
+      )}
+    </div>
+  );
+}
+
+type CreateRecipeDialogProps = {
+  existingCategories: string[];
+  onClose: () => void;
+  onSave: (recipe: CustomRecipe) => void;
+};
+
+function CreateRecipeDialog({ existingCategories, onClose, onSave }: CreateRecipeDialogProps) {
+  const categoryOptions = useMemo(
+    () => Array.from(new Set(["Vlastní", ...existingCategories])),
+    [existingCategories],
+  );
+  const [name, setName] = useState("");
+  const [tag, setTag] = useState<string>("Vlastní");
+  const [customTag, setCustomTag] = useState("");
+  const [showCustomTagInput, setShowCustomTagInput] = useState(false);
+  const [description, setDescription] = useState("");
+  const [ingredients, setIngredients] = useState<string[]>(["", "", ""]);
+  const [instructions, setInstructions] = useState("");
+  const ingredientRefs = useRef<(HTMLInputElement | null)[]>([]);
+  const pendingFocusIndex = useRef<number | null>(null);
+
+  useEffect(() => {
+    if (pendingFocusIndex.current !== null) {
+      ingredientRefs.current[pendingFocusIndex.current]?.focus();
+      pendingFocusIndex.current = null;
+    }
+  }, [ingredients]);
+
+  const addIngredientField = () => {
+    pendingFocusIndex.current = ingredients.length;
+    setIngredients((prev) => [...prev, ""]);
+  };
+
+  const handleSave = () => {
+    const trimmedName = name.trim();
+    const cleanedIngredients = ingredients.map((i) => i.trim()).filter(Boolean);
+    const finalTag = (showCustomTagInput ? customTag : tag).trim() || "Vlastní";
+
+    if (!trimmedName) {
+      showToast("Zadejte název receptu.", "error");
+      return;
+    }
+    if (cleanedIngredients.length === 0) {
+      showToast("Přidejte alespoň jednu ingredienci.", "error");
+      return;
+    }
+
+    onSave({
+      name: trimmedName,
+      tag: finalTag,
+      description: description.trim() || undefined,
+      ingredients: cleanedIngredients,
+      instructions: instructions.trim()
+        ? instructions.split("\n").map((l) => l.trim()).filter(Boolean)
+        : undefined,
+      createdAt: new Date().toISOString(),
+    });
+  };
+
+  return (
+    <div
+      className="fixed inset-0 z-[200] flex items-end sm:items-center justify-center bg-black/50 backdrop-blur-sm p-0 sm:p-4"
+      onClick={onClose}
+    >
+      <div
+        className="w-full sm:max-w-lg max-h-[85dvh] overflow-y-auto overscroll-contain rounded-t-[2rem] sm:rounded-[2rem] bg-white dark:bg-zinc-900 p-6 md:p-8 pb-safe shadow-2xl"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-center justify-between mb-6">
+          <h3 className="text-xl font-black text-zinc-900 dark:text-white">Nový recept</h3>
+          <button
+            onClick={onClose}
+            className="flex h-9 w-9 items-center justify-center rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-500 hover:text-zinc-900 dark:hover:text-white transition-colors"
           >
-            <div className="flex items-center justify-between mb-6">
-              <h3 className="text-xl font-black text-zinc-900 dark:text-white">Nový recept</h3>
-              <button
-                onClick={() => setShowCreateForm(false)}
-                className="flex h-9 w-9 items-center justify-center rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-500 hover:text-zinc-900 dark:hover:text-white transition-colors"
-              >
-                <span className="material-symbols-outlined text-lg">close</span>
-              </button>
-            </div>
+            <span className="material-symbols-outlined text-lg">close</span>
+          </button>
+        </div>
 
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-bold text-zinc-700 dark:text-zinc-300 mb-2">Název receptu *</label>
-                <input
-                  value={formName}
-                  onChange={(e) => setFormName(e.target.value)}
-                  placeholder="např. Babiččin guláš"
-                  className="w-full h-12 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-black px-4 text-zinc-900 dark:text-white outline-none transition focus:border-foodappka-500 focus:ring-2 focus:ring-foodappka-500/20"
-                />
-              </div>
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-bold text-zinc-700 dark:text-zinc-300 mb-2">Název receptu *</label>
+            <input
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="např. Babiččin guláš"
+              className="w-full h-12 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-black px-4 text-zinc-900 dark:text-white outline-none transition focus:border-foodappka-500 focus:ring-2 focus:ring-foodappka-500/20"
+            />
+          </div>
 
-              <div>
-                <label className="block text-sm font-bold text-zinc-700 dark:text-zinc-300 mb-2">Kategorie</label>
-                <input
-                  value={formTag}
-                  onChange={(e) => setFormTag(e.target.value)}
-                  placeholder="např. Česká klasika"
-                  list="recipe-categories"
-                  className="w-full h-12 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-black px-4 text-zinc-900 dark:text-white outline-none transition focus:border-foodappka-500 focus:ring-2 focus:ring-foodappka-500/20"
-                />
-                <datalist id="recipe-categories">
-                  {categories.filter(c => c !== "all").map(c => <option key={c} value={c} />)}
-                </datalist>
-              </div>
-
-              <div>
-                <label className="block text-sm font-bold text-zinc-700 dark:text-zinc-300 mb-2">Popis</label>
-                <input
-                  value={formDescription}
-                  onChange={(e) => setFormDescription(e.target.value)}
-                  placeholder="Krátký popis receptu (nepovinné)"
-                  className="w-full h-12 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-black px-4 text-zinc-900 dark:text-white outline-none transition focus:border-foodappka-500 focus:ring-2 focus:ring-foodappka-500/20"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-bold text-zinc-700 dark:text-zinc-300 mb-2">Ingredience *</label>
-                <div className="space-y-2">
-                  {formIngredients.map((ing, i) => (
-                    <div key={i} className="flex gap-2">
-                      <input
-                        value={ing}
-                        onChange={(e) => {
-                          const next = [...formIngredients];
-                          next[i] = e.target.value;
-                          setFormIngredients(next);
-                        }}
-                        placeholder={`Ingredience ${i + 1}`}
-                        className="flex-1 h-11 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-black px-4 text-sm text-zinc-900 dark:text-white outline-none transition focus:border-foodappka-500 focus:ring-2 focus:ring-foodappka-500/20"
-                      />
-                      {formIngredients.length > 1 && (
-                        <button
-                          onClick={() => setFormIngredients(formIngredients.filter((_, j) => j !== i))}
-                          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-zinc-100 dark:bg-zinc-800 text-zinc-400 hover:text-red-500 transition-colors"
-                        >
-                          <span className="material-symbols-outlined text-lg">remove</span>
-                        </button>
-                      )}
-                    </div>
-                  ))}
-                </div>
+          <div>
+            <label className="block text-sm font-bold text-zinc-700 dark:text-zinc-300 mb-2">Kategorie</label>
+            {!showCustomTagInput ? (
+              <div className="flex flex-wrap gap-2">
+                {categoryOptions.map((cat) => (
+                  <button
+                    key={cat}
+                    type="button"
+                    onClick={() => setTag(cat)}
+                    className={`rounded-full px-4 py-2 text-xs font-bold transition-all ${
+                      tag === cat
+                        ? "bg-foodappka-600 text-white shadow-md"
+                        : "bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-700"
+                    }`}
+                  >
+                    #{cat}
+                  </button>
+                ))}
                 <button
-                  onClick={() => setFormIngredients([...formIngredients, ""])}
-                  className="mt-2 inline-flex items-center gap-1 text-sm font-bold text-foodappka-600 hover:text-foodappka-700 transition-colors"
+                  type="button"
+                  onClick={() => {
+                    setShowCustomTagInput(true);
+                    setCustomTag("");
+                  }}
+                  className="rounded-full px-4 py-2 text-xs font-bold bg-white dark:bg-zinc-900 border border-dashed border-zinc-300 dark:border-zinc-700 text-zinc-500 hover:border-foodappka-400 transition-all"
                 >
-                  <span className="material-symbols-outlined text-lg">add</span>
-                  Přidat ingredienci
+                  + Vlastní
                 </button>
               </div>
-
-              <div>
-                <label className="block text-sm font-bold text-zinc-700 dark:text-zinc-300 mb-2">Postup (každý krok na nový řádek)</label>
-                <textarea
-                  value={formInstructions}
-                  onChange={(e) => setFormInstructions(e.target.value)}
-                  placeholder={"Orestujte cibuli.\nPřidejte maso a osmahněte.\n…"}
-                  rows={4}
-                  className="w-full rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-black px-4 py-3 text-sm text-zinc-900 dark:text-white outline-none transition focus:border-foodappka-500 focus:ring-2 focus:ring-foodappka-500/20 resize-none"
+            ) : (
+              <div className="flex gap-2">
+                <input
+                  autoFocus
+                  value={customTag}
+                  onChange={(e) => setCustomTag(e.target.value)}
+                  placeholder="např. Česká klasika"
+                  className="flex-1 h-11 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-black px-4 text-sm text-zinc-900 dark:text-white outline-none transition focus:border-foodappka-500 focus:ring-2 focus:ring-foodappka-500/20"
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowCustomTagInput(false)}
+                  className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-zinc-100 dark:bg-zinc-800 text-zinc-400 hover:text-zinc-700 transition-colors"
+                >
+                  <span className="material-symbols-outlined text-lg">check</span>
+                </button>
               </div>
-
-              <button
-                onClick={saveCustomRecipe}
-                className="w-full h-12 rounded-full bg-foodappka-600 text-white font-black transition hover:bg-foodappka-700 shadow-lg shadow-foodappka-600/20 active:scale-95"
-              >
-                Uložit a najít ceny
-              </button>
-            </div>
+            )}
           </div>
+
+          <div>
+            <label className="block text-sm font-bold text-zinc-700 dark:text-zinc-300 mb-2">Popis</label>
+            <input
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="Krátký popis receptu (nepovinné)"
+              className="w-full h-12 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-black px-4 text-zinc-900 dark:text-white outline-none transition focus:border-foodappka-500 focus:ring-2 focus:ring-foodappka-500/20"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-bold text-zinc-700 dark:text-zinc-300 mb-2">Ingredience *</label>
+            <div className="space-y-2">
+              {ingredients.map((ing, i) => (
+                <div key={i} className="flex gap-2">
+                  <input
+                    ref={(el) => { ingredientRefs.current[i] = el; }}
+                    value={ing}
+                    onChange={(e) => {
+                      const next = [...ingredients];
+                      next[i] = e.target.value;
+                      setIngredients(next);
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        addIngredientField();
+                      }
+                    }}
+                    placeholder={`Ingredience ${i + 1}`}
+                    className="flex-1 h-11 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-black px-4 text-sm text-zinc-900 dark:text-white outline-none transition focus:border-foodappka-500 focus:ring-2 focus:ring-foodappka-500/20"
+                  />
+                  {ingredients.length > 1 && (
+                    <button
+                      type="button"
+                      onClick={() => setIngredients(ingredients.filter((_, j) => j !== i))}
+                      className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-zinc-100 dark:bg-zinc-800 text-zinc-400 hover:text-red-500 transition-colors"
+                    >
+                      <span className="material-symbols-outlined text-lg">remove</span>
+                    </button>
+                  )}
+                </div>
+              ))}
+            </div>
+            <button
+              type="button"
+              onClick={addIngredientField}
+              className="mt-2 inline-flex items-center gap-1 text-sm font-bold text-foodappka-600 hover:text-foodappka-700 transition-colors"
+            >
+              <span className="material-symbols-outlined text-lg">add</span>
+              Přidat ingredienci
+            </button>
+          </div>
+
+          <div>
+            <label className="block text-sm font-bold text-zinc-700 dark:text-zinc-300 mb-2">Postup (každý krok na nový řádek)</label>
+            <textarea
+              value={instructions}
+              onChange={(e) => setInstructions(e.target.value)}
+              placeholder={"Orestujte cibuli.\nPřidejte maso a osmahněte.\n…"}
+              rows={4}
+              className="w-full rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-black px-4 py-3 text-sm text-zinc-900 dark:text-white outline-none transition focus:border-foodappka-500 focus:ring-2 focus:ring-foodappka-500/20 resize-none"
+            />
+          </div>
+
+          <button
+            onClick={handleSave}
+            className="w-full h-12 rounded-full bg-foodappka-600 text-white font-black transition hover:bg-foodappka-700 shadow-lg shadow-foodappka-600/20 active:scale-95"
+          >
+            Uložit a najít ceny
+          </button>
         </div>
-      )}
+      </div>
     </div>
   );
 }
