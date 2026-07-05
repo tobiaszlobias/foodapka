@@ -40,6 +40,7 @@ function extractStoresFromDetail(
     const packageSize = row.find(".discount_amount").text().trim().replace(/^\/\s*/, "");
     const discountPercent = row.find(".discount_percentage").text().trim();
     const note = row.find(".discount_note").text().trim();
+    const loyaltyCardLabel = row.find(".discounts_club").text().trim();
 
     stores.push({
       shopId: row.attr("data-shop") || "",
@@ -51,6 +52,7 @@ function extractStoresFromDetail(
       packageSize: packageSize || undefined,
       discountPercent: discountPercent || undefined,
       note: note || undefined,
+      loyaltyCardLabel: loyaltyCardLabel || undefined,
       validity: row.find(".discounts_validity.valid_discount").text().trim(),
       leafletUrl: absoluteUrl(
         KUPI_ORIGIN,

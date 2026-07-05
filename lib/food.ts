@@ -13,6 +13,8 @@ export type Store = {
   packageSize?: string;
   /** Poznámka k akci ze zdroje (např. "max 10 ks/osoba/den"). */
   note?: string;
+  /** Cena platí jen s věrnostní kartou (např. "Cena s Kaufland Card", "Jen pro Lidl Plus"). */
+  loyaltyCardLabel?: string;
   validity: string;
   leafletUrl: string;
   source?: PriceSource;

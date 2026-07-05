@@ -462,6 +462,12 @@ export default function SearchSection({
                                 <span className="text-[10px] text-zinc-400">{item.validity}</span>
                               )}
                             </div>
+                            {item.loyaltyCardLabel && (
+                              <span className="inline-flex items-center gap-0.5 text-[9px] font-bold text-red-600 dark:text-red-400 w-fit">
+                                <span className="material-symbols-outlined text-[11px]">card_membership</span>
+                                {item.loyaltyCardLabel}
+                              </span>
+                            )}
                             {item.note && (
                               <span className="text-[9px] text-amber-600 dark:text-amber-500">{item.note}</span>
                             )}

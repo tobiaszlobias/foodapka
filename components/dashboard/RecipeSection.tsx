@@ -599,6 +599,12 @@ export default function RecipeSection({
                                   </a>
                                 )}
                               </div>
+                              {item.store.loyaltyCardLabel && (
+                                <p className="inline-flex items-center gap-0.5 text-[9px] font-bold text-red-600 dark:text-red-400 mt-0.5 w-fit">
+                                  <span className="material-symbols-outlined text-[11px]">card_membership</span>
+                                  {item.store.loyaltyCardLabel}
+                                </p>
+                              )}
                               {item.store.note && (
                                 <p className="text-[9px] text-amber-600 dark:text-amber-500 mt-0.5">{item.store.note}</p>
                               )}
