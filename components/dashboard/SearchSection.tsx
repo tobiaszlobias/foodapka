@@ -369,50 +369,30 @@ export default function SearchSection({
               const sortedStores = sortStoresByPrice(product.stores);
               const bestStore = sortedStores[0];
               const bestPrice = bestStore ? parsePrice(bestStore.price) : 0;
-              const bestOriginal = bestStore?.originalPrice ? parsePrice(bestStore.originalPrice) : null;
-              const bestSavings = getSavings(bestPrice, bestOriginal);
-              const bestDiscount = bestStore?.discountPercent || formatDiscountPercent(bestPrice, bestOriginal);
-              const isBestSale = bestOriginal !== null && bestOriginal > bestPrice;
 
               return (
                 <article key={product.url} className="rounded-2xl border border-zinc-100 dark:border-zinc-800 bg-white dark:bg-zinc-900 overflow-hidden w-full">
-                  {/* Hlavní řádek */}
+                  {/* Header: obrázek/název produktu */}
                   <div className="flex items-center gap-3 px-4 py-3">
-                    {/* Obrázek produktu nebo logo obchodu */}
                     <div className="shrink-0">
                       {product.image ? (
-                        <a
-                          href={bestStore?.leafletUrl || undefined}
-                          target={bestStore?.leafletUrl ? "_blank" : undefined}
-                          rel={bestStore?.leafletUrl ? "noreferrer" : undefined}
-                          onClick={(e) => { if (!bestStore?.leafletUrl) e.preventDefault(); }}
-                          className="relative block w-12 h-12"
-                        >
-                          <div className="w-12 h-12 rounded-xl overflow-hidden bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center">
-                            <Image
-                              src={product.image}
-                              alt={product.name}
-                              width={48}
-                              height={48}
-                              className="w-full h-full object-contain"
-                              unoptimized
-                            />
-                          </div>
-                          {/* Logo obchodu — vždy viditelné, i když má produkt fotku */}
-                          <div className="absolute -bottom-1.5 -right-1.5 flex h-6 w-6 items-center justify-center rounded-full bg-white dark:bg-zinc-900 shadow-md ring-2 ring-white dark:ring-zinc-900">
-                            <StoreBrand shopName={bestStore?.shopName ?? ""} badge />
-                          </div>
-                        </a>
-                      ) : bestStore?.leafletUrl ? (
-                        <a href={bestStore.leafletUrl} target="_blank" rel="noreferrer">
-                          <StoreBrand shopName={bestStore?.shopName ?? ""} small />
-                        </a>
+                        <div className="w-12 h-12 rounded-xl overflow-hidden bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center">
+                          <Image
+                            src={product.image}
+                            alt={product.name}
+                            width={48}
+                            height={48}
+                            className="w-full h-full object-contain"
+                            unoptimized
+                          />
+                        </div>
                       ) : (
-                        <StoreBrand shopName={bestStore?.shopName ?? ""} small />
+                        <div className="w-12 h-12 rounded-xl bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center">
+                          <span className="material-symbols-outlined text-zinc-300 text-xl">shopping_basket</span>
+                        </div>
                       )}
                     </div>
 
-                    {/* Název */}
                     <div className="min-w-0 flex-1">
                       <h3 className="text-sm font-semibold text-zinc-800 dark:text-zinc-100 leading-tight line-clamp-2">
                         {cleanProductName(product.name)}
@@ -426,44 +406,12 @@ export default function SearchSection({
                         {bestStore?.packageSize && (
                           <span className="text-[10px] text-zinc-400">{bestStore.packageSize}</span>
                         )}
-                        {product.stores.length > 1 && (
-                          <p className="text-[10px] text-zinc-400">
-                            +{product.stores.length - 1} {product.stores.length - 1 === 1 ? "obchod" : "obchody"}
-                          </p>
-                        )}
-                      </div>
-                      {bestStore?.note && (
-                        <p className="text-[9px] text-amber-600 dark:text-amber-500 mt-0.5">{bestStore.note}</p>
-                      )}
-                    </div>
-
-                    {/* Ceny vpravo */}
-                    <div className="shrink-0 text-right flex flex-col items-end">
-                      <div className="flex items-baseline gap-1.5">
-                        {isBestSale && bestDiscount && (
-                          <span className="bg-red-500 text-[9px] font-black text-white px-1.5 py-0.5 rounded-full leading-none">
-                            {bestDiscount}
+                        {sortedStores.length > 1 && (
+                          <span className="text-[10px] text-zinc-400">
+                            {sortedStores.length} nabídky
                           </span>
                         )}
-                        <span className="text-xl font-black text-zinc-900 dark:text-white leading-none">
-                          {bestStore?.price}
-                        </span>
                       </div>
-                      {isBestSale && (
-                        <span className="text-[11px] text-zinc-400 line-through mt-0.5">
-                          {bestStore?.originalPrice}
-                        </span>
-                      )}
-                      {bestSavings > 0 && (
-                        <span className="text-[10px] text-green-600 dark:text-green-400 font-bold mt-0.5">
-                          ušetříš {bestSavings.toFixed(0)} Kč
-                        </span>
-                      )}
-                      {bestStore?.validity && (
-                        <span className="text-[9px] text-zinc-400 dark:text-zinc-500 mt-0.5">
-                          {bestStore.validity}
-                        </span>
-                      )}
                     </div>
 
                     {/* Hlídat cenu */}
@@ -479,62 +427,71 @@ export default function SearchSection({
                     </button>
                   </div>
 
-                  {/* Ostatní obchody — jen pokud jich je víc */}
-                  {sortedStores.length > 1 && (
-                    <div className="border-t border-zinc-100 dark:border-zinc-800 divide-y divide-zinc-100 dark:divide-zinc-800">
-                      {sortedStores.slice(1).map((item, idx) => {
-                        const currentPrice = parsePrice(item.price);
-                        const originalPrice = item.originalPrice ? parsePrice(item.originalPrice) : null;
-                        const isSale = originalPrice !== null && originalPrice > currentPrice;
-                        const discount = item.discountPercent || formatDiscountPercent(currentPrice, originalPrice);
+                  {/* Obchody — vertikální seznam, každý stejně velký */}
+                  <div className="border-t border-zinc-100 dark:border-zinc-800 divide-y divide-zinc-100 dark:divide-zinc-800">
+                    {sortedStores.map((item, idx) => {
+                      const currentPrice = parsePrice(item.price);
+                      const originalPrice = item.originalPrice ? parsePrice(item.originalPrice) : null;
+                      const isSale = originalPrice !== null && originalPrice > currentPrice;
+                      const discount = item.discountPercent || formatDiscountPercent(currentPrice, originalPrice);
+                      const savings = isSale ? getSavings(currentPrice, originalPrice) : 0;
+                      const isCheapest = idx === 0;
 
-                        return (
-                          <div key={idx} className="flex items-center gap-3 px-4 py-2">
-                            <div className="shrink-0">
-                              {item.leafletUrl ? (
-                                <a href={item.leafletUrl} target="_blank" rel="noreferrer">
-                                  <StoreBrand shopName={item.shopName} small />
-                                </a>
-                              ) : (
+                      return (
+                        <div
+                          key={idx}
+                          className={`flex items-center gap-3 px-4 py-3 ${isCheapest ? "bg-foodappka-50/60 dark:bg-foodappka-900/10" : ""}`}
+                        >
+                          <div className="shrink-0 w-9 h-9 flex items-center justify-center">
+                            {item.leafletUrl ? (
+                              <a href={item.leafletUrl} target="_blank" rel="noreferrer">
                                 <StoreBrand shopName={item.shopName} small />
+                              </a>
+                            ) : (
+                              <StoreBrand shopName={item.shopName} small />
+                            )}
+                          </div>
+                          <div className="flex-1 min-w-0 flex flex-col">
+                            <div className="flex items-center gap-1.5 flex-wrap">
+                              {isCheapest && (
+                                <span className="text-[10px] font-black text-foodappka-700 dark:text-foodappka-400 uppercase tracking-wide">
+                                  Nejlevnější
+                                </span>
+                              )}
+                              {item.validity && (
+                                <span className="text-[10px] text-zinc-400">{item.validity}</span>
                               )}
                             </div>
-                            <div className="flex-1 min-w-0 flex flex-col">
-                              <div className="flex items-center gap-1.5 flex-wrap">
-                                {item.pricePerUnit && (
-                                  <span className="text-[10px] text-zinc-400">{item.pricePerUnit}</span>
-                                )}
-                                {item.packageSize && (
-                                  <span className="text-[10px] text-zinc-400">{item.packageSize}</span>
-                                )}
-                              </div>
-                              {item.validity ? (
-                                <span className="text-[9px] text-zinc-400 dark:text-zinc-500">{item.validity}</span>
-                              ) : null}
-                              {item.note && (
-                                <span className="text-[9px] text-amber-600 dark:text-amber-500">{item.note}</span>
-                              )}
-                            </div>
-                            <div className="text-right flex items-center gap-1.5">
+                            {item.note && (
+                              <span className="text-[9px] text-amber-600 dark:text-amber-500">{item.note}</span>
+                            )}
+                          </div>
+                          <div className="text-right shrink-0 flex flex-col items-end">
+                            <div className="flex items-baseline gap-1.5">
                               {isSale && discount && (
-                                <span className="bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 text-[9px] font-bold px-1.5 py-0.5 rounded-full">
+                                <span className="bg-red-500 text-[9px] font-black text-white px-1.5 py-0.5 rounded-full leading-none">
                                   {discount}
                                 </span>
                               )}
-                              <span className="text-sm font-bold text-zinc-700 dark:text-zinc-200">
+                              <span className={`font-black text-zinc-900 dark:text-white leading-none ${isCheapest ? "text-lg" : "text-sm"}`}>
                                 {item.price}
                               </span>
-                              {isSale && (
-                                <span className="text-[10px] text-zinc-400 line-through">
-                                  {item.originalPrice}
-                                </span>
-                              )}
                             </div>
+                            {isSale && (
+                              <span className="text-[10px] text-zinc-400 line-through mt-0.5">
+                                {item.originalPrice}
+                              </span>
+                            )}
+                            {savings > 0 && (
+                              <span className="text-[9px] text-green-600 dark:text-green-400 font-bold mt-0.5">
+                                ušetříš {savings.toFixed(0)} Kč
+                              </span>
+                            )}
                           </div>
-                        );
-                      })}
-                    </div>
-                  )}
+                        </div>
+                      );
+                    })}
+                  </div>
                 </article>
               );
             })}
