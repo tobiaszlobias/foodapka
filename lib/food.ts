@@ -7,6 +7,12 @@ export type Store = {
   originalPrice?: string;
   pricePerUnit: string;
   amount: string;
+  /** Přesné % slevy přímo ze zdroje (např. "–27 %"), na rozdíl od formatDiscountPercent, které je dopočítané z cen. */
+  discountPercent?: string;
+  /** Balení/gramáž/objem produktu (např. "250 g", "1 l"), odděleně od amount kvůli zpětné kompatibilitě. */
+  packageSize?: string;
+  /** Poznámka k akci ze zdroje (např. "max 10 ks/osoba/den"). */
+  note?: string;
   validity: string;
   leafletUrl: string;
   source?: PriceSource;

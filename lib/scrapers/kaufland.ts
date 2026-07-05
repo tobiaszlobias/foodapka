@@ -124,6 +124,8 @@ export async function searchKauflandProducts(query: string): Promise<Product[]> 
           originalPrice,
           pricePerUnit: offer.unit ?? "",
           amount: offer.discount ? `-${offer.discount}%` : "",
+          packageSize: offer.subtitle?.trim() || undefined,
+          discountPercent: offer.discount ? `-${offer.discount} %` : undefined,
           validity,
           leafletUrl: url,
           source: "kaufland" as const,

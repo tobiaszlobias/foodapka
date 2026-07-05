@@ -90,6 +90,7 @@ function parseLidlItem(item: LidlItem, query: string): Product | null {
         originalPrice: oldPrice ? formatLidlPrice(oldPrice) : undefined,
         pricePerUnit,
         amount,
+        discountPercent: discountPct && discountPct > 0 ? `-${discountPct} %` : undefined,
         validity: "",
         leafletUrl: url,
         source: "lidl" as const,

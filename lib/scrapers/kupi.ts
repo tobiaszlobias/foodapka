@@ -30,6 +30,9 @@ function extractStoresFromDetail(
     if (!price) return;
 
     const originalPrice = row.find(".standard_price").text().trim();
+    const packageSize = row.find(".discount_amount").text().trim().replace(/^\/\s*/, "");
+    const discountPercent = row.find(".discount_percentage").text().trim();
+    const note = row.find(".discount_note").text().trim();
 
     stores.push({
       shopId: row.attr("data-shop") || "",
@@ -38,6 +41,9 @@ function extractStoresFromDetail(
       originalPrice: originalPrice || undefined,
       pricePerUnit: row.find(".price_per_unit").text().trim(),
       amount: row.find(".amount_percentage").text().trim(),
+      packageSize: packageSize || undefined,
+      discountPercent: discountPercent || undefined,
+      note: note || undefined,
       validity: row.find(".discounts_validity.valid_discount").text().trim(),
       leafletUrl: absoluteUrl(
         KUPI_ORIGIN,

@@ -185,6 +185,7 @@ type FoodoraCandidate = {
   price: number;
   originalPrice: number | null;
   pricePerUnit: string;
+  packageSize?: string;
   image?: string;
 };
 
@@ -210,6 +211,14 @@ function formatFoodoraUnitPrice(attributes: FoodoraAttribute[] | undefined) {
   return `${formatPrice(pricePerBaseUnit)} / ${baseUnit}`;
 }
 
+function formatFoodoraPackageSize(attributes: FoodoraAttribute[] | undefined) {
+  const attributeMap = readAttributeMap(attributes);
+  const contentValue = attributeMap.baseContentValue?.trim();
+  const unit = attributeMap.baseUnit?.trim();
+  if (!contentValue) return undefined;
+  return unit ? `${contentValue} ${unit}` : contentValue;
+}
+
 function mapFoodoraItemToCandidate(item: FoodoraSearchItem) {
   const payload = item.payload;
   if (!payload || payload.isAvailable === false) return null;
@@ -230,6 +239,7 @@ function mapFoodoraItemToCandidate(item: FoodoraSearchItem) {
         ? payload.originalPrice
         : null,
     pricePerUnit: formatFoodoraUnitPrice(payload.attributes),
+    packageSize: formatFoodoraPackageSize(payload.attributes),
     image: payload.urls?.find(u => u.startsWith("http") && !u.includes("no_img")) ?? undefined,
   } as FoodoraCandidate;
 }
@@ -280,6 +290,8 @@ function mapCandidatesToProducts(
           originalPrice: candidate.originalPrice ? formatPrice(candidate.originalPrice) : undefined,
           pricePerUnit: candidate.pricePerUnit,
           amount: formatDiscountPercent(candidate.price, candidate.originalPrice),
+          packageSize: candidate.packageSize,
+          discountPercent: formatDiscountPercent(candidate.price, candidate.originalPrice) || undefined,
           validity: "",
           leafletUrl: resultUrl,
           source: "foodora" as const,

@@ -372,7 +372,7 @@ export default function SearchSection({
               const bestPrice = bestStore ? parsePrice(bestStore.price) : 0;
               const bestOriginal = bestStore?.originalPrice ? parsePrice(bestStore.originalPrice) : null;
               const bestSavings = getSavings(bestPrice, bestOriginal);
-              const bestDiscount = formatDiscountPercent(bestPrice, bestOriginal);
+              const bestDiscount = bestStore?.discountPercent || formatDiscountPercent(bestPrice, bestOriginal);
               const isBestSale = bestOriginal !== null && bestOriginal > bestPrice;
 
               return (
@@ -412,12 +412,18 @@ export default function SearchSection({
                             #{matchedPreset.label.toLowerCase()}
                           </span>
                         )}
+                        {bestStore?.packageSize && (
+                          <span className="text-[10px] text-zinc-400">{bestStore.packageSize}</span>
+                        )}
                         {product.stores.length > 1 && (
                           <p className="text-[10px] text-zinc-400">
                             +{product.stores.length - 1} {product.stores.length - 1 === 1 ? "obchod" : "obchody"}
                           </p>
                         )}
                       </div>
+                      {bestStore?.note && (
+                        <p className="text-[9px] text-amber-600 dark:text-amber-500 mt-0.5">{bestStore.note}</p>
+                      )}
                     </div>
 
                     {/* Ceny vpravo */}
@@ -483,7 +489,7 @@ export default function SearchSection({
                         const currentPrice = parsePrice(item.price);
                         const originalPrice = item.originalPrice ? parsePrice(item.originalPrice) : null;
                         const isSale = originalPrice !== null && originalPrice > currentPrice;
-                        const discount = formatDiscountPercent(currentPrice, originalPrice);
+                        const discount = item.discountPercent || formatDiscountPercent(currentPrice, originalPrice);
 
                         return (
                           <div key={idx} className="flex items-center gap-3 px-4 py-2">
@@ -497,12 +503,20 @@ export default function SearchSection({
                               )}
                             </div>
                             <div className="flex-1 min-w-0 flex flex-col">
-                              {item.pricePerUnit ? (
-                                <span className="text-[10px] text-zinc-400">{item.pricePerUnit}</span>
-                              ) : null}
+                              <div className="flex items-center gap-1.5 flex-wrap">
+                                {item.pricePerUnit && (
+                                  <span className="text-[10px] text-zinc-400">{item.pricePerUnit}</span>
+                                )}
+                                {item.packageSize && (
+                                  <span className="text-[10px] text-zinc-400">{item.packageSize}</span>
+                                )}
+                              </div>
                               {item.validity ? (
                                 <span className="text-[9px] text-zinc-400 dark:text-zinc-500">{item.validity}</span>
                               ) : null}
+                              {item.note && (
+                                <span className="text-[9px] text-amber-600 dark:text-amber-500">{item.note}</span>
+                              )}
                             </div>
                             <div className="text-right flex items-center gap-1.5">
                               {isSale && discount && (

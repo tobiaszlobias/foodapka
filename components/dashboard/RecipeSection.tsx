@@ -449,7 +449,7 @@ export default function RecipeSection({
                   const price = item.store ? parsePrice(item.store.price) : null;
                   const originalPrice = item.store?.originalPrice ? parsePrice(item.store.originalPrice) : null;
                   const isSale = price !== null && originalPrice !== null && originalPrice > price;
-                  const discount = isSale ? formatDiscountPercent(price!, originalPrice) : "";
+                  const discount = isSale ? (item.store?.discountPercent || formatDiscountPercent(price!, originalPrice)) : "";
                   const savings = isSale ? getSavings(price!, originalPrice) : 0;
 
                   return (
@@ -499,23 +499,31 @@ export default function RecipeSection({
                             {item.ingredient}
                           </h3>
                           {!isChecked && item.store && (
-                            <div className="flex items-center gap-1.5 mt-0.5 min-w-0">
-                              <span className="text-[10px] text-zinc-400 truncate">{cleanProductName(item.product?.name || "")}</span>
-                              {(item.store.leafletUrl || item.product?.url) && (
-                                <a
-                                  href={item.store.leafletUrl || item.product?.url}
-                                  target="_blank"
-                                  rel="noreferrer"
-                                  onClick={(e) => e.stopPropagation()}
-                                  className="shrink-0 inline-flex items-center gap-0.5 text-[10px] font-bold text-foodappka-600 hover:text-foodappka-700 transition-colors whitespace-nowrap"
-                                >
-                                  <span className="material-symbols-outlined text-[11px]">
-                                    {item.store.leafletUrl ? "menu_book" : "open_in_new"}
-                                  </span>
-                                  {item.store.leafletUrl ? "Leták" : "Zdroj"}
-                                </a>
+                            <>
+                              <div className="flex items-center gap-1.5 mt-0.5 min-w-0">
+                                <span className="text-[10px] text-zinc-400 truncate">{cleanProductName(item.product?.name || "")}</span>
+                                {item.store.packageSize && (
+                                  <span className="shrink-0 text-[10px] text-zinc-400">{item.store.packageSize}</span>
+                                )}
+                                {(item.store.leafletUrl || item.product?.url) && (
+                                  <a
+                                    href={item.store.leafletUrl || item.product?.url}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    onClick={(e) => e.stopPropagation()}
+                                    className="shrink-0 inline-flex items-center gap-0.5 text-[10px] font-bold text-foodappka-600 hover:text-foodappka-700 transition-colors whitespace-nowrap"
+                                  >
+                                    <span className="material-symbols-outlined text-[11px]">
+                                      {item.store.leafletUrl ? "menu_book" : "open_in_new"}
+                                    </span>
+                                    {item.store.leafletUrl ? "Leták" : "Zdroj"}
+                                  </a>
+                                )}
+                              </div>
+                              {item.store.note && (
+                                <p className="text-[9px] text-amber-600 dark:text-amber-500 mt-0.5">{item.store.note}</p>
                               )}
-                            </div>
+                            </>
                           )}
                           {!item.store && (
                             <p className="text-[10px] text-zinc-400 mt-0.5">Nenalezeno</p>
