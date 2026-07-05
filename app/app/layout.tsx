@@ -36,7 +36,7 @@ export default function DashboardLayout({
       <div className="relative z-10 flex flex-col min-h-screen bg-transparent">
         <AppHeader />
         
-        <div className="flex flex-1 pt-16 pb-20 lg:pb-0 bg-transparent">
+        <div className="flex flex-1 pt-16 pb-24 lg:pb-0 bg-transparent">
           <Suspense fallback={<SidebarFallback />}>
             <Sidebar />
           </Suspense>

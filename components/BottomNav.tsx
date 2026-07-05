@@ -23,8 +23,8 @@ export default function BottomNav() {
   const mode = searchParams.get("mode") || "search";
 
   return (
-    <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-[100] bg-white/90 dark:bg-black/90 backdrop-blur-2xl border-t border-zinc-100 dark:border-zinc-800 pb-safe shadow-[0_-10px_40px_rgba(0,0,0,0.05)]">
-      <div className="flex justify-around items-stretch h-16">
+    <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-[100] flex justify-center px-4 pb-[calc(env(safe-area-inset-bottom)+0.75rem)] pointer-events-none">
+      <div className="pointer-events-auto flex items-stretch h-14 gap-0.5 rounded-full bg-white/70 dark:bg-zinc-900/60 backdrop-blur-2xl backdrop-saturate-150 border border-white/60 dark:border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.12),inset_0_1px_0_rgba(255,255,255,0.5)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,0.08)] px-1.5">
         {NAV_ITEMS.map((item) => {
           const isSettings = item.id === "settings" && pathname.includes("/settings");
           const isModeActive = !pathname.includes("/settings") && item.id === mode;
@@ -40,24 +40,26 @@ export default function BottomNav() {
                   window.dispatchEvent(new CustomEvent("nav-reset", { detail: { mode: item.id } }));
                 }
               }}
-              className={`relative flex-1 flex flex-col items-center justify-center gap-1 transition-all active:scale-90 active:bg-zinc-50 dark:active:bg-zinc-900/50 ${
-                isActive
-                  ? "text-foodappka-600 dark:text-foodappka-400"
-                  : "text-zinc-400 dark:text-zinc-600"
-              }`}
+              className="relative flex items-center justify-center px-1 py-1"
             >
-              <span
-                className="material-symbols-outlined text-[26px]"
-                style={isActive ? { fontVariationSettings: "'FILL' 1" } : undefined}
-              >
-                {item.icon}
-              </span>
-              <span className="text-[9px] font-black uppercase tracking-tighter">
-                {item.label}
-              </span>
               {isActive && (
-                <div className="absolute bottom-1.5 w-1 h-1 rounded-full bg-foodappka-600 dark:bg-foodappka-400" />
+                <div className="absolute inset-y-1 inset-x-0.5 rounded-full bg-foodappka-600 shadow-[0_2px_8px_rgba(101,163,13,0.4)]" />
               )}
+              <span
+                className={`relative flex flex-col items-center justify-center gap-0.5 w-16 transition-colors ${
+                  isActive ? "text-white" : "text-zinc-500 dark:text-zinc-400"
+                }`}
+              >
+                <span
+                  className="material-symbols-outlined text-[22px]"
+                  style={isActive ? { fontVariationSettings: "'FILL' 1" } : undefined}
+                >
+                  {item.icon}
+                </span>
+                <span className="text-[9px] font-black uppercase tracking-tighter">
+                  {item.label}
+                </span>
+              </span>
             </Link>
           );
         })}
