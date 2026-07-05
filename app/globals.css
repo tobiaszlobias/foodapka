@@ -66,6 +66,13 @@
     color-scheme: light dark;
   }
 
+  /* Potlačí "rubber-band" overscroll bounce (hlavně iOS Safari) — bez toho
+     přetažení stránky za okraj odhalí pozadí pod plovoucím BottomNav. */
+  html,
+  body {
+    overscroll-behavior-y: none;
+  }
+
   /* Custom ultra-thin scrollbar */
   ::-webkit-scrollbar {
     width: 4px;

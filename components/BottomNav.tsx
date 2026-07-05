@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { motion } from "framer-motion";
 import { useSearchParams, usePathname } from "next/navigation";
 
 type NavItem = {
@@ -43,10 +44,14 @@ export default function BottomNav() {
               className="relative flex items-center justify-center px-1 py-1"
             >
               {isActive && (
-                <div className="absolute inset-y-1 inset-x-0.5 rounded-full bg-foodappka-600 shadow-[0_2px_8px_rgba(101,163,13,0.4)]" />
+                <motion.div
+                  layoutId="bottom-nav-active-pill"
+                  className="absolute inset-y-1 inset-x-0.5 rounded-full bg-foodappka-500 shadow-lg shadow-foodappka-500/30"
+                  transition={{ type: "spring", stiffness: 500, damping: 35 }}
+                />
               )}
               <span
-                className={`relative flex flex-col items-center justify-center gap-0.5 w-16 transition-colors ${
+                className={`relative flex flex-col items-center justify-center gap-0.5 w-16 transition-colors duration-200 ${
                   isActive ? "text-white" : "text-zinc-500 dark:text-zinc-400"
                 }`}
               >
