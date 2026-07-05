@@ -26,71 +26,99 @@ type LeafletPagesCacheEntry = { pages: string[]; fetchedAt: number };
 const leafletPagesCache = new Map<string, LeafletPagesCacheEntry>();
 const CACHE_TTL_MS = 60 * 60 * 1000; // 1 hodina — letáky se mění max 1x týdně
 
-// Slug má tvar "{store}-{DD-MM-RR}-{DD-MM-RR}-{hash}" (validFrom-validTo). Karty
-// na stránce NEJSOU řazené chronologicky (i budoucí týdny se objevují první),
-// takže je nutné vybrat ten slug, jehož rozsah platnosti obsahuje dnešek.
-function parseSlugValidity(slug: string, storeSlug: string) {
-  const rest = slug.slice(storeSlug.length + 1); // odstraní "{store}-" prefix
-  const match = rest.match(/^(\d{2})-(\d{2})-(\d{2})-(\d{2})-(\d{2})-(\d{2})-/);
-  if (!match) return null;
+type LeafletCandidate = {
+  id: string;
+  validFrom: Date;
+  validTo: Date;
+  numberOfPages: number;
+  additionalInfo: string;
+};
 
-  const [, fromD, fromM, fromY, toD, toM, toY] = match;
-  const validFrom = new Date(2000 + Number(fromY), Number(fromM) - 1, Number(fromD));
-  const validTo = new Date(2000 + Number(toY), Number(toM) - 1, Number(toD), 23, 59, 59);
-  return { validFrom, validTo };
+// Obchody (typicky Kaufland, Lidl) mívají na mojeletaky.cz souběžně i
+// samostatný leták jen s nepotravinovým/spotřebním zbožím — appka ho vylučuje,
+// jinak by mohla ukázat leták s nábytkem/elektronikou místo potravin.
+function isNonFoodLeaflet(additionalInfo: string) {
+  return normalizeText(additionalInfo).includes("spotrebni zbozi");
 }
 
-async function findCurrentLeafletSlug(storeSlug: string): Promise<string | null> {
+// Karta letáku je v HTML zapsaná jako JSON fragment tvaru:
+// {"id":"kaufland-08-07-26-14-07-26-dwliv","uuid":null,"validFrom":"2026-07-08",
+//  "validTo":"2026-07-14","numberOfPages":54,"additionalInfo":"Akční nabídka"
+// additionalInfo bývá i null (holý string bez kategorie, např. u Penny).
+function parseLeafletCandidates(html: string, storeSlug: string): LeafletCandidate[] {
+  const pattern = new RegExp(
+    `\\{\\\\"id\\\\":\\\\"(${storeSlug}-[a-z0-9-]+)\\\\",\\\\"uuid\\\\":null,\\\\"validFrom\\\\":\\\\"([^"]*)\\\\",\\\\"validTo\\\\":\\\\"([^"]*)\\\\",\\\\"numberOfPages\\\\":(\\d+),\\\\"additionalInfo\\\\":(null|\\\\"[^"]*\\\\")`,
+    "g",
+  );
+
+  const candidates: LeafletCandidate[] = [];
+  const seenIds = new Set<string>();
+
+  for (const match of html.matchAll(pattern)) {
+    const [, id, validFromStr, validToStr, numberOfPagesStr, additionalInfoRaw] = match;
+    if (seenIds.has(id)) continue;
+    seenIds.add(id);
+
+    candidates.push({
+      id,
+      validFrom: new Date(`${validFromStr}T00:00:00`),
+      validTo: new Date(`${validToStr}T23:59:59`),
+      numberOfPages: Number(numberOfPagesStr),
+      additionalInfo: additionalInfoRaw === "null" ? "" : additionalInfoRaw.slice(2, -2),
+    });
+  }
+
+  return candidates;
+}
+
+function pickBestLeaflet(candidates: LeafletCandidate[]): LeafletCandidate | null {
+  const foodCandidates = candidates.filter((c) => !isNonFoodLeaflet(c.additionalInfo));
+  const pool = foodCandidates.length > 0 ? foodCandidates : candidates;
+  if (pool.length === 0) return null;
+
+  const now = Date.now();
+  const current = pool.find((c) => now >= c.validFrom.getTime() && now <= c.validTo.getTime());
+  if (current) return current;
+
+  // Žádný aktuální — vezme nejbližší budoucí (nejmenší validFrom v budoucnu).
+  const upcoming = pool
+    .filter((c) => c.validFrom.getTime() > now)
+    .sort((a, b) => a.validFrom.getTime() - b.validFrom.getTime());
+  return upcoming[0] ?? pool[0];
+}
+
+async function findCurrentLeaflet(storeSlug: string): Promise<LeafletCandidate | null> {
   const { html } = await fetchHtml(
     `${MOJELETAKY_ORIGIN}/nejnovejsi-akci-letaky/1?store=${storeSlug}`,
   );
 
-  const slugs = Array.from(
-    html.matchAll(new RegExp(`href="/akcni-letaky/${storeSlug}/([a-z0-9-]+)/1"`, "g")),
-  ).map((m) => m[1]);
-  const uniqueSlugs = Array.from(new Set(slugs));
-
-  const now = new Date();
-  const currentSlug = uniqueSlugs.find((slug) => {
-    const validity = parseSlugValidity(slug, storeSlug);
-    return validity && now >= validity.validFrom && now <= validity.validTo;
-  });
-
-  return currentSlug ?? uniqueSlugs[0] ?? null;
+  const candidates = parseLeafletCandidates(html, storeSlug);
+  return pickBestLeaflet(candidates);
 }
 
-function escapeRegExp(value: string) {
-  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+function formatYYMMDD(date: Date) {
+  const yy = String(date.getFullYear() % 100).padStart(2, "0");
+  const mm = String(date.getMonth() + 1).padStart(2, "0");
+  const dd = String(date.getDate()).padStart(2, "0");
+  return `${yy}${mm}${dd}`;
 }
 
-// Obrázky stránek letáku NEjsou pod cestou odpovídající leafletSlug — mají
-// vlastní interní adresář tvaru "{validFromYYMMDD}_{validToYYMMDD}_{store}_{hash}"
-// (např. "260707_260701_kaufland_kzbce"), který se musí vytáhnout z HTML.
-async function findLeafletImageFolder(storeSlug: string, leafletSlug: string): Promise<string[]> {
-  const { html } = await fetchHtml(
-    `${MOJELETAKY_ORIGIN}/akcni-letaky/${storeSlug}/${leafletSlug}/1`,
-  );
+// image00 je jen zmenšená rozmazaná obálka (~15× menší soubor než ostatní
+// stránky) se stejným obsahem jako image01 — appka ji přeskakuje a rovnou
+// začíná na první plnohodnotné stránce letáku.
+function buildPageUrls(leaflet: LeafletCandidate, storeSlug: string): string[] {
+  const hash = leaflet.id.slice(`${storeSlug}-`.length).split("-").pop();
+  if (!hash) return [];
 
-  const folderMatch = html.match(/(\d{6}_\d{6}_[a-z-]+_[a-z0-9]+)\/image00\.jpg/);
-  if (!folderMatch) return [];
+  const folder = `${formatYYMMDD(leaflet.validTo)}_${formatYYMMDD(leaflet.validFrom)}_${storeSlug}_${hash}`;
 
-  const folder = folderMatch[1];
-  const pageNumbers = Array.from(
-    html.matchAll(new RegExp(`${escapeRegExp(folder)}/image(\\d+)\\.jpg`, "g")),
-  ).map((m) => Number(m[1]));
-  const maxPage = pageNumbers.length > 0 ? Math.max(...pageNumbers) : -1;
-  if (maxPage < 0) return [];
-
-  // image00 je jen zmenšená rozmazaná obálka (~15× menší soubor než ostatní
-  // stránky) se stejným obsahem jako image01 — appka ji přeskakuje a rovnou
-  // začíná na první plnohodnotné stránce letáku.
   return Array.from(
-    { length: maxPage },
+    { length: Math.max(0, leaflet.numberOfPages - 1) },
     (_, i) => `${MOJELETAKY_IMAGE_ORIGIN}/${folder}/image${String(i + 1).padStart(2, "0")}.jpg`,
   );
 }
 
-/** Vrátí URL všech stránek aktuálního letáku daného obchodu (mojeletaky.cz), nebo prázdné pole. */
+/** Vrátí URL všech stránek aktuálního (potravinového) letáku daného obchodu, nebo prázdné pole. */
 export async function findLeafletPages(shopName: string): Promise<string[]> {
   const storeSlug = resolveStoreSlug(shopName);
   if (!storeSlug) return [];
@@ -100,10 +128,10 @@ export async function findLeafletPages(shopName: string): Promise<string[]> {
     return cached.pages;
   }
 
-  const leafletSlug = await findCurrentLeafletSlug(storeSlug);
-  if (!leafletSlug) return [];
+  const leaflet = await findCurrentLeaflet(storeSlug);
+  if (!leaflet) return [];
 
-  const pages = await findLeafletImageFolder(storeSlug, leafletSlug);
+  const pages = buildPageUrls(leaflet, storeSlug);
   if (pages.length === 0) return [];
 
   leafletPagesCache.set(storeSlug, { pages, fetchedAt: Date.now() });
