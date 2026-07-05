@@ -33,6 +33,10 @@ export function LeafletViewer({ leafletUrl, shopName, onClose }: { leafletUrl: s
     };
   }, [shopName]);
 
+  // Dokud pages === null, appka ještě neví, jestli mojeletaky.cz obchod zná —
+  // teprve po odpovědi (i prázdné) spadá na leafletUrl fallback. Bez tohoto
+  // rozlišení by se na okamžik vždy probliklo staré Kupi.cz jednostránkové URL.
+  const isResolvingPages = pages === null;
   const activeSourceUrl = pages && pages.length > 0 ? pages[pageIndex] : leafletUrl;
   const totalPages = pages && pages.length > 0 ? pages.length : 1;
   const proxiedSrc = (url: string) => `/api/leaflet-page?url=${encodeURIComponent(url)}`;
@@ -77,7 +81,7 @@ export function LeafletViewer({ leafletUrl, shopName, onClose }: { leafletUrl: s
           </button>
         </div>
         <div className="relative flex-1 min-h-0 rounded-2xl bg-white dark:bg-zinc-900 flex items-center justify-center">
-          {status === "error" ? (
+          {isResolvingPages ? null : status === "error" ? (
             <p className="p-8 text-center text-sm text-zinc-500">Leták se nepodařilo načíst.</p>
           ) : (
             <img
@@ -89,7 +93,7 @@ export function LeafletViewer({ leafletUrl, shopName, onClose }: { leafletUrl: s
               onError={() => setStatus("error")}
             />
           )}
-          {status === "loading" && (
+          {(isResolvingPages || status === "loading") && (
             <span className="material-symbols-outlined animate-spin text-zinc-300 text-3xl absolute">progress_activity</span>
           )}
           {totalPages > 1 && (
