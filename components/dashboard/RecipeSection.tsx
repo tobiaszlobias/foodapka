@@ -15,6 +15,7 @@ import {
   type Product,
   type Store
 } from "@/lib/food";
+import { canonicalChainName } from "@/lib/storeLogos";
 import { StoreBrand, RecipeSkeleton, SearchLoadingAnimation, LeafletViewer } from "./DashboardShared";
 
 type ShoppingMode = "cross_store" | "single_store";
@@ -213,28 +214,36 @@ export default function RecipeSection({
     }
   };
 
-  // SINGLE STORE LOGIC: skóre pro každý obchod (počet pokrytých ingrediencí + cena),
+  // SINGLE STORE LOGIC: skóre pro každý řetězec (počet pokrytých ingrediencí + cena),
   // použité jak pro automatický výběr nejlepšího, tak pro ruční výběr z dropdownu.
+  // Varianty téhož řetězce (Albert supermarket/hypermarket, BILLA/Billa…) se slučují
+  // pod jeden kanonický název — appka bere z nich vždy tu levnější nabídku.
   const shopScores = useMemo(() => {
     if (shoppingMode === "cross_store") return [];
 
-    const allShops = new Set<string>();
+    const chainVariants = new Map<string, Set<string>>();
     recipeResults.forEach(r => {
       if (r?.storeOptions) {
         r.storeOptions.forEach(opt => {
-          if (opt?.store?.shopName) allShops.add(opt.store.shopName);
+          if (!opt?.store?.shopName) return;
+          const chain = canonicalChainName(opt.store.shopName);
+          if (!chainVariants.has(chain)) chainVariants.set(chain, new Set());
+          chainVariants.get(chain)!.add(opt.store.shopName);
         });
       }
     });
 
     // vyřazené (odškrtnuté) položky se do výběru obchodu nepočítají
-    const scores = Array.from(allShops).map(shopName => {
+    const scores = Array.from(chainVariants.entries()).map(([chain, variants]) => {
       let totalItems = 0;
       let totalPrice = 0;
       const items = recipeResults.map(res => {
         if (!res) return null;
         const isExcluded = checkedIngredients.includes(res.ingredient);
-        const option = res.storeOptions?.find(opt => opt?.store?.shopName === shopName);
+        const candidates = (res.storeOptions ?? []).filter(
+          opt => opt?.store?.shopName && variants.has(opt.store.shopName),
+        );
+        const option = candidates.sort((a, b) => parsePrice(a.store.price) - parsePrice(b.store.price))[0];
         if (option) {
           if (!isExcluded) {
             totalItems++;
@@ -245,7 +254,13 @@ export default function RecipeSection({
         return { ...res, store: null, product: null };
       }).filter((x): x is NonNullable<typeof x> => x !== null);
 
-      return { shopName, totalItems, totalPrice, items };
+      return {
+        shopName: chain,
+        variants: Array.from(variants),
+        totalItems,
+        totalPrice,
+        items,
+      };
     });
 
     return scores.sort((a, b) => {
@@ -544,23 +559,38 @@ export default function RecipeSection({
                 {storePickerOpen && shoppingMode === "single_store" && (
                   <>
                     <div className="fixed inset-0 z-10" onClick={() => setStorePickerOpen(false)} />
-                    <div className="absolute top-full left-0 mt-1 z-20 min-w-[200px] rounded-2xl bg-white dark:bg-zinc-900 shadow-lg border border-zinc-100 dark:border-zinc-800 overflow-hidden">
-                      {shopScores.map((shop, idx) => (
-                        <button
-                          key={shop.shopName}
-                          onClick={() => {
-                            setSelectedStore(shop.shopName);
-                            setStorePickerOpen(false);
-                          }}
-                          className={`w-full flex items-center justify-between gap-3 px-4 py-2.5 text-left text-xs hover:bg-foodappka-50 dark:hover:bg-zinc-800 transition-colors ${(selectedStore ?? shopScores[0]?.shopName) === shop.shopName ? "bg-foodappka-50 dark:bg-zinc-800 font-bold" : ""}`}
-                        >
-                          <span className="flex items-center gap-1.5">
-                            {shop.shopName}
-                            {idx === 0 && <span className="text-[9px] text-foodappka-600 font-bold uppercase">doporučeno</span>}
-                          </span>
-                          <span className="text-zinc-400 shrink-0">{shop.totalItems}/{recipeResults.length}</span>
-                        </button>
-                      ))}
+                    <div className="absolute top-full left-0 mt-1 z-20 w-72 max-h-80 overflow-y-auto rounded-2xl bg-white dark:bg-zinc-900 shadow-lg border border-zinc-100 dark:border-zinc-800 divide-y divide-zinc-100 dark:divide-zinc-800">
+                      {shopScores.map((shop, idx) => {
+                        const isActive = (selectedStore ?? shopScores[0]?.shopName) === shop.shopName;
+                        const hasMultipleVariants = shop.variants.length > 1;
+
+                        return (
+                          <button
+                            key={shop.shopName}
+                            onClick={() => {
+                              setSelectedStore(shop.shopName);
+                              setStorePickerOpen(false);
+                            }}
+                            className={`w-full flex items-center gap-3 px-3 py-2.5 text-left transition-colors ${isActive ? "bg-foodappka-50 dark:bg-zinc-800" : "hover:bg-zinc-50 dark:hover:bg-zinc-800/50"}`}
+                          >
+                            <div className="shrink-0 w-9 flex items-center justify-center">
+                              <StoreBrand shopName={shop.shopName} small />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-1.5 flex-wrap">
+                                <span className="text-xs font-bold text-zinc-800 dark:text-zinc-100">{shop.shopName}</span>
+                                {idx === 0 && (
+                                  <span className="text-[9px] text-foodappka-600 font-bold uppercase tracking-wide">doporučeno</span>
+                                )}
+                              </div>
+                              {hasMultipleVariants && (
+                                <p className="text-[9px] text-zinc-400 mt-0.5">zahrnuje hypermarket i supermarket</p>
+                              )}
+                            </div>
+                            <span className="text-[11px] text-zinc-400 shrink-0 font-bold">{shop.totalItems}/{recipeResults.length}</span>
+                          </button>
+                        );
+                      })}
                     </div>
                   </>
                 )}

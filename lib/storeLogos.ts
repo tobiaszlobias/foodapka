@@ -1,5 +1,32 @@
 import { normalizeText } from "@/lib/food";
 
+// Pořadí je důležité — první shoda vyhrává (musí odpovídat pravidlům v getStoreLogoPath).
+const CHAIN_NAME_RULES: { match: string; canonical: string }[] = [
+  { match: "kaufland", canonical: "Kaufland" },
+  { match: "lidl", canonical: "Lidl" },
+  { match: "albert", canonical: "Albert" },
+  { match: "tesco", canonical: "Tesco" },
+  { match: "globus", canonical: "Globus" },
+  { match: "billa", canonical: "Billa" },
+  { match: "penny", canonical: "Penny" },
+  { match: "flop", canonical: "FLOP TOP" },
+  { match: "jip", canonical: "JIP" },
+  { match: "hruska", canonical: "Hruška" },
+  { match: "coop", canonical: "Coop" },
+  { match: "ratio", canonical: "Ratio" },
+  { match: "bene", canonical: "Bene" },
+  { match: "cba", canonical: "CBA" },
+  { match: "tamda", canonical: "Tamda Foods" },
+  { match: "kosik", canonical: "Košík.cz" },
+];
+
+/** Sloučí varianty téhož řetězce (např. "Albert supermarket"/"Albert hypermarket" → "Albert")
+ * pod jeden zobrazovaný název — stejná fuzzy pravidla jako getStoreLogoPath. */
+export function canonicalChainName(shopName: string) {
+  const normalized = normalizeText(shopName);
+  return CHAIN_NAME_RULES.find((rule) => normalized.includes(rule.match))?.canonical ?? shopName;
+}
+
 export function getStoreLogoPath(shopName: string) {
   const normalizedShopName = normalizeText(shopName);
 
