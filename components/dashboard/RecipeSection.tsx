@@ -729,9 +729,10 @@ function CreateRecipeDialog({ existingCategories, onClose, onSave }: CreateRecip
       onClick={onClose}
     >
       <div
-        className="w-full sm:max-w-lg max-h-[85dvh] overflow-y-auto overscroll-contain rounded-t-[2rem] sm:rounded-[2rem] bg-white dark:bg-zinc-900 p-6 md:p-8 pb-safe shadow-2xl"
+        className="w-full sm:max-w-lg max-h-[85dvh] overflow-hidden rounded-t-[2rem] sm:rounded-[2rem] bg-white dark:bg-zinc-900 shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
+      <div className="max-h-[85dvh] overflow-y-auto overscroll-contain p-6 md:p-8 pb-safe">
         <div className="flex items-center justify-between mb-6">
           <h3 className="text-xl font-black text-zinc-900 dark:text-white">Nový recept</h3>
           <button
@@ -874,6 +875,7 @@ function CreateRecipeDialog({ existingCategories, onClose, onSave }: CreateRecip
             Uložit a najít ceny
           </button>
         </div>
+      </div>
       </div>
     </div>,
     document.body,

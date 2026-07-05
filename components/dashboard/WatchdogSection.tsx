@@ -76,9 +76,10 @@ function AddWatchDialog({ onClose, onCreated }: AddWatchDialogProps) {
       onClick={onClose}
     >
       <div
-        className="w-full sm:max-w-md max-h-[90vh] overflow-y-auto overscroll-contain rounded-t-[2rem] sm:rounded-[2rem] bg-white dark:bg-zinc-900 p-6 pb-safe shadow-2xl"
+        className="w-full sm:max-w-md max-h-[90vh] overflow-hidden rounded-t-[2rem] sm:rounded-[2rem] bg-white dark:bg-zinc-900 shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
+      <div className="max-h-[90vh] overflow-y-auto overscroll-contain p-6 pb-safe">
         <div className="flex items-center justify-between mb-5">
           <h3 className="text-lg font-black text-zinc-900 dark:text-white flex items-center gap-2">
             <span className="material-symbols-outlined text-foodappka-600">trending_down</span>
@@ -160,6 +161,7 @@ function AddWatchDialog({ onClose, onCreated }: AddWatchDialogProps) {
             {saving ? "Ukládám…" : "Zapnout hlídání"}
           </button>
         </div>
+      </div>
       </div>
     </div>,
     document.body,
