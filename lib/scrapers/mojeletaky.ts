@@ -81,9 +81,12 @@ async function findLeafletImageFolder(storeSlug: string, leafletSlug: string): P
   const maxPage = pageNumbers.length > 0 ? Math.max(...pageNumbers) : -1;
   if (maxPage < 0) return [];
 
+  // image00 je jen zmenšená rozmazaná obálka (~15× menší soubor než ostatní
+  // stránky) se stejným obsahem jako image01 — appka ji přeskakuje a rovnou
+  // začíná na první plnohodnotné stránce letáku.
   return Array.from(
-    { length: maxPage + 1 },
-    (_, i) => `${MOJELETAKY_IMAGE_ORIGIN}/${folder}/image${String(i).padStart(2, "0")}.jpg`,
+    { length: maxPage },
+    (_, i) => `${MOJELETAKY_IMAGE_ORIGIN}/${folder}/image${String(i + 1).padStart(2, "0")}.jpg`,
   );
 }
 
