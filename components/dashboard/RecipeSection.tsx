@@ -15,7 +15,7 @@ import {
   type Product,
   type Store
 } from "@/lib/food";
-import { StoreBrand, RecipeSkeleton, SearchLoadingAnimation } from "./DashboardShared";
+import { StoreBrand, RecipeSkeleton, SearchLoadingAnimation, LeafletViewer } from "./DashboardShared";
 
 type ShoppingMode = "cross_store" | "single_store";
 
@@ -145,6 +145,7 @@ export default function RecipeSection({
   const [usingCloudRecipes, setUsingCloudRecipes] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [showCreateForm, setShowCreateForm] = useState(false);
+  const [leafletDialog, setLeafletDialog] = useState<{ url: string; shopName: string } | null>(null);
 
   useEffect(() => {
     loadCustomRecipes().then(({ recipes, usingCloud }) => {
@@ -584,20 +585,29 @@ export default function RecipeSection({
                                 {item.store.packageSize && (
                                   <span className="shrink-0 text-[10px] text-zinc-400">{item.store.packageSize}</span>
                                 )}
-                                {(item.store.leafletUrl || item.product?.url) && (
+                                {item.store.leafletUrl ? (
+                                  <button
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setLeafletDialog({ url: item.store!.leafletUrl, shopName: item.store!.shopName });
+                                    }}
+                                    className="shrink-0 inline-flex items-center gap-0.5 text-[10px] font-bold text-foodappka-600 hover:text-foodappka-700 transition-colors whitespace-nowrap"
+                                  >
+                                    <span className="material-symbols-outlined text-[11px]">menu_book</span>
+                                    Leták
+                                  </button>
+                                ) : item.product?.url ? (
                                   <a
-                                    href={item.store.leafletUrl || item.product?.url}
+                                    href={item.product.url}
                                     target="_blank"
                                     rel="noreferrer"
                                     onClick={(e) => e.stopPropagation()}
                                     className="shrink-0 inline-flex items-center gap-0.5 text-[10px] font-bold text-foodappka-600 hover:text-foodappka-700 transition-colors whitespace-nowrap"
                                   >
-                                    <span className="material-symbols-outlined text-[11px]">
-                                      {item.store.leafletUrl ? "menu_book" : "open_in_new"}
-                                    </span>
-                                    {item.store.leafletUrl ? "Leták" : "Zdroj"}
+                                    <span className="material-symbols-outlined text-[11px]">open_in_new</span>
+                                    Zdroj
                                   </a>
-                                )}
+                                ) : null}
                               </div>
                               {item.store.loyaltyCardLabel && (
                                 <p className="inline-flex items-center gap-0.5 text-[9px] font-bold text-red-600 dark:text-red-400 mt-0.5 w-fit">
@@ -681,6 +691,14 @@ export default function RecipeSection({
           existingCategories={categories.filter(c => c !== "all")}
           onClose={() => setShowCreateForm(false)}
           onSave={saveCustomRecipe}
+        />
+      )}
+
+      {leafletDialog && (
+        <LeafletViewer
+          leafletUrl={leafletDialog.url}
+          shopName={leafletDialog.shopName}
+          onClose={() => setLeafletDialog(null)}
         />
       )}
     </div>

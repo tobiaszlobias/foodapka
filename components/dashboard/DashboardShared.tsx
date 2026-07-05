@@ -1,10 +1,56 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import Image from "next/image";
 import { getStoreIcon } from "@/lib/food";
 import { getStoreLogoPath } from "@/lib/storeLogos";
 import { normalizeText } from "@/lib/food";
+import { useBodyScrollLock } from "@/lib/useBodyScrollLock";
+
+/** Zobrazí stránku letáku jako obrázek na vlastní stránce appky — žádný
+ * odkaz/branding zdrojového webu, obrázek jde přes /api/leaflet-page proxy. */
+export function LeafletViewer({ leafletUrl, shopName, onClose }: { leafletUrl: string; shopName: string; onClose: () => void }) {
+  useBodyScrollLock();
+  const [status, setStatus] = useState<"loading" | "error" | "ready">("loading");
+  const proxiedSrc = `/api/leaflet-page?url=${encodeURIComponent(leafletUrl)}`;
+
+  return createPortal(
+    <div
+      className="fixed inset-0 z-[200] flex items-center justify-center bg-black/70 backdrop-blur-sm p-4"
+      onClick={onClose}
+    >
+      <div className="relative w-full max-w-lg max-h-[90vh] flex flex-col" onClick={(e) => e.stopPropagation()}>
+        <div className="flex items-center justify-between mb-3 px-1">
+          <h3 className="text-sm font-bold text-white">Leták — {shopName}</h3>
+          <button
+            onClick={onClose}
+            className="flex h-9 w-9 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors"
+          >
+            <span className="material-symbols-outlined text-lg">close</span>
+          </button>
+        </div>
+        <div className="flex-1 overflow-y-auto rounded-2xl bg-white dark:bg-zinc-900 flex items-center justify-center min-h-[300px]">
+          {status === "error" ? (
+            <p className="p-8 text-center text-sm text-zinc-500">Leták se nepodařilo načíst.</p>
+          ) : (
+            <img
+              src={proxiedSrc}
+              alt={`Leták ${shopName}`}
+              className="w-full h-auto object-contain"
+              onLoad={() => setStatus("ready")}
+              onError={() => setStatus("error")}
+            />
+          )}
+          {status === "loading" && (
+            <span className="material-symbols-outlined animate-spin text-zinc-300 text-3xl absolute">progress_activity</span>
+          )}
+        </div>
+      </div>
+    </div>,
+    document.body,
+  );
+}
 
 export function StoreBrand({ shopName, small = false, badge = false }: { shopName: string; small?: boolean; badge?: boolean }) {
   const logoPath = getStoreLogoPath(shopName);

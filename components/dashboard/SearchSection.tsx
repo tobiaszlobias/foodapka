@@ -16,7 +16,7 @@ import {
 } from "@/lib/food";
 import { normalizeText } from "@/lib/food";
 import { FOODORA_STORE_CONFIGS } from "@/data/foodoraStores";
-import { StoreBrand, LoadingCards, EmptyState, SearchLoadingAnimation } from "./DashboardShared";
+import { StoreBrand, LoadingCards, EmptyState, SearchLoadingAnimation, LeafletViewer } from "./DashboardShared";
 import { showToast } from "@/components/Toast";
 import { matchIngredientPreset } from "@/lib/ingredientPresets";
 
@@ -188,7 +188,8 @@ export default function SearchSection({
 }: SearchSectionProps) {
   const resultsRef = useRef<HTMLDivElement>(null);
   const [watchDialog, setWatchDialog] = useState<{ query: string; price: number } | null>(null);
-  
+  const [leafletDialog, setLeafletDialog] = useState<{ url: string; shopName: string } | null>(null);
+
   const availableFilters = useMemo(() => {
     const filters = [...BASE_SOURCE_FILTERS];
     const seen = new Set(filters.map(f => f.key));
@@ -444,9 +445,9 @@ export default function SearchSection({
                         >
                           <div className="shrink-0 w-14 flex items-center justify-center">
                             {item.leafletUrl ? (
-                              <a href={item.leafletUrl} target="_blank" rel="noreferrer">
+                              <button onClick={() => setLeafletDialog({ url: item.leafletUrl, shopName: item.shopName })}>
                                 <StoreBrand shopName={item.shopName} small />
-                              </a>
+                              </button>
                             ) : (
                               <StoreBrand shopName={item.shopName} small />
                             )}
@@ -472,15 +473,13 @@ export default function SearchSection({
                               <span className="text-[9px] text-amber-600 dark:text-amber-500">{item.note}</span>
                             )}
                             {item.leafletUrl && (
-                              <a
-                                href={item.leafletUrl}
-                                target="_blank"
-                                rel="noreferrer"
+                              <button
+                                onClick={() => setLeafletDialog({ url: item.leafletUrl, shopName: item.shopName })}
                                 className="mt-0.5 inline-flex items-center gap-0.5 text-[10px] font-bold text-foodappka-600 hover:text-foodappka-700 transition-colors w-fit"
                               >
                                 <span className="material-symbols-outlined text-[12px]">menu_book</span>
                                 Leták
-                              </a>
+                              </button>
                             )}
                           </div>
                           <div className="text-right shrink-0 flex flex-col items-end">
@@ -525,6 +524,14 @@ export default function SearchSection({
           defaultQuery={watchDialog.query}
           defaultPrice={watchDialog.price}
           onClose={() => setWatchDialog(null)}
+        />
+      )}
+
+      {leafletDialog && (
+        <LeafletViewer
+          leafletUrl={leafletDialog.url}
+          shopName={leafletDialog.shopName}
+          onClose={() => setLeafletDialog(null)}
         />
       )}
     </div>
