@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import Image from "next/image";
 import SearchBar from "@/components/SearchBar";
 import { 
@@ -79,7 +80,7 @@ function WatchDialog({ defaultQuery, defaultPrice, onClose }: WatchDialogProps) 
     if (ok) onClose();
   };
 
-  return (
+  return createPortal(
     <div
       className="fixed inset-0 z-[200] flex items-end sm:items-center justify-center bg-black/50 backdrop-blur-sm p-0 sm:p-4"
       onClick={onClose}
@@ -140,7 +141,8 @@ function WatchDialog({ defaultQuery, defaultPrice, onClose }: WatchDialogProps) 
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }
 

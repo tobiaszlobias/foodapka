@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import Image from "next/image";
 import SearchBar from "@/components/SearchBar";
 import { RECIPE_PRESETS } from "@/lib/recipes";
@@ -713,7 +714,7 @@ function CreateRecipeDialog({ existingCategories, onClose, onSave }: CreateRecip
     });
   };
 
-  return (
+  return createPortal(
     <div
       className="fixed inset-0 z-[200] flex items-end sm:items-center justify-center bg-black/50 backdrop-blur-sm p-0 sm:p-4"
       onClick={onClose}
@@ -865,6 +866,7 @@ function CreateRecipeDialog({ existingCategories, onClose, onSave }: CreateRecip
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }

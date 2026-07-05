@@ -42,13 +42,13 @@ export default function HelpModal() {
             initial={{ opacity: 0, scale: 0.9, y: 40 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.9, y: 40 }}
-            className="relative w-full max-w-2xl overflow-hidden rounded-[2.5rem] bg-white dark:bg-zinc-900 shadow-[0_32px_80px_-20px_rgba(0,0,0,0.3)] border border-white dark:border-zinc-800"
+            className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto overscroll-contain rounded-[2.5rem] bg-white dark:bg-zinc-900 shadow-[0_32px_80px_-20px_rgba(0,0,0,0.3)] border border-white dark:border-zinc-800"
           >
             {/* Visual Decoration */}
             <div className="absolute -top-24 -right-24 w-64 h-64 bg-foodappka-500/10 dark:bg-foodappka-500/5 rounded-full blur-3xl pointer-events-none" />
             <div className="absolute -bottom-24 -left-24 w-64 h-64 bg-lime-500/10 dark:bg-lime-500/5 rounded-full blur-3xl pointer-events-none" />
 
-            <div className="relative p-8 md:p-12">
+            <div className="relative p-6 sm:p-8 md:p-12">
               {/* Header */}
               <div className="flex items-start justify-between mb-10">
                 <div className="space-y-2">
@@ -56,14 +56,14 @@ export default function HelpModal() {
                     <span className="w-1.5 h-1.5 rounded-full bg-foodappka-500 animate-pulse" />
                     Centrum pomoci
                   </div>
-                  <h2 className="text-3xl md:text-4xl font-black text-zinc-950 dark:text-white leading-tight">
+                  <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-zinc-950 dark:text-white leading-tight">
                     Jak ovládnout <br />
                     <span className="text-foodappka-600 dark:text-foodappka-400">Foodapku?</span>
                   </h2>
                 </div>
                 <button
                   onClick={() => setIsOpen(false)}
-                  className="flex h-12 w-12 items-center justify-center rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-500 hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-all active:scale-90 border border-zinc-200 dark:border-zinc-700"
+                  className="shrink-0 flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-500 hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-all active:scale-90 border border-zinc-200 dark:border-zinc-700"
                 >
                   <span className="material-symbols-outlined">close</span>
                 </button>
