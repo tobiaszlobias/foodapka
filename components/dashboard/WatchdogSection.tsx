@@ -174,6 +174,7 @@ export default function WatchdogSection() {
   const [linking, setLinking] = useState(false);
   const [deepLink, setDeepLink] = useState<string | null>(null);
   const [showAddDialog, setShowAddDialog] = useState(false);
+  const [testing, setTesting] = useState(false);
 
   const loadItems = useCallback(async () => {
     try {
@@ -229,6 +230,23 @@ export default function WatchdogSection() {
     await fetch("/api/telegram/link", { method: "DELETE" });
     setTelegramLinked(false);
     showToast("Telegram odpojen.", "info");
+  };
+
+  const handleTestRun = async () => {
+    setTesting(true);
+    try {
+      const res = await fetch("/api/watchdog/test-run", { method: "POST" });
+      const data = await res.json();
+      if (!res.ok) {
+        showToast(data.error ?? "Test se nepodařilo spustit.", "error");
+        return;
+      }
+      showToast(`✅ Odesláno ${data.sent} zpráv na Telegram, zkontrolujte si to.`, "success");
+    } catch {
+      showToast("Test se nepodařilo spustit.", "error");
+    } finally {
+      setTesting(false);
+    }
   };
 
   const removeItem = async (id: string) => {
@@ -305,6 +323,18 @@ export default function WatchdogSection() {
             </a>
             .
           </p>
+        )}
+        {telegramLinked && !isEmpty && (
+          <button
+            onClick={handleTestRun}
+            disabled={testing}
+            className="mt-4 inline-flex items-center gap-2 rounded-full border border-foodappka-200 dark:border-foodappka-800 px-4 py-2 text-xs font-bold text-foodappka-700 dark:text-foodappka-400 hover:bg-foodappka-50 dark:hover:bg-foodappka-900/30 transition-colors disabled:opacity-50"
+          >
+            <span className={`material-symbols-outlined text-base ${testing ? "animate-spin" : ""}`}>
+              {testing ? "progress_activity" : "bolt"}
+            </span>
+            {testing ? "Spouštím test…" : "Otestovat teď"}
+          </button>
         )}
       </div>
 
