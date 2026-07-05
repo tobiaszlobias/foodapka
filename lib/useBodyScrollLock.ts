@@ -3,9 +3,11 @@ import { useEffect } from "react";
 /** Zamkne scroll na <body>, dokud je modal/dialog otevřený — zabraňuje dvojitému
  * scrollbaru (jeden na pozadí stránky, druhý na modalu) i "prosáknutí" touch
  * scrollu na mobilu (iOS Safari ignoruje samotné overflow:hidden na body).
- * Volat vždy, ne podmíněně. */
-export function useBodyScrollLock() {
+ * Volat vždy (hook samotný, ne podmíněně) — `enabled` řídí, jestli má aktivně
+ * zamykat (např. modal skrytý přes CSS na desktopu nemá zamykat scroll). */
+export function useBodyScrollLock(enabled = true) {
   useEffect(() => {
+    if (!enabled) return;
     const scrollY = window.scrollY;
     const body = document.body;
 
@@ -26,5 +28,5 @@ export function useBodyScrollLock() {
       body.style.width = previousWidth;
       window.scrollTo(0, scrollY);
     };
-  }, []);
+  }, [enabled]);
 }

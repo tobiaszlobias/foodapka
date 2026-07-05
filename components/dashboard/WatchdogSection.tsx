@@ -14,13 +14,14 @@ type WatchedProduct = {
   created_at: string;
 };
 
-type AddWatchDialogProps = {
-  onClose: () => void;
-  onCreated: (item: WatchedProduct) => void;
+type WatchFormProps = {
+  onDone: (item: WatchedProduct) => void;
+  onCancel?: () => void;
 };
 
-function AddWatchDialog({ onClose, onCreated }: AddWatchDialogProps) {
-  useBodyScrollLock();
+/** Samotný formulář hlídání — sdílený mezi mobilním bottom-sheet modalem
+ * (AddWatchDialog) a inline verzí přímo na stránce na desktopu. */
+function WatchForm({ onDone, onCancel }: WatchFormProps) {
   const [selectedPresetId, setSelectedPresetId] = useState<string | null>(null);
   const [customQuery, setCustomQuery] = useState("");
   const [targetPrice, setTargetPrice] = useState("");
@@ -61,8 +62,10 @@ function AddWatchDialog({ onClose, onCreated }: AddWatchDialogProps) {
       if (!res.ok) throw new Error();
       const data = await res.json();
       showToast("🐶 Hlídáme! Dáme vám vědět na Telegramu, až cena klesne.", "success");
-      onCreated(data.item);
-      onClose();
+      setSelectedPresetId(null);
+      setCustomQuery("");
+      setTargetPrice("");
+      onDone(data.item);
     } catch {
       showToast("Nepodařilo se nastavit hlídání ceny.", "error");
     } finally {
@@ -70,98 +73,141 @@ function AddWatchDialog({ onClose, onCreated }: AddWatchDialogProps) {
     }
   };
 
+  return (
+    <div className="space-y-4">
+      <div className="grid md:grid-cols-2 gap-4 md:gap-6">
+        <div>
+          <label className="block text-sm font-bold text-zinc-700 dark:text-zinc-300 mb-2">
+            Vyberte nebo vyhledejte produkt, který chcete hlídat
+          </label>
+          <div className="relative mb-3">
+            <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400 text-lg">
+              search
+            </span>
+            <input
+              value={customQuery}
+              onChange={(e) => {
+                setCustomQuery(e.target.value);
+                setSelectedPresetId(null);
+              }}
+              placeholder="Např. kuřecí prsa, máslo…"
+              className="w-full h-12 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-black pl-11 pr-4 text-zinc-900 dark:text-white outline-none transition focus:border-foodappka-500 focus:ring-2 focus:ring-foodappka-500/20"
+            />
+          </div>
+          <div className="grid grid-cols-3 gap-2 max-h-56 overflow-y-auto">
+            {filteredPresets.map((preset) => (
+              <button
+                key={preset.id}
+                onClick={() => {
+                  setSelectedPresetId(preset.id);
+                  setCustomQuery("");
+                }}
+                className={`flex flex-col items-center gap-1 rounded-xl border-2 py-3 px-1 transition-all ${
+                  selectedPresetId === preset.id
+                    ? "border-foodappka-500 bg-foodappka-50 dark:bg-foodappka-900/30 text-foodappka-700 dark:text-foodappka-300"
+                    : "border-zinc-100 dark:border-zinc-800 text-zinc-500 dark:text-zinc-400 hover:border-foodappka-200"
+                }`}
+              >
+                <span className="material-symbols-outlined text-xl">{preset.icon}</span>
+                <span className="text-[11px] font-bold text-center leading-tight">{preset.label}</span>
+              </button>
+            ))}
+            {filteredPresets.length === 0 && (
+              <p className="col-span-3 py-3 text-center text-xs text-zinc-400">
+                Žádný preset — použijeme přesně to, co jste napsali.
+              </p>
+            )}
+          </div>
+        </div>
+
+        <div className="flex flex-col">
+          <label className="block text-sm font-bold text-zinc-700 dark:text-zinc-300 mb-2">
+            Upozornit, když cena klesne pod
+            {activeQuery && <span className="font-normal text-zinc-500"> ({activeQuery})</span>}
+          </label>
+          <div className="relative">
+            <input
+              value={targetPrice}
+              onChange={(e) => setTargetPrice(e.target.value)}
+              inputMode="decimal"
+              placeholder="20"
+              className="w-full h-12 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-black px-4 pr-12 text-zinc-900 dark:text-white outline-none transition focus:border-foodappka-500 focus:ring-2 focus:ring-foodappka-500/20"
+            />
+            <span className="absolute right-4 top-1/2 -translate-y-1/2 text-sm font-bold text-zinc-400">Kč</span>
+          </div>
+
+          <div className="mt-auto pt-4 flex gap-2">
+            {onCancel && (
+              <button
+                onClick={onCancel}
+                className="h-12 px-5 rounded-full border border-zinc-200 dark:border-zinc-700 text-sm font-bold text-zinc-500 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
+              >
+                Zrušit
+              </button>
+            )}
+            <button
+              onClick={handleSave}
+              disabled={saving}
+              className="flex-1 h-12 rounded-full bg-foodappka-600 text-white font-black transition hover:bg-foodappka-700 shadow-lg shadow-foodappka-600/20 active:scale-95 disabled:opacity-50"
+            >
+              {saving ? "Ukládám…" : "Zapnout hlídání"}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+type AddWatchDialogProps = {
+  onClose: () => void;
+  onCreated: (item: WatchedProduct) => void;
+};
+
+/** Mobilní bottom-sheet modal — na desktopu se místo toho renderuje WatchForm inline. */
+function AddWatchDialog({ onClose, onCreated }: AddWatchDialogProps) {
+  // Na desktopu (lg+) je tenhle modal skrytý přes CSS a nahrazený inline
+  // formulářem na stránce — nesmí zamykat scroll, i když je v DOM.
+  const [isMobileViewport, setIsMobileViewport] = useState(
+    typeof window !== "undefined" ? window.innerWidth < 1024 : true,
+  );
+  useEffect(() => {
+    const handleResize = () => setIsMobileViewport(window.innerWidth < 1024);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+  useBodyScrollLock(isMobileViewport);
+
   return createPortal(
     <div
-      className="fixed inset-0 z-[200] flex items-end sm:items-center justify-center bg-black/50 backdrop-blur-sm p-0 sm:p-4"
+      className="lg:hidden fixed inset-0 z-[200] flex items-end justify-center bg-black/50 backdrop-blur-sm p-0"
       onClick={onClose}
     >
       <div
-        className="w-full sm:max-w-md max-h-[90vh] overflow-hidden rounded-t-[2rem] sm:rounded-[2rem] bg-white dark:bg-zinc-900 shadow-2xl"
+        className="w-full max-h-[90vh] overflow-hidden rounded-t-[2rem] bg-white dark:bg-zinc-900 shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
-      <div className="max-h-[90vh] overflow-y-auto overscroll-contain p-6 pb-safe">
-        <div className="flex items-center justify-between mb-5">
-          <h3 className="text-lg font-black text-zinc-900 dark:text-white flex items-center gap-2">
-            <span className="material-symbols-outlined text-foodappka-600">trending_down</span>
-            Přidat hlídání
-          </h3>
-          <button
-            onClick={onClose}
-            className="flex h-9 w-9 items-center justify-center rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-500 hover:text-zinc-900 dark:hover:text-white transition-colors"
-          >
-            <span className="material-symbols-outlined text-lg">close</span>
-          </button>
-        </div>
-
-        <div className="space-y-4">
-          <div>
-            <label className="block text-sm font-bold text-zinc-700 dark:text-zinc-300 mb-2">Co chcete hlídat?</label>
-            <div className="relative mb-3">
-              <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400 text-lg">
-                search
-              </span>
-              <input
-                value={customQuery}
-                onChange={(e) => {
-                  setCustomQuery(e.target.value);
-                  setSelectedPresetId(null);
-                }}
-                placeholder="Hledat surovinu nebo napsat vlastní…"
-                className="w-full h-12 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-black pl-11 pr-4 text-zinc-900 dark:text-white outline-none transition focus:border-foodappka-500 focus:ring-2 focus:ring-foodappka-500/20"
-              />
-            </div>
-            <div className="grid grid-cols-3 gap-2 max-h-56 overflow-y-auto">
-              {filteredPresets.map((preset) => (
-                <button
-                  key={preset.id}
-                  onClick={() => {
-                    setSelectedPresetId(preset.id);
-                    setCustomQuery("");
-                  }}
-                  className={`flex flex-col items-center gap-1 rounded-xl border-2 py-3 px-1 transition-all ${
-                    selectedPresetId === preset.id
-                      ? "border-foodappka-500 bg-foodappka-50 dark:bg-foodappka-900/30 text-foodappka-700 dark:text-foodappka-300"
-                      : "border-zinc-100 dark:border-zinc-800 text-zinc-500 dark:text-zinc-400 hover:border-foodappka-200"
-                  }`}
-                >
-                  <span className="material-symbols-outlined text-xl">{preset.icon}</span>
-                  <span className="text-[11px] font-bold text-center leading-tight">{preset.label}</span>
-                </button>
-              ))}
-              {filteredPresets.length === 0 && (
-                <p className="col-span-3 py-3 text-center text-xs text-zinc-400">
-                  Žádný preset — použijeme přesně to, co jste napsali.
-                </p>
-              )}
-            </div>
+        <div className="max-h-[90vh] overflow-y-auto overscroll-contain p-6 pb-safe">
+          <div className="flex items-center justify-between mb-5">
+            <h3 className="text-lg font-black text-zinc-900 dark:text-white flex items-center gap-2">
+              <span className="material-symbols-outlined text-foodappka-600">trending_down</span>
+              Přidat hlídání
+            </h3>
+            <button
+              onClick={onClose}
+              className="flex h-9 w-9 items-center justify-center rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-500 hover:text-zinc-900 dark:hover:text-white transition-colors"
+            >
+              <span className="material-symbols-outlined text-lg">close</span>
+            </button>
           </div>
 
-          <div>
-            <label className="block text-sm font-bold text-zinc-700 dark:text-zinc-300 mb-2">
-              Upozornit, když cena klesne pod
-              {activeQuery && <span className="font-normal text-zinc-500"> ({activeQuery})</span>}
-            </label>
-            <div className="relative">
-              <input
-                value={targetPrice}
-                onChange={(e) => setTargetPrice(e.target.value)}
-                inputMode="decimal"
-                placeholder="20"
-                className="w-full h-12 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-black px-4 pr-12 text-zinc-900 dark:text-white outline-none transition focus:border-foodappka-500 focus:ring-2 focus:ring-foodappka-500/20"
-              />
-              <span className="absolute right-4 top-1/2 -translate-y-1/2 text-sm font-bold text-zinc-400">Kč</span>
-            </div>
-          </div>
-
-          <button
-            onClick={handleSave}
-            disabled={saving}
-            className="w-full h-12 rounded-full bg-foodappka-600 text-white font-black transition hover:bg-foodappka-700 shadow-lg shadow-foodappka-600/20 active:scale-95 disabled:opacity-50"
-          >
-            {saving ? "Ukládám…" : "Zapnout hlídání"}
-          </button>
+          <WatchForm
+            onDone={(item) => {
+              onCreated(item);
+              onClose();
+            }}
+          />
         </div>
-      </div>
       </div>
     </div>,
     document.body,
@@ -269,13 +315,26 @@ export default function WatchdogSection() {
           </p>
         </div>
         <button
-          onClick={() => setShowAddDialog(true)}
+          onClick={() => setShowAddDialog((v) => !v)}
           className="inline-flex items-center gap-2 rounded-full bg-foodappka-600 px-5 py-2.5 text-sm font-bold text-white shadow-lg shadow-foodappka-600/20 hover:bg-foodappka-700 transition-all active:scale-95"
         >
-          <span className="material-symbols-outlined text-lg">add</span>
-          Přidat hlídání
+          <span className="material-symbols-outlined text-lg">{showAddDialog ? "close" : "add"}</span>
+          {showAddDialog ? "Zavřít" : "Přidat hlídání"}
         </button>
       </header>
+
+      {/* Formulář hlídání — na desktopu inline na stránce, na mobilu bottom-sheet modal (viz níže) */}
+      {showAddDialog && (
+        <div className="hidden lg:block rounded-2xl border border-foodappka-100 dark:border-zinc-800 bg-white/95 dark:bg-foodappka-950 p-6 shadow-sm">
+          <WatchForm
+            onDone={(item) => {
+              setItems((prev) => [item, ...(prev ?? [])]);
+              setShowAddDialog(false);
+            }}
+            onCancel={() => setShowAddDialog(false)}
+          />
+        </div>
+      )}
 
       {/* Propojení Telegramu */}
       <div className="rounded-2xl border border-foodappka-100 dark:border-zinc-800 bg-white/95 dark:bg-foodappka-950 p-5 md:p-6 shadow-sm">
