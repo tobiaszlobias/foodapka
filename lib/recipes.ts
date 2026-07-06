@@ -169,7 +169,7 @@ export const RECIPE_PRESETS: RecipePreset[] = [
     image: "/svickova.png",
   },
   {
-    name: "Studené sójové nudle s kuřetem",
+    name: "Studené nudle se sójovou omáčkou a kuřecím masem",
     tag: "Fit oběd",
     description:
       "Osvěžující studený pokrm s pikantním mletým kuřetem, hedvábným tofu a udon nudlemi — ideální na horké dny.",

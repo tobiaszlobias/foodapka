@@ -8,7 +8,7 @@ import { RECIPE_PRESETS, findRecipeBySlug, recipeSlug } from "@/lib/recipes";
 
 // Zatím jediný recept s experimentálním layoutem (viz TestRecipeDetail) —
 // inspirovaným UX vzorem, dokud se neschválí rozšíření na ostatní recepty.
-const TEST_LAYOUT_SLUG = "studene-sojove-nudle-s-kuretem";
+const TEST_LAYOUT_SLUG = "studene-nudle-se-sojovou-omackou-a-kurecim-masem";
 
 type PageProps = {
   params: Promise<{ slug: string }>;
