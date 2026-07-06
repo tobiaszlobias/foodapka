@@ -22,6 +22,18 @@ export type RecipeNutrition = {
   calories: number;
   /** Gramy bílkovin na porci */
   protein: number;
+  /** Gramy tuku na porci */
+  fat?: number;
+  /** Gramy sacharidů na porci */
+  carbs?: number;
+  /** Gramy vlákniny na porci */
+  fiber?: number;
+};
+
+export type RecipeStep = {
+  text: string;
+  /** Indexy do pole ingredients, které se v tomto kroku používají (pro chips pod textem kroku). */
+  ingredientIndexes?: number[];
 };
 
 export type RecipePreset = {
@@ -29,7 +41,7 @@ export type RecipePreset = {
   tag: string;
   description: string;
   ingredients: (string | RecipeIngredient)[];
-  instructions?: string[];
+  instructions?: (string | RecipeStep)[];
   aliases?: string[];
   image?: string;
   nutrition?: RecipeNutrition;
@@ -174,31 +186,47 @@ export const RECIPE_PRESETS: RecipePreset[] = [
     description:
       "Osvěžující studený pokrm s pikantním mletým kuřetem, hedvábným tofu a udon nudlemi — ideální na horké dny.",
     ingredients: [
-      { name: "hedvábné tofu", searchQuery: "tofu hedvábné silken", banned: ["uzené", "smažené"], amount: "300 g", amountValue: 300, amountUnit: "g" },
-      { name: "arašídové máslo", searchQuery: "arašídové máslo", banned: ["sušenky", "tyčinka"], amount: "1 lžíce", amountValue: 1, amountUnit: "lžíce" },
-      { name: "sójová omáčka", searchQuery: "sójová omáčka", banned: ["kečup"], amount: "1 lžíce", amountValue: 1, amountUnit: "lžíce" },
-      { name: "rybí omáčka", searchQuery: "rybí omáčka", banned: [], amount: "1 lžíce", amountValue: 1, amountUnit: "lžíce" },
-      { name: "led", amount: "4 kostky", amountValue: 4, amountUnit: "kostky" },
-      { name: "kuřecí mleté maso", searchQuery: "kuřecí mleté maso", banned: ["hotové", "karbanátky"], amount: "250 g", amountValue: 250, amountUnit: "g" },
-      { name: "avokádový olej", searchQuery: "avokádový olej", banned: [], amount: "1 lžička", amountValue: 1, amountUnit: "lžička" },
-      { name: "gochugaru", searchQuery: "gochugaru chilli koření", banned: [], amount: "1 lžíce", amountValue: 1, amountUnit: "lžíce" },
-      { name: "tmavá sójová omáčka", searchQuery: "tmavá sójová omáčka", banned: [], amount: "1 lžíce", amountValue: 1, amountUnit: "lžíce" },
-      { name: "sůl", amount: "1 lžička", amountValue: 1, amountUnit: "lžička" },
-      { name: "sezamová semínka", searchQuery: "sezamová semínka", banned: ["olej", "tyčinka"], amount: "1 lžíce", amountValue: 1, amountUnit: "lžíce" },
-      { name: "udon nudle", searchQuery: "udon nudle mražené", banned: ["instantní", "polévka"], amount: "400 g", amountValue: 400, amountUnit: "g" },
-      { name: "vejce", amount: "2 ks", amountValue: 2, amountUnit: "ks" },
-      { name: "okurka", amount: "1 ks", amountValue: 1, amountUnit: "ks" },
-      { name: "jarní cibulka", amount: "podle chuti" },
+      { name: "hedvábné tofu", searchQuery: "tofu hedvábné silken", banned: ["uzené", "smažené"], amount: "300 g", amountValue: 300, amountUnit: "g" }, // 0
+      { name: "arašídové máslo", searchQuery: "arašídové máslo", banned: ["sušenky", "tyčinka"], amount: "1 lžíce", amountValue: 1, amountUnit: "lžíce" }, // 1
+      { name: "sójová omáčka", searchQuery: "sójová omáčka", banned: ["kečup"], amount: "1 lžíce", amountValue: 1, amountUnit: "lžíce" }, // 2
+      { name: "rybí omáčka", searchQuery: "rybí omáčka", banned: [], amount: "1 lžíce", amountValue: 1, amountUnit: "lžíce" }, // 3
+      { name: "led", amount: "4 kostky", amountValue: 4, amountUnit: "kostky" }, // 4
+      { name: "okurka", amount: "1 ks", amountValue: 1, amountUnit: "ks" }, // 5
+      { name: "sůl", amount: "1 lžička", amountValue: 1, amountUnit: "lžička" }, // 6
+      { name: "avokádový olej", searchQuery: "avokádový olej", banned: [], amount: "1 lžička", amountValue: 1, amountUnit: "lžička" }, // 7
+      { name: "kuřecí mleté maso", searchQuery: "kuřecí mleté maso", banned: ["hotové", "karbanátky"], amount: "250 g", amountValue: 250, amountUnit: "g" }, // 8
+      { name: "gochugaru", searchQuery: "gochugaru chilli koření", banned: [], amount: "1 lžíce", amountValue: 1, amountUnit: "lžíce" }, // 9
+      { name: "tmavá sójová omáčka", searchQuery: "tmavá sójová omáčka", banned: [], amount: "1 lžíce", amountValue: 1, amountUnit: "lžíce" }, // 10
+      { name: "sezamová semínka", searchQuery: "sezamová semínka", banned: ["olej", "tyčinka"], amount: "1 lžíce", amountValue: 1, amountUnit: "lžíce" }, // 11
+      { name: "udon nudle", searchQuery: "udon nudle mražené", banned: ["instantní", "polévka"], amount: "400 g", amountValue: 400, amountUnit: "g" }, // 12
+      { name: "jarní cibulka", amount: "1 ks", amountValue: 1, amountUnit: "ks" }, // 13
+      { name: "smažená cibulka", searchQuery: "smažená cibulka křupavá", banned: [], amount: "1 lžíce", amountValue: 1, amountUnit: "lžíce" }, // 14
+      { name: "vejce", amount: "2 ks", amountValue: 2, amountUnit: "ks" }, // 15
     ],
     instructions: [
-      "Rozmixujte hedvábné tofu s arašídovým máslem, sójovou a rybí omáčkou a ledem do hladké studené omáčky.",
-      "Na pánvi orestujte kuřecí mleté maso na avokádovém oleji s gochugaru, tmavou sójovou omáčkou a solí do křupava, na závěr posypte sezamovými semínky.",
-      "Uvařte udon nudle podle návodu, propláchněte studenou vodou.",
-      "Uvařte vejce natvrdo/na měkko podle chuti, rozpulte.",
-      "Nudle zalijte studenou sójovou omáčkou, přidejte kuřecí drť, nakrájenou okurku, jarní cibulku a vejce.",
+      {
+        text: "Sójovou omáčku připravte tak, že vše smícháte v mixéru a rozmixujete do hladka a vychladíte. Dejte stranou do lednice.",
+        ingredientIndexes: [0, 1, 2, 3, 4],
+      },
+      {
+        text: "Okurku najemno nakrájejte a smíchejte se solí. Dejte do lednice, než připravíte kuře.",
+        ingredientIndexes: [5, 6],
+      },
+      {
+        text: "Na velké pánvi na vysokém plameni rozehřejte avokádový olej a kuřecí mleté maso. Restujte dozlatova, poté přidejte gochugaru, tmavou sójovou omáčku, sůl a sezamová semínka.",
+        ingredientIndexes: [7, 8, 9, 10, 6, 11],
+      },
+      {
+        text: "Uvařte nudle, propláchněte studenou vodou nebo ponořte do ledové vody. Vyždímejte přebytečnou vodu z okurky.",
+        ingredientIndexes: [12],
+      },
+      {
+        text: "Na servírování dejte studené nudle, zalijte omáčkou, přidejte kuřecí drť, okurku, nakrájenou jarní cibulku, smaženou cibulku a vejce uvařené na měkko.",
+        ingredientIndexes: [13, 14, 15],
+      },
     ],
     aliases: ["studene nudle", "soy chicken noodles", "cold soy noodles"],
-    nutrition: { calories: 680, protein: 50 },
+    nutrition: { calories: 680, protein: 50, fat: 22, carbs: 71, fiber: 3 },
     mealType: "noodles",
     mainProtein: "chicken",
     onePan: false,

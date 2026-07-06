@@ -112,7 +112,9 @@ export default async function RecipeDetailPage({ params }: PageProps) {
                   <div className="flex-shrink-0 w-8 h-8 rounded-full bg-foodappka-100 dark:bg-foodappka-900/40 text-foodappka-700 dark:text-foodappka-300 flex items-center justify-center font-black text-sm border border-foodappka-200 dark:border-foodappka-800">
                     {index + 1}
                   </div>
-                  <p className="text-zinc-700 dark:text-zinc-300 leading-relaxed pt-1">{step}</p>
+                  <p className="text-zinc-700 dark:text-zinc-300 leading-relaxed pt-1">
+                    {typeof step === "string" ? step : step.text}
+                  </p>
                 </div>
               ))}
             </div>

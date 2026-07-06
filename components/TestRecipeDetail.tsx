@@ -7,17 +7,21 @@ import type { RecipePreset } from "@/lib/recipes";
 
 type Tab = "ingredients" | "method" | "nutrition";
 
+type ScaledIngredient = { name: string; amount?: string };
+type NormalizedStep = { text: string; ingredientIndexes: number[] };
+
 /** Experimentální layout detailu receptu — inspirovaný UX vzorem (taby, počet
- * porcí s přepočtem, cooking mode), zatím jen pro jeden testovací recept.
- * Vlastní fonty (Special Gothic Expanded One / Stack Sans Text) jsou tu
- * izolované přes inline style, aby neovlivnily zbytek appky. */
+ * porcí s přepočtem, cooking mode se step-by-step navigací), zatím jen pro
+ * jeden testovací recept. Vlastní fonty (Special Gothic Expanded One / Stack
+ * Sans Text) jsou tu izolované přes inline style, aby neovlivnily zbytek appky. */
 export default function TestRecipeDetail({ recipe }: { recipe: RecipePreset }) {
   const [activeTab, setActiveTab] = useState<Tab>("ingredients");
   const [servings, setServings] = useState(recipe.baseServings ?? 2);
   const [cookingMode, setCookingMode] = useState(false);
+  const [currentStep, setCurrentStep] = useState(0);
   const baseServings = recipe.baseServings ?? 2;
 
-  const scaledIngredients = useMemo(() => {
+  const scaledIngredients: ScaledIngredient[] = useMemo(() => {
     const scale = servings / baseServings;
     return recipe.ingredients.map((ing) => {
       if (typeof ing === "string") return { name: ing, amount: undefined };
@@ -32,8 +36,37 @@ export default function TestRecipeDetail({ recipe }: { recipe: RecipePreset }) {
     });
   }, [recipe.ingredients, servings, baseServings]);
 
+  const steps: NormalizedStep[] = useMemo(() => {
+    return (recipe.instructions ?? []).map((step) =>
+      typeof step === "string"
+        ? { text: step, ingredientIndexes: [] }
+        : { text: step.text, ingredientIndexes: step.ingredientIndexes ?? [] },
+    );
+  }, [recipe.instructions]);
+
   const headingStyle = { fontFamily: "var(--font-special-gothic)" };
   const bodyStyle = { fontFamily: "'Stack Sans Text', var(--font-manrope)" };
+
+  function renderStepIngredients(step: NormalizedStep) {
+    if (step.ingredientIndexes.length === 0) return null;
+    return (
+      <div className="flex flex-wrap gap-2 mt-3">
+        {step.ingredientIndexes.map((idx) => {
+          const ing = scaledIngredients[idx];
+          if (!ing) return null;
+          return (
+            <span
+              key={idx}
+              className="inline-flex items-center gap-1 rounded-full bg-foodappka-50 dark:bg-foodappka-900/30 px-3 py-1.5 text-sm text-zinc-700 dark:text-zinc-300"
+            >
+              {ing.amount && <span className="font-bold text-zinc-900 dark:text-white">{ing.amount}</span>}
+              <span className="capitalize">{ing.name}</span>
+            </span>
+          );
+        })}
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#FAF8F1] dark:bg-black transition-colors" style={bodyStyle}>
@@ -61,7 +94,11 @@ export default function TestRecipeDetail({ recipe }: { recipe: RecipePreset }) {
 
         <div className="flex flex-wrap items-center gap-3 mb-8">
           <button
-            onClick={() => setCookingMode((v) => !v)}
+            onClick={() => {
+              setActiveTab("method");
+              setCookingMode(true);
+              setCurrentStep(0);
+            }}
             className="inline-flex items-center gap-2 rounded-full bg-foodappka-600 text-white px-5 py-2.5 font-bold text-sm hover:bg-foodappka-700 transition active:scale-95"
           >
             <span className="material-symbols-outlined text-lg">play_arrow</span>
@@ -158,14 +195,17 @@ export default function TestRecipeDetail({ recipe }: { recipe: RecipePreset }) {
           </div>
         )}
 
-        {activeTab === "method" && recipe.instructions && (
+        {activeTab === "method" && steps.length > 0 && (
           <div>
             <label className="inline-flex items-center gap-3 mb-6 cursor-pointer">
               <span className="text-sm font-bold text-zinc-700 dark:text-zinc-300">
                 {cookingMode ? "Vypnout cooking mode" : "Zapnout cooking mode"}
               </span>
               <span
-                onClick={() => setCookingMode((v) => !v)}
+                onClick={() => {
+                  setCookingMode((v) => !v);
+                  setCurrentStep(0);
+                }}
                 className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors cursor-pointer ${
                   cookingMode ? "bg-foodappka-600" : "bg-zinc-300 dark:bg-zinc-700"
                 }`}
@@ -177,37 +217,109 @@ export default function TestRecipeDetail({ recipe }: { recipe: RecipePreset }) {
                 />
               </span>
             </label>
-            {cookingMode && (
-              <p className="text-xs text-foodappka-700 dark:text-foodappka-400 font-bold mb-4 flex items-center gap-1.5">
-                <span className="material-symbols-outlined text-sm">visibility</span>
-                Obrazovka zůstane rozsvícená během vaření.
-              </p>
-            )}
-            <ol className="space-y-4">
-              {recipe.instructions.map((step, index) => (
-                <li key={index} className="flex gap-4">
-                  <div
-                    className="flex-shrink-0 w-9 h-9 rounded-full bg-foodappka-700 text-white flex items-center justify-center font-black"
-                    style={headingStyle}
-                  >
-                    {index + 1}
+
+            {cookingMode ? (
+              <div>
+                <p className="text-xs text-foodappka-700 dark:text-foodappka-400 font-bold mb-4 flex items-center gap-1.5">
+                  <span className="material-symbols-outlined text-sm">visibility</span>
+                  Obrazovka zůstane rozsvícená během vaření.
+                </p>
+
+                {/* Předchozí krok — vyšisovaný náhled */}
+                {currentStep > 0 && (
+                  <div className="opacity-35 mb-2">
+                    <h3 className="text-2xl mb-1 text-foodappka-700 dark:text-foodappka-400" style={headingStyle}>
+                      Krok {currentStep}
+                    </h3>
+                    <p className="text-zinc-600 dark:text-zinc-400 leading-relaxed">{steps[currentStep - 1].text}</p>
                   </div>
-                  <p className="text-zinc-700 dark:text-zinc-300 leading-relaxed pt-1.5">{step}</p>
-                </li>
-              ))}
-            </ol>
+                )}
+
+                {currentStep > 0 && (
+                  <button
+                    onClick={() => setCurrentStep((s) => Math.max(0, s - 1))}
+                    className="flex h-10 w-10 items-center justify-center rounded-full bg-foodappka-700 text-white mx-auto mb-4 hover:bg-foodappka-800 transition"
+                  >
+                    <span className="material-symbols-outlined">arrow_upward</span>
+                  </button>
+                )}
+
+                {/* Aktuální krok — zvýrazněný */}
+                <div className="py-2">
+                  <h3 className="text-3xl mb-2 text-foodappka-800 dark:text-foodappka-300" style={headingStyle}>
+                    Krok {currentStep + 1}
+                  </h3>
+                  <p className="text-lg text-zinc-900 dark:text-white leading-relaxed font-medium">
+                    {steps[currentStep].text}
+                  </p>
+                  {renderStepIngredients(steps[currentStep])}
+                </div>
+
+                {currentStep < steps.length - 1 && (
+                  <button
+                    onClick={() => setCurrentStep((s) => Math.min(steps.length - 1, s + 1))}
+                    className="flex h-10 w-10 items-center justify-center rounded-full bg-foodappka-700 text-white mx-auto my-4 hover:bg-foodappka-800 transition"
+                  >
+                    <span className="material-symbols-outlined">arrow_downward</span>
+                  </button>
+                )}
+
+                {/* Následující krok — vyšisovaný náhled */}
+                {currentStep < steps.length - 1 && (
+                  <div className="opacity-35 mt-2">
+                    <h3 className="text-2xl mb-1 text-foodappka-700 dark:text-foodappka-400" style={headingStyle}>
+                      Krok {currentStep + 2}
+                    </h3>
+                    <p className="text-zinc-600 dark:text-zinc-400 leading-relaxed">{steps[currentStep + 1].text}</p>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <ol className="space-y-6">
+                {steps.map((step, index) => (
+                  <li key={index}>
+                    <h3 className="text-2xl mb-1.5 text-foodappka-800 dark:text-foodappka-400" style={headingStyle}>
+                      Krok {index + 1}
+                    </h3>
+                    <p className="text-zinc-700 dark:text-zinc-300 leading-relaxed">{step.text}</p>
+                    {renderStepIngredients(step)}
+                  </li>
+                ))}
+              </ol>
+            )}
           </div>
         )}
 
         {activeTab === "nutrition" && recipe.nutrition && (
-          <div className="grid grid-cols-2 gap-4 max-w-sm">
-            <div className="rounded-2xl border border-foodappka-100 dark:border-zinc-800 p-4">
-              <p className="text-xs font-black uppercase tracking-widest text-zinc-400">Kalorie</p>
-              <p className="text-2xl font-black text-zinc-900 dark:text-white">{recipe.nutrition.calories}</p>
-            </div>
-            <div className="rounded-2xl border border-foodappka-100 dark:border-zinc-800 p-4">
-              <p className="text-xs font-black uppercase tracking-widest text-zinc-400">Bílkoviny</p>
-              <p className="text-2xl font-black text-zinc-900 dark:text-white">{recipe.nutrition.protein}g</p>
+          <div className="max-w-md">
+            <p className="text-sm font-bold text-zinc-500 mb-4">Na porci</p>
+            <div className="divide-y divide-zinc-200 dark:divide-zinc-800">
+              <div className="flex items-center justify-between py-3">
+                <span className="text-zinc-800 dark:text-zinc-200">Kalorie</span>
+                <span className="font-bold text-zinc-900 dark:text-white">{recipe.nutrition.calories}kcal</span>
+              </div>
+              {recipe.nutrition.fat !== undefined && (
+                <div className="flex items-center justify-between py-3">
+                  <span className="text-zinc-800 dark:text-zinc-200">Tuky</span>
+                  <span className="font-bold text-zinc-900 dark:text-white">{recipe.nutrition.fat}g</span>
+                </div>
+              )}
+              {recipe.nutrition.carbs !== undefined && (
+                <div className="flex items-center justify-between py-3">
+                  <span className="text-zinc-800 dark:text-zinc-200">Sacharidy</span>
+                  <span className="font-bold text-zinc-900 dark:text-white">{recipe.nutrition.carbs}g</span>
+                </div>
+              )}
+              <div className="flex items-center justify-between py-3">
+                <span className="text-zinc-800 dark:text-zinc-200">Bílkoviny</span>
+                <span className="font-bold text-zinc-900 dark:text-white">{recipe.nutrition.protein}g</span>
+              </div>
+              {recipe.nutrition.fiber !== undefined && (
+                <div className="flex items-center justify-between py-3">
+                  <span className="text-zinc-800 dark:text-zinc-200">Vláknina</span>
+                  <span className="font-bold text-zinc-900 dark:text-white">{recipe.nutrition.fiber}g</span>
+                </div>
+              )}
             </div>
           </div>
         )}

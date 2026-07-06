@@ -5,7 +5,7 @@ import { createPortal } from "react-dom";
 import Image from "next/image";
 import { useBodyScrollLock } from "@/lib/useBodyScrollLock";
 import SearchBar from "@/components/SearchBar";
-import { RECIPE_PRESETS } from "@/lib/recipes";
+import { RECIPE_PRESETS, type RecipeStep } from "@/lib/recipes";
 import { showToast } from "@/components/Toast";
 import {
   cleanProductName,
@@ -85,7 +85,7 @@ type RecipeSectionProps = {
   recipeDetails?: {
     name: string;
     description?: string;
-    instructions?: string[];
+    instructions?: (string | RecipeStep)[];
   } | null;
   recipeLoading: boolean;
   ingredients: string[];
@@ -762,7 +762,7 @@ export default function RecipeSection({
                         {index + 1}
                       </div>
                       <p className="text-zinc-700 dark:text-zinc-300 leading-relaxed pt-1">
-                        {step}
+                        {typeof step === "string" ? step : step.text}
                       </p>
                     </div>
                   ))}
