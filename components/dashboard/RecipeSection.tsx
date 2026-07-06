@@ -6,7 +6,8 @@ import Image from "next/image";
 import { useBodyScrollLock } from "@/lib/useBodyScrollLock";
 import SearchBar from "@/components/SearchBar";
 import { RECIPE_PRESETS, type RecipeStep } from "@/lib/recipes";
-import CookingModeStepper, { normalizeSteps } from "@/components/CookingModeStepper";
+import { normalizeSteps } from "@/components/CookingModeStepper";
+import TestRecipeDetail from "@/components/TestRecipeDetail";
 import { showToast } from "@/components/Toast";
 import {
   cleanProductName,
@@ -112,6 +113,9 @@ type RecipeSectionProps = {
   hideHeader?: boolean;
   favorites: { id: string }[];
   onToggleFavorite: (item: any) => void;
+  /** Vynutí jen nákupní sekci, bez celostránkového TestRecipeDetail layoutu —
+   * používá se při vnořeném volání RecipeSection jako shoppingContent (viz níže). */
+  forceShoppingOnly?: boolean;
 };
 
 export default function RecipeSection({
@@ -141,6 +145,7 @@ export default function RecipeSection({
   hideHeader,
   favorites,
   onToggleFavorite,
+  forceShoppingOnly,
 }: RecipeSectionProps) {
   // Vlastní recepty + kategorie
   const [customRecipes, setCustomRecipes] = useState<CustomRecipe[]>([]);
@@ -150,21 +155,18 @@ export default function RecipeSection({
   const [leafletDialog, setLeafletDialog] = useState<{ url: string; shopName: string } | null>(null);
   const [selectedStore, setSelectedStore] = useState<string | null>(null);
   const [storePickerOpen, setStorePickerOpen] = useState(false);
-  // "Vaření" mode zatím jen pro recepty se strukturovanými kroky (RecipeStep s ingredientIndexes)
-  const [viewMode, setViewMode] = useState<"shopping" | "cooking">("shopping");
+  // Experimentální celostránkový layout (taby Nákup/Ingredience/Postup/Nutriční
+  // hodnoty) zatím jen pro recepty se strukturovanými kroky (RecipeStep s
+  // ingredientIndexes) — v praxi jen testovací recept.
+  const [showFullRecipeView, setShowFullRecipeView] = useState(true);
   const activeRecipePreset = useMemo(
     () => RECIPE_PRESETS.find((r) => r.name === activeRecipe),
     [activeRecipe],
   );
-  const cookingSteps = useMemo(
-    () => normalizeSteps(activeRecipePreset?.instructions ?? []),
-    [activeRecipePreset],
-  );
-  const hasCookingMode = cookingSteps.some((s) => s.ingredientIndexes.length > 0);
-  const cookingIngredients = useMemo(
+  const hasNewLayout = useMemo(
     () =>
-      (activeRecipePreset?.ingredients ?? []).map((ing) =>
-        typeof ing === "string" ? { name: ing, amount: undefined } : { name: ing.name, amount: ing.amount },
+      normalizeSteps(activeRecipePreset?.instructions ?? []).some(
+        (s) => s.ingredientIndexes.length > 0,
       ),
     [activeRecipePreset],
   );
@@ -178,7 +180,7 @@ export default function RecipeSection({
 
   useEffect(() => {
     setSelectedStore(null);
-    setViewMode("shopping");
+    setShowFullRecipeView(true);
   }, [activeRecipe]);
 
   const categories = useMemo(() => {
@@ -306,6 +308,53 @@ export default function RecipeSection({
       return sum + parsePrice(item.store.price);
     }, 0);
   }, [effectiveResults, checkedIngredients]);
+
+  if (
+    !forceShoppingOnly &&
+    hasNewLayout &&
+    showFullRecipeView &&
+    activeRecipePreset &&
+    (recipeLoading || effectiveResults.length > 0)
+  ) {
+    return (
+      <TestRecipeDetail
+        recipe={activeRecipePreset}
+        backHref="#"
+        onFindIngredients={() => setShowFullRecipeView(false)}
+        shoppingContent={
+          <RecipeSection
+            activeRecipe={activeRecipe}
+            recipeDetails={recipeDetails}
+            recipeLoading={recipeLoading}
+            ingredients={ingredients}
+            recipeResults={recipeResults}
+            checkedIngredients={checkedIngredients}
+            shoppingMode={shoppingMode}
+            recipeError={recipeError}
+            shareMessage={shareMessage}
+            shoppingListRef={shoppingListRef}
+            isSaving={isSaving}
+            toggleIngredient={toggleIngredient}
+            runRecipeSearch={runRecipeSearch}
+            runCustomRecipeSearch={runCustomRecipeSearch}
+            generateAIRecipe={generateAIRecipe}
+            saveShoppingList={saveShoppingList}
+            shareShoppingList={shareShoppingList}
+            setShoppingMode={setShoppingMode}
+            handleModeChange={handleModeChange}
+            setLoading={setLoading}
+            handleResults={handleResults}
+            hasSearched={hasSearched}
+            setHasSearched={setHasSearched}
+            hideHeader
+            favorites={favorites}
+            onToggleFavorite={onToggleFavorite}
+            forceShoppingOnly
+          />
+        }
+      />
+    );
+  }
 
   return (
     <div className="space-y-8">
@@ -560,32 +609,6 @@ export default function RecipeSection({
                 </div>
               </div>
 
-              {hasCookingMode && (
-                <div className="mt-4 inline-flex rounded-full bg-foodappka-50 dark:bg-zinc-900 p-1">
-                  <button
-                    onClick={() => setViewMode("shopping")}
-                    className={`flex items-center gap-1.5 px-4 py-1.5 rounded-full text-[11px] font-bold transition-all ${viewMode === "shopping" ? "bg-foodappka-600 text-white shadow-sm" : "text-foodappka-800 dark:text-foodappka-400"}`}
-                  >
-                    <span className="material-symbols-outlined text-[14px]">shopping_cart</span>
-                    Nákup
-                  </button>
-                  <button
-                    onClick={() => setViewMode("cooking")}
-                    className={`flex items-center gap-1.5 px-4 py-1.5 rounded-full text-[11px] font-bold transition-all ${viewMode === "cooking" ? "bg-foodappka-600 text-white shadow-sm" : "text-foodappka-800 dark:text-foodappka-400"}`}
-                  >
-                    <span className="material-symbols-outlined text-[14px]">skillet</span>
-                    Vaření
-                  </button>
-                </div>
-              )}
-
-              {viewMode === "cooking" && hasCookingMode && (
-                <div className="mt-4">
-                  <CookingModeStepper steps={cookingSteps} scaledIngredients={cookingIngredients} />
-                </div>
-              )}
-
-              <div className={viewMode === "cooking" && hasCookingMode ? "hidden" : ""}>
               <div className="mt-4 flex items-center gap-2 relative">
                 <div className="inline-flex rounded-full bg-foodappka-50 dark:bg-zinc-900 p-1">
                   <button
@@ -787,7 +810,6 @@ export default function RecipeSection({
                   );
                 })}
               </ul>
-              </div>
             </div>
 
             <div className="rounded-2xl bg-foodappka-950 p-5 text-white shadow-lg border border-foodappka-800">
@@ -795,8 +817,8 @@ export default function RecipeSection({
               <p className="text-3xl font-black mt-1">{totalPrice.toFixed(2).replace(".", ",")} Kč</p>
             </div>
 
-            {/* Preparation Steps */}
-            {recipeDetails?.instructions && recipeDetails.instructions.length > 0 && (
+            {/* Preparation Steps — recepty s novým tab layoutem mají postup v tabu "Postup" */}
+            {!hasNewLayout && recipeDetails?.instructions && recipeDetails.instructions.length > 0 && (
               <div className="mt-8 pt-8 border-t border-zinc-100 dark:border-zinc-800 text-left">
                 <h3 className="text-xl font-bold text-zinc-900 dark:text-white mb-6 flex items-center gap-2">
                   <span className="material-symbols-outlined text-foodappka-600">restaurant_menu</span>
