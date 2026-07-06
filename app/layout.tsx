@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Manrope, Plus_Jakarta_Sans } from "next/font/google";
+import { Manrope, Plus_Jakarta_Sans, Special_Gothic_Expanded_One } from "next/font/google";
 import ThemeScript from "@/components/ThemeScript";
 import CookieBanner from "@/components/CookieBanner";
 import Toast from "@/components/Toast";
@@ -17,6 +17,15 @@ const plusJakartaSans = Plus_Jakarta_Sans({
   subsets: ["latin", "latin-ext"],
   variable: "--font-plus-jakarta",
   weight: ["400", "500", "600", "700", "800"],
+  display: "swap",
+});
+
+// Experimentální fonty — zatím jen pro testovací recept
+// (viz app/recepty/[slug]/page.tsx), nepoužívá se globálně.
+const specialGothicExpandedOne = Special_Gothic_Expanded_One({
+  subsets: ["latin", "latin-ext"],
+  variable: "--font-special-gothic",
+  weight: "400",
   display: "swap",
 });
 
@@ -44,8 +53,13 @@ export default function RootLayout({
           href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
           rel="stylesheet"
         />
+        {/* Stack Sans Text není v next/font/google databázi — načteno přímo, zatím jen pro testovací recept. */}
+        <link
+          href="https://fonts.googleapis.com/css2?family=Stack+Sans+Text&display=swap"
+          rel="stylesheet"
+        />
       </head>
-      <body className={`${manrope.variable} ${plusJakartaSans.variable} font-sans antialiased`}>
+      <body className={`${manrope.variable} ${plusJakartaSans.variable} ${specialGothicExpandedOne.variable} font-sans antialiased`}>
         <ThemeScript />
         <KeyboardScrollFix />
         {children}

@@ -3,7 +3,12 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import SiteHeader from "@/components/SiteHeader";
+import TestRecipeDetail from "@/components/TestRecipeDetail";
 import { RECIPE_PRESETS, findRecipeBySlug, recipeSlug } from "@/lib/recipes";
+
+// Zatím jediný recept s experimentálním layoutem (viz TestRecipeDetail) —
+// inspirovaným UX vzorem, dokud se neschválí rozšíření na ostatní recepty.
+const TEST_LAYOUT_SLUG = "studene-sojove-nudle-s-kuretem";
 
 type PageProps = {
   params: Promise<{ slug: string }>;
@@ -27,6 +32,10 @@ export default async function RecipeDetailPage({ params }: PageProps) {
   const { slug } = await params;
   const recipe = findRecipeBySlug(slug);
   if (!recipe) notFound();
+
+  if (slug === TEST_LAYOUT_SLUG) {
+    return <TestRecipeDetail recipe={recipe} />;
+  }
 
   const ingredientNames = recipe.ingredients.map((ing) =>
     typeof ing === "string" ? ing : ing.name,
