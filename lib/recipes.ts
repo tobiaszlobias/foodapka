@@ -4,6 +4,16 @@ export type RecipeIngredient = {
   banned?: string[];
 };
 
+export type MealType = "noodles" | "pasta" | "rice" | "salad" | "other";
+export type MainProtein = "chicken" | "beef" | "fish" | "pork" | "vegetarian";
+
+export type RecipeNutrition = {
+  /** Kalorie na porci */
+  calories: number;
+  /** Gramy bílkovin na porci */
+  protein: number;
+};
+
 export type RecipePreset = {
   name: string;
   tag: string;
@@ -12,6 +22,10 @@ export type RecipePreset = {
   instructions?: string[];
   aliases?: string[];
   image?: string;
+  nutrition?: RecipeNutrition;
+  mealType?: MealType;
+  mainProtein?: MainProtein;
+  onePan?: boolean;
 };
 
 export const RECIPE_PRESETS: RecipePreset[] = [
@@ -140,6 +154,37 @@ export const RECIPE_PRESETS: RecipePreset[] = [
     ],
     aliases: ["svickova"],
     image: "/svickova.png",
+  },
+  {
+    name: "Studené sójové nudle s kuřetem",
+    tag: "Fit oběd",
+    description:
+      "Osvěžující studený pokrm s pikantním mletým kuřetem, hedvábným tofu a udon nudlemi — ideální na horké dny.",
+    ingredients: [
+      { name: "hedvábné tofu", searchQuery: "tofu hedvábné silken", banned: ["uzené", "smažené"] },
+      { name: "arašídové máslo", searchQuery: "arašídové máslo", banned: ["sušenky", "tyčinka"] },
+      { name: "sójová omáčka", searchQuery: "sójová omáčka", banned: ["kečup"] },
+      { name: "rybí omáčka", searchQuery: "rybí omáčka", banned: [] },
+      { name: "kuřecí mleté maso", searchQuery: "kuřecí mleté maso", banned: ["hotové", "karbanátky"] },
+      { name: "gochugaru", searchQuery: "gochugaru chilli koření", banned: [] },
+      { name: "sezamová semínka", searchQuery: "sezamová semínka", banned: ["olej", "tyčinka"] },
+      { name: "udon nudle", searchQuery: "udon nudle mražené", banned: ["instantní", "polévka"] },
+      "vejce",
+      "okurka",
+      "jarní cibulka",
+    ],
+    instructions: [
+      "Rozmixujte hedvábné tofu s arašídovým máslem, sójovou a rybí omáčkou a ledem do hladké studené omáčky.",
+      "Na pánvi orestujte kuřecí mleté maso s gochugaru a sezamovými semínky do křupava.",
+      "Uvařte udon nudle podle návodu, propláchněte studenou vodou.",
+      "Uvařte vejce natvrdo/na měkko podle chuti, rozpulte.",
+      "Nudle zalijte studenou sójovou omáčkou, přidejte kuřecí drť, nakrájenou okurku, jarní cibulku a vejce.",
+    ],
+    aliases: ["studene nudle", "soy chicken noodles", "cold soy noodles"],
+    nutrition: { calories: 680, protein: 50 },
+    mealType: "noodles",
+    mainProtein: "chicken",
+    onePan: false,
   },
 ];
 

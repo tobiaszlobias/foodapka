@@ -452,6 +452,18 @@ export default function RecipeSection({
               </div>
             )}
             <div className="p-5">
+              {recipe.nutrition && (
+                <div className="flex items-center gap-4 mb-2">
+                  <div>
+                    <span className="block text-[9px] font-black uppercase tracking-widest text-zinc-400">Kalorie</span>
+                    <span className="text-sm font-black text-zinc-800 dark:text-zinc-200">{recipe.nutrition.calories}</span>
+                  </div>
+                  <div>
+                    <span className="block text-[9px] font-black uppercase tracking-widest text-zinc-400">Bílkoviny</span>
+                    <span className="text-sm font-black text-zinc-800 dark:text-zinc-200">{recipe.nutrition.protein}g</span>
+                  </div>
+                </div>
+              )}
               <h3 className="text-xl font-black text-zinc-900 dark:text-white leading-tight group-hover:text-foodappka-600 transition-colors">
                 {recipe.name}
               </h3>
