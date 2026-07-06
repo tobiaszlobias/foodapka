@@ -4,11 +4,11 @@ import { useMemo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import type { RecipePreset } from "@/lib/recipes";
+import CookingModeStepper, { normalizeSteps } from "./CookingModeStepper";
 
 type Tab = "ingredients" | "method" | "nutrition";
 
 type ScaledIngredient = { name: string; amount?: string };
-type NormalizedStep = { text: string; ingredientIndexes: number[] };
 
 /** Experimentální layout detailu receptu — inspirovaný UX vzorem (taby, počet
  * porcí s přepočtem, cooking mode se step-by-step navigací), zatím jen pro
@@ -18,7 +18,6 @@ export default function TestRecipeDetail({ recipe }: { recipe: RecipePreset }) {
   const [activeTab, setActiveTab] = useState<Tab>("ingredients");
   const [servings, setServings] = useState(recipe.baseServings ?? 2);
   const [cookingMode, setCookingMode] = useState(false);
-  const [currentStep, setCurrentStep] = useState(0);
   const baseServings = recipe.baseServings ?? 2;
 
   const scaledIngredients: ScaledIngredient[] = useMemo(() => {
@@ -36,18 +35,12 @@ export default function TestRecipeDetail({ recipe }: { recipe: RecipePreset }) {
     });
   }, [recipe.ingredients, servings, baseServings]);
 
-  const steps: NormalizedStep[] = useMemo(() => {
-    return (recipe.instructions ?? []).map((step) =>
-      typeof step === "string"
-        ? { text: step, ingredientIndexes: [] }
-        : { text: step.text, ingredientIndexes: step.ingredientIndexes ?? [] },
-    );
-  }, [recipe.instructions]);
+  const steps = useMemo(() => normalizeSteps(recipe.instructions ?? []), [recipe.instructions]);
 
   const headingStyle = { fontFamily: "var(--font-special-gothic)" };
   const bodyStyle = { fontFamily: "'Stack Sans Text', var(--font-manrope)" };
 
-  function renderStepIngredients(step: NormalizedStep) {
+  function renderStepIngredients(step: { ingredientIndexes: number[] }) {
     if (step.ingredientIndexes.length === 0) return null;
     return (
       <div className="flex flex-wrap gap-2 mt-3">
@@ -97,7 +90,6 @@ export default function TestRecipeDetail({ recipe }: { recipe: RecipePreset }) {
             onClick={() => {
               setActiveTab("method");
               setCookingMode(true);
-              setCurrentStep(0);
             }}
             className="inline-flex items-center gap-2 rounded-full bg-foodappka-600 text-white px-5 py-2.5 font-bold text-sm hover:bg-foodappka-700 transition active:scale-95"
           >
@@ -202,10 +194,7 @@ export default function TestRecipeDetail({ recipe }: { recipe: RecipePreset }) {
                 {cookingMode ? "Vypnout cooking mode" : "Zapnout cooking mode"}
               </span>
               <span
-                onClick={() => {
-                  setCookingMode((v) => !v);
-                  setCurrentStep(0);
-                }}
+                onClick={() => setCookingMode((v) => !v)}
                 className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors cursor-pointer ${
                   cookingMode ? "bg-foodappka-600" : "bg-zinc-300 dark:bg-zinc-700"
                 }`}
@@ -219,61 +208,12 @@ export default function TestRecipeDetail({ recipe }: { recipe: RecipePreset }) {
             </label>
 
             {cookingMode ? (
-              <div>
-                <p className="text-xs text-foodappka-700 dark:text-foodappka-400 font-bold mb-4 flex items-center gap-1.5">
-                  <span className="material-symbols-outlined text-sm">visibility</span>
-                  Obrazovka zůstane rozsvícená během vaření.
-                </p>
-
-                {/* Předchozí krok — vyšisovaný náhled */}
-                {currentStep > 0 && (
-                  <div className="opacity-35 mb-2">
-                    <h3 className="text-2xl mb-1 text-foodappka-700 dark:text-foodappka-400" style={headingStyle}>
-                      Krok {currentStep}
-                    </h3>
-                    <p className="text-zinc-600 dark:text-zinc-400 leading-relaxed">{steps[currentStep - 1].text}</p>
-                  </div>
-                )}
-
-                {currentStep > 0 && (
-                  <button
-                    onClick={() => setCurrentStep((s) => Math.max(0, s - 1))}
-                    className="flex h-10 w-10 items-center justify-center rounded-full bg-foodappka-700 text-white mx-auto mb-4 hover:bg-foodappka-800 transition"
-                  >
-                    <span className="material-symbols-outlined">arrow_upward</span>
-                  </button>
-                )}
-
-                {/* Aktuální krok — zvýrazněný */}
-                <div className="py-2">
-                  <h3 className="text-3xl mb-2 text-foodappka-800 dark:text-foodappka-300" style={headingStyle}>
-                    Krok {currentStep + 1}
-                  </h3>
-                  <p className="text-lg text-zinc-900 dark:text-white leading-relaxed font-medium">
-                    {steps[currentStep].text}
-                  </p>
-                  {renderStepIngredients(steps[currentStep])}
-                </div>
-
-                {currentStep < steps.length - 1 && (
-                  <button
-                    onClick={() => setCurrentStep((s) => Math.min(steps.length - 1, s + 1))}
-                    className="flex h-10 w-10 items-center justify-center rounded-full bg-foodappka-700 text-white mx-auto my-4 hover:bg-foodappka-800 transition"
-                  >
-                    <span className="material-symbols-outlined">arrow_downward</span>
-                  </button>
-                )}
-
-                {/* Následující krok — vyšisovaný náhled */}
-                {currentStep < steps.length - 1 && (
-                  <div className="opacity-35 mt-2">
-                    <h3 className="text-2xl mb-1 text-foodappka-700 dark:text-foodappka-400" style={headingStyle}>
-                      Krok {currentStep + 2}
-                    </h3>
-                    <p className="text-zinc-600 dark:text-zinc-400 leading-relaxed">{steps[currentStep + 1].text}</p>
-                  </div>
-                )}
-              </div>
+              <CookingModeStepper
+                steps={steps}
+                scaledIngredients={scaledIngredients}
+                headingClassName="text-foodappka-800 dark:text-foodappka-300"
+                headingStyle={headingStyle}
+              />
             ) : (
               <ol className="space-y-6">
                 {steps.map((step, index) => (

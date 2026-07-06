@@ -6,6 +6,7 @@ import Image from "next/image";
 import { useBodyScrollLock } from "@/lib/useBodyScrollLock";
 import SearchBar from "@/components/SearchBar";
 import { RECIPE_PRESETS, type RecipeStep } from "@/lib/recipes";
+import CookingModeStepper, { normalizeSteps } from "@/components/CookingModeStepper";
 import { showToast } from "@/components/Toast";
 import {
   cleanProductName,
@@ -149,6 +150,24 @@ export default function RecipeSection({
   const [leafletDialog, setLeafletDialog] = useState<{ url: string; shopName: string } | null>(null);
   const [selectedStore, setSelectedStore] = useState<string | null>(null);
   const [storePickerOpen, setStorePickerOpen] = useState(false);
+  // "Vaření" mode zatím jen pro recepty se strukturovanými kroky (RecipeStep s ingredientIndexes)
+  const [viewMode, setViewMode] = useState<"shopping" | "cooking">("shopping");
+  const activeRecipePreset = useMemo(
+    () => RECIPE_PRESETS.find((r) => r.name === activeRecipe),
+    [activeRecipe],
+  );
+  const cookingSteps = useMemo(
+    () => normalizeSteps(activeRecipePreset?.instructions ?? []),
+    [activeRecipePreset],
+  );
+  const hasCookingMode = cookingSteps.some((s) => s.ingredientIndexes.length > 0);
+  const cookingIngredients = useMemo(
+    () =>
+      (activeRecipePreset?.ingredients ?? []).map((ing) =>
+        typeof ing === "string" ? { name: ing, amount: undefined } : { name: ing.name, amount: ing.amount },
+      ),
+    [activeRecipePreset],
+  );
 
   useEffect(() => {
     loadCustomRecipes().then(({ recipes, usingCloud }) => {
@@ -159,6 +178,7 @@ export default function RecipeSection({
 
   useEffect(() => {
     setSelectedStore(null);
+    setViewMode("shopping");
   }, [activeRecipe]);
 
   const categories = useMemo(() => {
@@ -540,6 +560,32 @@ export default function RecipeSection({
                 </div>
               </div>
 
+              {hasCookingMode && (
+                <div className="mt-4 inline-flex rounded-full bg-foodappka-50 dark:bg-zinc-900 p-1">
+                  <button
+                    onClick={() => setViewMode("shopping")}
+                    className={`flex items-center gap-1.5 px-4 py-1.5 rounded-full text-[11px] font-bold transition-all ${viewMode === "shopping" ? "bg-foodappka-600 text-white shadow-sm" : "text-foodappka-800 dark:text-foodappka-400"}`}
+                  >
+                    <span className="material-symbols-outlined text-[14px]">shopping_cart</span>
+                    Nákup
+                  </button>
+                  <button
+                    onClick={() => setViewMode("cooking")}
+                    className={`flex items-center gap-1.5 px-4 py-1.5 rounded-full text-[11px] font-bold transition-all ${viewMode === "cooking" ? "bg-foodappka-600 text-white shadow-sm" : "text-foodappka-800 dark:text-foodappka-400"}`}
+                  >
+                    <span className="material-symbols-outlined text-[14px]">skillet</span>
+                    Vaření
+                  </button>
+                </div>
+              )}
+
+              {viewMode === "cooking" && hasCookingMode && (
+                <div className="mt-4">
+                  <CookingModeStepper steps={cookingSteps} scaledIngredients={cookingIngredients} />
+                </div>
+              )}
+
+              <div className={viewMode === "cooking" && hasCookingMode ? "hidden" : ""}>
               <div className="mt-4 flex items-center gap-2 relative">
                 <div className="inline-flex rounded-full bg-foodappka-50 dark:bg-zinc-900 p-1">
                   <button
@@ -741,6 +787,7 @@ export default function RecipeSection({
                   );
                 })}
               </ul>
+              </div>
             </div>
 
             <div className="rounded-2xl bg-foodappka-950 p-5 text-white shadow-lg border border-foodappka-800">
