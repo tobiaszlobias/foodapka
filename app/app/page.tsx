@@ -9,7 +9,8 @@ import WatchdogSection from "@/components/dashboard/WatchdogSection";
 import ListsSection from "@/components/dashboard/ListsSection";
 import LoginWall from "@/components/LoginWall";
 import SearchBar from "@/components/SearchBar";
-import { type Product, type Store, parsePrice, cleanProductName, normalizeText } from "@/lib/food";
+import { type Product, type Store, parsePrice, cleanProductName } from "@/lib/food";
+import { loadFavoriteStores, saveFavoriteStores, storeNameToChipKey, chipKeyToStoreName } from "@/lib/favoriteStores";
 import { createClient } from "@/lib/supabase/client";
 import { showToast } from "@/components/Toast";
 import type { User } from "@supabase/supabase-js";
@@ -50,8 +51,8 @@ function HomeContent() {
   const [user, setUser] = useState<User | null>(null);
   const [authLoaded, setAuthLoaded] = useState(false);
   const [favorites, setFavorites] = useState<FavoriteItem[]>([]);
-  // Oblíbené obchody z nastavení — předvyplní se jako filtry u výsledků vyhledávání
-  const favoriteStoresRef = useRef<string[]>([]);
+  // Oblíbené obchody — trvalý výběr chipsů u vyhledávání, sync s nastavením
+  const [favoriteStores, setFavoriteStores] = useState<string[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
@@ -79,18 +80,29 @@ function HomeContent() {
   
   const handleResults = useCallback((nextProducts: Product[]) => {
     setProducts(nextProducts);
-    // Oblíbené obchody se rovnou aktivují jako filtry (pokud jsou ve výsledcích zastoupené)
-    const preferredKeys = favoriteStoresRef.current.map(s => `chain:${normalizeText(s)}`);
-    const presentKeys = new Set<string>();
-    nextProducts.forEach(p => p.stores.forEach(s => {
-      presentKeys.add(`chain:${normalizeText(s.shopName)}`);
-      if (s.source === "kaufland") presentKeys.add("chain:kaufland");
-      if (s.source === "lidl") presentKeys.add("chain:lidl");
-    }));
-    const activeKeys = preferredKeys.filter(k => presentKeys.has(k));
-    setSelectedFilter(activeKeys.length > 0 ? activeKeys : ["all"]);
+    // Oblíbené obchody se rovnou aktivují jako filtry — chipsy teď existují vždy
+    // (viz KNOWN_CHAIN_FILTERS v SearchSection), takže se nemusí ověřovat přítomnost ve výsledcích.
+    const preferredKeys = favoriteStores.map(storeNameToChipKey);
+    setSelectedFilter(preferredKeys.length > 0 ? preferredKeys : ["all"]);
     setSelectedSort("relevance");
-  }, []);
+  }, [favoriteStores]);
+
+  // Chipsy obchodů ve vyhledávání = oblíbené obchody. Výběr se ukládá (debounced) a
+  // příště se v handleResults použije jako výchozí filtr.
+  const storeSelectionSaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const updateStoreSelection = useCallback((keys: string[]) => {
+    setSelectedFilter(keys);
+
+    const nextFavorites = keys.includes("all")
+      ? []
+      : keys.map(chipKeyToStoreName).filter((name): name is string => name !== null);
+    setFavoriteStores(nextFavorites);
+
+    if (storeSelectionSaveTimer.current) clearTimeout(storeSelectionSaveTimer.current);
+    storeSelectionSaveTimer.current = setTimeout(() => {
+      void saveFavoriteStores(supabase, user, nextFavorites);
+    }, 500);
+  }, [supabase, user]);
 
   const handleModeChange = useCallback((newMode: AppMode) => {
     const url = newMode === "search" ? "/app" : `/app?mode=${newMode}`;
@@ -379,22 +391,8 @@ function HomeContent() {
       setAuthLoaded(true);
 
       // Načtení oblíbených obchodů (stejná fallback logika jako v nastavení)
-      if (user) {
-        const { data: prefs } = await supabase
-          .from("user_preferences")
-          .select("favorite_stores")
-          .eq("user_id", user.id)
-          .single();
-        if (prefs?.favorite_stores) {
-          favoriteStoresRef.current = prefs.favorite_stores;
-        } else {
-          const local = localStorage.getItem(`settings_fallback_${user.id}`);
-          if (local) favoriteStoresRef.current = JSON.parse(local).favorite_stores || [];
-        }
-      } else {
-        const local = localStorage.getItem("guest_settings");
-        if (local) favoriteStoresRef.current = JSON.parse(local).favorite_stores || [];
-      }
+      const stores = await loadFavoriteStores(supabase, user);
+      setFavoriteStores(stores);
 
       if (user) {
         const { data } = await supabase
@@ -516,7 +514,7 @@ function HomeContent() {
             loading={loading}
             hasSearched={hasSearched}
             selectedFilter={selectedFilter}
-            setSelectedFilter={setSelectedFilter}
+            setSelectedFilter={updateStoreSelection}
             selectedSort={selectedSort}
             setSelectedSort={setSelectedSort}
             handleResults={handleResults}

@@ -3,6 +3,7 @@
 import { useEffect, useState, Suspense, useCallback } from "react";
 import { createClient } from "@/lib/supabase/client";
 import type { User } from "@supabase/supabase-js";
+import { AVAILABLE_STORES } from "@/lib/favoriteStores";
 
 type DietType = "none" | "vegetarian" | "vegan" | "pescatarian";
 
@@ -12,18 +13,6 @@ type UserPreferences = {
   allergens: string[];
   favorite_categories: string[];
 };
-
-const AVAILABLE_STORES = [
-  "Lidl",
-  "Kaufland",
-  "Albert",
-  "Tesco",
-  "Penny",
-  "Billa",
-  "Globus",
-  "JIP",
-  "Hruška",
-];
 
 const ALLERGENS = [
   "Gluten",
