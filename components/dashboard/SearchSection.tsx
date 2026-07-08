@@ -15,8 +15,9 @@ import {
   type Product
 } from "@/lib/food";
 import { getStoreFilter } from "@/lib/storeFilters";
+import { AVAILABLE_STORES } from "@/lib/favoriteStores";
 import { FOODORA_STORE_CONFIGS } from "@/data/foodoraStores";
-import { StoreBrand, LoadingCards, EmptyState, SearchLoadingAnimation, LeafletViewer } from "./DashboardShared";
+import { StoreBrand, LoadingCards, EmptyState, SearchLoadingAnimation, LeafletViewer, StoreFilterChips } from "./DashboardShared";
 import { showToast } from "@/components/Toast";
 import { matchIngredientPreset } from "@/lib/ingredientPresets";
 
@@ -38,11 +39,11 @@ type SearchSectionProps = {
   hideHeader?: boolean;
 };
 
-async function createWatch(query: string, targetPrice: number) {
+async function createWatch(query: string, targetPrice: number, storeFilter: string[]) {
   const res = await fetch("/api/watchdog", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ query, targetPrice }),
+    body: JSON.stringify({ query, targetPrice, storeFilter }),
   });
   if (res.status === 401) {
     showToast("Pro hlídání cen se musíte přihlásit.", "info");
@@ -66,6 +67,7 @@ function WatchDialog({ defaultQuery, defaultPrice, onClose }: WatchDialogProps) 
   useBodyScrollLock();
   const [query, setQuery] = useState(defaultQuery);
   const [targetPrice, setTargetPrice] = useState(String(Math.floor(defaultPrice)));
+  const [selectedStores, setSelectedStores] = useState<string[]>([]);
   const [saving, setSaving] = useState(false);
 
   const handleSave = async () => {
@@ -75,7 +77,7 @@ function WatchDialog({ defaultQuery, defaultPrice, onClose }: WatchDialogProps) 
       return;
     }
     setSaving(true);
-    const ok = await createWatch(query.trim(), priceNum);
+    const ok = await createWatch(query.trim(), priceNum, selectedStores);
     setSaving(false);
     if (ok) onClose();
   };
@@ -130,6 +132,16 @@ function WatchDialog({ defaultQuery, defaultPrice, onClose }: WatchDialogProps) 
               />
               <span className="absolute right-4 top-1/2 -translate-y-1/2 text-sm font-bold text-zinc-400">Kč</span>
             </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-bold text-zinc-700 dark:text-zinc-300 mb-2">
+              Ve kterých obchodech hlídat
+            </label>
+            <StoreFilterChips stores={AVAILABLE_STORES} selected={selectedStores} onChange={setSelectedStores} />
+            <p className="mt-1.5 text-xs text-zinc-500 dark:text-zinc-400">
+              {selectedStores.length === 0 ? "Nevybráno = hlídáme napříč všemi obchody." : "Hlídáme jen ve vybraných obchodech."}
+            </p>
           </div>
 
           <button

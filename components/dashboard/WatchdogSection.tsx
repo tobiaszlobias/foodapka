@@ -5,12 +5,15 @@ import { createPortal } from "react-dom";
 import { showToast } from "@/components/Toast";
 import { INGREDIENT_PRESETS } from "@/lib/ingredientPresets";
 import { useBodyScrollLock } from "@/lib/useBodyScrollLock";
+import { AVAILABLE_STORES } from "@/lib/favoriteStores";
+import { StoreFilterChips } from "./DashboardShared";
 
 type WatchedProduct = {
   id: string;
   query: string;
   target_price: number;
   last_notified_price: number | null;
+  store_filter: string[] | null;
   created_at: string;
 };
 
@@ -25,6 +28,7 @@ function WatchForm({ onDone, onCancel }: WatchFormProps) {
   const [selectedPresetId, setSelectedPresetId] = useState<string | null>(null);
   const [customQuery, setCustomQuery] = useState("");
   const [targetPrice, setTargetPrice] = useState("");
+  const [selectedStores, setSelectedStores] = useState<string[]>([]);
   const [saving, setSaving] = useState(false);
 
   const selectedPreset = INGREDIENT_PRESETS.find((p) => p.id === selectedPresetId);
@@ -53,7 +57,7 @@ function WatchForm({ onDone, onCancel }: WatchFormProps) {
       const res = await fetch("/api/watchdog", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ query, targetPrice: priceNum }),
+        body: JSON.stringify({ query, targetPrice: priceNum, storeFilter: selectedStores }),
       });
       if (res.status === 401) {
         showToast("Pro hlídání cen se musíte přihlásit.", "info");
@@ -65,6 +69,7 @@ function WatchForm({ onDone, onCancel }: WatchFormProps) {
       setSelectedPresetId(null);
       setCustomQuery("");
       setTargetPrice("");
+      setSelectedStores([]);
       onDone(data.item);
     } catch {
       showToast("Nepodařilo se nastavit hlídání ceny.", "error");
@@ -134,6 +139,16 @@ function WatchForm({ onDone, onCancel }: WatchFormProps) {
               className="w-full h-12 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-black px-4 pr-12 text-zinc-900 dark:text-white outline-none transition focus:border-mnamio-500 focus:ring-2 focus:ring-mnamio-500/20"
             />
             <span className="absolute right-4 top-1/2 -translate-y-1/2 text-sm font-bold text-zinc-400">Kč</span>
+          </div>
+
+          <div className="mt-4">
+            <label className="block text-sm font-bold text-zinc-700 dark:text-zinc-300 mb-2">
+              Ve kterých obchodech hlídat
+            </label>
+            <StoreFilterChips stores={AVAILABLE_STORES} selected={selectedStores} onChange={setSelectedStores} />
+            <p className="mt-1.5 text-xs text-zinc-500 dark:text-zinc-400">
+              {selectedStores.length === 0 ? "Nevybráno = hlídáme napříč všemi obchody." : "Hlídáme jen ve vybraných obchodech."}
+            </p>
           </div>
 
           <div className="mt-auto pt-4 flex gap-2">

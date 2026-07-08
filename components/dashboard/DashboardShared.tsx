@@ -166,6 +166,42 @@ export function StoreBrand({ shopName, small = false, badge = false, compact = f
   );
 }
 
+/** Multi-select chip výběr obchodů — sdíleno mezi vytvářením hlídání ceny
+ * ve vyhledávání i na stránce Hlídací pes. Prázdný výběr = "Všude". */
+export function StoreFilterChips({
+  stores,
+  selected,
+  onChange,
+}: {
+  stores: string[];
+  selected: string[];
+  onChange: (next: string[]) => void;
+}) {
+  return (
+    <div className="flex flex-wrap gap-2">
+      {stores.map((store) => {
+        const isActive = selected.includes(store);
+        return (
+          <button
+            key={store}
+            type="button"
+            onClick={() =>
+              onChange(isActive ? selected.filter((s) => s !== store) : [...selected, store])
+            }
+            className={`rounded-full px-3 py-1.5 text-xs font-bold transition-all ${
+              isActive
+                ? "bg-mnamio-600 text-white shadow-sm"
+                : "bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-700"
+            }`}
+          >
+            {store}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
 export function SearchLoadingAnimation({ progress }: { progress?: number }) {
   const [currentShop, setCurrentShop] = useState(0);
   const [fakeProgress, setFakeProgress] = useState(0);

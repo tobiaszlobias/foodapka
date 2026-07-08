@@ -37,10 +37,12 @@ export async function POST(req: NextRequest) {
   const body = (await req.json()) as {
     query?: string;
     targetPrice?: number;
+    storeFilter?: string[];
   };
 
   const query = body.query?.trim();
   const targetPrice = Number(body.targetPrice);
+  const storeFilter = Array.isArray(body.storeFilter) && body.storeFilter.length > 0 ? body.storeFilter : null;
 
   if (!query) {
     return Response.json({ error: "Chybí dotaz, co hlídat." }, { status: 400 });
@@ -56,6 +58,7 @@ export async function POST(req: NextRequest) {
         user_id: user.id,
         query,
         target_price: targetPrice,
+        store_filter: storeFilter,
         last_notified_price: null,
       },
       { onConflict: "user_id,query" },
