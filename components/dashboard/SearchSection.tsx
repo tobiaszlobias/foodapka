@@ -11,6 +11,7 @@ import {
   sortStoresByPrice,
   formatDiscountPercent,
   getStoreSavings,
+  getUnitPriceLabel,
   type Product,
   type Store
 } from "@/lib/food";
@@ -422,6 +423,12 @@ export default function SearchSection({
                         {bestStore?.packageSize && (
                           <span className="text-[10px] text-zinc-400">{bestStore.packageSize}</span>
                         )}
+                        {bestStore && (() => {
+                          const unitLabel = getUnitPriceLabel(bestStore, product.name);
+                          return unitLabel && (
+                            <span className="text-[10px] text-zinc-400">{unitLabel}</span>
+                          );
+                        })()}
                         {sortedStores.length > 1 && (
                           <span className="text-[10px] text-zinc-400">
                             {sortedStores.length} nabídky

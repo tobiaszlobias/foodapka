@@ -14,6 +14,7 @@ import {
   parsePrice,
   formatDiscountPercent,
   getStoreSavings,
+  getUnitPriceLabel,
   sortStoresByPrice,
   type Product,
   type Store
@@ -820,6 +821,12 @@ export default function RecipeSection({
                                 {item.store.packageSize && (
                                   <span className="shrink-0 text-[10px] text-zinc-400">{item.store.packageSize}</span>
                                 )}
+                                {(() => {
+                                  const unitLabel = getUnitPriceLabel(item.store!, item.product?.name || "");
+                                  return unitLabel && (
+                                    <span className="shrink-0 text-[10px] text-zinc-400">{unitLabel}</span>
+                                  );
+                                })()}
                                 {/* Foodora je živý e-shop feed — u položek bez skutečné slevy
                                     (běžná katalogová cena) žádný odpovídající leták neexistuje. */}
                                 {(item.store.source !== "foodora" || item.store.isSale) && (

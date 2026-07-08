@@ -252,6 +252,32 @@ export function sortStoresByPrice(stores: Store[]) {
   return [...stores].sort((a, b) => parsePrice(a.price) - parsePrice(b.price));
 }
 
+/** Počet kusů v balení z názvu produktu (např. "Vejce M 10 ks" -> 10). */
+export function parsePieceCount(name: string) {
+  const match = normalizeText(name).match(/(\d+)\s*ks\b/);
+  if (!match) return null;
+  const count = Number(match[1]);
+  return Number.isFinite(count) && count >= 2 && count <= 1000 ? count : null;
+}
+
+/**
+ * Popisek ceny za jednotku — přednostně dopočtená cena za kus (užitečné
+ * hlavně u vajec, kde má scraped pricePerUnit obvykle cenu za kg, ne za kus),
+ * jinak scraped popisek ze zdroje (kaufland má jen holý název jednotky bez
+ * "Kč", proto se u něj bez /ks fallbacku nic nezobrazí).
+ */
+export function getUnitPriceLabel(store: Store, productName: string) {
+  const price = parsePrice(store.price);
+  const pieces = parsePieceCount(productName);
+  if (pieces && Number.isFinite(price)) {
+    return `${formatPrice(price / pieces)} / ks`;
+  }
+  if (store.pricePerUnit && /kč/i.test(store.pricePerUnit)) {
+    return store.pricePerUnit;
+  }
+  return null;
+}
+
 export function cleanProductName(name: string) {
   return name.replace("Aktuální akční slevy ", "").trim();
 }
