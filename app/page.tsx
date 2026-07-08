@@ -85,14 +85,15 @@ export default function HomePage() {
           className="mx-auto grid max-w-7xl grid-cols-1 items-center gap-12 px-4 md:px-8 py-20 md:py-32 lg:grid-cols-2 relative z-10 w-full"
         >
           <div className="space-y-6 md:space-y-10 text-center lg:text-left">
-            <h1 className="text-4xl md:text-5xl lg:text-7xl font-display font-black leading-[1.05] tracking-tight text-zinc-900">
-              Uvařte si zdravě <br />
-              <span className="text-foodappka-500">z nejlevnějších surovin.</span>
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-display font-black leading-[1.15] tracking-tight text-zinc-900">
+              Najděte nejlevnější akční cenu <br className="hidden lg:block" />
+              <span className="text-foodappka-500">dřív, než vyrazíte do obchodu.</span>
             </h1>
             <p className="text-lg md:text-xl text-zinc-500 max-w-xl mx-auto lg:mx-0 font-medium leading-relaxed">
-              Pomůžeme vám sestavit nákupní seznam z aktuálních akčních letáků. Kvalitní jídlo už nemusí být drahé.
+              Mnamio každý den prochází aktuální letáky českých řetězců a najde vám nejnižší cenu za každou položku nákupu.
             </p>
-            
+
+            {/* Budoucí live vyhledávání — SearchBar s isLandingPage, zatím jen CTA */}
             <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
               <Link
                 href="/app"
@@ -126,8 +127,33 @@ export default function HomePage() {
           </div>
         </motion.section>
 
-        {/* Process Section - NOW PART OF AURORA FLOW */}
-        <motion.section 
+        {/* Stat karty */}
+        <motion.section
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          className="mx-auto max-w-7xl px-4 md:px-8 pb-20 md:pb-32 relative z-10"
+        >
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 md:gap-6">
+            {[
+              { value: "5 mil.", label: "porovnaných produktů" },
+              { value: "7+", label: "sledovaných řetězců" },
+              { value: "Denně", label: "aktualizované akční nabídky" },
+            ].map((stat) => (
+              <div
+                key={stat.label}
+                className="rounded-[2rem] bg-white/90 backdrop-blur-sm border border-white p-6 md:p-8 shadow-xl shadow-zinc-200/50 text-center sm:text-left"
+              >
+                <p className="text-3xl md:text-4xl font-black text-foodappka-600">{stat.value}</p>
+                <p className="mt-1 text-sm md:text-base text-zinc-500 font-medium">{stat.label}</p>
+              </div>
+            ))}
+          </div>
+        </motion.section>
+
+        {/* Features Section - NOW PART OF AURORA FLOW */}
+        <motion.section
           initial={{ opacity: 0, y: 40 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
@@ -137,36 +163,36 @@ export default function HomePage() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
             <div className="relative order-2 lg:order-1">
               <div className="absolute inset-0 bg-foodappka-100/50 blur-3xl rounded-full transform -rotate-12 scale-90"></div>
-              <Image 
-                src="/myslenkova_mapa_hero.png" 
+              <Image
+                src="/myslenkova_mapa_hero.png"
                 alt="Jak funguje Mnamio"
-                width={600} 
-                height={600} 
+                width={600}
+                height={600}
                 className="relative w-full h-auto drop-shadow-2xl rounded-[3rem]"
               />
             </div>
             <div className="space-y-8 order-1 lg:order-2 text-left">
               <h2 className="text-4xl md:text-6xl font-black tracking-tight text-zinc-900 leading-[1.1]">
-                Chytrá cesta k <br />
-                <span className="text-foodappka-600">levnějšímu vaření.</span>
+                Více než jen srovnávač cen. <br />
+                <span className="text-foodappka-600">Váš osobní nákupní asistent.</span>
               </h2>
               <div className="space-y-8">
                 <div className="flex gap-6">
                   <div className="w-14 h-14 rounded-2xl bg-white/80 backdrop-blur-md flex items-center justify-center shrink-0 border border-white shadow-sm">
-                    <span className="material-symbols-outlined text-foodappka-600 text-3xl">search</span>
+                    <span className="material-symbols-outlined text-foodappka-600 text-3xl">trending_down</span>
                   </div>
                   <div>
-                    <h4 className="font-bold text-xl text-zinc-900 mb-1">Najděte nejnižší ceny</h4>
-                    <p className="text-zinc-500 font-medium text-base md:text-lg">Srovnáváme tisíce položek z akčních letáků v reálném čase. Stačí zadat název receptu nebo potraviny.</p>
+                    <h4 className="font-bold text-xl text-zinc-900 mb-1">Hlídací pes</h4>
+                    <p className="text-zinc-500 font-medium text-base md:text-lg">Nastavte si cenu a my vás upozorníme, jakmile se produkt objeví v akci.</p>
                   </div>
                 </div>
                 <div className="flex gap-6">
                   <div className="w-14 h-14 rounded-2xl bg-white/80 backdrop-blur-md flex items-center justify-center shrink-0 border border-white shadow-sm">
-                    <span className="material-symbols-outlined text-foodappka-600 text-3xl">shopping_cart</span>
+                    <span className="material-symbols-outlined text-foodappka-600 text-3xl">receipt_long</span>
                   </div>
                   <div>
-                    <h4 className="font-bold text-xl text-zinc-900 mb-1">Naplánujte nákup</h4>
-                    <p className="text-zinc-500 font-medium text-base md:text-lg">Sestavte si nákupní seznam z nejvýhodnějších nabídek a ušetřete stovky korun při každé návštěvě obchodu.</p>
+                    <h4 className="font-bold text-xl text-zinc-900 mb-1">Chytré nákupní seznamy</h4>
+                    <p className="text-zinc-500 font-medium text-base md:text-lg">Z receptu na nákupní seznam s nejlevnějšími surovinami na jedno kliknutí.</p>
                   </div>
                 </div>
                 <div className="flex gap-6">
