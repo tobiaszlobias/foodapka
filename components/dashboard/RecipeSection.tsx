@@ -329,6 +329,13 @@ export default function RecipeSection({
     return chosen.items;
   }, [recipeResults, shoppingMode, shopScores, selectedStore]);
 
+  // Nenalezené položky (bez store) jdou v zobrazení na konec — jsou teď
+  // akční (Mám doma / Najít náhradu), ale nemají zahlcovat vršek seznamu.
+  const displayResults = useMemo(
+    () => [...effectiveResults].sort((a, b) => Number(!a?.store) - Number(!b?.store)),
+    [effectiveResults],
+  );
+
   const totalPrice = useMemo(() => {
     return (effectiveResults || []).reduce((sum, item) => {
       if (!item || !item.ingredient || checkedIngredients.includes(item.ingredient) || !item.store) return sum;
@@ -748,7 +755,7 @@ export default function RecipeSection({
               {shareMessage && <div className={`mt-4 p-3 rounded-xl text-xs font-bold border transition-all ${shareMessage.includes('✅') ? 'bg-green-50 border-green-100 text-green-800 dark:bg-green-900/20 dark:border-green-800 dark:text-green-400' : 'bg-mnamio-50 border-mnamio-100 text-mnamio-800 dark:bg-mnamio-900/20 dark:border-mnamio-800 dark:text-mnamio-300'}`}>{shareMessage}</div>}
 
               <ul className="mt-4 space-y-2">
-                {effectiveResults.map((item) => {
+                {displayResults.map((item) => {
                   const isChecked = checkedIngredients.includes(item.ingredient);
                   const price = item.store ? parsePrice(item.store.price) : null;
                   const originalPrice = item.store?.originalPrice ? parsePrice(item.store.originalPrice) : null;
@@ -851,6 +858,12 @@ export default function RecipeSection({
                               {item.store.note && (
                                 <p className="text-[9px] text-amber-600 dark:text-amber-500 mt-0.5">{item.store.note}</p>
                               )}
+                              <button
+                                onClick={() => toggleIngredient(item.ingredient)}
+                                className="mt-0.5 block w-fit text-left text-[10px] font-bold text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300 transition-colors underline underline-offset-2"
+                              >
+                                Mám doma / nepotřebuji
+                              </button>
                             </>
                           )}
                           {!item.store && (
