@@ -457,6 +457,11 @@ export default function WatchdogSection() {
                     <p className="text-[11px] text-zinc-500">
                       {triggered ? `Naposledy nalezeno za ${item.last_notified_price!.toFixed(2).replace(".", ",")} Kč` : "Zatím pod cílovkou nic"}
                     </p>
+                    {item.store_filter && item.store_filter.length > 0 && (
+                      <p className="mt-0.5 text-[10px] font-bold text-mnamio-600 dark:text-mnamio-400 truncate">
+                        jen {item.store_filter.join(", ")}
+                      </p>
+                    )}
                   </div>
                 </div>
                 <div className="flex items-center gap-3 shrink-0">
