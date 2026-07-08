@@ -12,10 +12,9 @@ import {
   formatDiscountPercent,
   getStoreSavings,
   getUnitPriceLabel,
-  type Product,
-  type Store
+  type Product
 } from "@/lib/food";
-import { normalizeText } from "@/lib/food";
+import { getStoreFilter } from "@/lib/storeFilters";
 import { FOODORA_STORE_CONFIGS } from "@/data/foodoraStores";
 import { StoreBrand, LoadingCards, EmptyState, SearchLoadingAnimation, LeafletViewer } from "./DashboardShared";
 import { showToast } from "@/components/Toast";
@@ -165,27 +164,6 @@ const KNOWN_CHAIN_FILTERS = [
   { key: "chain:jip", label: "JIP" },
   { key: "chain:hruska", label: "Hruška" },
 ];
-
-function getStoreFilter(store: Store) {
-  const n = normalizeText(store.shopName);
-  if (n.includes("albert")) return { key: "chain:albert", label: "Albert" };
-  if (n.includes("globus")) return { key: "chain:globus", label: "Globus" };
-  if (n.includes("billa")) return { key: "chain:billa", label: "Billa" };
-  if (n.includes("tesco")) return { key: "chain:tesco", label: "Tesco" };
-  if (n.includes("penny")) return { key: "chain:penny", label: "Penny" };
-  if (n.includes("flop")) return { key: "chain:flop", label: "FLOP TOP" };
-  if (n.includes("coop")) return { key: "chain:coop", label: "Coop" };
-  if (n.includes("hruska") || n.includes("hruška")) return { key: "chain:hruska", label: "Hruška" };
-  if (n.includes("kosik")) return { key: "chain:kosik", label: "Košík" };
-  if (n.includes("tamda")) return { key: "chain:tamda", label: "TAMDA" };
-  if (n.includes("bene")) return { key: "chain:bene", label: "Bene" };
-  if (n.includes("cba")) return { key: "chain:cba", label: "CBA" };
-  if (n.includes("ratio")) return { key: "chain:ratio", label: "Ratio" };
-  if (n.includes("jip")) return { key: "chain:jip", label: "JIP" };
-  if (store.source === "kaufland") return { key: "chain:kaufland", label: "Kaufland" };
-  if (store.source === "lidl") return { key: "chain:lidl", label: "Lidl" };
-  return { key: `chain:${n}`, label: store.shopName };
-}
 
 export default function SearchSection({
   products,
