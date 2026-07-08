@@ -426,9 +426,8 @@ export function filterProductsForQuery(
     })
     .map((entry) => entry.product);
 
-  if (scored.length > 0) {
-    return scored;
-  }
-
-  return profile.strict ? [] : products;
+  // Poctivé prázdno je lepší než vracet nesouvisející produkty — po opravě
+  // scraperů (kupi gate) a dotažení required/strict pravidel už "nic
+  // neskórovalo" znamená skutečně žádnou shodu, ne díru k zalepení.
+  return scored;
 }
