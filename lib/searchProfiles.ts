@@ -93,6 +93,7 @@ const RAW_INGREDIENT_BANNED = [
   "prichut",
   "protein",
   "pure",
+  "pyre",
   "ready",
   "salat",
   "sendvic",

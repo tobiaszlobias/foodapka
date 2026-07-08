@@ -295,8 +295,15 @@ export default function RecipeSection({
         }
         if (!isExcluded) {
           missingCount++;
-          const fallbackPrice = res.store ? parsePrice(res.store.price) : Number.POSITIVE_INFINITY;
-          if (Number.isFinite(fallbackPrice)) completionCost += fallbackPrice;
+          // Nejlevnější cena téhle položky KDEKOLIV (ne jen výchozí/globálně
+          // nejlevnější store z prvotního hledání) — jinak by chybějící položka
+          // bez vlastního "store" byla v součtu "zdarma" a zvýhodňovala obchody
+          // s minimálním pokrytím.
+          const cheapestElsewhere = (res.storeOptions ?? []).reduce((min, opt) => {
+            const optPrice = parsePrice(opt.store.price);
+            return Number.isFinite(optPrice) && optPrice < min ? optPrice : min;
+          }, Number.POSITIVE_INFINITY);
+          if (Number.isFinite(cheapestElsewhere)) completionCost += cheapestElsewhere;
         }
         return { ...res, store: null, product: null };
       }).filter((x): x is NonNullable<typeof x> => x !== null);
@@ -312,10 +319,21 @@ export default function RecipeSection({
       };
     });
 
-    return scores.sort((a, b) => {
+    const sorted = scores.sort((a, b) => {
       if (a.completionCost !== b.completionCost) return a.completionCost - b.completionCost;
       return b.totalItems - a.totalItems;
     });
+
+    // "Doporučeno" smí dostat jen obchod s rozumným pokrytím — jinak by
+    // vyhrál obchod s 1 levnou položkou jen díky nízkému completionCost,
+    // což na první pohled vypadá jako chyba (viz "chybí 4" vs. "doporučeno").
+    const totalIngredients = recipeResults.length;
+    const recommendedShopName =
+      totalIngredients > 0
+        ? sorted.find((shop) => shop.totalItems / totalIngredients >= 0.5)?.shopName
+        : undefined;
+
+    return sorted.map((shop) => ({ ...shop, isRecommended: shop.shopName === recommendedShopName }));
   }, [recipeResults, shoppingMode, checkedIngredients]);
 
   const effectiveResults = useMemo(() => {
@@ -703,7 +721,7 @@ export default function RecipeSection({
                   <>
                     <div className="fixed inset-0 z-10" onClick={() => setStorePickerOpen(false)} />
                     <div className="absolute top-full left-0 mt-1 z-20 w-72 max-h-80 overflow-y-auto rounded-2xl bg-white dark:bg-zinc-900 shadow-lg border border-zinc-100 dark:border-zinc-800 divide-y divide-zinc-100 dark:divide-zinc-800">
-                      {shopScores.map((shop, idx) => {
+                      {shopScores.map((shop) => {
                         const isActive = (selectedStore ?? shopScores[0]?.shopName) === shop.shopName;
                         const hasMultipleVariants = shop.variants.length > 1;
 
@@ -722,7 +740,7 @@ export default function RecipeSection({
                             <div className="flex-1 min-w-0">
                               <div className="flex items-center gap-1.5 flex-wrap">
                                 <span className="text-xs font-bold text-zinc-800 dark:text-zinc-100">{shop.shopName}</span>
-                                {idx === 0 && (
+                                {shop.isRecommended && (
                                   <span className="text-[9px] text-mnamio-600 font-bold uppercase tracking-wide">doporučeno</span>
                                 )}
                               </div>
@@ -858,12 +876,15 @@ export default function RecipeSection({
                               {item.store.note && (
                                 <p className="text-[9px] text-amber-600 dark:text-amber-500 mt-0.5">{item.store.note}</p>
                               )}
-                              <button
-                                onClick={() => toggleIngredient(item.ingredient)}
-                                className="mt-0.5 block w-fit text-left text-[10px] font-bold text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300 transition-colors underline underline-offset-2"
-                              >
-                                Mám doma / nepotřebuji
-                              </button>
+                              {onReplaceProduct && (
+                                <button
+                                  onClick={() => setReplacingIngredient(item.ingredient)}
+                                  className="mt-0.5 inline-flex items-center gap-0.5 text-[10px] font-bold text-mnamio-600 hover:text-mnamio-700 transition-colors"
+                                >
+                                  <span className="material-symbols-outlined text-[12px]">search</span>
+                                  Najít náhradu
+                                </button>
+                              )}
                             </>
                           )}
                           {!item.store && (
@@ -889,31 +910,20 @@ export default function RecipeSection({
 
                         {/* Cena vpravo */}
                         <div className="shrink-0 text-right flex flex-col items-end">
-                          <div className="flex items-center gap-1">
-                            <div className="flex items-baseline gap-1.5">
-                              {discount && (
-                                <span className="bg-red-500 text-[9px] font-black text-white px-1.5 py-0.5 rounded-full leading-none">
-                                  {discount}
-                                </span>
-                              )}
-                              {item.store && !Number.isFinite(price) ? (
-                                <span className="text-xs font-bold text-zinc-400 leading-none">
-                                  cena neznámá
-                                </span>
-                              ) : (
-                                <span className="text-base font-black text-zinc-900 dark:text-white leading-none">
-                                  {item.store?.price || "—"}
-                                </span>
-                              )}
-                            </div>
-                            {item.store && onReplaceProduct && (
-                              <button
-                                onClick={() => setReplacingIngredient(item.ingredient)}
-                                title="Nahradit jiným produktem"
-                                className="shrink-0 flex h-6 w-6 items-center justify-center rounded-full text-zinc-400 hover:text-mnamio-600 hover:bg-mnamio-50 dark:hover:bg-mnamio-900/30 transition-colors"
-                              >
-                                <span className="material-symbols-outlined text-[15px]">swap_horiz</span>
-                              </button>
+                          <div className="flex items-baseline gap-1.5">
+                            {discount && (
+                              <span className="bg-red-500 text-[9px] font-black text-white px-1.5 py-0.5 rounded-full leading-none">
+                                {discount}
+                              </span>
+                            )}
+                            {item.store && !Number.isFinite(price) ? (
+                              <span className="text-xs font-bold text-zinc-400 leading-none">
+                                cena neznámá
+                              </span>
+                            ) : (
+                              <span className="text-base font-black text-zinc-900 dark:text-white leading-none">
+                                {item.store?.price || "—"}
+                              </span>
                             )}
                           </div>
                           {hasRealOriginalPrice && (
