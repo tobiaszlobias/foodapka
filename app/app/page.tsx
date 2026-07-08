@@ -324,7 +324,8 @@ function HomeContent() {
     
     const totalPrice = recipeResults.reduce((sum, item) => {
       if (!item || checkedIngredients.includes(item.ingredient) || !item.store) return sum;
-      return sum + parsePrice(item.store.price);
+      const price = parsePrice(item.store.price);
+      return Number.isFinite(price) ? sum + price : sum;
     }, 0);
 
     const { error } = await supabase.from("shopping_lists").insert({

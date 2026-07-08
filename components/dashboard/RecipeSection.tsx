@@ -269,7 +269,8 @@ export default function RecipeSection({
         if (option) {
           if (!isExcluded) {
             totalItems++;
-            totalPrice += parsePrice(option.store.price);
+            const optionPrice = parsePrice(option.store.price);
+            if (Number.isFinite(optionPrice)) totalPrice += optionPrice;
           }
           return { ...res, store: option.store, product: option.product };
         }
@@ -305,7 +306,8 @@ export default function RecipeSection({
   const totalPrice = useMemo(() => {
     return (effectiveResults || []).reduce((sum, item) => {
       if (!item || !item.ingredient || checkedIngredients.includes(item.ingredient) || !item.store) return sum;
-      return sum + parsePrice(item.store.price);
+      const price = parsePrice(item.store.price);
+      return Number.isFinite(price) ? sum + price : sum;
     }, 0);
   }, [effectiveResults, checkedIngredients]);
 
@@ -790,9 +792,15 @@ export default function RecipeSection({
                                 {discount}
                               </span>
                             )}
-                            <span className="text-base font-black text-zinc-900 dark:text-white leading-none">
-                              {item.store?.price || "—"}
-                            </span>
+                            {item.store && !Number.isFinite(price) ? (
+                              <span className="text-xs font-bold text-zinc-400 leading-none">
+                                cena neznámá
+                              </span>
+                            ) : (
+                              <span className="text-base font-black text-zinc-900 dark:text-white leading-none">
+                                {item.store?.price || "—"}
+                              </span>
+                            )}
                           </div>
                           {isSale && (
                             <span className="text-[10px] text-zinc-400 line-through mt-0.5">

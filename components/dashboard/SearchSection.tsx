@@ -436,7 +436,8 @@ export default function SearchSection({
                       const isSale = originalPrice !== null && originalPrice > currentPrice;
                       const discount = item.discountPercent || formatDiscountPercent(currentPrice, originalPrice);
                       const savings = isSale ? getSavings(currentPrice, originalPrice) : 0;
-                      const isCheapest = idx === 0;
+                      const hasPrice = Number.isFinite(currentPrice);
+                      const isCheapest = idx === 0 && hasPrice;
 
                       return (
                         <div
@@ -491,9 +492,15 @@ export default function SearchSection({
                                   {discount}
                                 </span>
                               )}
-                              <span className={`font-black text-zinc-900 dark:text-white leading-none ${isCheapest ? "text-lg" : "text-sm"}`}>
-                                {item.price}
-                              </span>
+                              {hasPrice ? (
+                                <span className={`font-black text-zinc-900 dark:text-white leading-none ${isCheapest ? "text-lg" : "text-sm"}`}>
+                                  {item.price}
+                                </span>
+                              ) : (
+                                <span className="text-xs font-bold text-zinc-400 leading-none">
+                                  cena neznámá
+                                </span>
+                              )}
                             </div>
                             {isSale && (
                               <span className="text-[10px] text-zinc-400 line-through mt-0.5">

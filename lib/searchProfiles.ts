@@ -13,6 +13,8 @@ type SearchProfile = {
   classGroups: string[][];
   preferred: string[];
   banned: string[];
+  /** Tokeny dotazu, které MUSÍ být v názvu — vynuceno, když byl kvůli dotazu zrušen ban (viz níže) */
+  requiredAll: string[];
   strict: boolean;
   preferUnitPrice: boolean;
   preferredMaxPackageKg?: number;
@@ -171,6 +173,7 @@ function buildSearchProfile(query: string, options?: { recipe?: string; banned?:
     classGroups: [],
     preferred: [],
     banned: [],
+    requiredAll: [],
     strict: false,
     preferUnitPrice: false,
     preferredMaxPackageKg: undefined,
@@ -215,11 +218,18 @@ function buildSearchProfile(query: string, options?: { recipe?: string; banned?:
   profile.banned = Array.from(new Set(profile.banned));
 
   // Explicitní dotaz má přednost: pokud uživatel hledá výraz, který třída zakazuje
-  // (např. "hovězí carpaccio" vs. ban "carpaccio" u syrového masa), zákaz se ruší
+  // (např. "hovězí carpaccio" vs. ban "carpaccio" u syrového masa), zákaz se ruší.
+  // Zrušení banu ale nesmí otevřít dveře produktům, které neodpovídají zbytku dotazu
+  // (např. lososové carpaccio při hledání "hovězí carpaccio") — proto se zbytek
+  // konkrétních tokenů dotazu vynutí jako AND podmínka (requiredAll).
   const normalizedQuery = normalizePattern(query);
-  profile.banned = profile.banned.filter(
-    (pattern) => !matchesPattern(normalizedQuery, queryTokens, pattern),
+  const cancelledBans = profile.banned.filter((pattern) =>
+    matchesPattern(normalizedQuery, queryTokens, pattern),
   );
+  if (cancelledBans.length > 0) {
+    profile.requiredAll = specificTokens;
+  }
+  profile.banned = profile.banned.filter((pattern) => !cancelledBans.includes(pattern));
   profile.requiredGroups = profile.requiredGroups.filter(
     (group, index, groups) =>
       groups.findIndex((candidate) => candidate.join("|") === group.join("|")) === index,
@@ -286,6 +296,13 @@ function scoreProductWithProfile(product: Product, query: string, options?: { re
     return Number.NEGATIVE_INFINITY;
   }
 
+  if (
+    profile.requiredAll.length > 0 &&
+    !profile.requiredAll.every((pattern) => matchesPattern(normalizedName, nameTokens, pattern))
+  ) {
+    return Number.NEGATIVE_INFINITY;
+  }
+
   const matchedGroups = profile.requiredGroups.filter((group) =>
     matchesGroup(normalizedName, nameTokens, group),
   ).length;
@@ -327,6 +344,9 @@ function scoreProductWithProfile(product: Product, query: string, options?: { re
   const bestPrice = parsePrice(cheapestStore?.price || "");
   const comparableUnitPrice = parseComparableUnitPrice(cheapestStore?.pricePerUnit || "");
   const packageWeightKg = parsePackageWeightKg(product.name);
+  // Produkt bez jediné platné ceny se nefiltruje (může to být validní substituce),
+  // ale musí skončit až za všemi produkty, které cenu mají.
+  const noPricePenalty = Number.isFinite(bestPrice) ? 0 : 10000;
   const pricePenalty = Number.isFinite(bestPrice) ? Math.min(bestPrice / 12, 35) : 0;
   const unitPricePenalty =
     profile.preferUnitPrice && Number.isFinite(comparableUnitPrice)
@@ -346,7 +366,8 @@ function scoreProductWithProfile(product: Product, query: string, options?: { re
     Math.max(0, profile.requiredGroups.length - matchedGroups) * 16 -
     pricePenalty -
     unitPricePenalty -
-    packagePenalty
+    packagePenalty -
+    noPricePenalty
   );
 }
 
