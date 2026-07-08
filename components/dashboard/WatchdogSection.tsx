@@ -91,7 +91,7 @@ function WatchForm({ onDone, onCancel }: WatchFormProps) {
                 setSelectedPresetId(null);
               }}
               placeholder="Např. kuřecí prsa, máslo…"
-              className="w-full h-12 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-black pl-11 pr-4 text-zinc-900 dark:text-white outline-none transition focus:border-foodappka-500 focus:ring-2 focus:ring-foodappka-500/20"
+              className="w-full h-12 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-black pl-11 pr-4 text-zinc-900 dark:text-white outline-none transition focus:border-mnamio-500 focus:ring-2 focus:ring-mnamio-500/20"
             />
           </div>
           <div className="grid grid-cols-3 gap-2 max-h-56 overflow-y-auto">
@@ -104,8 +104,8 @@ function WatchForm({ onDone, onCancel }: WatchFormProps) {
                 }}
                 className={`flex flex-col items-center gap-1 rounded-xl border-2 py-3 px-1 transition-all ${
                   selectedPresetId === preset.id
-                    ? "border-foodappka-500 bg-foodappka-50 dark:bg-foodappka-900/30 text-foodappka-700 dark:text-foodappka-300"
-                    : "border-zinc-100 dark:border-zinc-800 text-zinc-500 dark:text-zinc-400 hover:border-foodappka-200"
+                    ? "border-mnamio-500 bg-mnamio-50 dark:bg-mnamio-900/30 text-mnamio-700 dark:text-mnamio-300"
+                    : "border-zinc-100 dark:border-zinc-800 text-zinc-500 dark:text-zinc-400 hover:border-mnamio-200"
                 }`}
               >
                 <span className="material-symbols-outlined text-xl">{preset.icon}</span>
@@ -131,7 +131,7 @@ function WatchForm({ onDone, onCancel }: WatchFormProps) {
               onChange={(e) => setTargetPrice(e.target.value)}
               inputMode="decimal"
               placeholder="20"
-              className="w-full h-12 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-black px-4 pr-12 text-zinc-900 dark:text-white outline-none transition focus:border-foodappka-500 focus:ring-2 focus:ring-foodappka-500/20"
+              className="w-full h-12 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-black px-4 pr-12 text-zinc-900 dark:text-white outline-none transition focus:border-mnamio-500 focus:ring-2 focus:ring-mnamio-500/20"
             />
             <span className="absolute right-4 top-1/2 -translate-y-1/2 text-sm font-bold text-zinc-400">Kč</span>
           </div>
@@ -148,7 +148,7 @@ function WatchForm({ onDone, onCancel }: WatchFormProps) {
             <button
               onClick={handleSave}
               disabled={saving}
-              className="flex-1 h-12 rounded-full bg-foodappka-600 text-white font-black transition hover:bg-foodappka-700 shadow-lg shadow-foodappka-600/20 active:scale-95 disabled:opacity-50"
+              className="flex-1 h-12 rounded-full bg-mnamio-600 text-white font-black transition hover:bg-mnamio-700 shadow-lg shadow-mnamio-600/20 active:scale-95 disabled:opacity-50"
             >
               {saving ? "Ukládám…" : "Zapnout hlídání"}
             </button>
@@ -190,7 +190,7 @@ function AddWatchDialog({ onClose, onCreated }: AddWatchDialogProps) {
         <div className="max-h-[90vh] overflow-y-auto overscroll-contain p-6 pb-safe">
           <div className="flex items-center justify-between mb-5">
             <h3 className="text-lg font-black text-zinc-900 dark:text-white flex items-center gap-2">
-              <span className="material-symbols-outlined text-foodappka-600">trending_down</span>
+              <span className="material-symbols-outlined text-mnamio-600">trending_down</span>
               Přidat hlídání
             </h3>
             <button
@@ -307,7 +307,7 @@ export default function WatchdogSection() {
     <div className="space-y-6">
       <header className="mb-6 md:mb-10 px-1 md:px-2 flex items-start justify-between gap-4 flex-wrap">
         <div>
-          <h1 className="text-xl md:text-3xl lg:text-4xl font-display font-extrabold tracking-tight text-foodappka-950 dark:text-white leading-tight mb-2">
+          <h1 className="text-xl md:text-3xl lg:text-4xl font-display font-extrabold tracking-tight text-mnamio-950 dark:text-white leading-tight mb-2">
             Hlídací pes
           </h1>
           <p className="text-sm md:text-lg text-zinc-600 dark:text-zinc-400">
@@ -316,7 +316,7 @@ export default function WatchdogSection() {
         </div>
         <button
           onClick={() => setShowAddDialog((v) => !v)}
-          className="inline-flex items-center gap-2 rounded-full bg-foodappka-600 px-5 py-2.5 text-sm font-bold text-white shadow-lg shadow-foodappka-600/20 hover:bg-foodappka-700 transition-all active:scale-95"
+          className="inline-flex items-center gap-2 rounded-full bg-mnamio-600 px-5 py-2.5 text-sm font-bold text-white shadow-lg shadow-mnamio-600/20 hover:bg-mnamio-700 transition-all active:scale-95"
         >
           <span className="material-symbols-outlined text-lg">{showAddDialog ? "close" : "add"}</span>
           {showAddDialog ? "Zavřít" : "Přidat hlídání"}
@@ -325,7 +325,7 @@ export default function WatchdogSection() {
 
       {/* Formulář hlídání — na desktopu inline na stránce, na mobilu bottom-sheet modal (viz níže) */}
       {showAddDialog && (
-        <div className="hidden lg:block rounded-2xl border border-foodappka-100 dark:border-zinc-800 bg-white/95 dark:bg-foodappka-950 p-6 shadow-sm">
+        <div className="hidden lg:block rounded-2xl border border-mnamio-100 dark:border-zinc-800 bg-white/95 dark:bg-mnamio-950 p-6 shadow-sm">
           <WatchForm
             onDone={(item) => {
               setItems((prev) => [item, ...(prev ?? [])]);
@@ -337,11 +337,11 @@ export default function WatchdogSection() {
       )}
 
       {/* Propojení Telegramu */}
-      <div className="rounded-2xl border border-foodappka-100 dark:border-zinc-800 bg-white/95 dark:bg-foodappka-950 p-5 md:p-6 shadow-sm">
+      <div className="rounded-2xl border border-mnamio-100 dark:border-zinc-800 bg-white/95 dark:bg-mnamio-950 p-5 md:p-6 shadow-sm">
         <div className="flex items-center justify-between gap-4 flex-wrap">
           <div className="flex items-center gap-3">
-            <div className={`flex h-12 w-12 items-center justify-center rounded-full ${telegramLinked ? "bg-foodappka-100 dark:bg-foodappka-900/50" : "bg-zinc-100 dark:bg-zinc-800"}`}>
-              <span className={`material-symbols-outlined text-2xl ${telegramLinked ? "text-foodappka-600" : "text-zinc-400"}`}>
+            <div className={`flex h-12 w-12 items-center justify-center rounded-full ${telegramLinked ? "bg-mnamio-100 dark:bg-mnamio-900/50" : "bg-zinc-100 dark:bg-zinc-800"}`}>
+              <span className={`material-symbols-outlined text-2xl ${telegramLinked ? "text-mnamio-600" : "text-zinc-400"}`}>
                 {telegramLinked ? "check_circle" : "send"}
               </span>
             </div>
@@ -367,7 +367,7 @@ export default function WatchdogSection() {
             <button
               onClick={handleLinkTelegram}
               disabled={linking}
-              className="shrink-0 inline-flex items-center gap-2 rounded-full bg-foodappka-500 px-5 py-2.5 text-sm font-bold text-white hover:bg-foodappka-600 transition-all disabled:opacity-50"
+              className="shrink-0 inline-flex items-center gap-2 rounded-full bg-mnamio-500 px-5 py-2.5 text-sm font-bold text-white hover:bg-mnamio-600 transition-all disabled:opacity-50"
             >
               <span className="material-symbols-outlined text-lg">send</span>
               {linking ? "Otevírám…" : "Propojit"}
@@ -377,7 +377,7 @@ export default function WatchdogSection() {
         {deepLink && !telegramLinked && (
           <p className="mt-3 text-xs text-zinc-500 dark:text-zinc-400">
             Otevřel se Telegram s botem — stačí kliknout na <strong>Start</strong>. Pokud se okno neotevřelo,{" "}
-            <a href={deepLink} target="_blank" rel="noreferrer" className="text-foodappka-600 font-bold underline">
+            <a href={deepLink} target="_blank" rel="noreferrer" className="text-mnamio-600 font-bold underline">
               klikněte sem
             </a>
             .
@@ -387,7 +387,7 @@ export default function WatchdogSection() {
           <button
             onClick={handleTestRun}
             disabled={testing}
-            className="mt-4 inline-flex items-center gap-2 rounded-full border border-foodappka-200 dark:border-foodappka-800 px-4 py-2 text-xs font-bold text-foodappka-700 dark:text-foodappka-400 hover:bg-foodappka-50 dark:hover:bg-foodappka-900/30 transition-colors disabled:opacity-50"
+            className="mt-4 inline-flex items-center gap-2 rounded-full border border-mnamio-200 dark:border-mnamio-800 px-4 py-2 text-xs font-bold text-mnamio-700 dark:text-mnamio-400 hover:bg-mnamio-50 dark:hover:bg-mnamio-900/30 transition-colors disabled:opacity-50"
           >
             <span className={`material-symbols-outlined text-base ${testing ? "animate-spin" : ""}`}>
               {testing ? "progress_activity" : "bolt"}
@@ -401,11 +401,11 @@ export default function WatchdogSection() {
       {loading ? (
         <div className="py-10 text-center text-sm text-zinc-400">Načítám…</div>
       ) : isEmpty ? (
-        <div className="rounded-2xl border border-dashed border-foodappka-300 dark:border-foodappka-800 bg-white/90 dark:bg-foodappka-950 p-8 text-center shadow-sm">
-          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-foodappka-100 dark:bg-zinc-800">
-            <span className="material-symbols-outlined text-foodappka-500 text-3xl">notification_important</span>
+        <div className="rounded-2xl border border-dashed border-mnamio-300 dark:border-mnamio-800 bg-white/90 dark:bg-mnamio-950 p-8 text-center shadow-sm">
+          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-mnamio-100 dark:bg-zinc-800">
+            <span className="material-symbols-outlined text-mnamio-500 text-3xl">notification_important</span>
           </div>
-          <h2 className="text-lg md:text-xl font-semibold text-foodappka-950 dark:text-white mb-2">
+          <h2 className="text-lg md:text-xl font-semibold text-mnamio-950 dark:text-white mb-2">
             Zatím nic nehlídáte
           </h2>
           <p className="text-sm text-zinc-600 dark:text-zinc-400 mb-6 max-w-xs mx-auto">
@@ -413,7 +413,7 @@ export default function WatchdogSection() {
           </p>
           <button
             onClick={() => setShowAddDialog(true)}
-            className="inline-flex items-center gap-2 rounded-full bg-foodappka-500 px-6 py-2.5 font-semibold text-white transition hover:bg-foodappka-600 text-sm"
+            className="inline-flex items-center gap-2 rounded-full bg-mnamio-500 px-6 py-2.5 font-semibold text-white transition hover:bg-mnamio-600 text-sm"
           >
             <span className="material-symbols-outlined text-lg">add</span>
             Přidat hlídání
@@ -427,11 +427,11 @@ export default function WatchdogSection() {
             return (
               <div
                 key={item.id}
-                className="flex items-center justify-between gap-4 rounded-2xl border border-zinc-100 dark:border-zinc-800 bg-white dark:bg-foodappka-950 px-5 py-4 shadow-sm"
+                className="flex items-center justify-between gap-4 rounded-2xl border border-zinc-100 dark:border-zinc-800 bg-white dark:bg-mnamio-950 px-5 py-4 shadow-sm"
               >
                 <div className="flex items-center gap-3 min-w-0">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-foodappka-100 dark:bg-zinc-800">
-                    <span className="material-symbols-outlined text-foodappka-600 text-xl">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-mnamio-100 dark:bg-zinc-800">
+                    <span className="material-symbols-outlined text-mnamio-600 text-xl">
                       {matchedPreset?.icon ?? "trending_down"}
                     </span>
                   </div>
@@ -447,7 +447,7 @@ export default function WatchdogSection() {
                 <div className="flex items-center gap-3 shrink-0">
                   <div className="text-right">
                     <p className="text-[9px] font-black uppercase tracking-widest text-zinc-400">Pod</p>
-                    <p className={`text-sm font-black ${triggered ? "text-green-600" : "text-foodappka-700 dark:text-foodappka-400"}`}>
+                    <p className={`text-sm font-black ${triggered ? "text-green-600" : "text-mnamio-700 dark:text-mnamio-400"}`}>
                       {Number(item.target_price).toFixed(2).replace(".", ",")} Kč
                     </p>
                   </div>

@@ -67,7 +67,7 @@ export default function TestRecipeDetail({
           return (
             <span
               key={idx}
-              className="inline-flex items-center gap-1 rounded-full bg-foodappka-50 dark:bg-foodappka-900/30 px-3 py-1.5 text-sm text-zinc-700 dark:text-zinc-300"
+              className="inline-flex items-center gap-1 rounded-full bg-mnamio-50 dark:bg-mnamio-900/30 px-3 py-1.5 text-sm text-zinc-700 dark:text-zinc-300"
             >
               {ing.amount && <span className="font-bold text-zinc-900 dark:text-white">{ing.amount}</span>}
               <span className="capitalize">{ing.name}</span>
@@ -96,14 +96,14 @@ export default function TestRecipeDetail({
       <main className="max-w-3xl mx-auto px-5 md:px-8 py-8">
         <Link
           href={backHref}
-          className="inline-flex items-center gap-2 text-sm font-bold text-zinc-500 hover:text-foodappka-700 transition-colors mb-6"
+          className="inline-flex items-center gap-2 text-sm font-bold text-zinc-500 hover:text-mnamio-700 transition-colors mb-6"
         >
           <span className="material-symbols-outlined text-lg">arrow_back</span>
           Všechny recepty
         </Link>
 
         <h1
-          className="text-4xl md:text-6xl uppercase leading-[0.95] text-foodappka-800 dark:text-foodappka-400 mb-6"
+          className="text-4xl md:text-6xl uppercase leading-[0.95] text-mnamio-800 dark:text-mnamio-400 mb-6"
           style={headingStyle}
         >
           {recipe.name}
@@ -115,20 +115,20 @@ export default function TestRecipeDetail({
               setActiveTab("method");
               setCookingMode(true);
             }}
-            className="inline-flex items-center gap-2 rounded-full bg-foodappka-600 text-white px-5 py-2.5 font-bold text-sm hover:bg-foodappka-700 transition active:scale-95"
+            className="inline-flex items-center gap-2 rounded-full bg-mnamio-600 text-white px-5 py-2.5 font-bold text-sm hover:bg-mnamio-700 transition active:scale-95"
           >
             <span className="material-symbols-outlined text-lg">play_arrow</span>
             Play
           </button>
-          <button className="inline-flex items-center gap-2 rounded-full border-2 border-foodappka-200 dark:border-foodappka-800 px-5 py-2.5 font-bold text-sm text-zinc-700 dark:text-zinc-300 hover:bg-foodappka-50 dark:hover:bg-foodappka-900/30 transition">
+          <button className="inline-flex items-center gap-2 rounded-full border-2 border-mnamio-200 dark:border-mnamio-800 px-5 py-2.5 font-bold text-sm text-zinc-700 dark:text-zinc-300 hover:bg-mnamio-50 dark:hover:bg-mnamio-900/30 transition">
             <span className="material-symbols-outlined text-lg">bookmark</span>
             Uložit
           </button>
-          <button className="inline-flex items-center gap-2 rounded-full border-2 border-foodappka-200 dark:border-foodappka-800 px-5 py-2.5 font-bold text-sm text-zinc-700 dark:text-zinc-300 hover:bg-foodappka-50 dark:hover:bg-foodappka-900/30 transition">
+          <button className="inline-flex items-center gap-2 rounded-full border-2 border-mnamio-200 dark:border-mnamio-800 px-5 py-2.5 font-bold text-sm text-zinc-700 dark:text-zinc-300 hover:bg-mnamio-50 dark:hover:bg-mnamio-900/30 transition">
             <span className="material-symbols-outlined text-lg">check</span>
             Uvařeno
           </button>
-          <button className="inline-flex items-center gap-2 rounded-full border-2 border-foodappka-200 dark:border-foodappka-800 px-5 py-2.5 font-bold text-sm text-zinc-700 dark:text-zinc-300 hover:bg-foodappka-50 dark:hover:bg-foodappka-900/30 transition">
+          <button className="inline-flex items-center gap-2 rounded-full border-2 border-mnamio-200 dark:border-mnamio-800 px-5 py-2.5 font-bold text-sm text-zinc-700 dark:text-zinc-300 hover:bg-mnamio-50 dark:hover:bg-mnamio-900/30 transition">
             <span className="material-symbols-outlined text-lg">calendar_add_on</span>
             Přidat do plánu
           </button>
@@ -137,15 +137,15 @@ export default function TestRecipeDetail({
         {recipe.timing && (
           <div className="flex items-center gap-8 mb-8">
             <div>
-              <p className="text-xs font-black uppercase tracking-widest text-foodappka-700 dark:text-foodappka-400">Příprava</p>
+              <p className="text-xs font-black uppercase tracking-widest text-mnamio-700 dark:text-mnamio-400">Příprava</p>
               <p className="text-lg font-bold text-zinc-900 dark:text-white">{recipe.timing.prepMinutes}m</p>
             </div>
             <div>
-              <p className="text-xs font-black uppercase tracking-widest text-foodappka-700 dark:text-foodappka-400">Vaření</p>
+              <p className="text-xs font-black uppercase tracking-widest text-mnamio-700 dark:text-mnamio-400">Vaření</p>
               <p className="text-lg font-bold text-zinc-900 dark:text-white">{recipe.timing.cookMinutes}m</p>
             </div>
             <div>
-              <p className="text-xs font-black uppercase tracking-widest text-foodappka-700 dark:text-foodappka-400">Celkem</p>
+              <p className="text-xs font-black uppercase tracking-widest text-mnamio-700 dark:text-mnamio-400">Celkem</p>
               <p className="text-lg font-bold text-zinc-900 dark:text-white">
                 {recipe.timing.prepMinutes + recipe.timing.cookMinutes}m
               </p>
@@ -160,7 +160,7 @@ export default function TestRecipeDetail({
               onClick={() => setActiveTab(tab)}
               className={`shrink-0 pb-3 font-bold text-lg transition-colors border-b-2 -mb-px ${
                 activeTab === tab
-                  ? "text-foodappka-700 dark:text-foodappka-400 border-foodappka-600"
+                  ? "text-mnamio-700 dark:text-mnamio-400 border-mnamio-600"
                   : "text-zinc-400 border-transparent hover:text-zinc-600"
               }`}
               style={headingStyle}
@@ -178,14 +178,14 @@ export default function TestRecipeDetail({
               <span className="text-sm font-bold text-zinc-600 dark:text-zinc-400">Pro</span>
               <button
                 onClick={() => setServings((s) => Math.max(1, s - 1))}
-                className="flex h-8 w-8 items-center justify-center rounded-full bg-foodappka-700 text-white font-bold hover:bg-foodappka-800 transition"
+                className="flex h-8 w-8 items-center justify-center rounded-full bg-mnamio-700 text-white font-bold hover:bg-mnamio-800 transition"
               >
                 −
               </button>
               <span className="w-8 text-center font-bold text-zinc-900 dark:text-white">{servings}</span>
               <button
                 onClick={() => setServings((s) => s + 1)}
-                className="flex h-8 w-8 items-center justify-center rounded-full bg-foodappka-700 text-white font-bold hover:bg-foodappka-800 transition"
+                className="flex h-8 w-8 items-center justify-center rounded-full bg-mnamio-700 text-white font-bold hover:bg-mnamio-800 transition"
               >
                 +
               </button>
@@ -199,7 +199,7 @@ export default function TestRecipeDetail({
                   <span className="flex-1 text-zinc-800 dark:text-zinc-200 capitalize">{ing.name}</span>
                   <input
                     type="checkbox"
-                    className="h-5 w-5 rounded border-2 border-foodappka-300 text-foodappka-600 focus:ring-foodappka-500"
+                    className="h-5 w-5 rounded border-2 border-mnamio-300 text-mnamio-600 focus:ring-mnamio-500"
                   />
                 </li>
               ))}
@@ -216,7 +216,7 @@ export default function TestRecipeDetail({
               <span
                 onClick={() => setCookingMode((v) => !v)}
                 className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors cursor-pointer ${
-                  cookingMode ? "bg-foodappka-600" : "bg-zinc-300 dark:bg-zinc-700"
+                  cookingMode ? "bg-mnamio-600" : "bg-zinc-300 dark:bg-zinc-700"
                 }`}
               >
                 <span
@@ -231,14 +231,14 @@ export default function TestRecipeDetail({
               <CookingModeStepper
                 steps={steps}
                 scaledIngredients={scaledIngredients}
-                headingClassName="text-foodappka-800 dark:text-foodappka-300"
+                headingClassName="text-mnamio-800 dark:text-mnamio-300"
                 headingStyle={headingStyle}
               />
             ) : (
               <ol className="space-y-6">
                 {steps.map((step, index) => (
                   <li key={index}>
-                    <h3 className="text-2xl mb-1.5 text-foodappka-800 dark:text-foodappka-400" style={headingStyle}>
+                    <h3 className="text-2xl mb-1.5 text-mnamio-800 dark:text-mnamio-400" style={headingStyle}>
                       Krok {index + 1}
                     </h3>
                     <p className="text-zinc-700 dark:text-zinc-300 leading-relaxed">{step.text}</p>
@@ -289,7 +289,7 @@ export default function TestRecipeDetail({
             {onFindIngredients ? (
               <button
                 onClick={onFindIngredients}
-                className="inline-flex items-center gap-2 rounded-full bg-foodappka-600 px-8 py-3.5 font-black text-white shadow-lg shadow-foodappka-600/20 transition hover:bg-foodappka-700 active:scale-95"
+                className="inline-flex items-center gap-2 rounded-full bg-mnamio-600 px-8 py-3.5 font-black text-white shadow-lg shadow-mnamio-600/20 transition hover:bg-mnamio-700 active:scale-95"
               >
                 <span className="material-symbols-outlined text-xl">shopping_cart</span>
                 Najít nejlevnější suroviny
@@ -297,7 +297,7 @@ export default function TestRecipeDetail({
             ) : (
               <Link
                 href={`/app?mode=recipes&query=${encodeURIComponent(recipe.name)}`}
-                className="inline-flex items-center gap-2 rounded-full bg-foodappka-600 px-8 py-3.5 font-black text-white shadow-lg shadow-foodappka-600/20 transition hover:bg-foodappka-700 active:scale-95"
+                className="inline-flex items-center gap-2 rounded-full bg-mnamio-600 px-8 py-3.5 font-black text-white shadow-lg shadow-mnamio-600/20 transition hover:bg-mnamio-700 active:scale-95"
               >
                 <span className="material-symbols-outlined text-xl">shopping_cart</span>
                 Najít nejlevnější suroviny

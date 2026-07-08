@@ -91,7 +91,7 @@ function WatchDialog({ defaultQuery, defaultPrice, onClose }: WatchDialogProps) 
       >
         <div className="flex items-center justify-between mb-5">
           <h3 className="text-lg font-black text-zinc-900 dark:text-white flex items-center gap-2">
-            <span className="material-symbols-outlined text-foodappka-600">trending_down</span>
+            <span className="material-symbols-outlined text-mnamio-600">trending_down</span>
             Hlídat cenu
           </h3>
           <button
@@ -109,7 +109,7 @@ function WatchDialog({ defaultQuery, defaultPrice, onClose }: WatchDialogProps) 
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="např. trvanlivé mléko"
-              className="w-full h-12 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-black px-4 text-zinc-900 dark:text-white outline-none transition focus:border-foodappka-500 focus:ring-2 focus:ring-foodappka-500/20"
+              className="w-full h-12 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-black px-4 text-zinc-900 dark:text-white outline-none transition focus:border-mnamio-500 focus:ring-2 focus:ring-mnamio-500/20"
             />
             <p className="mt-1.5 text-xs text-zinc-500 dark:text-zinc-400">
               Klidně upravte na obecnější pojem — budeme hlídat nejlevnější nabídku napříč obchody.
@@ -126,7 +126,7 @@ function WatchDialog({ defaultQuery, defaultPrice, onClose }: WatchDialogProps) 
                 onChange={(e) => setTargetPrice(e.target.value)}
                 inputMode="decimal"
                 placeholder="20"
-                className="w-full h-12 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-black px-4 pr-12 text-zinc-900 dark:text-white outline-none transition focus:border-foodappka-500 focus:ring-2 focus:ring-foodappka-500/20"
+                className="w-full h-12 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-black px-4 pr-12 text-zinc-900 dark:text-white outline-none transition focus:border-mnamio-500 focus:ring-2 focus:ring-mnamio-500/20"
               />
               <span className="absolute right-4 top-1/2 -translate-y-1/2 text-sm font-bold text-zinc-400">Kč</span>
             </div>
@@ -135,7 +135,7 @@ function WatchDialog({ defaultQuery, defaultPrice, onClose }: WatchDialogProps) 
           <button
             onClick={handleSave}
             disabled={saving}
-            className="w-full h-12 rounded-full bg-foodappka-600 text-white font-black transition hover:bg-foodappka-700 shadow-lg shadow-foodappka-600/20 active:scale-95 disabled:opacity-50"
+            className="w-full h-12 rounded-full bg-mnamio-600 text-white font-black transition hover:bg-mnamio-700 shadow-lg shadow-mnamio-600/20 active:scale-95 disabled:opacity-50"
           >
             {saving ? "Ukládám…" : "Zapnout hlídání"}
           </button>
@@ -243,9 +243,9 @@ export default function SearchSection({
     <div className="space-y-6 md:space-y-8 w-full max-w-full overflow-x-hidden">
       {!hideHeader && !hasSearched && (
         <header className="px-1 md:px-2 w-full">
-          <h1 className="text-2xl md:text-4xl lg:text-5xl font-display font-extrabold tracking-tight text-foodappka-950 dark:text-white leading-tight mb-4">
+          <h1 className="text-2xl md:text-4xl lg:text-5xl font-display font-extrabold tracking-tight text-mnamio-950 dark:text-white leading-tight mb-4">
             Najděte nejlevnější akční cenu <br className="hidden md:block" />
-            <span className="text-foodappka-600 dark:text-foodappka-400">dřív, než vyrazíte nakoupit</span>
+            <span className="text-mnamio-600 dark:text-mnamio-400">dřív, než vyrazíte nakoupit</span>
           </h1>
           
           <div className="w-full">
@@ -287,7 +287,7 @@ export default function SearchSection({
 
       <section ref={resultsRef} className="space-y-4 w-full">
         <div className="flex items-center justify-between gap-4 px-1 md:px-2 overflow-hidden">
-          <h2 className="text-lg font-bold text-foodappka-950 dark:text-white shrink-0">Výsledky</h2>
+          <h2 className="text-lg font-bold text-mnamio-950 dark:text-white shrink-0">Výsledky</h2>
         </div>
 
         {!loading && products.length > 0 && (
@@ -342,12 +342,12 @@ export default function SearchSection({
                   >
                     <div className={`w-11 h-11 rounded-2xl flex items-center justify-center bg-white dark:bg-zinc-800 transition-all ${
                       isActive
-                        ? "ring-2 ring-foodappka-500 ring-offset-2 dark:ring-offset-zinc-900"
+                        ? "ring-2 ring-mnamio-500 ring-offset-2 dark:ring-offset-zinc-900"
                         : ""
                     }`}>
                       <StoreBrand shopName={filter.label} small />
                     </div>
-                    <span className={`text-[9px] font-bold tabular-nums ${isActive ? "text-foodappka-600 dark:text-foodappka-400" : "text-zinc-400"}`}>
+                    <span className={`text-[9px] font-bold tabular-nums ${isActive ? "text-mnamio-600 dark:text-mnamio-400" : "text-zinc-400"}`}>
                       {count}
                     </span>
                   </button>
@@ -367,7 +367,7 @@ export default function SearchSection({
                   onClick={() => setSelectedSort(opt.key)}
                   className={`pb-2 text-xs font-bold transition-all border-b-2 -mb-px ${
                     selectedSort === opt.key
-                      ? "border-foodappka-500 text-foodappka-600 dark:text-foodappka-400"
+                      ? "border-mnamio-500 text-mnamio-600 dark:text-mnamio-400"
                       : "border-transparent text-zinc-400 dark:text-zinc-500 hover:text-zinc-600 dark:hover:text-zinc-300"
                   }`}
                 >
@@ -415,7 +415,7 @@ export default function SearchSection({
                       </h3>
                       <div className="flex items-center gap-1.5 mt-0.5 flex-wrap">
                         {matchedPreset && (
-                          <span className="text-[10px] font-bold text-foodappka-600 dark:text-foodappka-400">
+                          <span className="text-[10px] font-bold text-mnamio-600 dark:text-mnamio-400">
                             #{matchedPreset.label.toLowerCase()}
                           </span>
                         )}
@@ -437,7 +437,7 @@ export default function SearchSection({
                         setWatchDialog({ query: cleanProductName(product.name), price: bestPrice });
                       }}
                       title="Hlídat cenu"
-                      className="shrink-0 flex h-9 w-9 items-center justify-center rounded-full text-zinc-300 hover:text-foodappka-500 hover:bg-foodappka-50 dark:hover:bg-foodappka-900/30 transition-colors"
+                      className="shrink-0 flex h-9 w-9 items-center justify-center rounded-full text-zinc-300 hover:text-mnamio-500 hover:bg-mnamio-50 dark:hover:bg-mnamio-900/30 transition-colors"
                     >
                       <span className="material-symbols-outlined text-[20px]">trending_down</span>
                     </button>
@@ -457,7 +457,7 @@ export default function SearchSection({
                       return (
                         <div
                           key={idx}
-                          className={`flex items-center gap-3 px-4 py-3 ${isCheapest ? "bg-foodappka-50/60 dark:bg-foodappka-900/10" : ""}`}
+                          className={`flex items-center gap-3 px-4 py-3 ${isCheapest ? "bg-mnamio-50/60 dark:bg-mnamio-900/10" : ""}`}
                         >
                           <div className="shrink-0 w-14 flex items-center justify-center">
                             {(item.source !== "foodora" || item.isSale) ? (
@@ -471,7 +471,7 @@ export default function SearchSection({
                           <div className="flex-1 min-w-0 flex flex-col">
                             <div className="flex items-center gap-1.5 flex-wrap">
                               {isCheapest && (
-                                <span className="text-[10px] font-black text-foodappka-700 dark:text-foodappka-400 uppercase tracking-wide">
+                                <span className="text-[10px] font-black text-mnamio-700 dark:text-mnamio-400 uppercase tracking-wide">
                                   Nejlevnější
                                 </span>
                               )}
@@ -493,7 +493,7 @@ export default function SearchSection({
                             {(item.source !== "foodora" || item.isSale) && (
                               <button
                                 onClick={() => setLeafletDialog({ url: item.leafletUrl, shopName: item.shopName })}
-                                className="mt-0.5 inline-flex items-center gap-0.5 text-[10px] font-bold text-foodappka-600 hover:text-foodappka-700 transition-colors w-fit"
+                                className="mt-0.5 inline-flex items-center gap-0.5 text-[10px] font-bold text-mnamio-600 hover:text-mnamio-700 transition-colors w-fit"
                               >
                                 <span className="material-symbols-outlined text-[12px]">menu_book</span>
                                 Leták

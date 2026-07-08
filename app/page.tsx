@@ -63,10 +63,10 @@ export default function HomePage() {
       {/* Top Navigation Bar */}
       <nav className={`fixed top-0 z-50 w-full transition-all duration-500 ${scrolled ? "bg-white/80 backdrop-blur-xl py-3 md:py-4" : "bg-transparent py-5 md:py-6"}`}>
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 md:px-8">
-          <div className="text-xl md:text-2xl font-asset tracking-tighter text-foodappka-700">Mnamio</div>
+          <div className="text-xl md:text-2xl font-asset tracking-tighter text-mnamio-700">Mnamio</div>
           <Link
             href="/app"
-            className="transform rounded-full bg-foodappka-500 px-6 md:px-8 py-2 font-black text-white shadow-lg shadow-foodappka-500/20 transition-all hover:bg-foodappka-600 active:scale-95 text-sm md:text-base"
+            className="transform rounded-full bg-mnamio-500 px-6 md:px-8 py-2 font-black text-white shadow-lg shadow-mnamio-500/20 transition-all hover:bg-mnamio-600 active:scale-95 text-sm md:text-base"
           >
             Spustit aplikaci
           </Link>
@@ -87,7 +87,7 @@ export default function HomePage() {
           <div className="space-y-6 md:space-y-10 text-center lg:text-left">
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-display font-black leading-[1.15] tracking-tight text-zinc-900">
               Najděte nejlevnější akční cenu <br className="hidden lg:block" />
-              <span className="text-foodappka-500">dřív, než vyrazíte do obchodu.</span>
+              <span className="text-mnamio-500">dřív, než vyrazíte do obchodu.</span>
             </h1>
             <p className="text-lg md:text-xl text-zinc-500 max-w-xl mx-auto lg:mx-0 font-medium leading-relaxed">
               Mnamio každý den prochází aktuální letáky českých řetězců a najde vám nejnižší cenu za každou položku nákupu.
@@ -97,7 +97,7 @@ export default function HomePage() {
             <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
               <Link
                 href="/app"
-                className="w-full sm:w-auto flex items-center justify-center gap-3 rounded-full bg-foodappka-500 px-8 py-4 font-black text-white shadow-xl shadow-foodappka-500/25 transition hover:bg-foodappka-600 active:scale-95 text-base md:text-lg"
+                className="w-full sm:w-auto flex items-center justify-center gap-3 rounded-full bg-mnamio-500 px-8 py-4 font-black text-white shadow-xl shadow-mnamio-500/25 transition hover:bg-mnamio-600 active:scale-95 text-base md:text-lg"
               >
                 <span className="material-symbols-outlined">rocket_launch</span>
                 Vstoupit do aplikace
@@ -106,7 +106,7 @@ export default function HomePage() {
           </div>
 
           <div className="relative mt-8 lg:mt-0">
-            <div className="absolute inset-0 bg-foodappka-100/30 blur-3xl rounded-full scale-110"></div>
+            <div className="absolute inset-0 bg-mnamio-100/30 blur-3xl rounded-full scale-110"></div>
             <div className="relative grid grid-cols-2 gap-4">
               {RECIPE_PRESETS.slice(0, 4).map((recipe, i) => (
                 <motion.div
@@ -115,12 +115,12 @@ export default function HomePage() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.5 + i * 0.1, duration: 0.5 }}
-                  className="rounded-[2rem] bg-white/90 backdrop-blur-sm border border-white p-4 shadow-xl shadow-zinc-200/50 group cursor-pointer transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl hover:shadow-foodappka-500/10"
+                  className="rounded-[2rem] bg-white/90 backdrop-blur-sm border border-white p-4 shadow-xl shadow-zinc-200/50 group cursor-pointer transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl hover:shadow-mnamio-500/10"
                 >
                   <div className="relative h-32 md:h-48 w-full overflow-hidden rounded-2xl mb-3">
                     <Image src={recipe.image || ""} alt={recipe.name} fill className="object-cover transition-transform duration-500 group-hover:scale-110" />
                   </div>
-                  <h4 className="font-bold text-sm md:text-base text-zinc-900 leading-tight group-hover:text-foodappka-700 transition-colors">{recipe.name}</h4>
+                  <h4 className="font-bold text-sm md:text-base text-zinc-900 leading-tight group-hover:text-mnamio-700 transition-colors">{recipe.name}</h4>
                 </motion.div>
               ))}
             </div>
@@ -145,7 +145,7 @@ export default function HomePage() {
                 key={stat.label}
                 className="rounded-[2rem] bg-white/90 backdrop-blur-sm border border-white p-6 md:p-8 shadow-xl shadow-zinc-200/50 text-center sm:text-left"
               >
-                <p className="text-3xl md:text-4xl font-black text-foodappka-600">{stat.value}</p>
+                <p className="text-3xl md:text-4xl font-black text-mnamio-600">{stat.value}</p>
                 <p className="mt-1 text-sm md:text-base text-zinc-500 font-medium">{stat.label}</p>
               </div>
             ))}
@@ -162,7 +162,7 @@ export default function HomePage() {
         >
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
             <div className="relative order-2 lg:order-1">
-              <div className="absolute inset-0 bg-foodappka-100/50 blur-3xl rounded-full transform -rotate-12 scale-90"></div>
+              <div className="absolute inset-0 bg-mnamio-100/50 blur-3xl rounded-full transform -rotate-12 scale-90"></div>
               <Image
                 src="/myslenkova_mapa_hero.png"
                 alt="Jak funguje Mnamio"
@@ -174,12 +174,12 @@ export default function HomePage() {
             <div className="space-y-8 order-1 lg:order-2 text-left">
               <h2 className="text-4xl md:text-6xl font-black tracking-tight text-zinc-900 leading-[1.1]">
                 Více než jen srovnávač cen. <br />
-                <span className="text-foodappka-600">Váš osobní nákupní asistent.</span>
+                <span className="text-mnamio-600">Váš osobní nákupní asistent.</span>
               </h2>
               <div className="space-y-8">
                 <div className="flex gap-6">
                   <div className="w-14 h-14 rounded-2xl bg-white/80 backdrop-blur-md flex items-center justify-center shrink-0 border border-white shadow-sm">
-                    <span className="material-symbols-outlined text-foodappka-600 text-3xl">trending_down</span>
+                    <span className="material-symbols-outlined text-mnamio-600 text-3xl">trending_down</span>
                   </div>
                   <div>
                     <h4 className="font-bold text-xl text-zinc-900 mb-1">Hlídací pes</h4>
@@ -188,7 +188,7 @@ export default function HomePage() {
                 </div>
                 <div className="flex gap-6">
                   <div className="w-14 h-14 rounded-2xl bg-white/80 backdrop-blur-md flex items-center justify-center shrink-0 border border-white shadow-sm">
-                    <span className="material-symbols-outlined text-foodappka-600 text-3xl">receipt_long</span>
+                    <span className="material-symbols-outlined text-mnamio-600 text-3xl">receipt_long</span>
                   </div>
                   <div>
                     <h4 className="font-bold text-xl text-zinc-900 mb-1">Chytré nákupní seznamy</h4>
@@ -197,7 +197,7 @@ export default function HomePage() {
                 </div>
                 <div className="flex gap-6">
                   <div className="w-14 h-14 rounded-2xl bg-white/80 backdrop-blur-md flex items-center justify-center shrink-0 border border-white shadow-sm">
-                    <span className="material-symbols-outlined text-foodappka-600 text-3xl">restaurant</span>
+                    <span className="material-symbols-outlined text-mnamio-600 text-3xl">restaurant</span>
                   </div>
                   <div>
                     <h4 className="font-bold text-xl text-zinc-900 mb-1">Vařte zdravě a levně</h4>
@@ -280,7 +280,7 @@ export default function HomePage() {
             <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4 md:gap-6">
               <Link
                 href="/app"
-                className="w-full sm:w-auto flex items-center justify-center gap-3 rounded-full bg-foodappka-500 px-10 py-5 md:px-12 md:py-6 font-black text-white shadow-2xl shadow-foodappka-500/40 transition hover:bg-foodappka-600 active:scale-95 text-lg"
+                className="w-full sm:w-auto flex items-center justify-center gap-3 rounded-full bg-mnamio-500 px-10 py-5 md:px-12 md:py-6 font-black text-white shadow-2xl shadow-mnamio-500/40 transition hover:bg-mnamio-600 active:scale-95 text-lg"
               >
                 <span className="material-symbols-outlined text-2xl">rocket_launch</span>
                 Spustit Mnamio
@@ -301,7 +301,7 @@ export default function HomePage() {
       <footer className="w-full bg-zinc-50 text-sm border-t border-zinc-100 py-16">
         <div className="mx-auto flex max-w-7xl flex-col items-center justify-between px-8 md:flex-row">
           <div className="mb-10 md:mb-0 text-center md:text-left">
-            <div className="text-2xl font-asset tracking-tighter text-foodappka-800">Mnamio</div>
+            <div className="text-2xl font-asset tracking-tighter text-mnamio-800">Mnamio</div>
             <p className="max-w-xs text-zinc-500 mt-2 font-medium">
               Chytrý nákup pro každou českou domácnost.
             </p>
@@ -309,13 +309,13 @@ export default function HomePage() {
           <div className="flex gap-16">
             <div className="flex flex-col space-y-3">
               <span className="font-black text-zinc-900 uppercase text-xs tracking-widest mb-2">Aplikace</span>
-              <Link href="/app" className="font-bold text-zinc-500 hover:text-foodappka-600 transition-colors">Vyhledávač</Link>
-              <Link href="/app?mode=recipes" className="font-bold text-zinc-500 hover:text-foodappka-600 transition-colors">Recepty</Link>
+              <Link href="/app" className="font-bold text-zinc-500 hover:text-mnamio-600 transition-colors">Vyhledávač</Link>
+              <Link href="/app?mode=recipes" className="font-bold text-zinc-500 hover:text-mnamio-600 transition-colors">Recepty</Link>
             </div>
             <div className="flex flex-col space-y-3">
               <span className="font-black text-zinc-900 uppercase text-xs tracking-widest mb-2">Právní</span>
-              <a className="font-bold text-zinc-500 hover:text-foodappka-600 transition-colors" href="#">Soukromí</a>
-              <a className="font-bold text-zinc-500 hover:text-foodappka-600 transition-colors" href="#">Podmínky</a>
+              <a className="font-bold text-zinc-500 hover:text-mnamio-600 transition-colors" href="#">Soukromí</a>
+              <a className="font-bold text-zinc-500 hover:text-mnamio-600 transition-colors" href="#">Podmínky</a>
             </div>
           </div>
         </div>

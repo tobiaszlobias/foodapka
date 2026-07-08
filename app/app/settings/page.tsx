@@ -247,7 +247,7 @@ function SettingsContent() {
     <div className="space-y-6">
       <header className="mb-10 px-2 flex justify-between items-start">
         <div>
-          <h1 className="text-2xl lg:text-4xl font-extrabold tracking-tight text-foodappka-950 dark:text-white leading-tight mb-2 md:mb-4">
+          <h1 className="text-2xl lg:text-4xl font-extrabold tracking-tight text-mnamio-950 dark:text-white leading-tight mb-2 md:mb-4">
             Nastavení
           </h1>
           <p className="text-base md:text-lg text-zinc-600 dark:text-zinc-400">
@@ -256,16 +256,16 @@ function SettingsContent() {
         </div>
         
         {/* Save Status Indicator */}
-        <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-foodappka-50 dark:bg-foodappka-900/20 border border-foodappka-100 dark:border-foodappka-800 transition-all duration-500">
+        <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-mnamio-50 dark:bg-mnamio-900/20 border border-mnamio-100 dark:border-mnamio-800 transition-all duration-500">
           {saving ? (
             <>
-              <span className="material-symbols-outlined animate-spin text-sm text-foodappka-600">progress_activity</span>
-              <span className="text-xs font-bold text-foodappka-700 dark:text-foodappka-300 uppercase tracking-widest">Ukládám</span>
+              <span className="material-symbols-outlined animate-spin text-sm text-mnamio-600">progress_activity</span>
+              <span className="text-xs font-bold text-mnamio-700 dark:text-mnamio-300 uppercase tracking-widest">Ukládám</span>
             </>
           ) : (
             <>
-              <span className="material-symbols-outlined text-sm text-foodappka-600">check_circle</span>
-              <span className="text-xs font-bold text-foodappka-700 dark:text-foodappka-300 uppercase tracking-widest">Uloženo</span>
+              <span className="material-symbols-outlined text-sm text-mnamio-600">check_circle</span>
+              <span className="text-xs font-bold text-mnamio-700 dark:text-mnamio-300 uppercase tracking-widest">Uloženo</span>
             </>
           )}
         </div>
@@ -273,10 +273,10 @@ function SettingsContent() {
 
       <div className="space-y-6">
         {/* Oblíbené obchody */}
-        <section className="rounded-2xl border border-foodappka-100 dark:border-zinc-800 bg-white/90 dark:bg-foodappka-950 p-6 shadow-sm">
+        <section className="rounded-2xl border border-mnamio-100 dark:border-zinc-800 bg-white/90 dark:bg-mnamio-950 p-6 shadow-sm">
           <div className="flex items-center gap-3 mb-5">
-            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-foodappka-100 dark:bg-foodappka-900/50">
-              <span className="material-symbols-outlined text-foodappka-600 dark:text-foodappka-400 text-2xl">
+            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-mnamio-100 dark:bg-mnamio-900/50">
+              <span className="material-symbols-outlined text-mnamio-600 dark:text-mnamio-400 text-2xl">
                 store
               </span>
             </div>
@@ -296,8 +296,8 @@ function SettingsContent() {
                 onClick={() => toggleStore(store)}
                 className={`p-4 rounded-full border-2 transition-all text-center font-bold text-sm md:text-base ${
                   preferences.favorite_stores.includes(store)
-                    ? "border-foodappka-500 bg-foodappka-50 dark:bg-foodappka-900/30 text-foodappka-700 dark:text-foodappka-300 shadow-md shadow-foodappka-500/10"
-                    : "border-zinc-100 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-900/50 text-zinc-500 dark:text-zinc-400 hover:border-foodappka-200 dark:hover:border-foodappka-700"
+                    ? "border-mnamio-500 bg-mnamio-50 dark:bg-mnamio-900/30 text-mnamio-700 dark:text-mnamio-300 shadow-md shadow-mnamio-500/10"
+                    : "border-zinc-100 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-900/50 text-zinc-500 dark:text-zinc-400 hover:border-mnamio-200 dark:hover:border-mnamio-700"
                 }`}
               >
                 {store}
@@ -307,10 +307,10 @@ function SettingsContent() {
         </section>
 
         {/* Stravovací preference */}
-        <section className="rounded-2xl border border-foodappka-100 dark:border-zinc-800 bg-white/90 dark:bg-foodappka-950 p-6 shadow-sm">
+        <section className="rounded-2xl border border-mnamio-100 dark:border-zinc-800 bg-white/90 dark:bg-mnamio-950 p-6 shadow-sm">
           <div className="flex items-center gap-3 mb-5">
-            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-foodappka-100 dark:bg-foodappka-900/50">
-              <span className="material-symbols-outlined text-foodappka-600 dark:text-foodappka-400 text-2xl">
+            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-mnamio-100 dark:bg-mnamio-900/50">
+              <span className="material-symbols-outlined text-mnamio-600 dark:text-mnamio-400 text-2xl">
                 restaurant
               </span>
             </div>
@@ -340,8 +340,8 @@ function SettingsContent() {
                 }
                 className={`p-4 rounded-full border-2 transition-all font-bold flex items-center justify-center gap-3 ${
                   preferences.diet_type === diet.value
-                    ? "border-foodappka-500 bg-foodappka-50 dark:bg-foodappka-900/30 text-foodappka-700 dark:text-foodappka-300 shadow-md shadow-foodappka-500/10"
-                    : "border-zinc-100 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-900/50 text-zinc-500 dark:text-zinc-400 hover:border-foodappka-200 dark:hover:border-foodappka-700"
+                    ? "border-mnamio-500 bg-mnamio-50 dark:bg-mnamio-900/30 text-mnamio-700 dark:text-mnamio-300 shadow-md shadow-mnamio-500/10"
+                    : "border-zinc-100 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-900/50 text-zinc-500 dark:text-zinc-400 hover:border-mnamio-200 dark:hover:border-mnamio-700"
                 }`}
               >
                 <span className="material-symbols-outlined text-xl">{diet.icon}</span>
@@ -352,7 +352,7 @@ function SettingsContent() {
         </section>
 
         {/* Alergeny */}
-        <section className="rounded-2xl border border-red-100 dark:border-zinc-800 bg-white/90 dark:bg-foodappka-950 p-6 shadow-sm">
+        <section className="rounded-2xl border border-red-100 dark:border-zinc-800 bg-white/90 dark:bg-mnamio-950 p-6 shadow-sm">
           <div className="flex items-center gap-3 mb-5">
             <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-red-100 dark:bg-red-900/30">
               <span className="material-symbols-outlined text-red-600 dark:text-red-400 text-2xl">
@@ -384,10 +384,10 @@ function SettingsContent() {
         </section>
 
         {/* Oblíbené kategorie jídel */}
-        <section className="rounded-2xl border border-foodappka-100 dark:border-zinc-800 bg-white/90 dark:bg-foodappka-950 p-6 shadow-sm">
+        <section className="rounded-2xl border border-mnamio-100 dark:border-zinc-800 bg-white/90 dark:bg-mnamio-950 p-6 shadow-sm">
           <div className="flex items-center gap-3 mb-5">
-            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-foodappka-100 dark:bg-foodappka-900/50">
-              <span className="material-symbols-outlined text-foodappka-600 dark:text-foodappka-400 text-2xl">
+            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-mnamio-100 dark:bg-mnamio-900/50">
+              <span className="material-symbols-outlined text-mnamio-600 dark:text-mnamio-400 text-2xl">
                 favorite
               </span>
             </div>
@@ -407,8 +407,8 @@ function SettingsContent() {
                 onClick={() => toggleCategory(category)}
                 className={`p-4 rounded-full border-2 transition-all text-center font-bold text-sm md:text-base ${
                   preferences.favorite_categories.includes(category)
-                    ? "border-foodappka-500 bg-foodappka-50 dark:bg-foodappka-900/30 text-foodappka-700 dark:text-foodappka-300 shadow-md shadow-foodappka-500/10"
-                    : "border-zinc-100 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-900/50 text-zinc-500 dark:text-zinc-400 hover:border-foodappka-200 dark:hover:border-foodappka-700"
+                    ? "border-mnamio-500 bg-mnamio-50 dark:bg-mnamio-900/30 text-mnamio-700 dark:text-mnamio-300 shadow-md shadow-mnamio-500/10"
+                    : "border-zinc-100 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-900/50 text-zinc-500 dark:text-zinc-400 hover:border-mnamio-200 dark:hover:border-mnamio-700"
                 }`}
               >
                 {category}

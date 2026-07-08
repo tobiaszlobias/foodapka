@@ -449,17 +449,17 @@ function HomeContent() {
                 animate={{ opacity: 1, height: "auto", y: 0 }}
                 exit={{ opacity: 0, height: 0, y: -20 }}
                 transition={{ duration: 0.3, ease: "easeInOut" }}
-                className="text-xl md:text-3xl lg:text-4xl font-display font-extrabold tracking-tight text-foodappka-950 dark:text-white leading-tight mb-4 text-left overflow-hidden"
+                className="text-xl md:text-3xl lg:text-4xl font-display font-extrabold tracking-tight text-mnamio-950 dark:text-white leading-tight mb-4 text-left overflow-hidden"
               >
                 {activeView === "search" ? (
                   <>
                     Najděte nejlevnější akční cenu <br className="hidden md:block" />
-                    <span className="text-foodappka-600 dark:text-foodappka-400">dřív, než vyrazíte nakoupit</span>
+                    <span className="text-mnamio-600 dark:text-mnamio-400">dřív, než vyrazíte nakoupit</span>
                   </>
                 ) : (
                   <>
                     Vyberte si recept a najdeme <br className="hidden md:block" />
-                    <span className="text-foodappka-600 dark:text-foodappka-400">nejlevnější suroviny</span>
+                    <span className="text-mnamio-600 dark:text-mnamio-400">nejlevnější suroviny</span>
                   </>
                 )}
               </motion.h1>

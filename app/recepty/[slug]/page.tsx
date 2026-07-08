@@ -48,7 +48,7 @@ export default async function RecipeDetailPage({ params }: PageProps) {
       <main className="max-w-3xl mx-auto px-4 md:px-6 py-8 md:py-12">
         <Link
           href="/recepty"
-          className="inline-flex items-center gap-2 text-sm font-bold text-zinc-500 hover:text-foodappka-600 transition-colors mb-6"
+          className="inline-flex items-center gap-2 text-sm font-bold text-zinc-500 hover:text-mnamio-600 transition-colors mb-6"
         >
           <span className="material-symbols-outlined text-lg">arrow_back</span>
           Všechny recepty
@@ -64,13 +64,13 @@ export default async function RecipeDetailPage({ params }: PageProps) {
               className="object-cover"
               sizes="(max-width: 768px) 100vw, 768px"
             />
-            <div className="absolute top-4 left-4 px-3 py-1 rounded-full bg-white/90 backdrop-blur-md text-[10px] font-black text-foodappka-800 uppercase tracking-widest shadow-sm">
+            <div className="absolute top-4 left-4 px-3 py-1 rounded-full bg-white/90 backdrop-blur-md text-[10px] font-black text-mnamio-800 uppercase tracking-widest shadow-sm">
               #{recipe.tag}
             </div>
           </div>
         )}
 
-        <h1 className="text-3xl md:text-4xl font-display font-extrabold tracking-tight text-foodappka-950 dark:text-white leading-tight mb-3">
+        <h1 className="text-3xl md:text-4xl font-display font-extrabold tracking-tight text-mnamio-950 dark:text-white leading-tight mb-3">
           {recipe.name}
         </h1>
         <p className="text-base md:text-lg text-zinc-600 dark:text-zinc-400 mb-8">
@@ -79,21 +79,21 @@ export default async function RecipeDetailPage({ params }: PageProps) {
 
         <Link
           href={`/app?mode=recipes&query=${encodeURIComponent(recipe.name)}`}
-          className="inline-flex items-center gap-2 rounded-full bg-foodappka-600 px-8 py-3.5 font-black text-white shadow-lg shadow-foodappka-600/20 transition hover:bg-foodappka-700 active:scale-95 mb-10"
+          className="inline-flex items-center gap-2 rounded-full bg-mnamio-600 px-8 py-3.5 font-black text-white shadow-lg shadow-mnamio-600/20 transition hover:bg-mnamio-700 active:scale-95 mb-10"
         >
           <span className="material-symbols-outlined text-xl">shopping_cart</span>
           Najít nejlevnější suroviny
         </Link>
 
-        <section className="rounded-2xl border border-foodappka-100 dark:border-zinc-800 bg-white/95 dark:bg-foodappka-950 p-6 md:p-8 shadow-sm mb-6">
+        <section className="rounded-2xl border border-mnamio-100 dark:border-zinc-800 bg-white/95 dark:bg-mnamio-950 p-6 md:p-8 shadow-sm mb-6">
           <h2 className="text-xl font-bold text-zinc-900 dark:text-white mb-4 flex items-center gap-2">
-            <span className="material-symbols-outlined text-foodappka-600">grocery</span>
+            <span className="material-symbols-outlined text-mnamio-600">grocery</span>
             Ingredience
           </h2>
           <ul className="space-y-2.5">
             {ingredientNames.map((name) => (
               <li key={name} className="flex items-center gap-3 text-zinc-700 dark:text-zinc-300">
-                <span className="w-2 h-2 rounded-full bg-foodappka-500 shrink-0" />
+                <span className="w-2 h-2 rounded-full bg-mnamio-500 shrink-0" />
                 <span className="capitalize">{name}</span>
               </li>
             ))}
@@ -101,15 +101,15 @@ export default async function RecipeDetailPage({ params }: PageProps) {
         </section>
 
         {recipe.instructions && recipe.instructions.length > 0 && (
-          <section className="rounded-2xl border border-foodappka-100 dark:border-zinc-800 bg-white/95 dark:bg-foodappka-950 p-6 md:p-8 shadow-sm">
+          <section className="rounded-2xl border border-mnamio-100 dark:border-zinc-800 bg-white/95 dark:bg-mnamio-950 p-6 md:p-8 shadow-sm">
             <h2 className="text-xl font-bold text-zinc-900 dark:text-white mb-6 flex items-center gap-2">
-              <span className="material-symbols-outlined text-foodappka-600">restaurant_menu</span>
+              <span className="material-symbols-outlined text-mnamio-600">restaurant_menu</span>
               Postup přípravy
             </h2>
             <div className="space-y-4">
               {recipe.instructions.map((step, index) => (
                 <div key={index} className="flex gap-4">
-                  <div className="flex-shrink-0 w-8 h-8 rounded-full bg-foodappka-100 dark:bg-foodappka-900/40 text-foodappka-700 dark:text-foodappka-300 flex items-center justify-center font-black text-sm border border-foodappka-200 dark:border-foodappka-800">
+                  <div className="flex-shrink-0 w-8 h-8 rounded-full bg-mnamio-100 dark:bg-mnamio-900/40 text-mnamio-700 dark:text-mnamio-300 flex items-center justify-center font-black text-sm border border-mnamio-200 dark:border-mnamio-800">
                     {index + 1}
                   </div>
                   <p className="text-zinc-700 dark:text-zinc-300 leading-relaxed pt-1">

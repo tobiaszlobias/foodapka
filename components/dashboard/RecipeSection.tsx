@@ -392,9 +392,9 @@ export default function RecipeSection({
     <div className="space-y-8">
       {!hideHeader && !activeRecipe && !recipeLoading && !hasSearched && (
         <header className="px-1 md:px-2">
-          <h1 className="text-2xl md:text-4xl lg:text-5xl font-display font-extrabold tracking-tight text-foodappka-950 dark:text-white leading-tight mb-4">
+          <h1 className="text-2xl md:text-4xl lg:text-5xl font-display font-extrabold tracking-tight text-mnamio-950 dark:text-white leading-tight mb-4">
             Vyberte si recept a najdeme <br className="hidden md:block" />
-            <span className="text-foodappka-600 dark:text-foodappka-400">nejlevnější suroviny</span>
+            <span className="text-mnamio-600 dark:text-mnamio-400">nejlevnější suroviny</span>
           </h1>
           
           <SearchBar
@@ -448,8 +448,8 @@ export default function RecipeSection({
                 onClick={() => setSelectedCategory(cat)}
                 className={`shrink-0 inline-flex items-center gap-1 rounded-full px-4 py-2 text-xs font-bold transition-all ${
                   selectedCategory === cat
-                    ? "bg-foodappka-600 text-white shadow-md"
-                    : "bg-white dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 border border-zinc-100 dark:border-zinc-700 hover:border-foodappka-300"
+                    ? "bg-mnamio-600 text-white shadow-md"
+                    : "bg-white dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 border border-zinc-100 dark:border-zinc-700 hover:border-mnamio-300"
                 }`}
               >
                 {cat === "favorites" && (
@@ -469,13 +469,13 @@ export default function RecipeSection({
           {/* Karta: vytvořit vlastní recept */}
           <button
             onClick={() => setShowCreateForm(true)}
-            className="group flex flex-col items-center justify-center gap-3 rounded-2xl border-2 border-foodappka-400 dark:border-foodappka-700 bg-foodappka-50 dark:bg-foodappka-900/30 p-8 min-h-[180px] shadow-sm transition-all hover:border-foodappka-500 hover:shadow-md active:scale-[0.98] cursor-pointer"
+            className="group flex flex-col items-center justify-center gap-3 rounded-2xl border-2 border-mnamio-400 dark:border-mnamio-700 bg-mnamio-50 dark:bg-mnamio-900/30 p-8 min-h-[180px] shadow-sm transition-all hover:border-mnamio-500 hover:shadow-md active:scale-[0.98] cursor-pointer"
           >
-            <div className="flex h-14 w-14 items-center justify-center rounded-full bg-foodappka-500 shadow-md shadow-foodappka-500/30 transition-transform group-hover:scale-110">
+            <div className="flex h-14 w-14 items-center justify-center rounded-full bg-mnamio-500 shadow-md shadow-mnamio-500/30 transition-transform group-hover:scale-110">
               <span className="material-symbols-outlined text-white text-3xl">add</span>
             </div>
             <div className="text-center">
-              <p className="font-black text-foodappka-800 dark:text-foodappka-300">Vytvořit vlastní recept</p>
+              <p className="font-black text-mnamio-800 dark:text-mnamio-300">Vytvořit vlastní recept</p>
               <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">Sestavte si recept přesně podle sebe</p>
             </div>
           </button>
@@ -485,7 +485,7 @@ export default function RecipeSection({
             <div
               key={`custom-${recipe.name}`}
               onClick={() => runCustomRecipeSearch?.(recipe)}
-              className="group relative rounded-2xl bg-white dark:bg-foodappka-950 border border-zinc-100 dark:border-zinc-800 overflow-hidden shadow-sm transition-all active:scale-[0.98] cursor-pointer p-5"
+              className="group relative rounded-2xl bg-white dark:bg-mnamio-950 border border-zinc-100 dark:border-zinc-800 overflow-hidden shadow-sm transition-all active:scale-[0.98] cursor-pointer p-5"
             >
               <button
                 onClick={(e) => {
@@ -497,11 +497,11 @@ export default function RecipeSection({
               >
                 <span className="material-symbols-outlined text-lg">delete</span>
               </button>
-              <div className="mb-3 inline-flex items-center gap-1 px-3 py-1 rounded-full bg-foodappka-100 dark:bg-foodappka-900/50 text-[10px] font-black text-foodappka-800 dark:text-foodappka-300 uppercase tracking-widest">
+              <div className="mb-3 inline-flex items-center gap-1 px-3 py-1 rounded-full bg-mnamio-100 dark:bg-mnamio-900/50 text-[10px] font-black text-mnamio-800 dark:text-mnamio-300 uppercase tracking-widest">
                 <span className="material-symbols-outlined text-[12px]">edit_note</span>
                 #{recipe.tag}
               </div>
-              <h3 className="text-xl font-black text-zinc-900 dark:text-white leading-tight group-hover:text-foodappka-600 transition-colors">
+              <h3 className="text-xl font-black text-zinc-900 dark:text-white leading-tight group-hover:text-mnamio-600 transition-colors">
                 {recipe.name}
               </h3>
               <p className="mt-2 text-sm text-zinc-500 dark:text-zinc-400 line-clamp-2 font-medium">
@@ -516,7 +516,7 @@ export default function RecipeSection({
             <div
               key={recipe.name}
               onClick={() => runRecipeSearch(recipe.name)}
-              className="group relative rounded-2xl bg-white dark:bg-foodappka-950 border border-zinc-100 dark:border-zinc-800 overflow-hidden shadow-sm transition-all active:scale-[0.98] cursor-pointer"
+              className="group relative rounded-2xl bg-white dark:bg-mnamio-950 border border-zinc-100 dark:border-zinc-800 overflow-hidden shadow-sm transition-all active:scale-[0.98] cursor-pointer"
             >
               {/* Favorite Button */}
               <button 
@@ -547,7 +547,7 @@ export default function RecipeSection({
                   className="object-cover transition-transform duration-500 group-hover:scale-105" 
                   sizes="(max-width: 768px) 100vw, 33vw"
                 />
-                <div className="absolute top-3 left-3 px-3 py-1 rounded-full bg-white/90 backdrop-blur-md text-[10px] font-black text-foodappka-800 uppercase tracking-widest shadow-sm">
+                <div className="absolute top-3 left-3 px-3 py-1 rounded-full bg-white/90 backdrop-blur-md text-[10px] font-black text-mnamio-800 uppercase tracking-widest shadow-sm">
                   #{recipe.tag}
                 </div>
               </div>
@@ -565,7 +565,7 @@ export default function RecipeSection({
                   </div>
                 </div>
               )}
-              <h3 className="text-xl font-black text-zinc-900 dark:text-white leading-tight group-hover:text-foodappka-600 transition-colors">
+              <h3 className="text-xl font-black text-zinc-900 dark:text-white leading-tight group-hover:text-mnamio-600 transition-colors">
                 {recipe.name}
               </h3>
               <p className="mt-2 text-sm text-zinc-500 dark:text-zinc-400 line-clamp-2 font-medium">
@@ -595,10 +595,10 @@ export default function RecipeSection({
           </div>
         ) : (recipeLoading || effectiveResults.length > 0) && (
           <div className="space-y-4">
-            <div className="rounded-2xl border border-foodappka-100 dark:border-zinc-800 bg-white/95 dark:bg-foodappka-950 p-4 md:p-6 shadow-sm">
-              <div className="flex flex-col gap-4 border-b border-foodappka-100 dark:border-zinc-800 pb-4 sm:flex-row sm:items-start sm:justify-between">
+            <div className="rounded-2xl border border-mnamio-100 dark:border-zinc-800 bg-white/95 dark:bg-mnamio-950 p-4 md:p-6 shadow-sm">
+              <div className="flex flex-col gap-4 border-b border-mnamio-100 dark:border-zinc-800 pb-4 sm:flex-row sm:items-start sm:justify-between">
                 <div>
-                  <p className="text-[10px] font-black uppercase tracking-widest text-foodappka-700">Nákup pro</p>
+                  <p className="text-[10px] font-black uppercase tracking-widest text-mnamio-700">Nákup pro</p>
                   <h3 className="text-xl md:text-2xl font-bold text-zinc-950 dark:text-white">{activeRecipe}</h3>
                   {totalPrice > 0 && (
                     <div className="mt-1.5 flex items-baseline gap-2 flex-wrap">
@@ -623,7 +623,7 @@ export default function RecipeSection({
                   <button
                     onClick={saveShoppingList}
                     disabled={isSaving || recipeLoading}
-                    className="flex-1 sm:flex-none px-4 py-2 rounded-full bg-foodappka-500 text-white text-xs font-bold shadow-md hover:bg-foodappka-600 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+                    className="flex-1 sm:flex-none px-4 py-2 rounded-full bg-mnamio-500 text-white text-xs font-bold shadow-md hover:bg-mnamio-600 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
                   >
                     {isSaving ? (
                       <>
@@ -653,13 +653,13 @@ export default function RecipeSection({
               </div>
 
               <div className="mt-4 flex items-center gap-2 relative">
-                <div className="inline-flex rounded-full bg-foodappka-50 dark:bg-zinc-900 p-1">
+                <div className="inline-flex rounded-full bg-mnamio-50 dark:bg-zinc-900 p-1">
                   <button
                     onClick={() => {
                       setShoppingMode("cross_store");
                       setStorePickerOpen(false);
                     }}
-                    className={`px-4 py-1.5 rounded-full text-[11px] font-bold transition-all ${shoppingMode === "cross_store" ? "bg-foodappka-600 text-white shadow-sm" : "text-foodappka-800 dark:text-foodappka-400"}`}
+                    className={`px-4 py-1.5 rounded-full text-[11px] font-bold transition-all ${shoppingMode === "cross_store" ? "bg-mnamio-600 text-white shadow-sm" : "text-mnamio-800 dark:text-mnamio-400"}`}
                   >
                     Všude
                   </button>
@@ -671,7 +671,7 @@ export default function RecipeSection({
                         setShoppingMode("single_store");
                       }
                     }}
-                    className={`flex items-center gap-1 px-4 py-1.5 rounded-full text-[11px] font-bold transition-all ${shoppingMode === "single_store" ? "bg-foodappka-600 text-white shadow-sm" : "text-foodappka-800 dark:text-foodappka-400"}`}
+                    className={`flex items-center gap-1 px-4 py-1.5 rounded-full text-[11px] font-bold transition-all ${shoppingMode === "single_store" ? "bg-mnamio-600 text-white shadow-sm" : "text-mnamio-800 dark:text-mnamio-400"}`}
                   >
                     {shoppingMode === "single_store" ? (selectedStore ?? shopScores[0]?.shopName ?? "Jeden obchod") : "Jeden obchod"}
                     {shoppingMode === "single_store" && shopScores.length > 1 && (
@@ -695,7 +695,7 @@ export default function RecipeSection({
                               setSelectedStore(shop.shopName);
                               setStorePickerOpen(false);
                             }}
-                            className={`w-full flex items-center gap-3 px-3 py-2.5 text-left transition-colors ${isActive ? "bg-foodappka-50 dark:bg-zinc-800" : "hover:bg-zinc-50 dark:hover:bg-zinc-800/50"}`}
+                            className={`w-full flex items-center gap-3 px-3 py-2.5 text-left transition-colors ${isActive ? "bg-mnamio-50 dark:bg-zinc-800" : "hover:bg-zinc-50 dark:hover:bg-zinc-800/50"}`}
                           >
                             <div className="shrink-0 w-9 flex items-center justify-center">
                               <StoreBrand shopName={shop.shopName} small />
@@ -704,7 +704,7 @@ export default function RecipeSection({
                               <div className="flex items-center gap-1.5 flex-wrap">
                                 <span className="text-xs font-bold text-zinc-800 dark:text-zinc-100">{shop.shopName}</span>
                                 {idx === 0 && (
-                                  <span className="text-[9px] text-foodappka-600 font-bold uppercase tracking-wide">doporučeno</span>
+                                  <span className="text-[9px] text-mnamio-600 font-bold uppercase tracking-wide">doporučeno</span>
                                 )}
                               </div>
                               {hasMultipleVariants && (
@@ -733,7 +733,7 @@ export default function RecipeSection({
                 )}
               </div>
 
-              {shareMessage && <div className={`mt-4 p-3 rounded-xl text-xs font-bold border transition-all ${shareMessage.includes('✅') ? 'bg-green-50 border-green-100 text-green-800 dark:bg-green-900/20 dark:border-green-800 dark:text-green-400' : 'bg-foodappka-50 border-foodappka-100 text-foodappka-800 dark:bg-foodappka-900/20 dark:border-foodappka-800 dark:text-foodappka-300'}`}>{shareMessage}</div>}
+              {shareMessage && <div className={`mt-4 p-3 rounded-xl text-xs font-bold border transition-all ${shareMessage.includes('✅') ? 'bg-green-50 border-green-100 text-green-800 dark:bg-green-900/20 dark:border-green-800 dark:text-green-400' : 'bg-mnamio-50 border-mnamio-100 text-mnamio-800 dark:bg-mnamio-900/20 dark:border-mnamio-800 dark:text-mnamio-300'}`}>{shareMessage}</div>}
 
               <ul className="mt-4 space-y-2">
                 {effectiveResults.map((item) => {
@@ -757,7 +757,7 @@ export default function RecipeSection({
                         <button
                           onClick={() => toggleIngredient(item.ingredient)}
                           className={`shrink-0 w-5 h-5 rounded-full border flex items-center justify-center text-[10px] font-black transition-colors ${
-                            isChecked ? "bg-foodappka-600 border-foodappka-600 text-white" : "border-zinc-300 dark:border-zinc-700 text-transparent"
+                            isChecked ? "bg-mnamio-600 border-mnamio-600 text-white" : "border-zinc-300 dark:border-zinc-700 text-transparent"
                           }`}
                         >
                           ✓
@@ -815,7 +815,7 @@ export default function RecipeSection({
                                       e.stopPropagation();
                                       setLeafletDialog({ url: item.store!.leafletUrl, shopName: item.store!.shopName });
                                     }}
-                                    className="shrink-0 inline-flex items-center gap-0.5 text-[10px] font-bold text-foodappka-600 hover:text-foodappka-700 transition-colors whitespace-nowrap"
+                                    className="shrink-0 inline-flex items-center gap-0.5 text-[10px] font-bold text-mnamio-600 hover:text-mnamio-700 transition-colors whitespace-nowrap"
                                   >
                                     <span className="material-symbols-outlined text-[11px]">menu_book</span>
                                     Leták
@@ -844,7 +844,7 @@ export default function RecipeSection({
                               {onReplaceProduct && (
                                 <button
                                   onClick={() => setReplacingIngredient(item.ingredient)}
-                                  className="inline-flex items-center gap-0.5 text-[10px] font-bold text-foodappka-600 hover:text-foodappka-700 transition-colors"
+                                  className="inline-flex items-center gap-0.5 text-[10px] font-bold text-mnamio-600 hover:text-mnamio-700 transition-colors"
                                 >
                                   <span className="material-symbols-outlined text-[12px]">search</span>
                                   Najít náhradu
@@ -877,7 +877,7 @@ export default function RecipeSection({
                               <button
                                 onClick={() => setReplacingIngredient(item.ingredient)}
                                 title="Nahradit jiným produktem"
-                                className="shrink-0 flex h-6 w-6 items-center justify-center rounded-full text-zinc-400 hover:text-foodappka-600 hover:bg-foodappka-50 dark:hover:bg-foodappka-900/30 transition-colors"
+                                className="shrink-0 flex h-6 w-6 items-center justify-center rounded-full text-zinc-400 hover:text-mnamio-600 hover:bg-mnamio-50 dark:hover:bg-mnamio-900/30 transition-colors"
                               >
                                 <span className="material-symbols-outlined text-[15px]">swap_horiz</span>
                               </button>
@@ -901,11 +901,11 @@ export default function RecipeSection({
               </ul>
             </div>
 
-            <div className="rounded-2xl bg-foodappka-950 p-5 text-white shadow-lg border border-foodappka-800">
-              <p className="text-[10px] font-black uppercase tracking-widest text-foodappka-400">Celkem za nákup</p>
+            <div className="rounded-2xl bg-mnamio-950 p-5 text-white shadow-lg border border-mnamio-800">
+              <p className="text-[10px] font-black uppercase tracking-widest text-mnamio-400">Celkem za nákup</p>
               <p className="text-3xl font-black mt-1">{totalPrice.toFixed(2).replace(".", ",")} Kč</p>
               {totalSavings > 0 && (
-                <p className="mt-1 text-xs font-bold text-foodappka-300">
+                <p className="mt-1 text-xs font-bold text-mnamio-300">
                   ušetřeno {totalSavings.toFixed(0)} Kč oproti běžným cenám
                 </p>
               )}
@@ -915,13 +915,13 @@ export default function RecipeSection({
             {!hasNewLayout && recipeDetails?.instructions && recipeDetails.instructions.length > 0 && (
               <div className="mt-8 pt-8 border-t border-zinc-100 dark:border-zinc-800 text-left">
                 <h3 className="text-xl font-bold text-zinc-900 dark:text-white mb-6 flex items-center gap-2">
-                  <span className="material-symbols-outlined text-foodappka-600">restaurant_menu</span>
+                  <span className="material-symbols-outlined text-mnamio-600">restaurant_menu</span>
                   Postup přípravy
                 </h3>
                 <div className="space-y-4">
                   {recipeDetails.instructions.map((step, index) => (
                     <div key={index} className="flex gap-4">
-                      <div className="flex-shrink-0 w-8 h-8 rounded-full bg-foodappka-100 dark:bg-foodappka-900/40 text-foodappka-700 dark:text-foodappka-300 flex items-center justify-center font-black text-sm border border-foodappka-200 dark:border-foodappka-800">
+                      <div className="flex-shrink-0 w-8 h-8 rounded-full bg-mnamio-100 dark:bg-mnamio-900/40 text-mnamio-700 dark:text-mnamio-300 flex items-center justify-center font-black text-sm border border-mnamio-200 dark:border-mnamio-800">
                         {index + 1}
                       </div>
                       <p className="text-zinc-700 dark:text-zinc-300 leading-relaxed pt-1">
@@ -1026,11 +1026,11 @@ function ReplaceProductDialog({ ingredient, onClose, onSelect }: ReplaceProductD
               onChange={(e) => setQuery(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && runSearch(query)}
               placeholder="Hledejte produkt…"
-              className="flex-1 h-11 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-black px-4 text-sm text-zinc-900 dark:text-white outline-none transition focus:border-foodappka-500 focus:ring-2 focus:ring-foodappka-500/20"
+              className="flex-1 h-11 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-black px-4 text-sm text-zinc-900 dark:text-white outline-none transition focus:border-mnamio-500 focus:ring-2 focus:ring-mnamio-500/20"
             />
             <button
               onClick={() => runSearch(query)}
-              className="h-11 px-5 rounded-xl bg-foodappka-600 text-white text-sm font-bold hover:bg-foodappka-700 transition-colors"
+              className="h-11 px-5 rounded-xl bg-mnamio-600 text-white text-sm font-bold hover:bg-mnamio-700 transition-colors"
             >
               Hledat
             </button>
@@ -1040,7 +1040,7 @@ function ReplaceProductDialog({ ingredient, onClose, onSelect }: ReplaceProductD
         <div className="flex-1 overflow-y-auto overscroll-contain px-6 md:px-8 pb-6 md:pb-8 pb-safe">
           {searching ? (
             <div className="py-10 flex justify-center">
-              <span className="material-symbols-outlined animate-spin text-2xl text-foodappka-500">progress_activity</span>
+              <span className="material-symbols-outlined animate-spin text-2xl text-mnamio-500">progress_activity</span>
             </div>
           ) : results.length > 0 ? (
             <ul className="space-y-2">
@@ -1167,7 +1167,7 @@ function CreateRecipeDialog({ existingCategories, onClose, onSave }: CreateRecip
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="např. Babiččin guláš"
-              className="w-full h-12 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-black px-4 text-zinc-900 dark:text-white outline-none transition focus:border-foodappka-500 focus:ring-2 focus:ring-foodappka-500/20"
+              className="w-full h-12 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-black px-4 text-zinc-900 dark:text-white outline-none transition focus:border-mnamio-500 focus:ring-2 focus:ring-mnamio-500/20"
             />
           </div>
 
@@ -1182,7 +1182,7 @@ function CreateRecipeDialog({ existingCategories, onClose, onSave }: CreateRecip
                     onClick={() => setTag(cat)}
                     className={`rounded-full px-4 py-2 text-xs font-bold transition-all ${
                       tag === cat
-                        ? "bg-foodappka-600 text-white shadow-md"
+                        ? "bg-mnamio-600 text-white shadow-md"
                         : "bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-700"
                     }`}
                   >
@@ -1195,7 +1195,7 @@ function CreateRecipeDialog({ existingCategories, onClose, onSave }: CreateRecip
                     setShowCustomTagInput(true);
                     setCustomTag("");
                   }}
-                  className="rounded-full px-4 py-2 text-xs font-bold bg-white dark:bg-zinc-900 border border-dashed border-zinc-300 dark:border-zinc-700 text-zinc-500 hover:border-foodappka-400 transition-all"
+                  className="rounded-full px-4 py-2 text-xs font-bold bg-white dark:bg-zinc-900 border border-dashed border-zinc-300 dark:border-zinc-700 text-zinc-500 hover:border-mnamio-400 transition-all"
                 >
                   + Vlastní
                 </button>
@@ -1207,7 +1207,7 @@ function CreateRecipeDialog({ existingCategories, onClose, onSave }: CreateRecip
                   value={customTag}
                   onChange={(e) => setCustomTag(e.target.value)}
                   placeholder="např. Česká klasika"
-                  className="flex-1 h-11 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-black px-4 text-sm text-zinc-900 dark:text-white outline-none transition focus:border-foodappka-500 focus:ring-2 focus:ring-foodappka-500/20"
+                  className="flex-1 h-11 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-black px-4 text-sm text-zinc-900 dark:text-white outline-none transition focus:border-mnamio-500 focus:ring-2 focus:ring-mnamio-500/20"
                 />
                 <button
                   type="button"
@@ -1226,7 +1226,7 @@ function CreateRecipeDialog({ existingCategories, onClose, onSave }: CreateRecip
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Krátký popis receptu (nepovinné)"
-              className="w-full h-12 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-black px-4 text-zinc-900 dark:text-white outline-none transition focus:border-foodappka-500 focus:ring-2 focus:ring-foodappka-500/20"
+              className="w-full h-12 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-black px-4 text-zinc-900 dark:text-white outline-none transition focus:border-mnamio-500 focus:ring-2 focus:ring-mnamio-500/20"
             />
           </div>
 
@@ -1250,7 +1250,7 @@ function CreateRecipeDialog({ existingCategories, onClose, onSave }: CreateRecip
                       }
                     }}
                     placeholder={`Ingredience ${i + 1}`}
-                    className="flex-1 h-11 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-black px-4 text-sm text-zinc-900 dark:text-white outline-none transition focus:border-foodappka-500 focus:ring-2 focus:ring-foodappka-500/20"
+                    className="flex-1 h-11 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-black px-4 text-sm text-zinc-900 dark:text-white outline-none transition focus:border-mnamio-500 focus:ring-2 focus:ring-mnamio-500/20"
                   />
                   {ingredients.length > 1 && (
                     <button
@@ -1267,7 +1267,7 @@ function CreateRecipeDialog({ existingCategories, onClose, onSave }: CreateRecip
             <button
               type="button"
               onClick={addIngredientField}
-              className="mt-2 inline-flex items-center gap-1 text-sm font-bold text-foodappka-600 hover:text-foodappka-700 transition-colors"
+              className="mt-2 inline-flex items-center gap-1 text-sm font-bold text-mnamio-600 hover:text-mnamio-700 transition-colors"
             >
               <span className="material-symbols-outlined text-lg">add</span>
               Přidat ingredienci
@@ -1281,13 +1281,13 @@ function CreateRecipeDialog({ existingCategories, onClose, onSave }: CreateRecip
               onChange={(e) => setInstructions(e.target.value)}
               placeholder={"Orestujte cibuli.\nPřidejte maso a osmahněte.\n…"}
               rows={4}
-              className="w-full rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-black px-4 py-3 text-sm text-zinc-900 dark:text-white outline-none transition focus:border-foodappka-500 focus:ring-2 focus:ring-foodappka-500/20 resize-none"
+              className="w-full rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-black px-4 py-3 text-sm text-zinc-900 dark:text-white outline-none transition focus:border-mnamio-500 focus:ring-2 focus:ring-mnamio-500/20 resize-none"
             />
           </div>
 
           <button
             onClick={handleSave}
-            className="w-full h-12 rounded-full bg-foodappka-600 text-white font-black transition hover:bg-foodappka-700 shadow-lg shadow-foodappka-600/20 active:scale-95"
+            className="w-full h-12 rounded-full bg-mnamio-600 text-white font-black transition hover:bg-mnamio-700 shadow-lg shadow-mnamio-600/20 active:scale-95"
           >
             Uložit a najít ceny
           </button>

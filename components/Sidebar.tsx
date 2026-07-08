@@ -23,7 +23,7 @@ export default function Sidebar() {
   const mode = searchParams.get("mode") || "search";
 
   return (
-    <aside className="hidden lg:flex h-[calc(100vh-4rem)] w-72 flex-col gap-2 rounded-r-[2rem] bg-foodappka-50/80 dark:bg-foodappka-950/90 p-6 shadow-[0px_20px_40px_rgba(0,33,20,0.08)] dark:shadow-none fixed top-16 left-0 z-40">
+    <aside className="hidden lg:flex h-[calc(100vh-4rem)] w-72 flex-col gap-2 rounded-r-[2rem] bg-mnamio-50/80 dark:bg-mnamio-950/90 p-6 shadow-[0px_20px_40px_rgba(0,33,20,0.08)] dark:shadow-none fixed top-16 left-0 z-40">
       <nav className="flex flex-col gap-2 mt-4">
         {NAV_ITEMS.map((item) => {
           const isSettings = item.id === "settings" && pathname.includes("/settings");
@@ -41,8 +41,8 @@ export default function Sidebar() {
               }}
               className={`flex items-center gap-4 px-6 py-3 rounded-full transition-all ${
                 isActive
-                  ? "bg-foodappka-500 text-white shadow-lg shadow-foodappka-500/30"
-                  : "text-zinc-500 dark:text-zinc-400 hover:text-foodappka-600 dark:hover:text-foodappka-400 hover:bg-foodappka-100 dark:hover:bg-foodappka-900/50 hover:translate-x-1"
+                  ? "bg-mnamio-500 text-white shadow-lg shadow-mnamio-500/30"
+                  : "text-zinc-500 dark:text-zinc-400 hover:text-mnamio-600 dark:hover:text-mnamio-400 hover:bg-mnamio-100 dark:hover:bg-mnamio-900/50 hover:translate-x-1"
               }`}
             >
               <span
@@ -57,14 +57,14 @@ export default function Sidebar() {
         })}
       </nav>
 
-      <div className="mt-auto flex flex-col gap-4 border-t border-foodappka-100/50 dark:border-zinc-700 pt-6">
+      <div className="mt-auto flex flex-col gap-4 border-t border-mnamio-100/50 dark:border-zinc-700 pt-6">
         <div className="flex flex-col gap-1">
           <Link
             href="/app/settings"
             className={`flex items-center gap-4 px-6 py-2 text-sm transition-colors w-full text-left ${
               pathname.includes("/settings") 
-                ? "text-foodappka-600 dark:text-foodappka-400 font-bold" 
-                : "text-zinc-500 dark:text-zinc-400 hover:text-foodappka-600 dark:hover:text-foodappka-400"
+                ? "text-mnamio-600 dark:text-mnamio-400 font-bold" 
+                : "text-zinc-500 dark:text-zinc-400 hover:text-mnamio-600 dark:hover:text-mnamio-400"
             }`}
           >
             <span className="material-symbols-outlined text-lg">settings</span>

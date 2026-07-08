@@ -46,7 +46,7 @@ export default function BottomNav() {
               {isActive && (
                 <motion.div
                   layoutId="bottom-nav-active-pill"
-                  className="absolute inset-y-1 inset-x-0.5 rounded-full bg-foodappka-500 shadow-lg shadow-foodappka-500/30"
+                  className="absolute inset-y-1 inset-x-0.5 rounded-full bg-mnamio-500 shadow-lg shadow-mnamio-500/30"
                   transition={{ type: "spring", stiffness: 500, damping: 35 }}
                 />
               )}

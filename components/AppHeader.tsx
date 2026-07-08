@@ -39,13 +39,13 @@ export default function AppHeader() {
   }
 
   return (
-    <nav className="fixed top-0 w-full z-50 h-16 bg-foodappka-50/80 dark:bg-foodappka-950/90 backdrop-blur-xl border-b border-foodappka-100 dark:border-foodappka-900/50">
+    <nav className="fixed top-0 w-full z-50 h-16 bg-mnamio-50/80 dark:bg-mnamio-950/90 backdrop-blur-xl border-b border-mnamio-100 dark:border-mnamio-900/50">
       <div className="flex justify-between items-center px-4 md:px-8 py-2 max-w-[1800px] mx-auto h-full">
         <div className="flex items-center gap-4 md:gap-8">
           <Link
             href="/"
             onClick={() => sessionStorage.setItem("left_app", "true")}
-            className="text-xl md:text-2xl font-asset tracking-tight text-foodappka-700 dark:text-foodappka-400"
+            className="text-xl md:text-2xl font-asset tracking-tight text-mnamio-700 dark:text-mnamio-400"
           >
             Mnamio
           </Link>
@@ -59,7 +59,7 @@ export default function AppHeader() {
               <div className="relative ml-1 md:ml-2">
                 <button 
                   onClick={() => setShowUserMenu(!showUserMenu)}
-                  className="w-10 h-10 rounded-full bg-foodappka-500 flex items-center justify-center text-white font-black text-sm hover:ring-2 hover:ring-foodappka-300 transition-all active:scale-95 shadow-sm"
+                  className="w-10 h-10 rounded-full bg-mnamio-500 flex items-center justify-center text-white font-black text-sm hover:ring-2 hover:ring-mnamio-300 transition-all active:scale-95 shadow-sm"
                 >
                   {user.email?.charAt(0).toUpperCase()}
                 </button>
@@ -105,7 +105,7 @@ export default function AppHeader() {
             ) : (
               <Link
                 href="/login"
-                className="ml-1 md:ml-2 px-4 md:px-5 py-1.5 md:py-2 rounded-full bg-foodappka-500 text-white font-semibold text-xs md:text-sm hover:bg-foodappka-600 transition-colors"
+                className="ml-1 md:ml-2 px-4 md:px-5 py-1.5 md:py-2 rounded-full bg-mnamio-500 text-white font-semibold text-xs md:text-sm hover:bg-mnamio-600 transition-colors"
               >
                 Přihlásit
               </Link>

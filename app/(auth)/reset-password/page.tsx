@@ -55,7 +55,7 @@ export default function ResetPasswordPage() {
     <main className="min-h-screen flex items-center justify-center bg-surface dark:bg-black px-4 transition-colors duration-200">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <Link href="/" className="text-3xl font-display font-black text-foodappka-600 dark:text-foodappka-400">
+          <Link href="/" className="text-3xl font-display font-black text-mnamio-600 dark:text-mnamio-400">
             Mnamio
           </Link>
           <p className="mt-2 text-zinc-600 dark:text-zinc-400">Nastavte si nové heslo</p>
@@ -69,7 +69,7 @@ export default function ResetPasswordPage() {
               </p>
               <Link
                 href="/forgot-password"
-                className="font-bold text-foodappka-600 hover:text-foodappka-700 dark:text-foodappka-400 text-sm"
+                className="font-bold text-mnamio-600 hover:text-mnamio-700 dark:text-mnamio-400 text-sm"
               >
                 Poslat nový odkaz
               </Link>
@@ -97,7 +97,7 @@ export default function ResetPasswordPage() {
                     onChange={(e) => setPassword(e.target.value)}
                     required
                     minLength={6}
-                    className="w-full h-12 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-black px-4 text-zinc-900 dark:text-white outline-none transition focus:border-foodappka-500 focus:ring-2 focus:ring-foodappka-500/20"
+                    className="w-full h-12 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-black px-4 text-zinc-900 dark:text-white outline-none transition focus:border-mnamio-500 focus:ring-2 focus:ring-mnamio-500/20"
                     placeholder="••••••••"
                   />
                 </div>
@@ -116,7 +116,7 @@ export default function ResetPasswordPage() {
                     onChange={(e) => setPasswordConfirm(e.target.value)}
                     required
                     minLength={6}
-                    className="w-full h-12 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-black px-4 text-zinc-900 dark:text-white outline-none transition focus:border-foodappka-500 focus:ring-2 focus:ring-foodappka-500/20"
+                    className="w-full h-12 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-black px-4 text-zinc-900 dark:text-white outline-none transition focus:border-mnamio-500 focus:ring-2 focus:ring-mnamio-500/20"
                     placeholder="••••••••"
                   />
                 </div>
@@ -125,7 +125,7 @@ export default function ResetPasswordPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="mt-6 w-full h-12 rounded-xl bg-foodappka-600 text-white font-black transition hover:bg-foodappka-700 shadow-lg shadow-foodappka-600/20 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="mt-6 w-full h-12 rounded-xl bg-mnamio-600 text-white font-black transition hover:bg-mnamio-700 shadow-lg shadow-mnamio-600/20 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {loading ? "Ukládám..." : "Nastavit nové heslo"}
               </button>

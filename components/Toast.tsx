@@ -40,7 +40,7 @@ export default function Toast() {
             className={`
               pointer-events-auto px-6 py-4 rounded-2xl shadow-2xl border backdrop-blur-md flex items-center gap-3 min-w-[280px] max-w-md
               ${m.type === 'error' ? 'bg-red-500/90 border-red-400 text-white' : 
-                m.type === 'success' ? 'bg-foodappka-600/90 border-foodappka-500 text-white' : 
+                m.type === 'success' ? 'bg-mnamio-600/90 border-mnamio-500 text-white' : 
                 'bg-zinc-900/90 border-zinc-700 text-white dark:bg-white/90 dark:border-zinc-200 dark:text-zinc-950'}
             `}
           >

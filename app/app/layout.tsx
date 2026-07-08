@@ -30,7 +30,7 @@ export default function DashboardLayout({
         <div className="absolute top-16 right-0 w-[1000px] h-[1000px] rounded-full bg-lime-400/40 dark:bg-lime-500/10 blur-[140px] -translate-y-1/2 translate-x-1/2" />
         
         {/* Bottom-Left Blob: Center at Sidebar inner edge / Screen bottom edge */}
-        <div className="absolute bottom-0 left-72 w-[1000px] h-[1000px] rounded-full bg-foodappka-400/40 dark:bg-foodappka-400/10 blur-[140px] translate-y-1/2 -translate-x-1/2" />
+        <div className="absolute bottom-0 left-72 w-[1000px] h-[1000px] rounded-full bg-mnamio-400/40 dark:bg-mnamio-400/10 blur-[140px] translate-y-1/2 -translate-x-1/2" />
       </div>
 
       <div className="relative z-10 flex flex-col min-h-screen bg-transparent">

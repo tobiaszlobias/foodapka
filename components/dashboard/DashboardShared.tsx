@@ -203,7 +203,7 @@ export function SearchLoadingAnimation({ progress }: { progress?: number }) {
     <div className="flex flex-col items-center justify-center py-10 px-4 text-center overflow-hidden relative">
       <div className="space-y-4 w-full max-w-xs mx-auto">
         <div className="flex flex-col items-center gap-4">
-          <div className="flex items-center gap-2 text-foodappka-600 font-black px-6 py-2 bg-foodappka-50 dark:bg-foodappka-900/30 rounded-full text-sm shadow-sm border border-foodappka-100 dark:border-foodappka-800 animate-pulse">
+          <div className="flex items-center gap-2 text-mnamio-600 font-black px-6 py-2 bg-mnamio-50 dark:bg-mnamio-900/30 rounded-full text-sm shadow-sm border border-mnamio-100 dark:border-mnamio-800 animate-pulse">
             <span className="material-symbols-outlined text-sm animate-spin">sync</span>
             <span>Prohledáváme {shops[currentShop]}...</span>
           </div>
@@ -211,7 +211,7 @@ export function SearchLoadingAnimation({ progress }: { progress?: number }) {
             <p className="text-xs text-zinc-500 dark:text-zinc-400 font-bold leading-relaxed">
               Analyzujeme nejlepší akční nabídky z tisíců položek...
             </p>
-            <p className="text-[10px] text-foodappka-600 font-black tracking-widest uppercase">
+            <p className="text-[10px] text-mnamio-600 font-black tracking-widest uppercase">
               {Math.round(displayProgress)}% HOTOVO
             </p>
           </div>
@@ -220,7 +220,7 @@ export function SearchLoadingAnimation({ progress }: { progress?: number }) {
         {/* Modern Progress Track */}
         <div className="mt-6 w-full h-2 bg-zinc-100 dark:bg-zinc-800 rounded-full overflow-hidden p-0.5 border border-zinc-200/50 dark:border-zinc-700/50">
           <div 
-            className="h-full bg-gradient-to-r from-foodappka-400 to-foodappka-600 rounded-full transition-all duration-500 ease-out" 
+            className="h-full bg-gradient-to-r from-mnamio-400 to-mnamio-600 rounded-full transition-all duration-500 ease-out" 
             style={{ width: `${displayProgress}%` }}
           />
         </div>
@@ -235,10 +235,10 @@ export function LoadingCards() {
       {Array.from({ length: 3 }).map((_, index) => (
         <article
           key={index}
-          className="overflow-hidden rounded-2xl border border-foodappka-100 dark:border-zinc-800 bg-white/90 dark:bg-foodappka-950 p-5 shadow-sm"
+          className="overflow-hidden rounded-2xl border border-mnamio-100 dark:border-zinc-800 bg-white/90 dark:bg-mnamio-950 p-5 shadow-sm"
         >
           <div className="animate-pulse space-y-4">
-            <div className="h-6 w-2/3 rounded-full bg-foodappka-100 dark:bg-zinc-800" />
+            <div className="h-6 w-2/3 rounded-full bg-mnamio-100 dark:bg-zinc-800" />
             <div className="h-4 w-40 rounded-full bg-zinc-100 dark:bg-zinc-900" />
             <div className="grid gap-3">
               {Array.from({ length: 2 }).map((_, storeIndex) => (
@@ -261,9 +261,9 @@ export function RecipeSkeleton() {
       {Array.from({ length: 3 }).map((_, index) => (
         <div
           key={index}
-          className="animate-pulse rounded-2xl border border-foodappka-100 dark:border-zinc-800 bg-white/85 dark:bg-foodappka-950 p-5 shadow-sm"
+          className="animate-pulse rounded-2xl border border-mnamio-100 dark:border-zinc-800 bg-white/85 dark:bg-mnamio-950 p-5 shadow-sm"
         >
-          <div className="h-5 w-36 rounded-full bg-foodappka-100 dark:bg-zinc-800" />
+          <div className="h-5 w-36 rounded-full bg-mnamio-100 dark:bg-zinc-800" />
           <div className="mt-4 h-20 rounded-xl bg-zinc-100 dark:bg-zinc-900" />
         </div>
       ))}
@@ -278,13 +278,13 @@ export function EmptyState({ hasSearched, title, description, icon }: {
   icon?: string;
 }) {
   return (
-    <div className="rounded-2xl border border-dashed border-foodappka-200 dark:border-zinc-800 bg-white/70 dark:bg-foodappka-950 px-6 py-12 text-center shadow-sm">
-      <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-full bg-foodappka-100 dark:bg-zinc-800">
-        <span className="material-symbols-outlined text-foodappka-500 text-3xl">
+    <div className="rounded-2xl border border-dashed border-mnamio-200 dark:border-zinc-800 bg-white/70 dark:bg-mnamio-950 px-6 py-12 text-center shadow-sm">
+      <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-full bg-mnamio-100 dark:bg-zinc-800">
+        <span className="material-symbols-outlined text-mnamio-500 text-3xl">
           {icon || (hasSearched ? "search_off" : "shopping_basket")}
         </span>
       </div>
-      <h2 className="text-lg font-semibold text-foodappka-950 dark:text-white">
+      <h2 className="text-lg font-semibold text-mnamio-950 dark:text-white">
         {title || (hasSearched ? "Nic jsme nenašli" : "Začněte hledat")}
       </h2>
       <p className="mx-auto mt-3 max-w-xs text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">

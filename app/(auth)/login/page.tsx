@@ -37,14 +37,14 @@ export default function LoginPage() {
         {/* Back to Home Button */}
         <Link 
           href="/" 
-          className="absolute -top-12 left-0 flex items-center gap-2 text-zinc-500 hover:text-foodappka-600 transition-colors font-bold text-sm"
+          className="absolute -top-12 left-0 flex items-center gap-2 text-zinc-500 hover:text-mnamio-600 transition-colors font-bold text-sm"
         >
           <span className="material-symbols-outlined text-lg">arrow_back</span>
           Domů
         </Link>
 
         <div className="text-center mb-8">
-          <Link href="/" className="text-3xl font-display font-black text-foodappka-600 dark:text-foodappka-400">
+          <Link href="/" className="text-3xl font-display font-black text-mnamio-600 dark:text-mnamio-400">
             Mnamio
           </Link>
           <p className="mt-2 text-zinc-600 dark:text-zinc-400">Přihlaste se do svého účtu</p>
@@ -74,7 +74,7 @@ export default function LoginPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="w-full h-12 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-black px-4 text-zinc-900 dark:text-white outline-none transition focus:border-foodappka-500 focus:ring-2 focus:ring-foodappka-500/20"
+                className="w-full h-12 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-black px-4 text-zinc-900 dark:text-white outline-none transition focus:border-mnamio-500 focus:ring-2 focus:ring-mnamio-500/20"
                 placeholder="vas@email.cz"
               />
             </div>
@@ -89,7 +89,7 @@ export default function LoginPage() {
                 </label>
                 <Link
                   href="/forgot-password"
-                  className="text-xs font-bold text-foodappka-600 hover:text-foodappka-700 dark:text-foodappka-400"
+                  className="text-xs font-bold text-mnamio-600 hover:text-mnamio-700 dark:text-mnamio-400"
                 >
                   Zapomenuté heslo?
                 </Link>
@@ -100,7 +100,7 @@ export default function LoginPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                className="w-full h-12 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-black px-4 text-base text-zinc-900 dark:text-white outline-none transition focus:border-foodappka-500 focus:ring-2 focus:ring-foodappka-500/20"
+                className="w-full h-12 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-black px-4 text-base text-zinc-900 dark:text-white outline-none transition focus:border-mnamio-500 focus:ring-2 focus:ring-mnamio-500/20"
                 placeholder="••••••••"
               />
             </div>
@@ -109,7 +109,7 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={loading}
-            className="mt-6 w-full h-12 rounded-xl bg-foodappka-600 text-white font-black transition hover:bg-foodappka-700 shadow-lg shadow-foodappka-600/20 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="mt-6 w-full h-12 rounded-xl bg-mnamio-600 text-white font-black transition hover:bg-mnamio-700 shadow-lg shadow-mnamio-600/20 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? "Přihlašování..." : "Přihlásit se"}
           </button>
@@ -118,7 +118,7 @@ export default function LoginPage() {
             Nemáte účet?{" "}
             <Link
               href="/signup"
-              className="font-bold text-foodappka-600 hover:text-foodappka-700 dark:text-foodappka-400"
+              className="font-bold text-mnamio-600 hover:text-mnamio-700 dark:text-mnamio-400"
             >
               Zaregistrujte se
             </Link>

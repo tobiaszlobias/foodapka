@@ -21,7 +21,7 @@ export function normalizeSteps(instructions: (string | RecipeStep)[]): Normalize
 export default function CookingModeStepper({
   steps,
   scaledIngredients,
-  headingClassName = "text-foodappka-800 dark:text-foodappka-400",
+  headingClassName = "text-mnamio-800 dark:text-mnamio-400",
   headingStyle,
 }: {
   steps: NormalizedStep[];
@@ -41,7 +41,7 @@ export default function CookingModeStepper({
           return (
             <span
               key={idx}
-              className="inline-flex items-center gap-1 rounded-full bg-foodappka-50 dark:bg-foodappka-900/30 px-3 py-1.5 text-sm text-zinc-700 dark:text-zinc-300"
+              className="inline-flex items-center gap-1 rounded-full bg-mnamio-50 dark:bg-mnamio-900/30 px-3 py-1.5 text-sm text-zinc-700 dark:text-zinc-300"
             >
               {ing.amount && <span className="font-bold text-zinc-900 dark:text-white">{ing.amount}</span>}
               <span className="capitalize">{ing.name}</span>
@@ -56,7 +56,7 @@ export default function CookingModeStepper({
 
   return (
     <div>
-      <p className="text-xs text-foodappka-700 dark:text-foodappka-400 font-bold mb-4 flex items-center gap-1.5">
+      <p className="text-xs text-mnamio-700 dark:text-mnamio-400 font-bold mb-4 flex items-center gap-1.5">
         <span className="material-symbols-outlined text-sm">visibility</span>
         Obrazovka zůstane rozsvícená během vaření.
       </p>
@@ -73,7 +73,7 @@ export default function CookingModeStepper({
       {currentStep > 0 && (
         <button
           onClick={() => setCurrentStep((s) => Math.max(0, s - 1))}
-          className="flex h-10 w-10 items-center justify-center rounded-full bg-foodappka-700 text-white mx-auto mb-4 hover:bg-foodappka-800 transition"
+          className="flex h-10 w-10 items-center justify-center rounded-full bg-mnamio-700 text-white mx-auto mb-4 hover:bg-mnamio-800 transition"
         >
           <span className="material-symbols-outlined">arrow_upward</span>
         </button>
@@ -92,7 +92,7 @@ export default function CookingModeStepper({
       {currentStep < steps.length - 1 && (
         <button
           onClick={() => setCurrentStep((s) => Math.min(steps.length - 1, s + 1))}
-          className="flex h-10 w-10 items-center justify-center rounded-full bg-foodappka-700 text-white mx-auto my-4 hover:bg-foodappka-800 transition"
+          className="flex h-10 w-10 items-center justify-center rounded-full bg-mnamio-700 text-white mx-auto my-4 hover:bg-mnamio-800 transition"
         >
           <span className="material-symbols-outlined">arrow_downward</span>
         </button>

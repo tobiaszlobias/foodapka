@@ -26,17 +26,17 @@
 
   --animate-aurora: aurora 40s linear infinite;
 
-  --color-foodappka-50: #f7fee7;
-  --color-foodappka-100: #ecfccb;
-  --color-foodappka-200: #d9f99d;
-  --color-foodappka-300: #bef264;
-  --color-foodappka-400: #a3e635;
-  --color-foodappka-500: #84cc16;
-  --color-foodappka-600: #65a30d;
-  --color-foodappka-700: #4d7c0f;
-  --color-foodappka-800: #3f6212;
-  --color-foodappka-900: #365314;
-  --color-foodappka-950: #1a2e05;
+  --color-mnamio-50: #f7fee7;
+  --color-mnamio-100: #ecfccb;
+  --color-mnamio-200: #d9f99d;
+  --color-mnamio-300: #bef264;
+  --color-mnamio-400: #a3e635;
+  --color-mnamio-500: #84cc16;
+  --color-mnamio-600: #65a30d;
+  --color-mnamio-700: #4d7c0f;
+  --color-mnamio-800: #3f6212;
+  --color-mnamio-900: #365314;
+  --color-mnamio-950: #1a2e05;
 }
 
 @layer base {
