@@ -469,14 +469,14 @@ export default function RecipeSection({
           {/* Karta: vytvořit vlastní recept */}
           <button
             onClick={() => setShowCreateForm(true)}
-            className="group flex flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed border-foodappka-300 dark:border-foodappka-800 bg-foodappka-50/50 dark:bg-foodappka-950/50 p-8 min-h-[180px] transition-all hover:border-foodappka-500 hover:bg-foodappka-50 dark:hover:bg-foodappka-900/30 active:scale-[0.98] cursor-pointer"
+            className="group flex flex-col items-center justify-center gap-3 rounded-2xl border-2 border-foodappka-400 dark:border-foodappka-700 bg-foodappka-50 dark:bg-foodappka-900/30 p-8 min-h-[180px] shadow-sm transition-all hover:border-foodappka-500 hover:shadow-md active:scale-[0.98] cursor-pointer"
           >
-            <div className="flex h-14 w-14 items-center justify-center rounded-full bg-foodappka-100 dark:bg-foodappka-900/50 transition-transform group-hover:scale-110">
-              <span className="material-symbols-outlined text-foodappka-600 text-3xl">add</span>
+            <div className="flex h-14 w-14 items-center justify-center rounded-full bg-foodappka-500 shadow-md shadow-foodappka-500/30 transition-transform group-hover:scale-110">
+              <span className="material-symbols-outlined text-white text-3xl">add</span>
             </div>
             <div className="text-center">
               <p className="font-black text-foodappka-800 dark:text-foodappka-300">Vytvořit vlastní recept</p>
-              <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">Sestavte si recept od začátku — bez AI</p>
+              <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">Sestavte si recept přesně podle sebe</p>
             </div>
           </button>
 
