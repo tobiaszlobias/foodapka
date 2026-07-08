@@ -321,9 +321,12 @@ function scoreProductWithProfile(product: Product, query: string, options?: { re
   if (rawBaseScore <= 0 && !isSubstitute) return Number.NEGATIVE_INFINITY;
 
   // Silná frázová shoda: název obsahuje celý dotaz — class pravidla (required/strict)
-  // nesmí takový produkt vyřadit (např. "hovězí carpaccio" vs. třída syrového hovězího)
+  // nesmí takový produkt vyřadit (např. "hovězí carpaccio" vs. třída syrového hovězího).
+  // Hranice slova, ať to nechytá shodu uprostřed jiného tokenu.
   const normalizedQuery = normalizePattern(query);
-  const phraseMatch = normalizedQuery.length > 0 && normalizedName.includes(normalizedQuery);
+  const phraseMatch =
+    normalizedQuery.length > 0 &&
+    ` ${normalizedName} `.includes(` ${normalizedQuery} `);
 
   if (!isSubstitute && !phraseMatch) {
     if (profile.requiredGroups.length > 0 && matchedGroups === 0) {

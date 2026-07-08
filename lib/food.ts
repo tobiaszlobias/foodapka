@@ -272,8 +272,13 @@ export function scoreProductMatch(name: string, query: string) {
 
   if (!normalizedQuery) return 0;
   if (normalizedName === normalizedQuery) return 500; // Perfect match
-  if (normalizedName.startsWith(normalizedQuery)) return 300;
-  if (normalizedName.includes(normalizedQuery)) return 200;
+
+  // Hranice slova — jinak krátký dotaz jako "led" dostane bonus proti
+  // "ledový čaj" jen díky prefixu, i když jde o úplně jiný produkt.
+  const paddedName = ` ${normalizedName} `;
+  const paddedQuery = ` ${normalizedQuery} `;
+  if (paddedName.startsWith(paddedQuery)) return 300;
+  if (paddedName.includes(paddedQuery)) return 200;
 
   const nameTokens = tokenizeSearchText(normalizedName);
   const queryTokens = tokenizeSearchText(normalizedQuery);
