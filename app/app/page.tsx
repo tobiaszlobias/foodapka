@@ -349,7 +349,7 @@ function HomeContent() {
 
   const shareShoppingList = () => {
     const text = recipeResults.map(r => `${r.ingredient}: ${r.store?.price || '—'} (${r.store?.shopName || '—'})`).join('\n');
-    navigator.clipboard.writeText(`Můj nákupní seznam z foodappky:\n\n${text}`);
+    navigator.clipboard.writeText(`Můj nákupní seznam z Mnamio:\n\n${text}`);
     showToast("Odkaz zkopírován!", "success");
   };
 

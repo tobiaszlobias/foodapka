@@ -33,7 +33,7 @@ export async function POST(req: NextRequest) {
     if (!token) {
       await sendTelegramMessage(
         String(chatId),
-        "Ahoj! Pro propojení účtu otevřete v aplikaci foodappka sekci Hlídací pes a klikněte na „Propojit Telegram“.",
+        "Ahoj! Pro propojení účtu otevřete v aplikaci Mnamio sekci Hlídací pes a klikněte na „Propojit Telegram“.",
       );
       return Response.json({ ok: true });
     }

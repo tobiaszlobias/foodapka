@@ -290,7 +290,7 @@ export function EmptyState({ hasSearched, title, description, icon }: {
       <p className="mx-auto mt-3 max-w-xs text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
         {description || (hasSearched 
           ? "Zkuste jiný název nebo obecnější výraz." 
-          : "Zadejte název potraviny a foodappka vám ukáže nejlepší akční ceny.")}
+          : "Zadejte název potraviny a Mnamio vám ukáže nejlepší akční ceny.")}
       </p>
     </div>
   );

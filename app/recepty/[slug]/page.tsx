@@ -21,9 +21,9 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
   const recipe = findRecipeBySlug(slug);
-  if (!recipe) return { title: "Recept nenalezen | foodappka" };
+  if (!recipe) return { title: "Recept nenalezen | Mnamio" };
   return {
-    title: `${recipe.name} | foodappka`,
+    title: `${recipe.name} | Mnamio`,
     description: `${recipe.description} Najdeme k němu nejlevnější suroviny v akci.`,
   };
 }

@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Manrope, Plus_Jakarta_Sans, Special_Gothic_Expanded_One } from "next/font/google";
+import { Manrope, Plus_Jakarta_Sans, Special_Gothic_Expanded_One, Gravitas_One } from "next/font/google";
 import ThemeScript from "@/components/ThemeScript";
 import CookieBanner from "@/components/CookieBanner";
 import Toast from "@/components/Toast";
@@ -29,9 +29,16 @@ const specialGothicExpandedOne = Special_Gothic_Expanded_One({
   display: "swap",
 });
 
+const gravitasOne = Gravitas_One({
+  subsets: ["latin"],
+  variable: "--font-gravitas",
+  weight: "400",
+  display: "swap",
+});
+
 export const metadata: Metadata = {
-  title: "foodappka",
-  description: "Porovnání akčních cen potravin a recepty s chytrým nákupem",
+  title: "Mnamio",
+  description: "Mnamio — porovnání akčních cen potravin a chytré nákupní seznamy",
 };
 
 export const viewport: Viewport = {
@@ -59,7 +66,7 @@ export default function RootLayout({
           rel="stylesheet"
         />
       </head>
-      <body className={`${manrope.variable} ${plusJakartaSans.variable} ${specialGothicExpandedOne.variable} font-sans antialiased`}>
+      <body className={`${manrope.variable} ${plusJakartaSans.variable} ${specialGothicExpandedOne.variable} ${gravitasOne.variable} font-sans antialiased`}>
         <ThemeScript />
         <KeyboardScrollFix />
         {children}

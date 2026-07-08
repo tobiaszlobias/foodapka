@@ -63,7 +63,7 @@ export default function HomePage() {
       {/* Top Navigation Bar */}
       <nav className={`fixed top-0 z-50 w-full transition-all duration-500 ${scrolled ? "bg-white/80 backdrop-blur-xl py-3 md:py-4" : "bg-transparent py-5 md:py-6"}`}>
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 md:px-8">
-          <div className="text-xl md:text-2xl font-asset tracking-tighter text-foodappka-700">foodappka</div>
+          <div className="text-xl md:text-2xl font-asset tracking-tighter text-foodappka-700">Mnamio</div>
           <Link
             href="/app"
             className="transform rounded-full bg-foodappka-500 px-6 md:px-8 py-2 font-black text-white shadow-lg shadow-foodappka-500/20 transition-all hover:bg-foodappka-600 active:scale-95 text-sm md:text-base"
@@ -139,7 +139,7 @@ export default function HomePage() {
               <div className="absolute inset-0 bg-foodappka-100/50 blur-3xl rounded-full transform -rotate-12 scale-90"></div>
               <Image 
                 src="/myslenkova_mapa_hero.png" 
-                alt="Jak funguje foodappka" 
+                alt="Jak funguje Mnamio"
                 width={600} 
                 height={600} 
                 className="relative w-full h-auto drop-shadow-2xl rounded-[3rem]"
@@ -257,7 +257,7 @@ export default function HomePage() {
                 className="w-full sm:w-auto flex items-center justify-center gap-3 rounded-full bg-foodappka-500 px-10 py-5 md:px-12 md:py-6 font-black text-white shadow-2xl shadow-foodappka-500/40 transition hover:bg-foodappka-600 active:scale-95 text-lg"
               >
                 <span className="material-symbols-outlined text-2xl">rocket_launch</span>
-                Spustit foodapku
+                Spustit Mnamio
               </Link>
               <Link
                 href="/app?mode=recipes"
@@ -275,7 +275,7 @@ export default function HomePage() {
       <footer className="w-full bg-zinc-50 text-sm border-t border-zinc-100 py-16">
         <div className="mx-auto flex max-w-7xl flex-col items-center justify-between px-8 md:flex-row">
           <div className="mb-10 md:mb-0 text-center md:text-left">
-            <div className="text-2xl font-asset tracking-tighter text-foodappka-800">foodappka</div>
+            <div className="text-2xl font-asset tracking-tighter text-foodappka-800">Mnamio</div>
             <p className="max-w-xs text-zinc-500 mt-2 font-medium">
               Chytrý nákup pro každou českou domácnost.
             </p>
@@ -294,7 +294,7 @@ export default function HomePage() {
           </div>
         </div>
         <div className="mx-auto max-w-7xl border-t border-zinc-200/50 px-8 py-8 mt-16 text-center text-zinc-400 text-xs font-bold uppercase tracking-widest">
-          © 2026 foodappka. Všechna práva vyhrazena.
+          © 2026 Mnamio. Všechna práva vyhrazena.
         </div>
       </footer>
     </div>

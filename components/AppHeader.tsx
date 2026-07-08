@@ -47,7 +47,7 @@ export default function AppHeader() {
             onClick={() => sessionStorage.setItem("left_app", "true")}
             className="text-xl md:text-2xl font-asset tracking-tight text-foodappka-700 dark:text-foodappka-400"
           >
-            foodappka
+            Mnamio
           </Link>
         </div>
         

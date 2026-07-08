@@ -13,7 +13,7 @@
 @theme {
   --font-sans: var(--font-manrope), ui-sans-serif, system-ui, sans-serif;
   --font-display: var(--font-plus-jakarta), ui-sans-serif, system-ui, sans-serif;
-  --font-asset: "Gravitas One", system-ui;
+  --font-asset: var(--font-gravitas), system-ui;
   --color-primary: #92D63F;
   --color-primary-container: #D8F0BA;
   --color-on-primary: #000000;

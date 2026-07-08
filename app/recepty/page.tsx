@@ -5,7 +5,7 @@ import SiteHeader from "@/components/SiteHeader";
 import { RECIPE_PRESETS, recipeSlug } from "@/lib/recipes";
 
 export const metadata: Metadata = {
-  title: "Recepty | foodappka",
+  title: "Recepty | Mnamio",
   description:
     "Recepty s chytrým nákupem — ke každému receptu najdeme nejlevnější suroviny v akci napříč supermarkety.",
 };

@@ -41,7 +41,7 @@ export default function ForgotPasswordPage() {
 
         <div className="text-center mb-8">
           <Link href="/" className="text-3xl font-display font-black text-foodappka-600 dark:text-foodappka-400">
-            foodappka
+            Mnamio
           </Link>
           <p className="mt-2 text-zinc-600 dark:text-zinc-400">Obnova zapomenutého hesla</p>
         </div>
