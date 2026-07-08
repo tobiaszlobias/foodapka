@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { sendTelegramMessage } from "@/lib/telegram";
 import { searchAllSources } from "@/lib/scrapers";
 import { parsePrice, sortStoresByPrice } from "@/lib/food";
+import { filterProductsByStores } from "@/lib/storeFilters";
 
 // Ruční testovací spuštění hlídače cen pro přihlášeného uživatele — na rozdíl
 // od /api/cron/check-prices (chráněno CRON_SECRET, běží pro všechny uživatele,
@@ -44,9 +45,10 @@ export async function POST() {
   for (const item of watched) {
     try {
       const products = await searchAllSources(item.query);
+      const scopedProducts = filterProductsByStores(products, item.store_filter);
 
       let best: { price: number; productName: string; shopName: string } | null = null;
-      for (const product of products) {
+      for (const product of scopedProducts) {
         const cheapestStore = sortStoresByPrice(product.stores)[0];
         if (!cheapestStore) continue;
         const price = parsePrice(cheapestStore.price);

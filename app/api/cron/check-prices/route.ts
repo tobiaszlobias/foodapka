@@ -3,6 +3,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { sendTelegramMessage } from "@/lib/telegram";
 import { searchAllSources } from "@/lib/scrapers";
 import { parsePrice, sortStoresByPrice } from "@/lib/food";
+import { filterProductsByStores } from "@/lib/storeFilters";
 
 // Denní cron (viz vercel.json) — pro každé hlídání (dotaz + cílová cena) prohledá
 // všechny obchody a pokud nejlevnější nalezená cena klesla pod cílovku, pošle
@@ -37,9 +38,14 @@ export async function GET(req: NextRequest) {
         searchCache.set(query, products);
       }
 
-      // Najdi nejlevnější nabídku napříč všemi produkty a obchody pro tento dotaz
+      // Store filter je per-hlídání (dva uživatelé mohou hlídat stejný dotaz
+      // v jiných obchodech) — cache je jen na surové výsledky ze scraperů,
+      // filtrace se aplikuje až tady.
+      const scopedProducts = filterProductsByStores(products, item.store_filter);
+
+      // Najdi nejlevnější nabídku napříč produkty a obchody odpovídajícími výběru
       let best: { price: number; productName: string; shopName: string } | null = null;
-      for (const product of products) {
+      for (const product of scopedProducts) {
         const cheapestStore = sortStoresByPrice(product.stores)[0];
         if (!cheapestStore) continue;
         const price = parsePrice(cheapestStore.price);
