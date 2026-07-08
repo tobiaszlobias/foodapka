@@ -2,6 +2,7 @@ import * as cheerio from "cheerio";
 import type { AnyNode } from "domhandler";
 import {
   dedupeStores,
+  scoreProductMatch,
   sortStoresByPrice,
   type Product,
   type Store,
@@ -110,6 +111,9 @@ export async function searchKupiProducts(query: string) {
     Array.from(productUrlsWithImages.entries()).slice(0, 12).map(async ([url, image]) => {
       const product = await fetchKupiProduct(url);
       if (!product) return null;
+      // Kupi.cz na neznámý dotaz vrací populární akční produkty místo prázdného
+      // výsledku — ostatní scrapery tenhle relevance gate mají, kupi ho postrádal.
+      if (scoreProductMatch(product.name, query) <= 0) return null;
       return { ...product, image };
     }),
   );
