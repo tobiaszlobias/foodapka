@@ -220,6 +220,34 @@ export function getSavings(currentPrice: number, originalPriceValue?: number | n
   return originalPriceValue - currentPrice;
 }
 
+/** Parsuje procento slevy z textu jako "-27 %", "-27%", "−27 %". */
+export function parseDiscountPercent(value?: string) {
+  if (!value) return null;
+  const match = value.match(/(\d+(?:[.,]\d+)?)/);
+  if (!match) return null;
+  const pct = Number(match[1].replace(",", "."));
+  return Number.isFinite(pct) && pct > 0 && pct < 95 ? pct : null;
+}
+
+/**
+ * Skutečná úspora u položky — i když zdroj nedodal originalPrice (např. kupi
+ * bez přeškrtnuté ceny, kaufland sleva bez staré ceny), ale je označená jako
+ * akce a má procento slevy, dopočítá se z něj: original = price / (1 − pct/100).
+ */
+export function getStoreSavings(store: Store) {
+  const price = parsePrice(store.price);
+  if (!Number.isFinite(price)) return 0;
+
+  const original = store.originalPrice ? parsePrice(store.originalPrice) : null;
+  if (original !== null && Number.isFinite(original) && original > price) {
+    return original - price;
+  }
+
+  if (!store.isSale) return 0;
+  const pct = parseDiscountPercent(store.discountPercent);
+  return pct ? (price * pct) / (100 - pct) : 0;
+}
+
 export function sortStoresByPrice(stores: Store[]) {
   return [...stores].sort((a, b) => parsePrice(a.price) - parsePrice(b.price));
 }

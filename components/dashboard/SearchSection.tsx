@@ -5,14 +5,14 @@ import { createPortal } from "react-dom";
 import Image from "next/image";
 import { useBodyScrollLock } from "@/lib/useBodyScrollLock";
 import SearchBar from "@/components/SearchBar";
-import { 
-  cleanProductName, 
-  parsePrice, 
-  sortStoresByPrice, 
+import {
+  cleanProductName,
+  parsePrice,
+  sortStoresByPrice,
   formatDiscountPercent,
-  getSavings,
-  type Product, 
-  type Store 
+  getStoreSavings,
+  type Product,
+  type Store
 } from "@/lib/food";
 import { normalizeText } from "@/lib/food";
 import { FOODORA_STORE_CONFIGS } from "@/data/foodoraStores";
@@ -448,9 +448,11 @@ export default function SearchSection({
                     {sortedStores.map((item, idx) => {
                       const currentPrice = parsePrice(item.price);
                       const originalPrice = item.originalPrice ? parsePrice(item.originalPrice) : null;
-                      const isSale = originalPrice !== null && originalPrice > currentPrice;
-                      const discount = item.discountPercent || formatDiscountPercent(currentPrice, originalPrice);
-                      const savings = isSale ? getSavings(currentPrice, originalPrice) : 0;
+                      const hasRealOriginalPrice = originalPrice !== null && originalPrice > currentPrice;
+                      const savings = getStoreSavings(item);
+                      const discount = savings > 0
+                        ? (item.discountPercent || (hasRealOriginalPrice ? formatDiscountPercent(currentPrice, originalPrice) : ""))
+                        : "";
                       const hasPrice = Number.isFinite(currentPrice);
                       const isCheapest = idx === 0 && hasPrice;
 
@@ -502,7 +504,7 @@ export default function SearchSection({
                           </div>
                           <div className="text-right shrink-0 flex flex-col items-end">
                             <div className="flex items-baseline gap-1.5">
-                              {isSale && discount && (
+                              {discount && (
                                 <span className="bg-red-500 text-[9px] font-black text-white px-1.5 py-0.5 rounded-full leading-none">
                                   {discount}
                                 </span>
@@ -517,7 +519,7 @@ export default function SearchSection({
                                 </span>
                               )}
                             </div>
-                            {isSale && (
+                            {hasRealOriginalPrice && (
                               <span className="text-[10px] text-zinc-400 line-through mt-0.5">
                                 {item.originalPrice}
                               </span>

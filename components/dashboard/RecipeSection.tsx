@@ -13,7 +13,7 @@ import {
   cleanProductName,
   parsePrice,
   formatDiscountPercent,
-  getSavings,
+  getStoreSavings,
   sortStoresByPrice,
   type Product,
   type Store
@@ -45,6 +45,12 @@ type CustomRecipe = {
 };
 
 const CUSTOM_RECIPES_KEY = "foodappka-custom-recipes";
+
+function pluralizePolozky(count: number) {
+  if (count === 1) return "položka";
+  if (count >= 2 && count <= 4) return "položky";
+  return "položek";
+}
 
 function loadLocalCustomRecipes(): CustomRecipe[] {
   if (typeof window === "undefined") return [];
@@ -333,10 +339,14 @@ export default function RecipeSection({
   const totalSavings = useMemo(() => {
     return (effectiveResults || []).reduce((sum, item) => {
       if (!item || !item.ingredient || checkedIngredients.includes(item.ingredient) || !item.store) return sum;
-      const price = parsePrice(item.store.price);
-      const originalPrice = item.store.originalPrice ? parsePrice(item.store.originalPrice) : null;
-      if (!Number.isFinite(price) || originalPrice === null || !Number.isFinite(originalPrice)) return sum;
-      return sum + getSavings(price, originalPrice);
+      return sum + getStoreSavings(item.store);
+    }, 0);
+  }, [effectiveResults, checkedIngredients]);
+
+  const saleItemsCount = useMemo(() => {
+    return (effectiveResults || []).reduce((count, item) => {
+      if (!item || !item.ingredient || checkedIngredients.includes(item.ingredient) || !item.store) return count;
+      return getStoreSavings(item.store) > 0 ? count + 1 : count;
     }, 0);
   }, [effectiveResults, checkedIngredients]);
 
@@ -609,6 +619,7 @@ export default function RecipeSection({
                         <span className="inline-flex items-center gap-1 text-sm font-black text-green-600 dark:text-green-400">
                           <span className="material-symbols-outlined text-base">trending_down</span>
                           s Mnamio ušetříte {totalSavings.toFixed(0)} Kč
+                          {saleItemsCount > 0 && ` (${saleItemsCount} ${pluralizePolozky(saleItemsCount)} v akci)`}
                         </span>
                       )}
                     </div>
@@ -740,9 +751,11 @@ export default function RecipeSection({
                   const isChecked = checkedIngredients.includes(item.ingredient);
                   const price = item.store ? parsePrice(item.store.price) : null;
                   const originalPrice = item.store?.originalPrice ? parsePrice(item.store.originalPrice) : null;
-                  const isSale = price !== null && originalPrice !== null && originalPrice > price;
-                  const discount = isSale ? (item.store?.discountPercent || formatDiscountPercent(price!, originalPrice)) : "";
-                  const savings = isSale ? getSavings(price!, originalPrice) : 0;
+                  const hasRealOriginalPrice = price !== null && originalPrice !== null && originalPrice > price;
+                  const savings = item.store ? getStoreSavings(item.store) : 0;
+                  const discount = savings > 0
+                    ? (item.store?.discountPercent || (hasRealOriginalPrice ? formatDiscountPercent(price!, originalPrice) : ""))
+                    : "";
 
                   return (
                     <li
@@ -858,7 +871,7 @@ export default function RecipeSection({
                         <div className="shrink-0 text-right flex flex-col items-end">
                           <div className="flex items-center gap-1">
                             <div className="flex items-baseline gap-1.5">
-                              {isSale && discount && (
+                              {discount && (
                                 <span className="bg-red-500 text-[9px] font-black text-white px-1.5 py-0.5 rounded-full leading-none">
                                   {discount}
                                 </span>
@@ -883,7 +896,7 @@ export default function RecipeSection({
                               </button>
                             )}
                           </div>
-                          {isSale && (
+                          {hasRealOriginalPrice && (
                             <span className="text-[10px] text-zinc-400 line-through mt-0.5">
                               {item.store?.originalPrice}
                             </span>
