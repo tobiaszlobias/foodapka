@@ -487,8 +487,28 @@ const INGREDIENT_CLASSES: IngredientClass[] = [
     families: ["fresh_dairy"],
     strict: true,
     requiredGroups: [["maslo"]],
-    banned: ["pomazankove", "margarin", "prichut", "croissant", "susenky", "testo"],
+    banned: ["pomazankove", "margarin", "prichut", "croissant", "susenky", "testo", "arasid"],
     queryAlternatives: ["máslo", "máslo 250g"],
+  },
+  {
+    id: "peanut_butter",
+    aliases: [
+      "arašídové máslo",
+      "arasidove maslo",
+      "arašídový krém",
+      "arasidovy krem",
+      "arašídová pomazánka",
+      "arasidova pomazanka",
+      "burákové máslo",
+      "burakove maslo",
+    ],
+    strict: true,
+    requiredGroups: [
+      ["arasid", "burak"],
+      ["maslo", "krem", "pomazanka"],
+    ],
+    banned: ["horalky", "oplatk", "susenk", "tycink", "napolitank", "cokolad"],
+    queryAlternatives: ["arašídové máslo", "arašídový krém"],
   },
   {
     id: "curd",
@@ -498,6 +518,15 @@ const INGREDIENT_CLASSES: IngredientClass[] = [
     requiredGroups: [["tvaroh"]],
     banned: ["dezert", "ochuceny", "protein"],
     queryAlternatives: ["tvaroh", "měkký tvaroh"],
+  },
+  {
+    id: "tofu",
+    aliases: ["tofu", "hedvábné tofu", "hedvabne tofu", "tofu natural"],
+    strict: true,
+    preferUnitPrice: true,
+    requiredGroups: [["tofu"]],
+    banned: ["dezert", "pomazanka", "chips"],
+    queryAlternatives: ["tofu", "tofu natural"],
   },
   {
     id: "cottage",
@@ -642,6 +671,16 @@ const INGREDIENT_CLASSES: IngredientClass[] = [
     preferred: ["extra virgin", "panensky"],
     banned: ["sprej", "zalevka"],
     queryAlternatives: ["olivový olej", "extra virgin olivový olej"],
+  },
+  {
+    id: "avocado_oil",
+    aliases: ["avokádový olej", "avokadovy olej"],
+    families: ["condiment_raw_use"],
+    strict: true,
+    requiredGroups: [["avokadovy"], ["olej"]],
+    preferred: ["extra virgin", "panensky", "za studena"],
+    banned: ["sprej", "zalevka"],
+    queryAlternatives: ["avokádový olej"],
   },
   {
     id: "sunflower_oil",
@@ -809,7 +848,7 @@ const INGREDIENT_CLASSES: IngredientClass[] = [
     queryAlternatives: ["mleté maso hovězí", "mleté maso vepřové", "mleté maso mix"],
   },
   {
-    id: "banana",
+    id: "turkey_meat",
     aliases: ["krůtí", "kruti", "krůtí maso", "kruti maso"],
     families: ["raw_meat"],
     strict: true,
@@ -876,6 +915,14 @@ const INGREDIENT_CLASSES: IngredientClass[] = [
     queryAlternatives: ["sůl", "kuchyňská sůl"],
   },
   {
+    id: "ice",
+    aliases: ["led", "ledu", "kostky ledu", "ledové kostky", "ledove kostky", "drcený led", "drceny led"],
+    strict: true,
+    requiredGroups: [["led", "ledu", "ledove kostky", "drceny led"]],
+    banned: ["caj", "kava", "napoj", "zmrzlina", "nanuk", "salat", "cokolada"],
+    queryAlternatives: ["ledové kostky", "drcený led"],
+  },
+  {
     id: "pepper",
     aliases: ["pepř", "pepr", "černý pepř", "cerny pepr"],
     strict: true,
@@ -922,11 +969,16 @@ function matchesAlias(normalizedQuery: string, alias: string) {
   if (!normalizedAlias) return false;
 
   if (normalizedQuery === normalizedAlias) return true;
-  if (normalizedQuery.includes(normalizedAlias)) return true;
+
+  // Hranice slova, ať krátký alias jako "led" nechytá "ledový" nebo "avokádový
+  // olej" nechytá "avokádo" (ovoce), a naopak.
+  const paddedQuery = ` ${normalizedQuery} `;
+  const paddedAlias = ` ${normalizedAlias} `;
+  if (paddedQuery.includes(paddedAlias)) return true;
 
   // Allow alias to contain query only if query covers most of the alias
   // (prevents "jogurt" from matching "recky jogurt" alias)
-  if (normalizedAlias.includes(normalizedQuery)) {
+  if (paddedAlias.includes(paddedQuery)) {
     const queryTokens = normalizedQuery.split(" ").filter(Boolean);
     const aliasTokens = normalizedAlias.split(" ").filter(Boolean);
     return queryTokens.length >= aliasTokens.length;
