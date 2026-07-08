@@ -8,7 +8,7 @@ import type { User } from "@supabase/supabase-js";
 type ShoppingListItem = {
   ingredient: string;
   product_name?: string;
-  price?: string;
+  price?: string | null;
   shop_name?: string;
   is_checked: boolean;
 };
@@ -18,9 +18,24 @@ type ShoppingList = {
   user_id: string;
   recipe_name: string;
   items: ShoppingListItem[];
-  total_price: number;
+  total_price: number | null;
   created_at: string;
 };
+
+function parsePrice(price?: string | null) {
+  if (!price) return Number.POSITIVE_INFINITY;
+  const normalized = price.replace(/\s/g, "").replace(",", ".").match(/[\d.]+/);
+  return normalized ? Number(normalized[0]) : Number.POSITIVE_INFINITY;
+}
+
+function computeListTotal(list: ShoppingList) {
+  if (Number.isFinite(list.total_price)) return list.total_price as number;
+  return list.items.reduce((sum, item) => {
+    if (item.is_checked) return sum;
+    const price = parsePrice(item.price);
+    return Number.isFinite(price) ? sum + price : sum;
+  }, 0);
+}
 
 type ListsSectionProps = {
   user: User | null;
@@ -31,6 +46,7 @@ export default function ListsSection({ user, onAddClick }: ListsSectionProps) {
   const supabase = createClient();
   const [lists, setLists] = useState<ShoppingList[]>([]);
   const [loading, setLoading] = useState(!!user);
+  const [expandedId, setExpandedId] = useState<string | null>(null);
 
   useEffect(() => {
     if (!user) return;
@@ -107,46 +123,81 @@ export default function ListsSection({ user, onAddClick }: ListsSectionProps) {
         </div>
       ) : lists.length > 0 ? (
         <div className="grid gap-4">
-          {lists.map((list) => (
-            <div key={list.id} className="rounded-2xl border border-foodappka-100 dark:border-zinc-800 bg-white dark:bg-foodappka-950 p-5 shadow-sm">
-              <div className="flex justify-between items-start mb-4">
-                <div>
-                  <h3 className="font-bold text-lg text-zinc-900 dark:text-white">{list.recipe_name}</h3>
-                  <p className="text-xs text-zinc-500 dark:text-zinc-400">
-                    {new Date(list.created_at).toLocaleDateString('cs-CZ')} • {list.items.length} položek
-                  </p>
+          {lists.map((list) => {
+            const total = computeListTotal(list);
+            const isExpanded = expandedId === list.id;
+
+            return (
+              <div key={list.id} className="rounded-2xl border border-foodappka-100 dark:border-zinc-800 bg-white dark:bg-foodappka-950 p-5 shadow-sm">
+                <div className="flex justify-between items-start mb-4">
+                  <div>
+                    <h3 className="font-bold text-lg text-zinc-900 dark:text-white">{list.recipe_name}</h3>
+                    <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                      {new Date(list.created_at).toLocaleDateString('cs-CZ')} • {list.items.length} položek
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => deleteList(list.id)}
+                    className="text-zinc-400 hover:text-red-500 transition-colors"
+                  >
+                    <span className="material-symbols-outlined text-xl">delete</span>
+                  </button>
                 </div>
-                <button 
-                  onClick={() => deleteList(list.id)}
-                  className="text-zinc-400 hover:text-red-500 transition-colors"
-                >
-                  <span className="material-symbols-outlined text-xl">delete</span>
-                </button>
-              </div>
-              
-              <div className="flex flex-wrap gap-2 mb-4">
-                {list.items.slice(0, 4).map((item: any, idx: number) => (
-                  <span key={idx} className="px-2 py-1 rounded-lg bg-zinc-50 dark:bg-zinc-900 text-[10px] font-bold text-zinc-600 dark:text-zinc-400 border border-zinc-100 dark:border-zinc-800">
-                    {item.ingredient}
-                  </span>
-                ))}
-                {list.items.length > 4 && (
-                  <span className="px-2 py-1 rounded-lg bg-zinc-50 dark:bg-zinc-900 text-[10px] font-bold text-zinc-400">
-                    +{list.items.length - 4}
-                  </span>
+
+                <div className="flex flex-wrap gap-2 mb-4">
+                  {list.items.slice(0, 4).map((item, idx) => (
+                    <span key={idx} className="px-2 py-1 rounded-lg bg-zinc-50 dark:bg-zinc-900 text-[10px] font-bold text-zinc-600 dark:text-zinc-400 border border-zinc-100 dark:border-zinc-800">
+                      {item.ingredient}
+                    </span>
+                  ))}
+                  {list.items.length > 4 && (
+                    <span className="px-2 py-1 rounded-lg bg-zinc-50 dark:bg-zinc-900 text-[10px] font-bold text-zinc-400">
+                      +{list.items.length - 4}
+                    </span>
+                  )}
+                </div>
+
+                <div className="flex items-center justify-between pt-4 border-t border-zinc-50 dark:border-zinc-800">
+                  {Number.isFinite(total) ? (
+                    <span className="text-xl font-black text-foodappka-700 dark:text-foodappka-400">
+                      {total.toFixed(2).replace('.', ',')} Kč
+                    </span>
+                  ) : (
+                    <span className="text-sm font-bold text-zinc-400">cena neznámá</span>
+                  )}
+                  <button
+                    onClick={() => setExpandedId(isExpanded ? null : list.id)}
+                    className="px-4 py-2 rounded-full bg-foodappka-50 dark:bg-zinc-900 text-xs font-bold text-foodappka-800 dark:text-foodappka-300"
+                  >
+                    {isExpanded ? "Skrýt detail" : "Zobrazit detail"}
+                  </button>
+                </div>
+
+                {isExpanded && (
+                  <div className="mt-4 pt-4 border-t border-zinc-50 dark:border-zinc-800 space-y-2">
+                    {list.items.map((item, idx) => (
+                      <div
+                        key={idx}
+                        className={`flex items-center justify-between text-sm ${item.is_checked ? "opacity-50 line-through" : ""}`}
+                      >
+                        <div className="min-w-0">
+                          <p className="font-bold text-zinc-800 dark:text-zinc-200 truncate">
+                            {item.product_name || item.ingredient}
+                          </p>
+                          <p className="text-[11px] text-zinc-500 dark:text-zinc-400 truncate">
+                            {item.ingredient}{item.shop_name ? ` • ${item.shop_name}` : ""}
+                          </p>
+                        </div>
+                        <span className="shrink-0 ml-3 text-xs font-bold text-zinc-600 dark:text-zinc-400">
+                          {item.price || "cena neznámá"}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
                 )}
               </div>
-
-              <div className="flex items-center justify-between pt-4 border-t border-zinc-50 dark:border-zinc-800">
-                <span className="text-xl font-black text-foodappka-700 dark:text-foodappka-400">
-                  {list.total_price?.toFixed(2).replace('.', ',')} Kč
-                </span>
-                <button className="px-4 py-2 rounded-full bg-foodappka-50 dark:bg-zinc-900 text-xs font-bold text-foodappka-800 dark:text-foodappka-300">
-                  Zobrazit detail
-                </button>
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       ) : (
         <EmptyState 

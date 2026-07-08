@@ -259,6 +259,11 @@ export default function RecipeSection({
     const scores = Array.from(chainVariants.entries()).map(([chain, variants]) => {
       let totalItems = 0;
       let totalPrice = 0;
+      let missingCount = 0;
+      // "Kolik by mě to reálně stálo": cena obchodu + doplnění chybějících položek
+      // za jejich nejlevnější cenu odjinud. Zabraňuje tomu, aby vyhrál obchod
+      // s jednou levnou položkou jen proto, že "chybí" položky se nepočítaly.
+      let completionCost = 0;
       const items = recipeResults.map(res => {
         if (!res) return null;
         const isExcluded = checkedIngredients.includes(res.ingredient);
@@ -270,9 +275,17 @@ export default function RecipeSection({
           if (!isExcluded) {
             totalItems++;
             const optionPrice = parsePrice(option.store.price);
-            if (Number.isFinite(optionPrice)) totalPrice += optionPrice;
+            if (Number.isFinite(optionPrice)) {
+              totalPrice += optionPrice;
+              completionCost += optionPrice;
+            }
           }
           return { ...res, store: option.store, product: option.product };
+        }
+        if (!isExcluded) {
+          missingCount++;
+          const fallbackPrice = res.store ? parsePrice(res.store.price) : Number.POSITIVE_INFINITY;
+          if (Number.isFinite(fallbackPrice)) completionCost += fallbackPrice;
         }
         return { ...res, store: null, product: null };
       }).filter((x): x is NonNullable<typeof x> => x !== null);
@@ -282,13 +295,15 @@ export default function RecipeSection({
         variants: Array.from(variants),
         totalItems,
         totalPrice,
+        missingCount,
+        completionCost,
         items,
       };
     });
 
     return scores.sort((a, b) => {
-      if (b.totalItems !== a.totalItems) return b.totalItems - a.totalItems;
-      return a.totalPrice - b.totalPrice;
+      if (a.completionCost !== b.completionCost) return a.completionCost - b.completionCost;
+      return b.totalItems - a.totalItems;
     });
   }, [recipeResults, shoppingMode, checkedIngredients]);
 
@@ -308,6 +323,16 @@ export default function RecipeSection({
       if (!item || !item.ingredient || checkedIngredients.includes(item.ingredient) || !item.store) return sum;
       const price = parsePrice(item.store.price);
       return Number.isFinite(price) ? sum + price : sum;
+    }, 0);
+  }, [effectiveResults, checkedIngredients]);
+
+  const totalSavings = useMemo(() => {
+    return (effectiveResults || []).reduce((sum, item) => {
+      if (!item || !item.ingredient || checkedIngredients.includes(item.ingredient) || !item.store) return sum;
+      const price = parsePrice(item.store.price);
+      const originalPrice = item.store.originalPrice ? parsePrice(item.store.originalPrice) : null;
+      if (!Number.isFinite(price) || originalPrice === null || !Number.isFinite(originalPrice)) return sum;
+      return sum + getSavings(price, originalPrice);
     }, 0);
   }, [effectiveResults, checkedIngredients]);
 
@@ -569,14 +594,20 @@ export default function RecipeSection({
               <div className="flex flex-col gap-4 border-b border-foodappka-100 dark:border-zinc-800 pb-4 sm:flex-row sm:items-start sm:justify-between">
                 <div>
                   <p className="text-[10px] font-black uppercase tracking-widest text-foodappka-700">Nákup pro</p>
-                  <div className="flex items-center gap-3 flex-wrap">
-                    <h3 className="text-xl md:text-2xl font-bold text-zinc-950 dark:text-white">{activeRecipe}</h3>
-                    {totalPrice > 0 && (
-                      <span className="shrink-0 rounded-full bg-foodappka-100 dark:bg-foodappka-900/50 px-3 py-1 text-sm font-black text-foodappka-800 dark:text-foodappka-300">
+                  <h3 className="text-xl md:text-2xl font-bold text-zinc-950 dark:text-white">{activeRecipe}</h3>
+                  {totalPrice > 0 && (
+                    <div className="mt-1.5 flex items-baseline gap-2 flex-wrap">
+                      <span className="text-2xl font-black text-zinc-950 dark:text-white">
                         {totalPrice.toFixed(2).replace(".", ",")} Kč
                       </span>
-                    )}
-                  </div>
+                      {totalSavings > 0 && (
+                        <span className="inline-flex items-center gap-1 text-sm font-black text-green-600 dark:text-green-400">
+                          <span className="material-symbols-outlined text-base">trending_down</span>
+                          s Mnamio ušetříte {totalSavings.toFixed(0)} Kč
+                        </span>
+                      )}
+                    </div>
+                  )}
                   {recipeDetails?.description && (
                     <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400 italic">
                       &quot;{recipeDetails.description}&quot;
@@ -584,15 +615,20 @@ export default function RecipeSection({
                   )}
                 </div>
                 <div className="flex gap-2">
-                  <button 
-                    onClick={saveShoppingList} 
-                    disabled={isSaving}
+                  <button
+                    onClick={saveShoppingList}
+                    disabled={isSaving || recipeLoading}
                     className="flex-1 sm:flex-none px-4 py-2 rounded-full bg-foodappka-500 text-white text-xs font-bold shadow-md hover:bg-foodappka-600 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
                   >
                     {isSaving ? (
                       <>
                         <span className="material-symbols-outlined animate-spin text-sm">progress_activity</span>
                         Ukládám...
+                      </>
+                    ) : recipeLoading ? (
+                      <>
+                        <span className="material-symbols-outlined animate-spin text-sm">progress_activity</span>
+                        Načítám ceny...
                       </>
                     ) : (
                       <>
@@ -670,7 +706,20 @@ export default function RecipeSection({
                                 <p className="text-[9px] text-zinc-400 mt-0.5">zahrnuje hypermarket i supermarket</p>
                               )}
                             </div>
-                            <span className="text-[11px] text-zinc-400 shrink-0 font-bold">{shop.totalItems}/{recipeResults.length}</span>
+                            <div className="shrink-0 flex flex-col items-end gap-0.5">
+                              <span className="text-xs font-black text-zinc-800 dark:text-zinc-100">
+                                {shop.totalPrice.toFixed(2).replace(".", ",")} Kč
+                              </span>
+                              {shop.missingCount > 0 ? (
+                                <span className="text-[9px] font-bold text-amber-600 dark:text-amber-500">
+                                  chybí {shop.missingCount}
+                                </span>
+                              ) : (
+                                <span className="text-[9px] font-bold text-green-600 dark:text-green-400">
+                                  kompletní
+                                </span>
+                              )}
+                            </div>
                           </button>
                         );
                       })}
@@ -823,6 +872,11 @@ export default function RecipeSection({
             <div className="rounded-2xl bg-foodappka-950 p-5 text-white shadow-lg border border-foodappka-800">
               <p className="text-[10px] font-black uppercase tracking-widest text-foodappka-400">Celkem za nákup</p>
               <p className="text-3xl font-black mt-1">{totalPrice.toFixed(2).replace(".", ",")} Kč</p>
+              {totalSavings > 0 && (
+                <p className="mt-1 text-xs font-bold text-foodappka-300">
+                  ušetřeno {totalSavings.toFixed(0)} Kč oproti běžným cenám
+                </p>
+              )}
             </div>
 
             {/* Preparation Steps — recepty s novým tab layoutem mají postup v tabu "Postup" */}

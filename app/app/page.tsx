@@ -330,11 +330,12 @@ function HomeContent() {
 
     const { error } = await supabase.from("shopping_lists").insert({
       user_id: user.id,
-      name: activeRecipe || "Nákupní seznam",
+      recipe_name: activeRecipe || "Nákupní seznam",
+      total_price: totalPrice,
       items: recipeResults.map(r => ({
         ingredient: r.ingredient,
         product_name: r.product?.name,
-        price: r.store?.price,
+        price: r.store && Number.isFinite(parsePrice(r.store.price)) ? r.store.price : null,
         shop_name: r.store?.shopName,
         is_checked: checkedIngredients.includes(r.ingredient)
       })),
