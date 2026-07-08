@@ -312,6 +312,22 @@ function HomeContent() {
     );
   }, []);
 
+  // Ruční náhrada produktu u ingredience (uživatel si vybral jiný výsledek hledání)
+  const replaceIngredientProduct = useCallback((ingredient: string, product: Product, store: Store) => {
+    setRecipeResults((prev) =>
+      prev.map((r) =>
+        r.ingredient !== ingredient
+          ? r
+          : {
+              ...r,
+              product,
+              store,
+              storeOptions: product.stores.map((s) => ({ product, store: s })),
+            }
+      )
+    );
+  }, []);
+
   const saveShoppingList = async () => {
     if (!user) {
       showToast("Pro uložení se musíte přihlásit.", "info");
@@ -525,6 +541,7 @@ function HomeContent() {
             shareMessage={shareMessage}
             shoppingListRef={shoppingListRef}
             toggleIngredient={toggleIngredient}
+            onReplaceProduct={replaceIngredientProduct}
             runRecipeSearch={runRecipeSearch}
             runCustomRecipeSearch={runCustomRecipeSearch}
             generateAIRecipe={generateAIRecipe}
