@@ -38,7 +38,7 @@ export type RecipeStep = {
 
 export type RecipePreset = {
   name: string;
-  tag: string;
+  tags: string[];
   description: string;
   ingredients: (string | RecipeIngredient)[];
   instructions?: (string | RecipeStep)[];
@@ -56,7 +56,7 @@ export type RecipePreset = {
 export const RECIPE_PRESETS: RecipePreset[] = [
   {
     name: "Zdravé krabičkové kuře s rýží",
-    tag: "Krabičkové",
+    tags: ["Kuřecí", "Krabičkové", "Rýže"],
     description:
       "Jednoduchý meal prep na více dní s kuřecím masem, rýží a zeleninou.",
     ingredients: [
@@ -71,7 +71,7 @@ export const RECIPE_PRESETS: RecipePreset[] = [
   },
   {
     name: "Tortilla wrap s kuřetem",
-    tag: "Něco na zub",
+    tags: ["Kuřecí", "Rychlé"],
     description:
       "Rychlá slaná varianta do ruky vhodná na oběd i večerní hlad.",
     ingredients: [
@@ -86,7 +86,7 @@ export const RECIPE_PRESETS: RecipePreset[] = [
   },
   {
     name: "Overnight oats s ovocem",
-    tag: "Fit snídaně",
+    tags: ["Snídaně"],
     description:
       "Levná a sytá snídaně z vloček, jogurtu nebo mléka a ovoce.",
     ingredients: [
@@ -101,7 +101,7 @@ export const RECIPE_PRESETS: RecipePreset[] = [
   },
   {
     name: "Domácí hummus s pita chlebem",
-    tag: "Snack",
+    tags: ["Rychlé", "Bez masa"],
     description:
       "Něco k televizi nebo pro návštěvu bez složité přípravy.",
     ingredients: [
@@ -116,7 +116,7 @@ export const RECIPE_PRESETS: RecipePreset[] = [
   },
   {
     name: "Těstovinový salát s mozzarellou",
-    tag: "Lehká večeře",
+    tags: ["Studené", "Bez masa"],
     description:
       "Studená varianta do krabičky s těstovinami, zeleninou a sýrem.",
     ingredients: [
@@ -131,7 +131,7 @@ export const RECIPE_PRESETS: RecipePreset[] = [
   },
   {
     name: "Banánové lívance",
-    tag: "Sladké",
+    tags: ["Snídaně", "Sladké"],
     description:
       "Rychlá sladká klasika z pár surovin, vhodná na snídani i svačinu.",
     ingredients: [
@@ -146,7 +146,7 @@ export const RECIPE_PRESETS: RecipePreset[] = [
   },
   {
     name: "Špagety carbonara",
-    tag: "Klasika",
+    tags: ["Klasika", "Rychlé"],
     description: "Oblíbená těstovinová klasika s pár základními surovinami. Klíčem je kvalitní slanina a parmazán.",
     ingredients: [
       { name: "špagety", searchQuery: "špagety semolinové", banned: ["hotové jídlo"] },
@@ -167,7 +167,7 @@ export const RECIPE_PRESETS: RecipePreset[] = [
   },
   {
     name: "Svíčková",
-    tag: "Klasika",
+    tags: ["Klasika"],
     description:
       "Tradiční české jídlo s hovězím masem, kořenovou zeleninou a smetanou.",
     ingredients: [
@@ -182,7 +182,7 @@ export const RECIPE_PRESETS: RecipePreset[] = [
   },
   {
     name: "Studené nudle se sójovou omáčkou a kuřecím masem",
-    tag: "Fit oběd",
+    tags: ["Kuřecí", "Studené"],
     description:
       "Osvěžující studený pokrm s pikantním mletým kuřetem, hedvábným tofu a udon nudlemi — ideální na horké dny.",
     ingredients: [

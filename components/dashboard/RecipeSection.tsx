@@ -5,7 +5,7 @@ import { createPortal } from "react-dom";
 import Image from "next/image";
 import { useBodyScrollLock } from "@/lib/useBodyScrollLock";
 import SearchBar from "@/components/SearchBar";
-import { RECIPE_PRESETS, type RecipeStep } from "@/lib/recipes";
+import { RECIPE_PRESETS, type RecipeStep, type RecipePreset } from "@/lib/recipes";
 import { normalizeSteps } from "@/components/CookingModeStepper";
 import TestRecipeDetail from "@/components/TestRecipeDetail";
 import { showToast } from "@/components/Toast";
@@ -38,7 +38,7 @@ type IngredientResult = {
 
 type CustomRecipe = {
   name: string;
-  tag: string;
+  tags: string[];
   description?: string;
   ingredients: string[];
   instructions?: string[];
@@ -78,7 +78,7 @@ async function loadCustomRecipes(): Promise<{ recipes: CustomRecipe[]; usingClou
     const data = await res.json();
     const recipes: CustomRecipe[] = (data.items ?? []).map((row: any) => ({
       name: row.name,
-      tag: row.tag,
+      tags: row.tags ?? (row.tag ? [row.tag] : []),
       description: row.description ?? undefined,
       ingredients: row.ingredients,
       instructions: row.instructions ?? undefined,
@@ -160,7 +160,6 @@ export default function RecipeSection({
   // Vlastní recepty + kategorie
   const [customRecipes, setCustomRecipes] = useState<CustomRecipe[]>([]);
   const [usingCloudRecipes, setUsingCloudRecipes] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [leafletDialog, setLeafletDialog] = useState<{ url: string; shopName: string } | null>(null);
   const [selectedStore, setSelectedStore] = useState<string | null>(null);
@@ -194,23 +193,32 @@ export default function RecipeSection({
     setShowFullRecipeView(true);
   }, [activeRecipe]);
 
-  const categories = useMemo(() => {
-    const tags = new Set<string>();
-    RECIPE_PRESETS.forEach(r => tags.add(r.tag));
-    customRecipes.forEach(r => tags.add(r.tag));
-    return ["all", "favorites", ...Array.from(tags)];
-  }, [customRecipes]);
+  // Kategorie-řádky: každý tag = jeden horizontálně scrollovatelný řádek,
+  // stejný recept se může objevit ve víc řádcích (má-li víc tagů). Řazeno
+  // podle počtu receptů sestupně — nejplnější řádky nahoře.
+  const favoritePresets = useMemo(
+    () => RECIPE_PRESETS.filter(r => favorites.some(f => f.id === r.name)),
+    [favorites],
+  );
 
-  const visiblePresets = useMemo(() => {
-    if (selectedCategory === "favorites") {
-      return RECIPE_PRESETS.filter(r => favorites.some(f => f.id === r.name));
-    }
-    return selectedCategory === "all" ? RECIPE_PRESETS : RECIPE_PRESETS.filter(r => r.tag === selectedCategory);
-  }, [selectedCategory, favorites]);
-  const visibleCustom = useMemo(() => {
-    if (selectedCategory === "favorites") return [];
-    return selectedCategory === "all" ? customRecipes : customRecipes.filter(r => r.tag === selectedCategory);
-  }, [customRecipes, selectedCategory]);
+  const recipeRows = useMemo(() => {
+    const tags = new Set<string>();
+    RECIPE_PRESETS.forEach(r => r.tags.forEach(t => tags.add(t)));
+    const rows = Array.from(tags).map(tag => ({
+      tag,
+      recipes: RECIPE_PRESETS.filter(r => r.tags.includes(tag)),
+    }));
+    return rows.sort((a, b) => b.recipes.length - a.recipes.length);
+  }, []);
+
+  // Všechny existující tagy (presety + vlastní recepty) — nabídka pro tag picker
+  // při vytváření vlastního receptu.
+  const allTags = useMemo(() => {
+    const tags = new Set<string>();
+    RECIPE_PRESETS.forEach(r => r.tags.forEach(t => tags.add(t)));
+    customRecipes.forEach(r => r.tags.forEach(t => tags.add(t)));
+    return Array.from(tags);
+  }, [customRecipes]);
 
   const saveCustomRecipe = async (recipe: CustomRecipe) => {
     const next = [recipe, ...customRecipes.filter(r => r.name !== recipe.name)];
@@ -473,153 +481,82 @@ export default function RecipeSection({
         </div>
       )}
 
-      {/* Recipe Grid - Only shown when NOT searching */}
+      {/* Recipe Rows - Only shown when NOT searching */}
       {!activeRecipe && !recipeLoading && (
-        <div className="space-y-6">
-          {/* Kategorie */}
-          <div className="flex gap-2 overflow-x-auto no-scrollbar px-1">
-            {categories.map((cat) => (
-              <button
-                key={cat}
-                onClick={() => setSelectedCategory(cat)}
-                className={`shrink-0 inline-flex items-center gap-1 rounded-full px-4 py-2 text-xs font-bold transition-all ${
-                  selectedCategory === cat
-                    ? "bg-mnamio-600 text-white shadow-md"
-                    : "bg-white dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 border border-zinc-100 dark:border-zinc-700 hover:border-mnamio-300"
-                }`}
-              >
-                {cat === "favorites" && (
-                  <span
-                    className="material-symbols-outlined text-sm"
-                    style={selectedCategory === cat ? { fontVariationSettings: "'FILL' 1" } : undefined}
-                  >
-                    favorite
-                  </span>
-                )}
-                {cat === "all" ? "Vše" : cat === "favorites" ? "Oblíbené" : `#${cat}`}
-              </button>
-            ))}
-          </div>
-
+        <div className="space-y-8">
+          {/* Vlastní recepty — vždy nahoře, mimo kategorie-řádky */}
           <section className="grid gap-4 grid-cols-1 sm:grid-cols-2">
-          {/* Karta: vytvořit vlastní recept */}
-          <button
-            onClick={() => setShowCreateForm(true)}
-            className="group flex flex-col items-center justify-center gap-3 rounded-2xl border-2 border-mnamio-400 dark:border-mnamio-700 bg-mnamio-50 dark:bg-mnamio-900/30 p-8 min-h-[180px] shadow-sm transition-all hover:border-mnamio-500 hover:shadow-md active:scale-[0.98] cursor-pointer"
-          >
-            <div className="flex h-14 w-14 items-center justify-center rounded-full bg-mnamio-500 shadow-md shadow-mnamio-500/30 transition-transform group-hover:scale-110">
-              <span className="material-symbols-outlined text-white text-3xl">add</span>
-            </div>
-            <div className="text-center">
-              <p className="font-black text-mnamio-800 dark:text-mnamio-300">Vytvořit vlastní recept</p>
-              <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">Sestavte si recept přesně podle sebe</p>
-            </div>
-          </button>
-
-          {/* Vlastní recepty */}
-          {visibleCustom.map((recipe) => (
-            <div
-              key={`custom-${recipe.name}`}
-              onClick={() => runCustomRecipeSearch?.(recipe)}
-              className="group relative rounded-2xl bg-white dark:bg-mnamio-950 border border-zinc-100 dark:border-zinc-800 overflow-hidden shadow-sm transition-all active:scale-[0.98] cursor-pointer p-5"
+            <button
+              onClick={() => setShowCreateForm(true)}
+              className="group flex flex-col items-center justify-center gap-3 rounded-2xl border-2 border-mnamio-400 dark:border-mnamio-700 bg-mnamio-50 dark:bg-mnamio-900/30 p-8 min-h-[180px] shadow-sm transition-all hover:border-mnamio-500 hover:shadow-md active:scale-[0.98] cursor-pointer"
             >
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  deleteCustomRecipe(recipe.name);
-                }}
-                className="absolute top-3 right-3 z-10 flex h-9 w-9 items-center justify-center rounded-full bg-white/80 dark:bg-zinc-800/80 backdrop-blur text-zinc-400 hover:text-red-500 transition-all shadow-sm"
-                title="Smazat recept"
-              >
-                <span className="material-symbols-outlined text-lg">delete</span>
-              </button>
-              <div className="mb-3 inline-flex items-center gap-1 px-3 py-1 rounded-full bg-mnamio-100 dark:bg-mnamio-900/50 text-[10px] font-black text-mnamio-800 dark:text-mnamio-300 uppercase tracking-widest">
-                <span className="material-symbols-outlined text-[12px]">edit_note</span>
-                #{recipe.tag}
+              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-mnamio-500 shadow-md shadow-mnamio-500/30 transition-transform group-hover:scale-110">
+                <span className="material-symbols-outlined text-white text-3xl">add</span>
               </div>
-              <h3 className="text-xl font-black text-zinc-900 dark:text-white leading-tight group-hover:text-mnamio-600 transition-colors">
-                {recipe.name}
-              </h3>
-              <p className="mt-2 text-sm text-zinc-500 dark:text-zinc-400 line-clamp-2 font-medium">
-                {recipe.description || `${recipe.ingredients.length} ingrediencí`}
-              </p>
-            </div>
-          ))}
+              <div className="text-center">
+                <p className="font-black text-mnamio-800 dark:text-mnamio-300">Vytvořit vlastní recept</p>
+                <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">Sestavte si recept přesně podle sebe</p>
+              </div>
+            </button>
 
-          {visiblePresets.map((recipe) => {
-          const isFavorite = favorites.some(f => f.id === recipe.name);
-          return (
-            <div
-              key={recipe.name}
-              onClick={() => runRecipeSearch(recipe.name)}
-              className="group relative rounded-2xl bg-white dark:bg-mnamio-950 border border-zinc-100 dark:border-zinc-800 overflow-hidden shadow-sm transition-all active:scale-[0.98] cursor-pointer"
-            >
-              {/* Favorite Button */}
-              <button 
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onToggleFavorite(recipe);
-                }}
-                className={`absolute top-3 right-3 z-10 flex h-10 w-10 items-center justify-center rounded-full transition-all duration-200 shadow-sm ${
-                  isFavorite 
-                    ? "text-red-500 bg-white/90 backdrop-blur dark:bg-red-900/40" 
-                    : "text-zinc-400 bg-white/80 backdrop-blur hover:text-red-400 dark:bg-zinc-800/80"
-                }`}
-                title={isFavorite ? "Odebrat z oblíbených" : "Přidat do oblíbených"}
+            {customRecipes.map((recipe) => (
+              <div
+                key={`custom-${recipe.name}`}
+                onClick={() => runCustomRecipeSearch?.(recipe)}
+                className="group relative rounded-2xl bg-white dark:bg-mnamio-950 border border-zinc-100 dark:border-zinc-800 overflow-hidden shadow-sm transition-all active:scale-[0.98] cursor-pointer p-5"
               >
-                <span 
-                  className="material-symbols-outlined text-xl"
-                  style={isFavorite ? { fontVariationSettings: "'FILL' 1" } : undefined}
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    deleteCustomRecipe(recipe.name);
+                  }}
+                  className="absolute top-3 right-3 z-10 flex h-9 w-9 items-center justify-center rounded-full bg-white/80 dark:bg-zinc-800/80 backdrop-blur text-zinc-400 hover:text-red-500 transition-all shadow-sm"
+                  title="Smazat recept"
                 >
-                  favorite
-                </span>
-              </button>
-            {recipe.image && (
-              <div className="h-48 md:h-60 relative">
-                <Image 
-                  src={recipe.image} 
-                  alt={recipe.name} 
-                  fill 
-                  className="object-cover transition-transform duration-500 group-hover:scale-105" 
-                  sizes="(max-width: 768px) 100vw, 33vw"
-                />
-                <div className="absolute top-3 left-3 px-3 py-1 rounded-full bg-white/90 backdrop-blur-md text-[10px] font-black text-mnamio-800 uppercase tracking-widest shadow-sm">
-                  #{recipe.tag}
+                  <span className="material-symbols-outlined text-lg">delete</span>
+                </button>
+                <div className="mb-3 flex flex-wrap items-center gap-1.5">
+                  {recipe.tags.map((tag) => (
+                    <span
+                      key={tag}
+                      className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-mnamio-100 dark:bg-mnamio-900/50 text-[10px] font-black text-mnamio-800 dark:text-mnamio-300 uppercase tracking-widest"
+                    >
+                      <span className="material-symbols-outlined text-[12px]">edit_note</span>
+                      #{tag}
+                    </span>
+                  ))}
                 </div>
+                <h3 className="text-xl font-black text-zinc-900 dark:text-white leading-tight group-hover:text-mnamio-600 transition-colors">
+                  {recipe.name}
+                </h3>
+                <p className="mt-2 text-sm text-zinc-500 dark:text-zinc-400 line-clamp-2 font-medium">
+                  {recipe.description || `${recipe.ingredients.length} ingrediencí`}
+                </p>
               </div>
-            )}
-            <div className="p-5">
-              {recipe.nutrition && (
-                <div className="flex items-center gap-4 mb-2">
-                  <div>
-                    <span className="block text-[9px] font-black uppercase tracking-widest text-zinc-400">Kalorie</span>
-                    <span className="text-sm font-black text-zinc-800 dark:text-zinc-200">{recipe.nutrition.calories}</span>
-                  </div>
-                  <div>
-                    <span className="block text-[9px] font-black uppercase tracking-widest text-zinc-400">Bílkoviny</span>
-                    <span className="text-sm font-black text-zinc-800 dark:text-zinc-200">{recipe.nutrition.protein}g</span>
-                  </div>
-                </div>
-              )}
-              <h3 className="text-xl font-black text-zinc-900 dark:text-white leading-tight group-hover:text-mnamio-600 transition-colors">
-                {recipe.name}
-              </h3>
-              <p className="mt-2 text-sm text-zinc-500 dark:text-zinc-400 line-clamp-2 font-medium">
-                {recipe.description}
-              </p>
-            </div>
-          </div>
-        );
-      })}
-    </section>
+            ))}
+          </section>
 
-          {selectedCategory === "favorites" && visiblePresets.length === 0 && (
-            <div className="py-16 text-center rounded-2xl border border-dashed border-zinc-200 dark:border-zinc-800">
-              <span className="material-symbols-outlined text-5xl text-zinc-300 mb-4 block">favorite</span>
-              <p className="text-zinc-500 font-medium">Zatím nemáte žádné oblíbené recepty.</p>
-              <p className="text-sm text-zinc-400 mt-1">Klikněte na srdíčko u receptu, který se vám líbí.</p>
-            </div>
+          {/* Oblíbené — první kategorie-řádek, jen když má obsah */}
+          {favoritePresets.length > 0 && (
+            <RecipeRow
+              title="Oblíbené"
+              recipes={favoritePresets}
+              favorites={favorites}
+              onSelect={runRecipeSearch}
+              onToggleFavorite={onToggleFavorite}
+            />
           )}
+
+          {recipeRows.map((row) => (
+            <RecipeRow
+              key={row.tag}
+              title={row.tag}
+              recipes={row.recipes}
+              favorites={favorites}
+              onSelect={runRecipeSearch}
+              onToggleFavorite={onToggleFavorite}
+            />
+          ))}
         </div>
       )}
 
@@ -982,7 +919,7 @@ export default function RecipeSection({
       {/* Modal: vytvoření vlastního receptu */}
       {showCreateForm && (
         <CreateRecipeDialog
-          existingCategories={categories.filter(c => c !== "all")}
+          existingCategories={allTags}
           onClose={() => setShowCreateForm(false)}
           onSave={saveCustomRecipe}
         />
@@ -1123,6 +1060,97 @@ function ReplaceProductDialog({ ingredient, onClose, onSelect }: ReplaceProductD
   );
 }
 
+type RecipeRowProps = {
+  title: string;
+  recipes: RecipePreset[];
+  favorites: { id: string }[];
+  onSelect: (name: string) => void;
+  onToggleFavorite: (item: RecipePreset) => void;
+};
+
+/** Horizontálně scrollovatelný řádek receptů jedné kategorie — stejný recept
+ * se může objevit ve víc řádcích (má víc tagů). Mobil: karty s "peek" efektem
+ * (kousek další karty vykukuje). Desktop: kompaktnější, víc karet v řadě. */
+function RecipeRow({ title, recipes, favorites, onSelect, onToggleFavorite }: RecipeRowProps) {
+  if (recipes.length === 0) return null;
+
+  return (
+    <section>
+      <div className="flex items-center justify-between px-1 mb-3">
+        <h2 className="text-xl md:text-lg font-black uppercase tracking-tight text-mnamio-950 dark:text-white">
+          {title}
+        </h2>
+      </div>
+      <div className="flex gap-3 md:gap-4 overflow-x-auto no-scrollbar px-1 pb-1">
+        {recipes.map((recipe) => {
+          const isFavorite = favorites.some((f) => f.id === recipe.name);
+          return (
+            <div
+              key={recipe.name}
+              onClick={() => onSelect(recipe.name)}
+              className="group relative shrink-0 w-[78vw] sm:w-[45vw] md:w-[260px] rounded-2xl bg-white dark:bg-mnamio-950 border border-zinc-100 dark:border-zinc-800 overflow-hidden shadow-sm transition-all active:scale-[0.98] cursor-pointer"
+            >
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onToggleFavorite(recipe);
+                }}
+                className={`absolute top-3 right-3 z-10 flex h-10 w-10 items-center justify-center rounded-full transition-all duration-200 shadow-sm ${
+                  isFavorite
+                    ? "text-red-500 bg-white/90 backdrop-blur dark:bg-red-900/40"
+                    : "text-zinc-400 bg-white/80 backdrop-blur hover:text-red-400 dark:bg-zinc-800/80"
+                }`}
+                title={isFavorite ? "Odebrat z oblíbených" : "Přidat do oblíbených"}
+              >
+                <span
+                  className="material-symbols-outlined text-xl"
+                  style={isFavorite ? { fontVariationSettings: "'FILL' 1" } : undefined}
+                >
+                  favorite
+                </span>
+              </button>
+              {recipe.image && (
+                <div className="aspect-[4/5] relative">
+                  <Image
+                    src={recipe.image}
+                    alt={recipe.name}
+                    fill
+                    className="object-cover transition-transform duration-500 group-hover:scale-105"
+                    sizes="(max-width: 768px) 78vw, 260px"
+                  />
+                  {recipe.nutrition && (
+                    <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/70 to-transparent p-3 flex items-center gap-4">
+                      <div>
+                        <span className="block text-[9px] font-black uppercase tracking-widest text-white/70">Kalorie</span>
+                        <span className="text-sm font-black text-white">{recipe.nutrition.calories}</span>
+                      </div>
+                      <div>
+                        <span className="block text-[9px] font-black uppercase tracking-widest text-white/70">Bílkoviny</span>
+                        <span className="text-sm font-black text-white">{recipe.nutrition.protein}g</span>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+              <div className="p-4">
+                <h3 className="text-base font-black text-zinc-900 dark:text-white leading-tight group-hover:text-mnamio-600 transition-colors line-clamp-2">
+                  {recipe.name}
+                </h3>
+                {recipe.timing && (
+                  <p className="mt-1 inline-flex items-center gap-1 text-[11px] font-bold text-zinc-500 dark:text-zinc-400">
+                    <span className="material-symbols-outlined text-[13px]">schedule</span>
+                    {recipe.timing.prepMinutes + recipe.timing.cookMinutes} minut
+                  </p>
+                )}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
+
 type CreateRecipeDialogProps = {
   existingCategories: string[];
   onClose: () => void;
@@ -1136,7 +1164,7 @@ function CreateRecipeDialog({ existingCategories, onClose, onSave }: CreateRecip
     [existingCategories],
   );
   const [name, setName] = useState("");
-  const [tag, setTag] = useState<string>("Vlastní");
+  const [selectedTags, setSelectedTags] = useState<string[]>(["Vlastní"]);
   const [customTag, setCustomTag] = useState("");
   const [showCustomTagInput, setShowCustomTagInput] = useState(false);
   const [description, setDescription] = useState("");
@@ -1160,7 +1188,7 @@ function CreateRecipeDialog({ existingCategories, onClose, onSave }: CreateRecip
   const handleSave = () => {
     const trimmedName = name.trim();
     const cleanedIngredients = ingredients.map((i) => i.trim()).filter(Boolean);
-    const finalTag = (showCustomTagInput ? customTag : tag).trim() || "Vlastní";
+    const finalTags = selectedTags.length > 0 ? selectedTags : ["Vlastní"];
 
     if (!trimmedName) {
       showToast("Zadejte název receptu.", "error");
@@ -1173,7 +1201,7 @@ function CreateRecipeDialog({ existingCategories, onClose, onSave }: CreateRecip
 
     onSave({
       name: trimmedName,
-      tag: finalTag,
+      tags: finalTags,
       description: description.trim() || undefined,
       ingredients: cleanedIngredients,
       instructions: instructions.trim()
@@ -1215,23 +1243,32 @@ function CreateRecipeDialog({ existingCategories, onClose, onSave }: CreateRecip
           </div>
 
           <div>
-            <label className="block text-sm font-bold text-zinc-700 dark:text-zinc-300 mb-2">Kategorie</label>
+            <label className="block text-sm font-bold text-zinc-700 dark:text-zinc-300 mb-2">
+              Kategorie <span className="font-normal text-zinc-400">(můžete vybrat víc najednou)</span>
+            </label>
             {!showCustomTagInput ? (
               <div className="flex flex-wrap gap-2">
-                {categoryOptions.map((cat) => (
-                  <button
-                    key={cat}
-                    type="button"
-                    onClick={() => setTag(cat)}
-                    className={`rounded-full px-4 py-2 text-xs font-bold transition-all ${
-                      tag === cat
-                        ? "bg-mnamio-600 text-white shadow-md"
-                        : "bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-700"
-                    }`}
-                  >
-                    #{cat}
-                  </button>
-                ))}
+                {categoryOptions.map((cat) => {
+                  const isSelected = selectedTags.includes(cat);
+                  return (
+                    <button
+                      key={cat}
+                      type="button"
+                      onClick={() =>
+                        setSelectedTags((prev) =>
+                          isSelected ? prev.filter((t) => t !== cat) : [...prev, cat],
+                        )
+                      }
+                      className={`rounded-full px-4 py-2 text-xs font-bold transition-all ${
+                        isSelected
+                          ? "bg-mnamio-600 text-white shadow-md"
+                          : "bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-700"
+                      }`}
+                    >
+                      #{cat}
+                    </button>
+                  );
+                })}
                 <button
                   type="button"
                   onClick={() => {
@@ -1249,12 +1286,24 @@ function CreateRecipeDialog({ existingCategories, onClose, onSave }: CreateRecip
                   autoFocus
                   value={customTag}
                   onChange={(e) => setCustomTag(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      const trimmed = customTag.trim();
+                      if (trimmed) setSelectedTags((prev) => Array.from(new Set([...prev, trimmed])));
+                      setShowCustomTagInput(false);
+                    }
+                  }}
                   placeholder="např. Česká klasika"
                   className="flex-1 h-11 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-black px-4 text-sm text-zinc-900 dark:text-white outline-none transition focus:border-mnamio-500 focus:ring-2 focus:ring-mnamio-500/20"
                 />
                 <button
                   type="button"
-                  onClick={() => setShowCustomTagInput(false)}
+                  onClick={() => {
+                    const trimmed = customTag.trim();
+                    if (trimmed) setSelectedTags((prev) => Array.from(new Set([...prev, trimmed])));
+                    setShowCustomTagInput(false);
+                  }}
                   className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-zinc-100 dark:bg-zinc-800 text-zinc-400 hover:text-zinc-700 transition-colors"
                 >
                   <span className="material-symbols-outlined text-lg">check</span>

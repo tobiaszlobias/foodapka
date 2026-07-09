@@ -36,7 +36,7 @@ export async function POST(req: NextRequest) {
 
   const body = (await req.json()) as {
     name?: string;
-    tag?: string;
+    tags?: string[];
     description?: string;
     ingredients?: string[];
     instructions?: string[];
@@ -58,7 +58,7 @@ export async function POST(req: NextRequest) {
       {
         user_id: user.id,
         name,
-        tag: body.tag?.trim() || "Vlastní",
+        tags: body.tags?.length ? body.tags.map((t) => t.trim()).filter(Boolean) : ["Vlastní"],
         description: body.description?.trim() || null,
         ingredients,
         instructions: body.instructions?.length ? body.instructions : null,

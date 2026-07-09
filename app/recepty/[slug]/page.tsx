@@ -65,7 +65,7 @@ export default async function RecipeDetailPage({ params }: PageProps) {
               sizes="(max-width: 768px) 100vw, 768px"
             />
             <div className="absolute top-4 left-4 px-3 py-1 rounded-full bg-white/90 backdrop-blur-md text-[10px] font-black text-mnamio-800 uppercase tracking-widest shadow-sm">
-              #{recipe.tag}
+              #{recipe.tags[0]}
             </div>
           </div>
         )}

@@ -42,7 +42,7 @@ export default function RecipesIndexPage() {
                     sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                   />
                   <div className="absolute top-3 left-3 px-3 py-1 rounded-full bg-white/90 backdrop-blur-md text-[10px] font-black text-mnamio-800 uppercase tracking-widest shadow-sm">
-                    #{recipe.tag}
+                    #{recipe.tags[0]}
                   </div>
                 </div>
               )}
