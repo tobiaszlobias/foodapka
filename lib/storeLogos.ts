@@ -18,6 +18,8 @@ const CHAIN_NAME_RULES: { match: string; canonical: string }[] = [
   { match: "cba", canonical: "CBA" },
   { match: "tamda", canonical: "Tamda Foods" },
   { match: "kosik", canonical: "Košík.cz" },
+  { match: "rohlik", canonical: "Rohlik.cz" },
+  { match: "makro", canonical: "Makro" },
 ];
 
 /** Sloučí varianty téhož řetězce (např. "Albert supermarket"/"Albert hypermarket" → "Albert")

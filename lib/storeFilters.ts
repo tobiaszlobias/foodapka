@@ -18,6 +18,8 @@ export function getStoreFilter(store: Store) {
   if (n.includes("cba")) return { key: "chain:cba", label: "CBA" };
   if (n.includes("ratio")) return { key: "chain:ratio", label: "Ratio" };
   if (n.includes("jip")) return { key: "chain:jip", label: "JIP" };
+  if (n.includes("rohlik")) return { key: "chain:rohlik", label: "Rohlik.cz" };
+  if (n.includes("makro")) return { key: "chain:makro", label: "Makro" };
   if (store.source === "kaufland") return { key: "chain:kaufland", label: "Kaufland" };
   if (store.source === "lidl") return { key: "chain:lidl", label: "Lidl" };
   return { key: `chain:${n}`, label: store.shopName };

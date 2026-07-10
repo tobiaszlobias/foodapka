@@ -10,6 +10,7 @@ import { searchGlobusProducts } from "@/lib/scrapers/globus";
 import { searchKauflandProducts } from "@/lib/scrapers/kaufland";
 import { searchKupiProducts } from "@/lib/scrapers/kupi";
 import { searchLidlProducts } from "@/lib/scrapers/lidl";
+import { searchPotravinkaProducts } from "@/lib/scrapers/potravinka";
 
 type SourceSearchDebug = {
   kupi: { ok: boolean; count: number; error?: string };
@@ -17,6 +18,7 @@ type SourceSearchDebug = {
   foodora: { ok: boolean; count: number; error?: string };
   lidl: { ok: boolean; count: number; error?: string };
   globus: { ok: boolean; count: number; error?: string };
+  potravinka: { ok: boolean; count: number; error?: string };
 };
 
 function sortProducts(products: Product[], query: string) {
@@ -38,6 +40,7 @@ export async function searchAllSources(query: string) {
     searchFoodoraProducts(query),
     searchLidlProducts(query),
     searchGlobusProducts(query),
+    searchPotravinkaProducts(query),
   ]);
 
   const products = sourceResults.reduce<Product[]>((accumulator, result) => {
@@ -69,9 +72,10 @@ export async function searchAllSourcesDebug(
     searchFoodoraProducts(query),
     searchLidlProducts(query),
     searchGlobusProducts(query),
+    searchPotravinkaProducts(query),
   ]);
 
-  const [kupi, kaufland, foodora, lidl, globus] = sourceResults;
+  const [kupi, kaufland, foodora, lidl, globus, potravinka] = sourceResults;
 
   const products = sourceResults.reduce<Product[]>((accumulator, result) => {
     if (result.status === "fulfilled") {
@@ -140,6 +144,17 @@ export async function searchAllSourcesDebug(
                 globus.reason instanceof Error
                   ? globus.reason.message
                   : String(globus.reason),
+            },
+      potravinka:
+        potravinka.status === "fulfilled"
+          ? { ok: true, count: potravinka.value.length }
+          : {
+              ok: false,
+              count: 0,
+              error:
+                potravinka.reason instanceof Error
+                  ? potravinka.reason.message
+                  : String(potravinka.reason),
             },
     },
   };
