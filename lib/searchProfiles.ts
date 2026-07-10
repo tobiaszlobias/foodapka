@@ -15,6 +15,8 @@ type SearchProfile = {
   banned: string[];
   /** Tokeny dotazu, které MUSÍ být v názvu — vynuceno, když byl kvůli dotazu zrušen ban (viz níže) */
   requiredAll: string[];
+  /** Alternativní znění dotazu z třídy ingredience — produkt se skóruje i proti nim, ne jen proti původnímu textu */
+  queryAlternatives: string[];
   strict: boolean;
   preferUnitPrice: boolean;
   preferredMaxPackageKg?: number;
@@ -137,18 +139,72 @@ function tokenize(value: string) {
   return normalizePattern(value).split(" ").filter(Boolean);
 }
 
+// Konzervativní český stemmer nad už normalizovaným textem (bez diakritiky,
+// lowercase). Ořízne jednu pádovou/adjektivní koncovku z konce — ne aby stem byl
+// lingvisticky "správný", ale aby "mražené"/"mražená"/"mražený" nebo "hotového"/
+// "hotové" spadly na stejný základ. Ořízne se jen tehdy, když po odseknutí zbydou
+// aspoň 4 znaky — jinak by se krátká slova (typu "máslo" vs. "máslový") srážela
+// falešně dohromady. Koncovka "-i" má práh přísnější (6 znaků): "příchutí" se má
+// srazit s "příchuť", ale "koření" se NESMÍ srazit s "kořen" — jinak by ban
+// "koreni" u syrových surovin falešně vyřadil produkty typu "Zázvor kořen".
+function stemToken(token: string): string {
+  const endings: Array<[string, number]> = [
+    ["eho", 4],
+    ["emu", 4],
+    ["ych", 4],
+    ["ymi", 4],
+    ["iho", 4],
+    ["imu", 4],
+    ["ou", 4],
+    ["a", 4],
+    ["e", 4],
+    ["i", 6],
+    ["y", 4],
+    ["u", 4],
+    ["o", 4],
+  ];
+  for (const [ending, minStemLength] of endings) {
+    if (token.endsWith(ending) && token.length - ending.length >= minStemLength) {
+      return token.slice(0, token.length - ending.length);
+    }
+  }
+  return token;
+}
+
 function matchesPattern(normalizedName: string, nameTokens: string[], pattern: string) {
   const normalizedPattern = normalizePattern(pattern);
   if (!normalizedPattern) return false;
 
   if (normalizedPattern.includes(" ")) {
-    return normalizedName.includes(normalizedPattern);
+    if (normalizedName.includes(normalizedPattern)) return true;
+
+    // Fallback přes stemy pro víceslovné patterny — "hotové jídlo" má chytit i
+    // "hotového jídla" atd. Stemované tokeny patternu musí tvořit souvislou
+    // podsekvenci stemovaných tokenů názvu (sliding window), aby se nechytaly
+    // shody v náhodném pořadí nebo přes jiná slova.
+    const patternStems = normalizedPattern.split(" ").filter(Boolean).map(stemToken);
+    const nameStems = nameTokens.map(stemToken);
+    if (patternStems.length === 0) return false;
+
+    for (let start = 0; start <= nameStems.length - patternStems.length; start += 1) {
+      let allMatch = true;
+      for (let offset = 0; offset < patternStems.length; offset += 1) {
+        if (nameStems[start + offset] !== patternStems[offset]) {
+          allMatch = false;
+          break;
+        }
+      }
+      if (allMatch) return true;
+    }
+    return false;
   }
 
+  const patternStem = stemToken(normalizedPattern);
   return nameTokens.some(
     (token) =>
       token === normalizedPattern ||
-      (normalizedPattern.length >= 5 && token.startsWith(normalizedPattern)),
+      (normalizedPattern.length >= 5 && token.startsWith(normalizedPattern)) ||
+      stemToken(token) === patternStem,
   );
 }
 
@@ -178,6 +234,7 @@ function buildSearchProfile(query: string, options?: { recipe?: string; banned?:
     preferred: [],
     banned: [],
     requiredAll: [],
+    queryAlternatives: [],
     strict: false,
     preferUnitPrice: false,
     preferredMaxPackageKg: undefined,
@@ -188,7 +245,8 @@ function buildSearchProfile(query: string, options?: { recipe?: string; banned?:
   profile.classGroups = resolvedClassConfig.requiredGroups ?? [];
   profile.preferred.push(...(resolvedClassConfig.preferred ?? []));
   profile.banned.push(...(resolvedClassConfig.banned ?? []));
-  
+  profile.queryAlternatives = resolvedClassConfig.queryAlternatives ?? [];
+
   if (options?.banned && Array.isArray(options.banned)) {
     profile.banned.push(...options.banned.map(b => normalizePattern(b)));
   }
@@ -294,7 +352,13 @@ function scoreProductWithProfile(product: Product, query: string, options?: { re
   const profile = buildSearchProfile(query, options);
   const normalizedName = normalizePattern(product.name);
   const nameTokens = tokenize(product.name);
-  const rawBaseScore = scoreProductMatch(product.name, query);
+  // Produkty nalezené přes alternativní znění dotazu (viz queryAlternatives u třídy
+  // ingredience) se musí skórovat i proti tomuto znění, jinak vypadnou jen proto,
+  // že jejich název neodpovídá původnímu textu dotazu.
+  const rawBaseScore = profile.queryAlternatives.reduce(
+    (best, alt) => Math.max(best, scoreProductMatch(product.name, alt)),
+    scoreProductMatch(product.name, query),
+  );
 
   if (profile.banned.some((pattern) => matchesPattern(normalizedName, nameTokens, pattern))) {
     return Number.NEGATIVE_INFINITY;
@@ -311,26 +375,34 @@ function scoreProductWithProfile(product: Product, query: string, options?: { re
     matchesGroup(normalizedName, nameTokens, group),
   ).length;
 
-  // Substituce: název neodpovídá textu dotazu (skóre 0, ne hard-fail), ale produkt
-  // splňuje všechny synonymní skupiny třídy ingredience — např. dotaz "parmazán"
-  // a produkt "Parmigiano Reggiano". Řadí se pod přímé shody.
+  // Substituce: název neodpovídá textu dotazu (skóre 0 nebo záporné, ne hard-fail),
+  // ale produkt splňuje všechny synonymní skupiny třídy ingredience — např. dotaz
+  // "parmazán" a produkt "Parmigiano Reggiano". Řadí se pod přímé shody.
   const matchedClassGroups = profile.classGroups.filter((group) =>
     matchesGroup(normalizedName, nameTokens, group),
   ).length;
   const isSubstitute =
-    rawBaseScore === 0 &&
+    rawBaseScore <= 0 &&
     profile.classGroups.length > 0 &&
     matchedClassGroups === profile.classGroups.length;
 
   if (rawBaseScore <= 0 && !isSubstitute) return Number.NEGATIVE_INFINITY;
 
-  // Silná frázová shoda: název obsahuje celý dotaz — class pravidla (required/strict)
-  // nesmí takový produkt vyřadit (např. "hovězí carpaccio" vs. třída syrového hovězího).
-  // Hranice slova, ať to nechytá shodu uprostřed jiného tokenu.
+  // Silná frázová shoda: název obsahuje celý dotaz (nebo některou z jeho alternativ)
+  // — class pravidla (required/strict) nesmí takový produkt vyřadit (např. "hovězí
+  // carpaccio" vs. třída syrového hovězího). Hranice slova, ať to nechytá shodu
+  // uprostřed jiného tokenu.
   const normalizedQuery = normalizePattern(query);
   const phraseMatch =
-    normalizedQuery.length > 0 &&
-    ` ${normalizedName} `.includes(` ${normalizedQuery} `);
+    (normalizedQuery.length > 0 &&
+      ` ${normalizedName} `.includes(` ${normalizedQuery} `)) ||
+    profile.queryAlternatives.some((alt) => {
+      const normalizedAlt = normalizePattern(alt);
+      return (
+        normalizedAlt.length > 0 &&
+        ` ${normalizedName} `.includes(` ${normalizedAlt} `)
+      );
+    });
 
   if (!isSubstitute && !phraseMatch) {
     if (profile.requiredGroups.length > 0 && matchedGroups === 0) {

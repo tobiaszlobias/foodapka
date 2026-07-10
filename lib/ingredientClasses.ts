@@ -56,7 +56,22 @@ const FAMILY_RULES: Record<string, IngredientRuleConfig> = {
   raw_vegetable: {
     preferUnitPrice: true,
     strict: true,
-    banned: ["dzus", "juice", "kubik", "napoj", "sirup", "smoothie", "mix", "zalevka"],
+    banned: [
+      "dzus",
+      "juice",
+      "kubik",
+      "napoj",
+      "sirup",
+      "smoothie",
+      "mix",
+      "zalevka",
+      "chips",
+      "chipsy",
+      "bramburky",
+      "krupky",
+      "krouzky",
+      "krekry",
+    ],
   },
   raw_meat: {
     preferUnitPrice: true,
@@ -86,6 +101,7 @@ const FAMILY_RULES: Record<string, IngredientRuleConfig> = {
       "pyre",
       "sous vide",
       "trhane",
+      "k priprave",
     ],
   },
   dairy_cooking: {
@@ -264,7 +280,7 @@ const INGREDIENT_CLASSES: IngredientClass[] = [
     requiredGroups: [["celer"], ["bulva", "koren", "bulvovy", "root"]],
     preferred: ["bulva", "koren", "bulvovy"],
     banned: ["nat", "listy", "sul"],
-    queryAlternatives: ["celer bulva", "bulvový celer"],
+    queryAlternatives: ["celer bulva", "bulvový celer", "celer"],
     contexts: [
       {
         recipeIncludes: ["svickova"],
@@ -288,21 +304,25 @@ const INGREDIENT_CLASSES: IngredientClass[] = [
     aliases: ["kořen petržele", "koren petrzele", "petržel kořen", "petrzel koren", "kořenová petržel", "korenova petrzel"],
     families: ["raw_ingredient", "raw_vegetable"],
     strict: true,
-    requiredGroups: [["petrzel"], ["koren", "korenova", "koren petrzele"]],
-    preferred: ["koren", "koren petrzele"],
-    banned: ["nat", "listy", "bylinky", "7 g", "10 g", "20 g"],
-    queryAlternatives: ["kořen petržele", "petržel kořen"],
+    requiredGroups: [["petrzel"]],
+    preferred: ["koren", "korenova", "koren petrzele"],
+    banned: ["nat", "susena", "listy", "bylinky", "7 g", "10 g", "20 g"],
+    queryAlternatives: ["kořen petržele", "petržel kořen", "petržel"],
     contexts: [
       {
         recipeIncludes: ["svickova"],
         strict: true,
-        requiredGroups: [["petrzel"], ["koren", "korenova", "koren petrzele"]],
+        requiredGroups: [["petrzel"]],
+        preferred: ["koren", "korenova", "koren petrzele"],
       },
     ],
   },
   {
+    // Holé "petržel" tu záměrně není — chytalo by i dotazy na kořenovou
+    // petržel ("petržel kořen") a bany nať-třídy (koren, korenova) by pak
+    // vyřadily úplně všechno. Bylinku vlastní jen specifické tvary.
     id: "parsley_herb",
-    aliases: ["petržel", "petrzel", "petržel nať", "petrzel nat", "hladkolistá petržel", "hladkolista petrzel"],
+    aliases: ["petrželka", "petrzelka", "petržel nať", "petrzel nat", "hladkolistá petržel", "hladkolista petrzel"],
     families: ["fresh_herb"],
     strict: true,
     requiredGroups: [["petrzel"], ["nat", "cerstva", "hladkolista", "kudrnka"]],
@@ -346,13 +366,16 @@ const INGREDIENT_CLASSES: IngredientClass[] = [
     queryAlternatives: ["avokádo"],
   },
   {
+    // Snack bany přímo tady — "Kroužky Jarní cibulka" (brambůrky) je frázová
+    // shoda s dotazem, takže ji required/strict nevyřadí; family fresh_herb
+    // snacky nebanuje.
     id: "spring_onion",
     aliases: ["jarní cibulka", "jarni cibulka", "lahůdková cibulka", "lahudkova cibulka"],
     families: ["fresh_herb"],
     strict: true,
     requiredGroups: [["cibulka"], ["jarni", "lahudkova"]],
     preferred: ["jarni", "lahudkova"],
-    banned: ["smazena", "koreni"],
+    banned: ["smazena", "koreni", "chips", "chipsy", "bramburky", "krouzky", "krupky", "krekry", "prichut", "lay s", "gervais"],
     queryAlternatives: ["jarní cibulka"],
   },
   {
@@ -404,7 +427,7 @@ const INGREDIENT_CLASSES: IngredientClass[] = [
         strict: true,
         requiredGroups: [["smetana"], ["na vareni", "12", "30", "31", "33"]],
         preferred: ["na vareni", "30", "31", "33"],
-        banned: ["do kavy", "kava", "10x10"],
+        banned: ["do kavy", "kava", "10x10", "zakysana"],
       },
     ],
   },
@@ -507,7 +530,7 @@ const INGREDIENT_CLASSES: IngredientClass[] = [
       ["arasid", "burak"],
       ["maslo", "krem", "pomazanka"],
     ],
-    banned: ["horalky", "oplatk", "susenk", "tycink", "napolitank", "cokolad"],
+    banned: ["horalky", "oplatk", "susenk", "tycink", "napolitank", "cokolad", "schogetten", "pegas", "zmrzlina", "poleva", "pro psy"],
     queryAlternatives: ["arašídové máslo", "arašídový krém"],
   },
   {
@@ -525,7 +548,7 @@ const INGREDIENT_CLASSES: IngredientClass[] = [
     strict: true,
     preferUnitPrice: true,
     requiredGroups: [["tofu"]],
-    banned: ["dezert", "pomazanka", "chips"],
+    banned: ["dezert", "pomazanka", "chips", "prichut"],
     queryAlternatives: ["tofu", "tofu natural"],
   },
   {
@@ -677,10 +700,10 @@ const INGREDIENT_CLASSES: IngredientClass[] = [
     aliases: ["avokádový olej", "avokadovy olej"],
     families: ["condiment_raw_use"],
     strict: true,
-    requiredGroups: [["avokadovy"], ["olej"]],
-    preferred: ["extra virgin", "panensky", "za studena"],
+    requiredGroups: [["olej"]],
+    preferred: ["extra virgin", "panensky", "za studena", "avokadov"],
     banned: ["sprej", "zalevka"],
-    queryAlternatives: ["avokádový olej"],
+    queryAlternatives: ["avokádový olej", "řepkový olej"],
   },
   {
     id: "sunflower_oil",
@@ -814,7 +837,7 @@ const INGREDIENT_CLASSES: IngredientClass[] = [
     strict: true,
     requiredGroups: [["parmazan", "parmezan", "parmesan", "parmigiano", "reggiano", "grana", "padano", "gran moravia"]],
     preferred: ["grana padano", "gran moravia", "parmazan"],
-    banned: ["chips", "omacka", "pomazanka", "prichut", "strouhanka"],
+    banned: ["chips", "omacka", "pomazanka", "prichut", "strouhanka", "grattugiato", "grated", "hobliny"],
     queryAlternatives: ["parmigiano", "grana padano", "gran moravia"],
   },
   {
@@ -911,7 +934,7 @@ const INGREDIENT_CLASSES: IngredientClass[] = [
     aliases: ["sůl", "sul"],
     strict: true,
     requiredGroups: [["sul"]],
-    banned: ["solny karamel", "slané", "slane"],
+    banned: ["solny karamel", "slané", "slane", "do mycky", "mycka", "do koupele", "koupelova"],
     queryAlternatives: ["sůl", "kuchyňská sůl"],
   },
   {
@@ -929,6 +952,27 @@ const INGREDIENT_CLASSES: IngredientClass[] = [
     requiredGroups: [["pepr"]],
     banned: ["paprika", "chips"],
     queryAlternatives: ["černý pepř", "pepř mletý"],
+  },
+  {
+    // Gochugaru české řetězce prakticky nevedou — skupina připouští i běžné
+    // chilli jako kuchařskou náhradu, preferred řadí originál výš. Ban kryje
+    // hotová jídla a omáčky, které by jinak prošly přes obecný token "chilli".
+    id: "gochugaru",
+    aliases: ["gochugaru"],
+    requiredGroups: [["gochugaru", "chilli", "chili"]],
+    preferred: ["gochugaru", "korejsk"],
+    banned: ["con carne", "kecup", "omacka", "chips", "nachos"],
+    queryAlternatives: ["gochugaru", "chilli vločky"],
+  },
+  {
+    // Ban kryje i snacky bez tokenu "chips" v názvu (Lay's, smažená čočka) —
+    // skupina "cibulka" by je jinak pustila jako substituci.
+    id: "fried_onion",
+    aliases: ["smažená cibulka", "smazena cibulka", "křupavá cibulka", "krupava cibulka"],
+    requiredGroups: [["cibulka", "cibule"]],
+    preferred: ["smazena", "krupava", "prazena"],
+    banned: ["chips", "chipsy", "bramburky", "prichut", "krekry", "lay s", "cocka", "krupky", "kase", "pizza"],
+    queryAlternatives: ["smažená cibulka", "křupavá cibulka", "pražená cibulka"],
   },
 ];
 

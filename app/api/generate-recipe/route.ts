@@ -49,16 +49,17 @@ export async function POST(req: NextRequest) {
                     "ingredients": [
                       {
                         "name": "přesný název suroviny (např. máslo)",
-                        "searchQuery": "ideální klíčové slovo pro vyhledávač v supermarketu (např. máslo 250g)",
+                        "searchQuery": "obecný název suroviny pro vyhledávač, 1-2 slova (např. máslo)",
                         "banned": ["seznam", "slov", "která", "nechceme", "ve", "výsledcích", "např", "croissant", "pomazánka"]
                       }
                     ],
                     "instructions": ["Stručný krok 1", "Stručný krok 2"]
                   }
                   
-                  DŮLEŽITÉ: 
+                  DŮLEŽITÉ:
                   1. U 'banned' slov buď kreativní a vypiš vše, co by mohl vyhledávač v supermarketu splést (např. pro 'máslo' zakaž 'croissant', 'pomazánka', 'sušenky', 'listové těsto').
-                  2. Používej tyto názvy surovin, pokud se hodí: ${KNOWN_INGREDIENTS.slice(0, 50).join(", ")}.`
+                  2. Do 'searchQuery' NIKDY nedávej značky, gramáže ani přídavná jména ("máslo 250g", "kuřecí prsa čerstvá" je špatně; "máslo", "kuřecí prsa" je správně) — upřesnění patří do 'banned'.
+                  3. Používej tyto názvy surovin, pokud se hodí: ${KNOWN_INGREDIENTS.slice(0, 50).join(", ")}.`
                 }
               ]
             }

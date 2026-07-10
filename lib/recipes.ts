@@ -60,7 +60,7 @@ export const RECIPE_PRESETS: RecipePreset[] = [
     description:
       "Jednoduchý meal prep na více dní s kuřecím masem, rýží a zeleninou.",
     ingredients: [
-      { name: "kuřecí prsa", searchQuery: "kuřecí prsa čerstvá", banned: ["mražené", "polotovar", "šunka"] },
+      { name: "kuřecí prsa", searchQuery: "kuřecí prsa", banned: ["mražené", "polotovar", "šunka"] },
       { name: "rýže", searchQuery: "rýže 1kg", banned: ["kaše", "chlebíčky", "mléčná"] },
       "brokolice",
       "mrkev",
@@ -152,7 +152,7 @@ export const RECIPE_PRESETS: RecipePreset[] = [
       { name: "špagety", searchQuery: "špagety semolinové", banned: ["hotové jídlo"] },
       { name: "slanina", searchQuery: "anglická slanina", banned: ["chips", "křupky"] },
       "vejce",
-      { name: "parmazán", searchQuery: "parmazán blok", banned: ["omáčka", "chips", "strouhaný"] },
+      { name: "parmazán", searchQuery: "parmazán", banned: ["omáčka", "chips", "strouhaný"] },
       "česnek"
     ],
     instructions: [
@@ -186,7 +186,7 @@ export const RECIPE_PRESETS: RecipePreset[] = [
     description:
       "Osvěžující studený pokrm s pikantním mletým kuřetem, hedvábným tofu a udon nudlemi — ideální na horké dny.",
     ingredients: [
-      { name: "hedvábné tofu", searchQuery: "tofu hedvábné silken", banned: ["uzené", "smažené"], amount: "300 g", amountValue: 300, amountUnit: "g" }, // 0
+      { name: "hedvábné tofu", searchQuery: "hedvábné tofu", banned: ["uzené", "smažené"], amount: "300 g", amountValue: 300, amountUnit: "g" }, // 0
       { name: "arašídové máslo", searchQuery: "arašídové máslo", banned: ["sušenky", "tyčinka"], amount: "1 lžíce", amountValue: 1, amountUnit: "lžíce" }, // 1
       { name: "sójová omáčka", searchQuery: "sójová omáčka", banned: ["kečup"], amount: "1 lžíce", amountValue: 1, amountUnit: "lžíce" }, // 2
       { name: "rybí omáčka", searchQuery: "rybí omáčka", banned: [], amount: "1 lžíce", amountValue: 1, amountUnit: "lžíce" }, // 3
@@ -195,12 +195,12 @@ export const RECIPE_PRESETS: RecipePreset[] = [
       { name: "sůl", amount: "1 lžička", amountValue: 1, amountUnit: "lžička" }, // 6
       { name: "avokádový olej", searchQuery: "avokádový olej", banned: [], amount: "1 lžička", amountValue: 1, amountUnit: "lžička" }, // 7
       { name: "kuřecí mleté maso", searchQuery: "kuřecí mleté maso", banned: ["hotové", "karbanátky"], amount: "250 g", amountValue: 250, amountUnit: "g" }, // 8
-      { name: "gochugaru", searchQuery: "gochugaru chilli koření", banned: [], amount: "1 lžíce", amountValue: 1, amountUnit: "lžíce" }, // 9
+      { name: "gochugaru", searchQuery: "gochugaru", banned: [], amount: "1 lžíce", amountValue: 1, amountUnit: "lžíce" }, // 9
       { name: "tmavá sójová omáčka", searchQuery: "tmavá sójová omáčka", banned: [], amount: "1 lžíce", amountValue: 1, amountUnit: "lžíce" }, // 10
       { name: "sezamová semínka", searchQuery: "sezamová semínka", banned: ["olej", "tyčinka"], amount: "1 lžíce", amountValue: 1, amountUnit: "lžíce" }, // 11
-      { name: "udon nudle", searchQuery: "udon nudle mražené", banned: ["instantní", "polévka"], amount: "400 g", amountValue: 400, amountUnit: "g" }, // 12
+      { name: "udon nudle", searchQuery: "udon nudle", banned: ["instantní", "polévka"], amount: "400 g", amountValue: 400, amountUnit: "g" }, // 12
       { name: "jarní cibulka", amount: "1 ks", amountValue: 1, amountUnit: "ks" }, // 13
-      { name: "smažená cibulka", searchQuery: "smažená cibulka křupavá", banned: [], amount: "1 lžíce", amountValue: 1, amountUnit: "lžíce" }, // 14
+      { name: "smažená cibulka", searchQuery: "smažená cibulka", banned: [], amount: "1 lžíce", amountValue: 1, amountUnit: "lžíce" }, // 14
       { name: "vejce", amount: "2 ks", amountValue: 2, amountUnit: "ks" }, // 15
     ],
     instructions: [
