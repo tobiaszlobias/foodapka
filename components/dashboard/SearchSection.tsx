@@ -292,7 +292,10 @@ export default function SearchSection({
                     : p.stores.some(s => getStoreFilter(s).key === filter.key)
                 ).length;
                 const isActive = selectedFilter.includes(filter.key);
-                const isEmpty = filter.key !== "all" && count === 0;
+
+                if (filter.key !== "all" && count === 0 && !isActive) {
+                  return null;
+                }
 
                 if (filter.key === "all") {
                   return (
@@ -329,7 +332,7 @@ export default function SearchSection({
                       }
                     }}
                     title={`${filter.label} (${count})`}
-                    className={`shrink-0 flex flex-col items-center gap-1 ${isEmpty ? "opacity-50" : ""}`}
+                    className="shrink-0 flex flex-col items-center gap-1"
                   >
                     <div className={`w-11 h-11 rounded-2xl flex items-center justify-center bg-white dark:bg-zinc-800 transition-all ${
                       isActive
