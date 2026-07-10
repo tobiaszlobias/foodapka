@@ -954,14 +954,15 @@ const INGREDIENT_CLASSES: IngredientClass[] = [
     queryAlternatives: ["černý pepř", "pepř mletý"],
   },
   {
-    // Gochugaru české řetězce prakticky nevedou — skupina připouští i běžné
-    // chilli jako kuchařskou náhradu, preferred řadí originál výš. Ban kryje
-    // hotová jídla a omáčky, které by jinak prošly přes obecný token "chilli".
+    // Gochugaru české řetězce prakticky nevedou — skupina připouští chilli
+    // v kořeněné/sypké formě (vločky, koření, mleté, papričky) jako kuchařskou
+    // náhradu, preferred řadí originál výš. Holé "chilli" by pustilo cokoli
+    // s příchutí (chilli sýr, con carne); ban kryje zbylé kategorie.
     id: "gochugaru",
     aliases: ["gochugaru"],
-    requiredGroups: [["gochugaru", "chilli", "chili"]],
+    requiredGroups: [["gochugaru", "vlocky", "koreni", "drcene", "mlete", "papricky", "paprika"]],
     preferred: ["gochugaru", "korejsk"],
-    banned: ["con carne", "kecup", "omacka", "chips", "nachos"],
+    banned: ["con carne", "kecup", "omacka", "chips", "nachos", "syr", "kvetinac"],
     queryAlternatives: ["gochugaru", "chilli vločky"],
   },
   {
