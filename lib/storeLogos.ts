@@ -20,6 +20,7 @@ const CHAIN_NAME_RULES: { match: string; canonical: string }[] = [
   { match: "kosik", canonical: "Košík.cz" },
   { match: "rohlik", canonical: "Rohlik.cz" },
   { match: "makro", canonical: "Makro" },
+  { match: "eso", canonical: "Eso Market" },
 ];
 
 /** Sloučí varianty téhož řetězce (např. "Albert supermarket"/"Albert hypermarket" → "Albert")
@@ -94,6 +95,18 @@ export function getStoreLogoPath(shopName: string) {
 
   if (normalizedShopName.includes("kosik")) {
     return "/kosikcz_logo.png";
+  }
+
+  if (normalizedShopName.includes("rohlik")) {
+    return "/rohlik_logo.png";
+  }
+
+  if (normalizedShopName.includes("makro")) {
+    return "/makro_logo.png";
+  }
+
+  if (normalizedShopName.includes("eso")) {
+    return "/eso_logo.png";
   }
 
   return null;
