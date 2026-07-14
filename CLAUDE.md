@@ -20,8 +20,8 @@ npm run lint    # ESLint
 - **Tailwind CSS 4** + Framer Motion 12
 - **Supabase** (auth + shopping lists)
 - **Cheerio** (web scraping)
-- **Google Gemini** (`gemini-flash-lite-latest`) — generování receptů
-- Balíček `openai` je v dependencies, ale není aktivně používán — kandidát na odstranění
+- **Anthropic Claude** (`claude-haiku-4-5`) — generování receptů
+- Balíčky `openai` a Google Gemini nejsou aktivně používány — kandidáti na odstranění
 
 ## Struktura projektu
 
@@ -86,7 +86,7 @@ Scoring (`scoreProductMatch`):
 
 **POST /api/generate-recipe**
 - body: `{ prompt: string }`
-- volá Gemini, vrací strukturovaný JSON s ingrediencemi + search queries
+- volá Anthropic Claude, vrací strukturovaný JSON s ingrediencemi + search queries
 
 ## Módy dashboardu
 
@@ -115,7 +115,7 @@ Scoring (`scoreProductMatch`):
 ```env
 NEXT_PUBLIC_SUPABASE_URL=
 NEXT_PUBLIC_SUPABASE_ANON_KEY=
-GEMINI_API_KEY=
+ANTHROPIC_API_KEY=
 ```
 
 `middleware.ts` běží na všech routes (kromě statiky) — obnovuje Supabase session.
