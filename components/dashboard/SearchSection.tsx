@@ -209,7 +209,38 @@ export default function SearchSection({
         }
       });
     });
-    return filters;
+
+    const stats = new Map<string, { count: number; minPrice: number }>();
+    products.forEach(p => {
+      const keysInProduct = new Set<string>();
+      p.stores.forEach(s => {
+        const key = getStoreFilter(s).key;
+        keysInProduct.add(key);
+        const price = parsePrice(s.price || "");
+        const entry = stats.get(key) ?? { count: 0, minPrice: Infinity };
+        if (Number.isFinite(price) && price > 0) {
+          entry.minPrice = Math.min(entry.minPrice, price);
+        }
+        stats.set(key, entry);
+      });
+      keysInProduct.forEach(key => {
+        const entry = stats.get(key);
+        if (entry) entry.count += 1;
+      });
+    });
+
+    const withStats = filters.map(f => ({
+      ...f,
+      count: f.key === "all" ? products.length : (stats.get(f.key)?.count ?? 0),
+      minPrice: f.key === "all" ? 0 : (stats.get(f.key)?.minPrice ?? Infinity),
+    }));
+
+    const all = withStats.filter(f => f.key === "all");
+    const rest = withStats
+      .filter(f => f.key !== "all")
+      .sort((a, b) => b.count - a.count || a.minPrice - b.minPrice);
+
+    return [...all, ...rest];
   }, [products]);
 
   const filteredAndSortedProducts = useMemo(() => {
@@ -221,6 +252,8 @@ export default function SearchSection({
         })).filter(p => p.stores.length > 0);
 
     return [...filtered].sort((a, b) => {
+      // AI relevance vrstva označené produkty vždy až za neoznačené, bez ohledu na řazení
+      if (!!a.aiFlagged !== !!b.aiFlagged) return a.aiFlagged ? 1 : -1;
       if (selectedSort === "relevance") return 0; // API už řadí podle relevance
       const priceA = parsePrice(sortStoresByPrice(a.stores)[0]?.price || "");
       const priceB = parsePrice(sortStoresByPrice(b.stores)[0]?.price || "");
@@ -286,11 +319,7 @@ export default function SearchSection({
             {/* Filtry obchodů */}
             <div className="flex gap-2 overflow-x-auto no-scrollbar pb-2 pt-1 px-1">
               {availableFilters.map((filter) => {
-                const count = products.filter(p =>
-                  filter.key === "all"
-                    ? true
-                    : p.stores.some(s => getStoreFilter(s).key === filter.key)
-                ).length;
+                const count = filter.count;
                 const isActive = selectedFilter.includes(filter.key);
 
                 if (filter.key !== "all" && count === 0 && !isActive) {
@@ -381,7 +410,7 @@ export default function SearchSection({
               const bestPrice = bestStore ? parsePrice(bestStore.price) : 0;
 
               return (
-                <article key={product.url} className="rounded-2xl border border-zinc-100 dark:border-zinc-800 bg-white dark:bg-zinc-900 overflow-hidden w-full">
+                <article key={product.url} className={`rounded-2xl border border-zinc-100 dark:border-zinc-800 bg-white dark:bg-zinc-900 overflow-hidden w-full ${product.aiFlagged ? "opacity-50" : ""}`}>
                   {/* Header: obrázek/název produktu */}
                   <div className="flex items-center gap-3 px-4 py-3">
                     <div className="shrink-0">
@@ -408,6 +437,11 @@ export default function SearchSection({
                         {cleanProductName(product.name)}
                       </h3>
                       <div className="flex items-center gap-1.5 mt-0.5 flex-wrap">
+                        {product.aiFlagged && (
+                          <span className="text-[10px] font-bold text-amber-600 dark:text-amber-400">
+                            Nesouvisí s hledáním?
+                          </span>
+                        )}
                         {matchedPreset && (
                           <span className="text-[10px] font-bold text-mnamio-600 dark:text-mnamio-400">
                             #{matchedPreset.label.toLowerCase()}

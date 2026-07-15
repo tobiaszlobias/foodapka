@@ -3,6 +3,7 @@ import { mergeProductsByName } from "@/lib/food";
 import { getIngredientQueryAlternatives } from "@/lib/ingredientClasses";
 import { searchAllSources, searchAllSourcesDebug } from "@/lib/scrapers";
 import { filterProductsForQuery } from "@/lib/searchProfiles";
+import { applyAiRelevance } from "@/lib/aiRelevance";
 
 export async function GET(req: NextRequest) {
   const query = req.nextUrl.searchParams.get("q")?.trim() || "";
@@ -18,7 +19,12 @@ export async function GET(req: NextRequest) {
     if (wantsDebug) {
       const { products, debug } = await searchAllSourcesDebug(query);
       const filteredProducts = filterProductsForQuery(products, query, { recipe, banned });
-      return Response.json({ products: filteredProducts, count: filteredProducts.length, debug });
+      const ai = await applyAiRelevance(filteredProducts, query, { recipe, banned });
+      return Response.json({
+        products: ai.products,
+        count: ai.products.length,
+        debug: { ...debug, aiRelevance: { applied: ai.aiApplied, flagged: ai.flagged } },
+      });
     }
 
     const queryAlternatives = getIngredientQueryAlternatives(query, recipe);
@@ -27,7 +33,8 @@ export async function GET(req: NextRequest) {
     );
     const products = mergeProductsByName(searchResults.flat());
     const filteredProducts = filterProductsForQuery(products, query, { recipe, banned });
-    return Response.json({ products: filteredProducts, count: filteredProducts.length });
+    const ai = await applyAiRelevance(filteredProducts, query, { recipe, banned });
+    return Response.json({ products: ai.products, count: ai.products.length });
   } catch (error) {
     return Response.json(
       {

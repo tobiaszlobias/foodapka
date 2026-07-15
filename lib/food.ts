@@ -28,6 +28,8 @@ export type Product = {
   url: string;
   stores: Store[];
   image?: string;
+  /** AI vrstva relevance označila produkt jako pravděpodobně nesouvisející s dotazem. */
+  aiFlagged?: boolean;
 };
 
 export const STORE_META: Record<string, string> = {
