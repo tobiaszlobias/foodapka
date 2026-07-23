@@ -170,9 +170,15 @@ function HomeContent() {
             p.stores.map(s => ({ product: p, store: s }))
           );
 
-          const cheapest = storeOptions.length > 0
-            ? [...storeOptions].sort((a, b) => parsePrice(a.store.price) - parsePrice(b.store.price))[0]
-            : null;
+          // AI relevance vrstva označené produkty (aiFlagged) nikdy nevybíráme jako
+          // "nejlevnější", i kdyby cenou vyhrávaly — jsou to pravděpodobně jiné potraviny.
+          const sortedOptions = [...storeOptions].sort((a, b) => {
+            if (!!a.product.aiFlagged !== !!b.product.aiFlagged) {
+              return a.product.aiFlagged ? 1 : -1;
+            }
+            return parsePrice(a.store.price) - parsePrice(b.store.price);
+          });
+          const cheapest = sortedOptions.length > 0 ? sortedOptions[0] : null;
 
           const result: IngredientResult = {
             ingredient: ingName,

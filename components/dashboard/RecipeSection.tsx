@@ -289,7 +289,12 @@ export default function RecipeSection({
         const candidates = (res.storeOptions ?? []).filter(
           opt => opt?.store?.shopName && variants.has(opt.store.shopName),
         );
-        const option = candidates.sort((a, b) => parsePrice(a.store.price) - parsePrice(b.store.price))[0];
+        const option = candidates.sort((a, b) => {
+          if (!!a.product.aiFlagged !== !!b.product.aiFlagged) {
+            return a.product.aiFlagged ? 1 : -1;
+          }
+          return parsePrice(a.store.price) - parsePrice(b.store.price);
+        })[0];
         if (option) {
           if (!isExcluded) {
             totalItems++;
@@ -307,10 +312,12 @@ export default function RecipeSection({
           // nejlevnější store z prvotního hledání) — jinak by chybějící položka
           // bez vlastního "store" byla v součtu "zdarma" a zvýhodňovala obchody
           // s minimálním pokrytím.
-          const cheapestElsewhere = (res.storeOptions ?? []).reduce((min, opt) => {
-            const optPrice = parsePrice(opt.store.price);
-            return Number.isFinite(optPrice) && optPrice < min ? optPrice : min;
-          }, Number.POSITIVE_INFINITY);
+          const cheapestElsewhere = (res.storeOptions ?? [])
+            .filter(opt => !opt.product.aiFlagged)
+            .reduce((min, opt) => {
+              const optPrice = parsePrice(opt.store.price);
+              return Number.isFinite(optPrice) && optPrice < min ? optPrice : min;
+            }, Number.POSITIVE_INFINITY);
           if (Number.isFinite(cheapestElsewhere)) completionCost += cheapestElsewhere;
         }
         return { ...res, store: null, product: null };
