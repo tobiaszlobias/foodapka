@@ -317,35 +317,34 @@ function parsePackageWeightKg(name: string) {
   return null;
 }
 
+/**
+ * Vrátí cenu přepočtenou na Kč/kg (nebo Kč/l, Kč/kus) ze syrového textu jako
+ * "8,95 Kč / 100 g" nebo "24,90 Kč / kg" — musí pracovat na PŮVODNÍM textu
+ * (ne po normalizeText/normalizePattern), protože ta odstraňuje lomítka i
+ * mezery mezi číslem a jednotkou, takže by se "100 g" nedalo od "kg" odlišit.
+ */
 function parseComparableUnitPrice(value: string) {
-  const normalized = normalizePattern(value);
-  const rawNumber = normalized.match(/\d+(?:\.\d+)?/);
-  if (!rawNumber) return Number.POSITIVE_INFINITY;
+  // nezlomitelná mezera ( ) se v datech zdrojů běžně vyskytuje místo běžné
+  const withNbspAsSpace = value.replace(/ /g, " ");
+  const match = withNbspAsSpace.match(
+    /([\d.,]+)\s*Kč\s*\/\s*([\d.,]+)?\s*(kg|g|l|ml|kus|ks)\b/i,
+  );
+  if (!match) return Number.POSITIVE_INFINITY;
 
-  const price = Number(rawNumber[0]);
+  const price = Number(match[1].replace(",", "."));
   if (!Number.isFinite(price)) return Number.POSITIVE_INFINITY;
 
-  if (normalized.includes("/ kg") || normalized.includes("=1 kg")) {
-    return price;
-  }
+  const unitAmount = match[2] ? Number(match[2].replace(",", ".")) : 1;
+  if (!Number.isFinite(unitAmount) || unitAmount <= 0) return Number.POSITIVE_INFINITY;
 
-  if (normalized.includes("/ g")) {
-    return price * 1000;
-  }
+  const unit = match[3].toLowerCase();
+  const pricePerBaseUnit = price / unitAmount;
 
-  if (normalized.includes("/ l") || normalized.includes("=1 l")) {
-    return price;
+  if (unit === "kg" || unit === "l" || unit === "kus" || unit === "ks") {
+    return pricePerBaseUnit;
   }
-
-  if (normalized.includes("/ ml")) {
-    return price * 1000;
-  }
-
-  if (normalized.includes("/ kus")) {
-    return price;
-  }
-
-  return Number.POSITIVE_INFINITY;
+  // g nebo ml — přepočet na kg/l (× 1000)
+  return pricePerBaseUnit * 1000;
 }
 
 function scoreProductWithProfile(product: Product, query: string, options?: { recipe?: string; banned?: string[] }) {
@@ -426,17 +425,26 @@ function scoreProductWithProfile(product: Product, query: string, options?: { re
   // Produkt bez jediné platné ceny se nefiltruje (může to být validní substituce),
   // ale musí skončit až za všemi produkty, které cenu mají.
   const noPricePenalty = Number.isFinite(bestPrice) ? 0 : 10000;
-  const pricePenalty = Number.isFinite(bestPrice) ? Math.min(bestPrice / 12, 35) : 0;
-  const unitPricePenalty =
-    profile.preferUnitPrice && Number.isFinite(comparableUnitPrice)
-      ? Math.min(comparableUnitPrice / 14, 45)
-      : 0;
+  // Cena za jednotku (Kč/kg, Kč/l...) je realističtější srovnání napříč
+  // různými velikostmi balení než absolutní cena — bere se jako hlavní
+  // cenové kritérium vždy, když ji zdroj dodal (preferUnitPrice u třídy
+  // ingredience penaltu jen zesiluje pro případy, kde na tom extra záleží).
+  const unitPricePenalty = Number.isFinite(comparableUnitPrice)
+    ? Math.min(comparableUnitPrice / (profile.preferUnitPrice ? 14 : 20), 45)
+    : 0;
+  const pricePenalty = !Number.isFinite(comparableUnitPrice) && Number.isFinite(bestPrice)
+    ? Math.min(bestPrice / 12, 35)
+    : 0;
   const packagePenalty =
     profile.preferredMaxPackageKg &&
     packageWeightKg &&
     packageWeightKg > profile.preferredMaxPackageKg
       ? Math.min((packageWeightKg - profile.preferredMaxPackageKg) * 45, 70)
       : 0;
+  // Malý bonus za aktuální akční cenu — appka má primárně nabízet slevy,
+  // ne jen "kdekoli se to dá koupit". Dost na to, aby rozhodl mezi jinak
+  // srovnatelnými produkty, ne tolik, aby přebil skutečnou relevanci shody.
+  const salePenalty = cheapestStore?.isSale ? 0 : 12;
 
   return (
     baseScore +
@@ -446,6 +454,7 @@ function scoreProductWithProfile(product: Product, query: string, options?: { re
     pricePenalty -
     unitPricePenalty -
     packagePenalty -
+    salePenalty -
     noPricePenalty
   );
 }
@@ -467,17 +476,17 @@ export function filterProductsForQuery(
         return right.score - left.score;
       }
 
-      if (profile.preferUnitPrice) {
-        const leftUnitPrice = parseComparableUnitPrice(
-          sortStoresByPrice(left.product.stores)[0]?.pricePerUnit || "",
-        );
-        const rightUnitPrice = parseComparableUnitPrice(
-          sortStoresByPrice(right.product.stores)[0]?.pricePerUnit || "",
-        );
+      const leftCheapest = sortStoresByPrice(left.product.stores)[0];
+      const rightCheapest = sortStoresByPrice(right.product.stores)[0];
+      const leftUnitPrice = parseComparableUnitPrice(leftCheapest?.pricePerUnit || "");
+      const rightUnitPrice = parseComparableUnitPrice(rightCheapest?.pricePerUnit || "");
 
-        if (leftUnitPrice !== rightUnitPrice) {
-          return leftUnitPrice - rightUnitPrice;
-        }
+      if (Number.isFinite(leftUnitPrice) && Number.isFinite(rightUnitPrice) && leftUnitPrice !== rightUnitPrice) {
+        return leftUnitPrice - rightUnitPrice;
+      }
+
+      if (!!leftCheapest?.isSale !== !!rightCheapest?.isSale) {
+        return leftCheapest?.isSale ? -1 : 1;
       }
 
       if (profile.preferredMaxPackageKg) {

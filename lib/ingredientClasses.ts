@@ -159,7 +159,10 @@ const INGREDIENT_CLASSES: IngredientClass[] = [
     aliases: ["kuře", "kure", "kuřecí", "kureci", "kuřecí maso", "kureci maso"],
     families: ["raw_meat"],
     requiredGroups: [["kureci"]],
-    queryAlternatives: ["kuřecí maso", "kuřecí"],
+    // Bez holého "kuřecí" — jednoslovná alternativa by přes phraseMatch bypass
+    // v scoreProductWithProfile pustila jakýkoli kuřecí řez i pro konkrétnější
+    // dotazy jako "kuřecí prsa" (viz chicken_breast, kde je řez required).
+    queryAlternatives: ["kuřecí maso"],
   },
   {
     id: "chicken_breast",
@@ -168,7 +171,7 @@ const INGREDIENT_CLASSES: IngredientClass[] = [
     strict: true,
     requiredGroups: [["kureci"], ["prsa", "prsni", "rizky", "filet"]],
     preferred: ["cerstve", "chlazene"],
-    banned: ["cele kure", "ctvrtky", "stehna", "kridla", "mrazene"],
+    banned: ["cele kure", "ctvrtky", "stehna", "kridla", "mrazene", "hrbety", "krky", "boky", "zaludky", "jatra", "srdce"],
     queryAlternatives: ["kuřecí prsa", "kuřecí prsní řízky", "kuřecí filet"],
     contexts: [
       {

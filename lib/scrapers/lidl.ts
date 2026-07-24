@@ -116,9 +116,13 @@ export async function searchLidlProducts(query: string): Promise<Product[]> {
       "Accept-Language": "cs-CZ,cs;q=0.9",
     },
     cache: "no-store",
+    // Lidl u některých dotazů odpovídá 301 s JSON tělem { type: "redirect", ... }
+    // (přesměrování na kategorickou stránku). Bez "manual" by fetch redirect
+    // sám následoval na HTML stránku, kterou pak nejde parsovat jako JSON.
+    redirect: "manual",
   });
 
-  if (!response.ok) {
+  if (!response.ok && response.status !== 301 && response.status !== 302) {
     throw new Error(`Lidl API HTTP ${response.status}`);
   }
 

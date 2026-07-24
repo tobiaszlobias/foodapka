@@ -335,8 +335,8 @@ export default function RecipeSection({
     });
 
     const sorted = scores.sort((a, b) => {
-      if (a.completionCost !== b.completionCost) return a.completionCost - b.completionCost;
-      return b.totalItems - a.totalItems;
+      if (a.totalItems !== b.totalItems) return b.totalItems - a.totalItems;
+      return a.completionCost - b.completionCost;
     });
 
     // "Doporučeno" smí dostat jen obchod s rozumným pokrytím — jinak by
