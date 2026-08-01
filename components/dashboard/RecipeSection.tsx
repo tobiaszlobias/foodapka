@@ -799,9 +799,11 @@ export default function RecipeSection({
                               </div>
                               {/* Foodora je živý e-shop feed — u položek bez skutečné slevy
                                   (běžná katalogová cena) žádný odpovídající leták neexistuje.
+                                  Obchody bez leafletUrl (např. Potravinka.cz zdroj u e-shopů
+                                  jako rohlik.cz) tlačítko nemají vůbec — nebylo by co zobrazit.
                                   Vlastní řádek — ve společném s packageSize/unitLabel přetékal
                                   přes cenu vpravo na užších obrazovkách. */}
-                              {(item.store.source !== "foodora" || item.store.isSale) && (
+                              {item.store.leafletUrl && (item.store.source !== "foodora" || item.store.isSale) && (
                                 <button
                                   onClick={(e) => {
                                     e.stopPropagation();

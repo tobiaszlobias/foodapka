@@ -15,6 +15,7 @@ const STORE_SLUGS: Record<string, string> = {
   billa: "billa",
   lidl: "lidl",
   globus: "globus",
+  jip: "jip",
 };
 
 function resolveStoreSlug(shopName: string) {

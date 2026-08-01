@@ -496,7 +496,7 @@ export default function SearchSection({
                           className={`flex items-center gap-3 px-4 py-3 ${isCheapest ? "bg-mnamio-50/60 dark:bg-mnamio-900/10" : ""}`}
                         >
                           <div className="shrink-0 w-14 flex items-center justify-center">
-                            {(item.source !== "foodora" || item.isSale) ? (
+                            {item.leafletUrl && (item.source !== "foodora" || item.isSale) ? (
                               <button onClick={() => setLeafletDialog({ url: item.leafletUrl, shopName: item.shopName })}>
                                 <StoreBrand shopName={item.shopName} small />
                               </button>
@@ -525,8 +525,10 @@ export default function SearchSection({
                               <span className="text-[9px] text-amber-600 dark:text-amber-500">{item.note}</span>
                             )}
                             {/* Foodora je živý e-shop feed — u položek bez skutečné slevy
-                                (běžná katalogová cena) žádný odpovídající leták neexistuje. */}
-                            {(item.source !== "foodora" || item.isSale) && (
+                                (běžná katalogová cena) žádný odpovídající leták neexistuje.
+                                Obchody bez leafletUrl (např. Potravinka.cz zdroj u e-shopů
+                                jako rohlik.cz) tlačítko nemají vůbec. */}
+                            {item.leafletUrl && (item.source !== "foodora" || item.isSale) && (
                               <button
                                 onClick={() => setLeafletDialog({ url: item.leafletUrl, shopName: item.shopName })}
                                 className="mt-0.5 inline-flex items-center gap-0.5 text-[10px] font-bold text-mnamio-600 hover:text-mnamio-700 transition-colors w-fit"
