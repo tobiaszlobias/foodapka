@@ -785,7 +785,7 @@ export default function RecipeSection({
                           </h3>
                           {!isChecked && item.store && (
                             <>
-                              <div className="flex items-center gap-1.5 mt-0.5 min-w-0">
+                              <div className="flex items-center gap-1.5 mt-0.5 min-w-0 overflow-hidden">
                                 <span className="text-[10px] text-zinc-400 truncate">{cleanProductName(item.product?.name || "")}</span>
                                 {item.store.packageSize && (
                                   <span className="shrink-0 text-[10px] text-zinc-400">{item.store.packageSize}</span>
@@ -796,21 +796,23 @@ export default function RecipeSection({
                                     <span className="shrink-0 text-[10px] text-zinc-400">{unitLabel}</span>
                                   );
                                 })()}
-                                {/* Foodora je živý e-shop feed — u položek bez skutečné slevy
-                                    (běžná katalogová cena) žádný odpovídající leták neexistuje. */}
-                                {(item.store.source !== "foodora" || item.store.isSale) && (
-                                  <button
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      setLeafletDialog({ url: item.store!.leafletUrl, shopName: item.store!.shopName });
-                                    }}
-                                    className="shrink-0 inline-flex items-center gap-0.5 text-[10px] font-bold text-mnamio-600 hover:text-mnamio-700 transition-colors whitespace-nowrap"
-                                  >
-                                    <span className="material-symbols-outlined text-[11px]">menu_book</span>
-                                    Leták
-                                  </button>
-                                )}
                               </div>
+                              {/* Foodora je živý e-shop feed — u položek bez skutečné slevy
+                                  (běžná katalogová cena) žádný odpovídající leták neexistuje.
+                                  Vlastní řádek — ve společném s packageSize/unitLabel přetékal
+                                  přes cenu vpravo na užších obrazovkách. */}
+                              {(item.store.source !== "foodora" || item.store.isSale) && (
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setLeafletDialog({ url: item.store!.leafletUrl, shopName: item.store!.shopName });
+                                  }}
+                                  className="mt-0.5 inline-flex items-center gap-0.5 text-[10px] font-bold text-mnamio-600 hover:text-mnamio-700 transition-colors w-fit"
+                                >
+                                  <span className="material-symbols-outlined text-[11px]">menu_book</span>
+                                  Leták
+                                </button>
+                              )}
                               {item.store.loyaltyCardLabel && (
                                 <p className="inline-flex items-center gap-0.5 text-[9px] font-bold text-red-600 dark:text-red-400 mt-0.5 w-fit">
                                   <span className="material-symbols-outlined text-[11px]">card_membership</span>
