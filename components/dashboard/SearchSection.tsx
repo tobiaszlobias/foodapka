@@ -2,7 +2,6 @@
 
 import { useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import Image from "next/image";
 import { useBodyScrollLock } from "@/lib/useBodyScrollLock";
 import SearchBar from "@/components/SearchBar";
 import {
@@ -17,7 +16,7 @@ import {
 import { getStoreFilter } from "@/lib/storeFilters";
 import { AVAILABLE_STORES } from "@/lib/favoriteStores";
 import { FOODORA_STORE_CONFIGS } from "@/data/foodoraStores";
-import { StoreBrand, LoadingCards, EmptyState, SearchLoadingAnimation, LeafletViewer, StoreFilterChips } from "./DashboardShared";
+import { StoreBrand, LoadingCards, EmptyState, SearchLoadingAnimation, LeafletViewer, StoreFilterChips, ProductImage } from "./DashboardShared";
 import { showToast } from "@/components/Toast";
 import { matchIngredientPreset } from "@/lib/ingredientPresets";
 
@@ -414,22 +413,9 @@ export default function SearchSection({
                   {/* Header: obrázek/název produktu */}
                   <div className="flex items-center gap-3 px-4 py-3">
                     <div className="shrink-0">
-                      {product.image ? (
-                        <div className="w-12 h-12 rounded-xl overflow-hidden bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center">
-                          <Image
-                            src={product.image}
-                            alt={product.name}
-                            width={48}
-                            height={48}
-                            className="w-full h-full object-contain"
-                            unoptimized
-                          />
-                        </div>
-                      ) : (
-                        <div className="w-12 h-12 rounded-xl bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center">
-                          <span className="material-symbols-outlined text-zinc-300 text-xl">shopping_basket</span>
-                        </div>
-                      )}
+                      <div className="w-12 h-12 rounded-xl bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center overflow-hidden">
+                        <ProductImage src={product.image} alt={product.name} size={48} />
+                      </div>
                     </div>
 
                     <div className="min-w-0 flex-1">

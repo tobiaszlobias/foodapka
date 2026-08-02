@@ -20,7 +20,7 @@ import {
   type Store
 } from "@/lib/food";
 import { canonicalChainName } from "@/lib/storeLogos";
-import { StoreBrand, RecipeSkeleton, SearchLoadingAnimation, LeafletViewer } from "./DashboardShared";
+import { StoreBrand, RecipeSkeleton, SearchLoadingAnimation, LeafletViewer, ProductImage } from "./DashboardShared";
 
 type ShoppingMode = "cross_store" | "single_store";
 
@@ -757,14 +757,7 @@ export default function RecipeSection({
                             {item.product?.image ? (
                               <div className="relative w-12 h-12">
                                 <div className="w-12 h-12 rounded-xl overflow-hidden bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center">
-                                  <Image
-                                    src={item.product.image}
-                                    alt={item.product.name}
-                                    width={48}
-                                    height={48}
-                                    className="w-full h-full object-contain"
-                                    unoptimized
-                                  />
+                                  <ProductImage src={item.product.image} alt={item.product.name} size={48} />
                                 </div>
                                 {item.store && (
                                   <div className="absolute -bottom-1.5 -right-1.5 flex h-6 w-6 items-center justify-center rounded-full bg-white dark:bg-zinc-900 shadow-md ring-2 ring-white dark:ring-zinc-900">
@@ -1031,11 +1024,7 @@ function ReplaceProductDialog({ ingredient, onClose, onSelect }: ReplaceProductD
                       className="w-full flex items-center gap-3 p-2.5 rounded-xl hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors text-left"
                     >
                       <div className="shrink-0 w-11 h-11 rounded-lg overflow-hidden bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center">
-                        {product.image ? (
-                          <Image src={product.image} alt={product.name} width={44} height={44} className="w-full h-full object-contain" unoptimized />
-                        ) : (
-                          <span className="material-symbols-outlined text-zinc-300 text-xl">image</span>
-                        )}
+                        <ProductImage src={product.image} alt={product.name} size={44} />
                       </div>
                       <div className="min-w-0 flex-1">
                         <p className="text-sm font-semibold text-zinc-800 dark:text-zinc-100 truncate">{cleanProductName(product.name)}</p>
@@ -1084,11 +1073,7 @@ function IngredientActionsDialog({ item, isChecked, onClose, onToggle, onOpenLea
       >
         <div className="p-6 pb-4 flex items-start gap-3">
           <div className="shrink-0 w-14 h-14 rounded-xl overflow-hidden bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center">
-            {product?.image ? (
-              <Image src={product.image} alt={product.name} width={56} height={56} className="w-full h-full object-contain" unoptimized />
-            ) : (
-              <span className="material-symbols-outlined text-zinc-300 text-2xl">shopping_basket</span>
-            )}
+            <ProductImage src={product?.image} alt={product?.name || item.ingredient} size={56} />
           </div>
           <div className="min-w-0 flex-1">
             <h3 className="text-base font-black text-zinc-900 dark:text-white leading-tight">{item.ingredient}</h3>

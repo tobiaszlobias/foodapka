@@ -324,10 +324,43 @@ export function EmptyState({ hasSearched, title, description, icon }: {
         {title || (hasSearched ? "Nic jsme nenašli" : "Začněte hledat")}
       </h2>
       <p className="mx-auto mt-3 max-w-xs text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
-        {description || (hasSearched 
-          ? "Zkuste jiný název nebo obecnější výraz." 
+        {description || (hasSearched
+          ? "Zkuste jiný název nebo obecnější výraz."
           : "Zadejte název potraviny a Mnamio vám ukáže nejlepší akční ceny.")}
       </p>
     </div>
+  );
+}
+
+/** Obrázek produktu s fallbackem na ikonu košíku, když se zdrojová URL
+ * nepodaří načíst (nedostupné CDN obchodu apod.) — <Image> sama o sobě
+ * bez onError handleru nechá jen rozbitou ikonu prohlížeče s alt textem. */
+export function ProductImage({
+  src,
+  alt,
+  size,
+  className,
+}: {
+  src?: string;
+  alt: string;
+  size: number;
+  className?: string;
+}) {
+  const [failed, setFailed] = useState(false);
+
+  if (!src || failed) {
+    return <span className="material-symbols-outlined text-zinc-300 text-xl">shopping_basket</span>;
+  }
+
+  return (
+    <Image
+      src={src}
+      alt={alt}
+      width={size}
+      height={size}
+      className={className || "w-full h-full object-contain"}
+      unoptimized
+      onError={() => setFailed(true)}
+    />
   );
 }
