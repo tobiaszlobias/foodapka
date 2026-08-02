@@ -996,7 +996,7 @@ function ReplaceProductDialog({ ingredient, onClose, onSelect }: ReplaceProductD
               onChange={(e) => setQuery(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && runSearch(query)}
               placeholder="Hledejte produkt…"
-              className="flex-1 h-11 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-black px-4 text-sm text-zinc-900 dark:text-white outline-none transition focus:border-mnamio-500 focus:ring-2 focus:ring-mnamio-500/20"
+              className="flex-1 h-11 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-black px-4 text-zinc-900 dark:text-white outline-none transition focus:border-mnamio-500 focus:ring-2 focus:ring-mnamio-500/20"
             />
             <button
               onClick={() => runSearch(query)}
@@ -1390,7 +1390,7 @@ function CreateRecipeDialog({ existingCategories, onClose, onSave }: CreateRecip
                     }
                   }}
                   placeholder="např. Česká klasika"
-                  className="flex-1 h-11 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-black px-4 text-sm text-zinc-900 dark:text-white outline-none transition focus:border-mnamio-500 focus:ring-2 focus:ring-mnamio-500/20"
+                  className="flex-1 h-11 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-black px-4 text-zinc-900 dark:text-white outline-none transition focus:border-mnamio-500 focus:ring-2 focus:ring-mnamio-500/20"
                 />
                 <button
                   type="button"
@@ -1437,7 +1437,7 @@ function CreateRecipeDialog({ existingCategories, onClose, onSave }: CreateRecip
                       }
                     }}
                     placeholder={`Ingredience ${i + 1}`}
-                    className="flex-1 h-11 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-black px-4 text-sm text-zinc-900 dark:text-white outline-none transition focus:border-mnamio-500 focus:ring-2 focus:ring-mnamio-500/20"
+                    className="flex-1 h-11 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-black px-4 text-zinc-900 dark:text-white outline-none transition focus:border-mnamio-500 focus:ring-2 focus:ring-mnamio-500/20"
                   />
                   {ingredients.length > 1 && (
                     <button
@@ -1468,7 +1468,7 @@ function CreateRecipeDialog({ existingCategories, onClose, onSave }: CreateRecip
               onChange={(e) => setInstructions(e.target.value)}
               placeholder={"Orestujte cibuli.\nPřidejte maso a osmahněte.\n…"}
               rows={4}
-              className="w-full rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-black px-4 py-3 text-sm text-zinc-900 dark:text-white outline-none transition focus:border-mnamio-500 focus:ring-2 focus:ring-mnamio-500/20 resize-none"
+              className="w-full rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-black px-4 py-3 text-zinc-900 dark:text-white outline-none transition focus:border-mnamio-500 focus:ring-2 focus:ring-mnamio-500/20 resize-none"
             />
           </div>
 

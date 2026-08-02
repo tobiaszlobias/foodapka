@@ -3,7 +3,6 @@
 import { useEffect, useState, Suspense, useCallback } from "react";
 import { createClient } from "@/lib/supabase/client";
 import type { User } from "@supabase/supabase-js";
-import { AVAILABLE_STORES } from "@/lib/favoriteStores";
 
 type DietType = "none" | "vegetarian" | "vegan" | "pescatarian";
 
@@ -207,15 +206,6 @@ function SettingsContent() {
     }
   }, [loading]);
 
-  function toggleStore(store: string) {
-    setPreferences((prev) => ({
-      ...prev,
-      favorite_stores: prev.favorite_stores.includes(store)
-        ? prev.favorite_stores.filter((s) => s !== store)
-        : [...prev.favorite_stores, store],
-    }));
-  }
-
   function toggleAllergen(allergen: string) {
     setPreferences((prev) => ({
       ...prev,
@@ -272,40 +262,6 @@ function SettingsContent() {
       </header>
 
       <div className="space-y-6">
-        {/* Oblíbené obchody */}
-        <section className="rounded-2xl border border-mnamio-100 dark:border-zinc-800 bg-white/90 dark:bg-mnamio-950 p-6 shadow-sm">
-          <div className="flex items-center gap-3 mb-5">
-            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-mnamio-100 dark:bg-mnamio-900/50">
-              <span className="material-symbols-outlined text-mnamio-600 dark:text-mnamio-400 text-2xl">
-                store
-              </span>
-            </div>
-            <div>
-              <h2 className="text-lg font-bold text-zinc-900 dark:text-white">
-                Oblíbené obchody
-              </h2>
-              <p className="text-sm text-zinc-500 dark:text-zinc-400">
-                Označte obchody, které preferujete
-              </p>
-            </div>
-          </div>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-            {AVAILABLE_STORES.map((store) => (
-              <button
-                key={store}
-                onClick={() => toggleStore(store)}
-                className={`p-4 rounded-full border-2 transition-all text-center font-bold text-sm md:text-base ${
-                  preferences.favorite_stores.includes(store)
-                    ? "border-mnamio-500 bg-mnamio-50 dark:bg-mnamio-900/30 text-mnamio-700 dark:text-mnamio-300 shadow-md shadow-mnamio-500/10"
-                    : "border-zinc-100 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-900/50 text-zinc-500 dark:text-zinc-400 hover:border-mnamio-200 dark:hover:border-mnamio-700"
-                }`}
-              >
-                {store}
-              </button>
-            ))}
-          </div>
-        </section>
-
         {/* Stravovací preference */}
         <section className="rounded-2xl border border-mnamio-100 dark:border-zinc-800 bg-white/90 dark:bg-mnamio-950 p-6 shadow-sm">
           <div className="flex items-center gap-3 mb-5">
