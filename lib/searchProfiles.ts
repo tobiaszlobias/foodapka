@@ -441,10 +441,12 @@ function scoreProductWithProfile(product: Product, query: string, options?: { re
     packageWeightKg > profile.preferredMaxPackageKg
       ? Math.min((packageWeightKg - profile.preferredMaxPackageKg) * 45, 70)
       : 0;
-  // Malý bonus za aktuální akční cenu — appka má primárně nabízet slevy,
-  // ne jen "kdekoli se to dá koupit". Dost na to, aby rozhodl mezi jinak
-  // srovnatelnými produkty, ne tolik, aby přebil skutečnou relevanci shody.
-  const salePenalty = cheapestStore?.isSale ? 0 : 12;
+  // Appka má primárně šetřit peníze — mezi produkty s podobnou textovou
+  // relevancí musí vyhrát ten v akci, i kdyby měl o něco horší cenu za
+  // jednotku (penalta srovnatelná se stropem unitPricePenalty/pricePenalty
+  // výše). Skutečně nerelevantní produkty to nezachrání — ty padají na
+  // hard-failu (NEGATIVE_INFINITY) dřív, tahle penalta se k nim nedostane.
+  const salePenalty = cheapestStore?.isSale ? 0 : 50;
 
   return (
     baseScore +

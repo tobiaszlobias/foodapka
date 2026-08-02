@@ -1061,6 +1061,7 @@ type IngredientActionsDialogProps = {
 function IngredientActionsDialog({ item, isChecked, onClose, onToggle, onOpenLeaflet, onReplace }: IngredientActionsDialogProps) {
   useBodyScrollLock();
   const { store, product } = item;
+  const savings = store ? getStoreSavings(store) : 0;
 
   return createPortal(
     <div
@@ -1099,6 +1100,11 @@ function IngredientActionsDialog({ item, isChecked, onClose, onToggle, onOpenLea
               <span className="text-lg font-black text-zinc-900 dark:text-white">{store.price}</span>
               {store.originalPrice && (
                 <span className="block text-[10px] text-zinc-400 line-through">{store.originalPrice}</span>
+              )}
+              {savings > 0 && (
+                <span className="block text-[10px] font-bold text-green-600 dark:text-green-400">
+                  ušetříš {savings.toFixed(0)} Kč
+                </span>
               )}
             </div>
           </div>
