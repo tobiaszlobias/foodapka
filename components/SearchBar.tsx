@@ -174,8 +174,9 @@ export default function SearchBar({
     >
       <label htmlFor="product-search" className="sr-only">Hledat produkty</label>
       
-      {/* Animated Mode Toggle */}
-      <div className="relative flex rounded-full bg-zinc-100 dark:bg-black/50 p-1 self-start sm:self-auto shrink-0 overflow-hidden">
+      {/* Animated Mode Toggle — na mobilu skrytý, přepínání mezi Hledat/Recepty
+          už řeší spodní navigace, duplicitní pilulka jen zabírala místo navíc. */}
+      <div className="relative hidden md:flex rounded-full bg-zinc-100 dark:bg-black/50 p-1 self-start sm:self-auto shrink-0 overflow-hidden">
         {/* Animated Background Pill */}
         <div 
           className="absolute top-1 bottom-1 left-1 bg-white dark:bg-zinc-800 rounded-full shadow-sm transition-transform duration-300 ease-out pointer-events-none"

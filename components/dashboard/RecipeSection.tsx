@@ -165,6 +165,7 @@ export default function RecipeSection({
   const [selectedStore, setSelectedStore] = useState<string | null>(null);
   const [storePickerOpen, setStorePickerOpen] = useState(false);
   const [replacingIngredient, setReplacingIngredient] = useState<string | null>(null);
+  const [activeIngredientActions, setActiveIngredientActions] = useState<string | null>(null);
   // Experimentální celostránkový layout (taby Nákup/Ingredience/Postup/Nutriční
   // hodnoty) zatím jen pro recepty se strukturovanými kroky (RecipeStep s
   // ingredientIndexes) — v praxi jen testovací recept.
@@ -495,12 +496,12 @@ export default function RecipeSection({
           <section className="grid gap-4 grid-cols-1 sm:grid-cols-2">
             <button
               onClick={() => setShowCreateForm(true)}
-              className="group flex flex-col items-center justify-center gap-3 rounded-2xl border-2 border-mnamio-400 dark:border-mnamio-700 bg-mnamio-50 dark:bg-mnamio-900/30 p-8 min-h-[180px] shadow-sm transition-all hover:border-mnamio-500 hover:shadow-md active:scale-[0.98] cursor-pointer"
+              className="group flex items-center gap-4 rounded-2xl border-2 border-mnamio-400 dark:border-mnamio-700 bg-mnamio-50 dark:bg-mnamio-900/30 p-5 shadow-sm transition-all hover:border-mnamio-500 hover:shadow-md active:scale-[0.98] cursor-pointer text-left"
             >
-              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-mnamio-500 shadow-md shadow-mnamio-500/30 transition-transform group-hover:scale-110">
-                <span className="material-symbols-outlined text-white text-3xl">add</span>
+              <div className="shrink-0 flex h-12 w-12 items-center justify-center rounded-full bg-mnamio-500 shadow-md shadow-mnamio-500/30 transition-transform group-hover:scale-110">
+                <span className="material-symbols-outlined text-white text-2xl">add</span>
               </div>
-              <div className="text-center">
+              <div>
                 <p className="font-black text-mnamio-800 dark:text-mnamio-300">Vytvořit vlastní recept</p>
                 <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">Sestavte si recept přesně podle sebe</p>
               </div>
@@ -746,45 +747,50 @@ export default function RecipeSection({
                           ✓
                         </button>
 
-                        {/* Obrázek produktu (s logem obchodu v rohu), nebo jednotný
-                            rámeček s logem/ikonou obchodu, když fotka chybí. */}
-                        <div className="shrink-0">
-                          {item.product?.image ? (
-                            <div className="relative w-12 h-12">
-                              <div className="w-12 h-12 rounded-xl overflow-hidden bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center">
-                                <Image
-                                  src={item.product.image}
-                                  alt={item.product.name}
-                                  width={48}
-                                  height={48}
-                                  className="w-full h-full object-contain"
-                                  unoptimized
-                                />
-                              </div>
-                              {item.store && (
-                                <div className="absolute -bottom-1.5 -right-1.5 flex h-6 w-6 items-center justify-center rounded-full bg-white dark:bg-zinc-900 shadow-md ring-2 ring-white dark:ring-zinc-900">
-                                  <StoreBrand shopName={item.store.shopName} badge />
+                        <button
+                          onClick={() => setActiveIngredientActions(item.ingredient)}
+                          className="flex items-center gap-3 flex-1 min-w-0 text-left"
+                        >
+                          {/* Obrázek produktu (s logem obchodu v rohu), nebo jednotný
+                              rámeček s logem/ikonou obchodu, když fotka chybí. */}
+                          <div className="shrink-0">
+                            {item.product?.image ? (
+                              <div className="relative w-12 h-12">
+                                <div className="w-12 h-12 rounded-xl overflow-hidden bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center">
+                                  <Image
+                                    src={item.product.image}
+                                    alt={item.product.name}
+                                    width={48}
+                                    height={48}
+                                    className="w-full h-full object-contain"
+                                    unoptimized
+                                  />
                                 </div>
-                              )}
-                            </div>
-                          ) : item.store ? (
-                            <div className="w-12 h-12 rounded-xl bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center">
-                              <StoreBrand shopName={item.store.shopName} compact />
-                            </div>
-                          ) : (
-                            <div className="w-12 h-12 rounded-xl bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center">
-                              <span className="material-symbols-outlined text-zinc-300 text-xl">help</span>
-                            </div>
-                          )}
-                        </div>
+                                {item.store && (
+                                  <div className="absolute -bottom-1.5 -right-1.5 flex h-6 w-6 items-center justify-center rounded-full bg-white dark:bg-zinc-900 shadow-md ring-2 ring-white dark:ring-zinc-900">
+                                    <StoreBrand shopName={item.store.shopName} badge />
+                                  </div>
+                                )}
+                              </div>
+                            ) : item.store ? (
+                              <div className="w-12 h-12 rounded-xl bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center">
+                                <StoreBrand shopName={item.store.shopName} compact />
+                              </div>
+                            ) : (
+                              <div className="w-12 h-12 rounded-xl bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center">
+                                <span className="material-symbols-outlined text-zinc-300 text-xl">help</span>
+                              </div>
+                            )}
+                          </div>
 
-                        {/* Název + hashtag/zdroj */}
-                        <div className="min-w-0 flex-1">
-                          <h3 className={`text-sm font-semibold leading-tight truncate ${isChecked ? "line-through text-zinc-500" : "text-zinc-800 dark:text-zinc-100"}`}>
-                            {item.ingredient}
-                          </h3>
-                          {!isChecked && item.store && (
-                            <>
+                          {/* Název + krátký souhrn — detaily (leták, náhrada, poznámky
+                              k obchodu) jsou teď v modalu po kliknutí na kartu, aby se
+                              na mobilu do řádku netlačilo příliš mnoho akcí najednou. */}
+                          <div className="min-w-0 flex-1">
+                            <h3 className={`text-sm font-semibold leading-tight truncate ${isChecked ? "line-through text-zinc-500" : "text-zinc-800 dark:text-zinc-100"}`}>
+                              {item.ingredient}
+                            </h3>
+                            {!isChecked && item.store && (
                               <div className="flex items-center gap-1.5 mt-0.5 min-w-0 overflow-hidden">
                                 <span className="text-[10px] text-zinc-400 truncate">{cleanProductName(item.product?.name || "")}</span>
                                 {item.store.packageSize && (
@@ -797,94 +803,42 @@ export default function RecipeSection({
                                   );
                                 })()}
                               </div>
-                              {/* Foodora je živý e-shop feed — u položek bez skutečné slevy
-                                  (běžná katalogová cena) žádný odpovídající leták neexistuje.
-                                  Obchody bez leafletUrl (např. Potravinka.cz zdroj u e-shopů
-                                  jako rohlik.cz) tlačítko nemají vůbec — nebylo by co zobrazit.
-                                  Vlastní řádek — ve společném s packageSize/unitLabel přetékal
-                                  přes cenu vpravo na užších obrazovkách. */}
-                              {item.store.leafletUrl && (item.store.source !== "foodora" || item.store.isSale) && (
-                                <button
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    setLeafletDialog({ url: item.store!.leafletUrl, shopName: item.store!.shopName });
-                                  }}
-                                  className="mt-0.5 inline-flex items-center gap-0.5 text-[10px] font-bold text-mnamio-600 hover:text-mnamio-700 transition-colors w-fit"
-                                >
-                                  <span className="material-symbols-outlined text-[11px]">menu_book</span>
-                                  Leták
-                                </button>
+                            )}
+                            {!item.store && (
+                              <p className="text-[10px] text-zinc-400 mt-0.5">Klepnutím vyberte možnost</p>
+                            )}
+                          </div>
+
+                          {/* Cena vpravo */}
+                          <div className="shrink-0 text-right flex flex-col items-end">
+                            <div className="flex items-baseline gap-1.5">
+                              {discount && (
+                                <span className="bg-red-500 text-[9px] font-black text-white px-1.5 py-0.5 rounded-full leading-none">
+                                  {discount}
+                                </span>
                               )}
-                              {item.store.loyaltyCardLabel && (
-                                <p className="inline-flex items-center gap-0.5 text-[9px] font-bold text-red-600 dark:text-red-400 mt-0.5 w-fit">
-                                  <span className="material-symbols-outlined text-[11px]">card_membership</span>
-                                  {item.store.loyaltyCardLabel}
-                                </p>
-                              )}
-                              {item.store.note && (
-                                <p className="text-[9px] text-amber-600 dark:text-amber-500 mt-0.5">{item.store.note}</p>
-                              )}
-                              {onReplaceProduct && (
-                                <button
-                                  onClick={() => setReplacingIngredient(item.ingredient)}
-                                  className="mt-0.5 inline-flex items-center gap-0.5 text-[10px] font-bold text-mnamio-600 hover:text-mnamio-700 transition-colors"
-                                >
-                                  <span className="material-symbols-outlined text-[12px]">search</span>
-                                  Najít náhradu
-                                </button>
-                              )}
-                            </>
-                          )}
-                          {!item.store && (
-                            <div className="flex items-center gap-2 mt-1 flex-wrap">
-                              <button
-                                onClick={() => toggleIngredient(item.ingredient)}
-                                className="text-[10px] font-bold text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300 transition-colors underline underline-offset-2"
-                              >
-                                Mám doma / nepotřebuji
-                              </button>
-                              {onReplaceProduct && (
-                                <button
-                                  onClick={() => setReplacingIngredient(item.ingredient)}
-                                  className="inline-flex items-center gap-0.5 text-[10px] font-bold text-mnamio-600 hover:text-mnamio-700 transition-colors"
-                                >
-                                  <span className="material-symbols-outlined text-[12px]">search</span>
-                                  Najít náhradu
-                                </button>
+                              {item.store && !Number.isFinite(price) ? (
+                                <span className="text-xs font-bold text-zinc-400 leading-none">
+                                  cena neznámá
+                                </span>
+                              ) : (
+                                <span className="text-base font-black text-zinc-900 dark:text-white leading-none">
+                                  {item.store?.price || "—"}
+                                </span>
                               )}
                             </div>
-                          )}
-                        </div>
-
-                        {/* Cena vpravo */}
-                        <div className="shrink-0 text-right flex flex-col items-end">
-                          <div className="flex items-baseline gap-1.5">
-                            {discount && (
-                              <span className="bg-red-500 text-[9px] font-black text-white px-1.5 py-0.5 rounded-full leading-none">
-                                {discount}
+                            {hasRealOriginalPrice && (
+                              <span className="text-[10px] text-zinc-400 line-through mt-0.5">
+                                {item.store?.originalPrice}
                               </span>
                             )}
-                            {item.store && !Number.isFinite(price) ? (
-                              <span className="text-xs font-bold text-zinc-400 leading-none">
-                                cena neznámá
-                              </span>
-                            ) : (
-                              <span className="text-base font-black text-zinc-900 dark:text-white leading-none">
-                                {item.store?.price || "—"}
+                            {savings > 0 && (
+                              <span className="text-[9px] text-green-600 dark:text-green-400 font-bold mt-0.5">
+                                ušetříš {savings.toFixed(0)} Kč
                               </span>
                             )}
                           </div>
-                          {hasRealOriginalPrice && (
-                            <span className="text-[10px] text-zinc-400 line-through mt-0.5">
-                              {item.store?.originalPrice}
-                            </span>
-                          )}
-                          {savings > 0 && (
-                            <span className="text-[9px] text-green-600 dark:text-green-400 font-bold mt-0.5">
-                              ušetříš {savings.toFixed(0)} Kč
-                            </span>
-                          )}
-                        </div>
+                        </button>
                       </div>
                     </li>
                   );
@@ -954,6 +908,38 @@ export default function RecipeSection({
           }}
         />
       )}
+
+      {activeIngredientActions && (() => {
+        const item = displayResults.find((r) => r?.ingredient === activeIngredientActions);
+        if (!item) return null;
+        return (
+          <IngredientActionsDialog
+            item={item}
+            isChecked={checkedIngredients.includes(item.ingredient)}
+            onClose={() => setActiveIngredientActions(null)}
+            onToggle={() => {
+              toggleIngredient(item.ingredient);
+              setActiveIngredientActions(null);
+            }}
+            onOpenLeaflet={
+              item.store?.leafletUrl && (item.store.source !== "foodora" || item.store.isSale)
+                ? () => {
+                    setLeafletDialog({ url: item.store!.leafletUrl, shopName: item.store!.shopName });
+                    setActiveIngredientActions(null);
+                  }
+                : undefined
+            }
+            onReplace={
+              onReplaceProduct
+                ? () => {
+                    setReplacingIngredient(item.ingredient);
+                    setActiveIngredientActions(null);
+                  }
+                : undefined
+            }
+          />
+        );
+      })()}
     </div>
   );
 }
@@ -1064,6 +1050,113 @@ function ReplaceProductDialog({ ingredient, onClose, onSelect }: ReplaceProductD
           ) : searched ? (
             <p className="py-10 text-center text-sm text-zinc-400">Nic jsme nenašli, zkuste jiný název.</p>
           ) : null}
+        </div>
+      </div>
+    </div>,
+    document.body,
+  );
+}
+
+type IngredientActionsDialogProps = {
+  item: IngredientResult;
+  isChecked: boolean;
+  onClose: () => void;
+  onToggle: () => void;
+  onOpenLeaflet?: () => void;
+  onReplace?: () => void;
+};
+
+/** Akce pro jednu ingredienci (leták, náhrada, mám doma) — dřív natlačené
+ * přímo do karty v seznamu, na mobilu to bylo příliš mnoho textu a tlačítek
+ * na malém prostoru. Karta teď zobrazuje jen souhrn, klik otevře tohle. */
+function IngredientActionsDialog({ item, isChecked, onClose, onToggle, onOpenLeaflet, onReplace }: IngredientActionsDialogProps) {
+  useBodyScrollLock();
+  const { store, product } = item;
+
+  return createPortal(
+    <div
+      className="fixed inset-0 z-[200] flex items-end sm:items-center justify-center bg-black/50 backdrop-blur-sm p-0 sm:p-4"
+      onClick={onClose}
+    >
+      <div
+        className="w-full sm:max-w-md max-h-[85dvh] overflow-y-auto rounded-t-[2rem] sm:rounded-[2rem] bg-white dark:bg-zinc-900 shadow-2xl"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="p-6 pb-4 flex items-start gap-3">
+          <div className="shrink-0 w-14 h-14 rounded-xl overflow-hidden bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center">
+            {product?.image ? (
+              <Image src={product.image} alt={product.name} width={56} height={56} className="w-full h-full object-contain" unoptimized />
+            ) : (
+              <span className="material-symbols-outlined text-zinc-300 text-2xl">shopping_basket</span>
+            )}
+          </div>
+          <div className="min-w-0 flex-1">
+            <h3 className="text-base font-black text-zinc-900 dark:text-white leading-tight">{item.ingredient}</h3>
+            {store && (
+              <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">{cleanProductName(product?.name || "")}</p>
+            )}
+          </div>
+          <button
+            onClick={onClose}
+            className="shrink-0 flex h-9 w-9 items-center justify-center rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300 transition-colors"
+          >
+            <span className="material-symbols-outlined text-lg">close</span>
+          </button>
+        </div>
+
+        {store && (
+          <div className="px-6 pb-4 flex items-center justify-between rounded-2xl mx-6 bg-zinc-50 dark:bg-zinc-800/50 p-4">
+            <div className="flex items-center gap-2">
+              <StoreBrand shopName={store.shopName} compact />
+              <span className="text-xs font-bold text-zinc-600 dark:text-zinc-300">{store.shopName}</span>
+            </div>
+            <div className="text-right">
+              <span className="text-lg font-black text-zinc-900 dark:text-white">{store.price}</span>
+              {store.originalPrice && (
+                <span className="block text-[10px] text-zinc-400 line-through">{store.originalPrice}</span>
+              )}
+            </div>
+          </div>
+        )}
+
+        {store?.loyaltyCardLabel && (
+          <p className="mx-6 mt-3 inline-flex items-center gap-1 text-xs font-bold text-red-600 dark:text-red-400">
+            <span className="material-symbols-outlined text-sm">card_membership</span>
+            {store.loyaltyCardLabel}
+          </p>
+        )}
+        {store?.note && (
+          <p className="mx-6 mt-2 text-xs text-amber-600 dark:text-amber-500">{store.note}</p>
+        )}
+
+        <div className="p-6 pt-4 space-y-2">
+          {onOpenLeaflet && (
+            <button
+              onClick={onOpenLeaflet}
+              className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl bg-zinc-50 dark:bg-zinc-800/50 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors text-left"
+            >
+              <span className="material-symbols-outlined text-mnamio-600">menu_book</span>
+              <span className="text-sm font-bold text-zinc-800 dark:text-zinc-100">Zobrazit leták</span>
+            </button>
+          )}
+          {onReplace && (
+            <button
+              onClick={onReplace}
+              className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl bg-zinc-50 dark:bg-zinc-800/50 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors text-left"
+            >
+              <span className="material-symbols-outlined text-mnamio-600">search</span>
+              <span className="text-sm font-bold text-zinc-800 dark:text-zinc-100">Najít náhradu</span>
+            </button>
+          )}
+          <button
+            onClick={onToggle}
+            className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl bg-zinc-50 dark:bg-zinc-800/50 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors text-left"
+          >
+            <span className="material-symbols-outlined text-zinc-500">{isChecked ? "undo" : "check_circle"}</span>
+            <span className="text-sm font-bold text-zinc-800 dark:text-zinc-100">
+              {isChecked ? "Přidat zpět do nákupu" : "Mám doma / nepotřebuji"}
+            </span>
+          </button>
         </div>
       </div>
     </div>,
